@@ -1,0 +1,63 @@
+class TMainClass
+{
+	class TVec{
+		float x,y;
+		func GetX:float
+			return x;
+		func GetX(float& result)
+			result=x;
+		func GetY:float
+		{
+			return y;
+		}
+		func print(float v,int i)
+		{
+		}
+		func GetY(float& result)
+		{
+			result=y;		
+			Print(y);
+		}
+
+	}
+	func static VecPlus(TVec v1, TVec v2):TVec
+	{
+		TVec t;
+		t.x=v1.x+v2.x;
+		t.y=v1.y+v2.y;
+		return t;
+	}
+	func static Main
+	{
+		vec2 v,s;
+		s+=v+s;
+		//TVec v1,v2;
+		//float resx,resy;
+		//int[10000][] asdf;
+
+		//v1.x=1;
+		//v1.y=2;
+		//v2.x=3;
+		//v2.y=4;
+
+		//TVec v=VecPlus(v1,v2);
+		//Print(v.GetX);
+
+		//string[2] er;
+		//string[2] sss(er);
+
+		//sss[1]="russo привет!";
+		//Print(sss[1]);
+
+		//string s="\na1f\tff43\n";
+		//Print(s);
+		//string[] erq;
+		//erq.SetHigh(10);
+		//string[] sssw(erq);
+		//sssw.SetHigh(100);
+		//for(int i=0;i<=100;i+=1)
+		//	sssw[i]="\"\ndsf\t\n\n\n\nsdsljseij\\\"";
+		//for(int i=0;i<=1;i+=1)
+		//	Print(sssw[i]);
+	}
+}
