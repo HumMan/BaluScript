@@ -50,6 +50,7 @@ bool ValidateOpParams(TOpcode::Enum op, bool f1,bool f2,bool v1,bool v2)
 void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 //stack_top: указатель на первый параметр
 {
+	using namespace std;
 	using namespace TOpcode;
 	int temp;
 	int *s,*d;

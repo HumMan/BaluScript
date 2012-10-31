@@ -16,6 +16,7 @@ namespace TOpcode{
 #undef BALU_SCRIPT_OPCODE_BEGIN
 #undef BALU_SCRIPT_OPCODE_END
 
+using namespace std;
 
 typedef void(*TExternalMethod)(int*&,int*,int*);// параметры: вершина стека, указатель на первый параметр, указатель на объект
 
