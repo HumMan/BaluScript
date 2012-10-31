@@ -4,7 +4,7 @@ ENABLE_TESTING()
 #SET(CMAKE_BUILD_TYPE "Release")
 
 project (${PROJECT}) 
-set (HEADERS Include/BaluScript.h)
+set (HEADERS Include/baluScript.h)
 
 include_directories (include) 
 include_directories (source) 
