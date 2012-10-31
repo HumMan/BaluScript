@@ -6,8 +6,8 @@ ENABLE_TESTING()
 project (${PROJECT}) 
 set (HEADERS Include/baluScript.h)
 
-include_directories (include) 
-include_directories (source) 
+include_directories (Include) 
+include_directories (Source) 
 
 set (SOURCES
 	./Examples/Test/test.cpp
