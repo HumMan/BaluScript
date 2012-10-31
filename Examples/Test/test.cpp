@@ -14,6 +14,7 @@
 
 int main(int argc, char* argv[])
 {
+	setlocale(LC_ALL,"windows");
 	//hFind=FindFirstFile("*.bscript", &FindFileData);
 	//for(int i=1;i<10;i++)hFind == INVALID_HANDLE_VALUE
 	//if(hFind != INVALID_HANDLE_VALUE)
@@ -26,7 +27,7 @@ int main(int argc, char* argv[])
 		char* source;
 		{
 			//TFileData file("C:\\developments\\BaluFramework\\BaluScript\\Output\\mingw\\script1.bscript"/*FindFileData.cFileName*/,"rb");
-			TFileData file("script1.bscript"/*FindFileData.cFileName*/,"rb");
+			TFileData file("script3.bscript"/*FindFileData.cFileName*/,"rb");
 			source=file.ReadAll();
 			source[file.GetSize()]='\0';
 		}
