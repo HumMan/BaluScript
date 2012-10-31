@@ -11,7 +11,7 @@
 #ifndef _MSC_VER
 #define __forceinline __inline
 #define _INTSIZEOF(x) ((((sizeof(x)-1))/4+1)*4)
-#elif
+#else
 #include <memory.h>
 #endif
 
