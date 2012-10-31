@@ -5,3 +5,4 @@ compiler:
 branches:
   only:
     - master
+script: cmake ./
