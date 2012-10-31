@@ -2,4 +2,4 @@ language: cpp
 branches:
   only:
     - master
-script: cmake ./
+script: cmake ./ && cmake --build .
