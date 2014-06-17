@@ -363,12 +363,12 @@ public:
 		char err_head[err_head_length+1];
 		char err[err_length+1];
 
-		if(_vsnprintf(err,err_length,s,args)<0)
+		if(_vsnprintf_s(err,err_length,s,args)<0)
 			err[err_length]='\0';
 
 		if(token_id==-1)token_id=curr_token;
 
-		if(_snprintf(err_head,err_head_length,"Ошибка (строка %i символ %i): %s\n",tokens[token_id].line,tokens[token_id].col,err)<0)
+		if(_snprintf_s(err_head,err_head_length,"Ошибка (строка %i символ %i): %s\n",tokens[token_id].line,tokens[token_id].col,err)<0)
 			err_head[err_head_length]='\0';
 
 		throw std::string(err_head);

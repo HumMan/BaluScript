@@ -1,4 +1,4 @@
-#include "baluScript.h"
+#include <baluScript.h>
 
 TClass::TClass(TClass* use_owner, TTemplateRealizations* use_templates) :parent(this) 
 {

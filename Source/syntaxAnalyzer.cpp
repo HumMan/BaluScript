@@ -483,7 +483,7 @@ void TBytecode::AnalyzeSyntax(TLexer& source) {
 		int params_count_info = GetBytecodeParamsCount((TOpcode::Enum) type);
 		if (params_count != params_count_info) {
 			char buf[256];
-			sprintf(
+			sprintf_s(
 					buf,
 					"Неправильное количество параметров: для %s надо %i параметра!",
 					GetBytecodeString((TOpcode::Enum) type), params_count_info);

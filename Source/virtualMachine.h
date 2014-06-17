@@ -509,14 +509,14 @@ public:
 		{
 			chars=copy_from->length!=0?new char[copy_from->length+1]:NULL;
 			length=copy_from->length;
-			if(length>0)strncpy(chars,copy_from->chars,copy_from->length+1);
+			if (length>0)strncpy_s(chars, copy_from->length + 1, copy_from->chars, copy_from->length + 1);
 		}
 		void CopyFromConst(std::string& copy_from)
 		{
 			//is_const=true;
 			length=copy_from.length()+1;
 			chars=new char[length];
-			strncpy(chars,copy_from.c_str(),length);
+			strncpy_s(chars, length,copy_from.c_str(), length);
 		}
 		void Destr()
 		{
@@ -530,7 +530,8 @@ public:
 				chars=right->length!=0?new char[right->length+1]:NULL;
 				length=right->length;
 			}
-			if(length>0)strncpy(chars,right->chars,right->length+1);
+			if(length>0)
+				strncpy_s(chars, right->length + 1,right->chars, right->length + 1);
 		}
 		bool EqualOp(TString* right)
 		{

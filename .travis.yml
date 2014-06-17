@@ -1,5 +1,0 @@
-language: cpp
-branches:
-  only:
-    - master
-script: cmake ./ && cmake --build .

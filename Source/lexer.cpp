@@ -119,7 +119,7 @@ void TLexer::ParseSource(char* use_source)
 				NextChar();chars_count++;
 			}
 			id_buf.SetCount(chars_count+1);
-			strncpy(&id_buf[0],(char*)(curr_char-chars_count),chars_count);
+			strncpy_s(&id_buf[0], chars_count + 1,(char*)(curr_char - chars_count), chars_count);
 			id_buf[chars_count]='\0';
 			std::string* key;
 			TToken* data;
