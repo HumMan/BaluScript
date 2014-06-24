@@ -75,6 +75,7 @@
   <ItemGroup>
     <ClInclude Include="Include\baluScript.h" />
     <ClInclude Include="Source\lexer.h" />
+    <ClInclude Include="Source\notOptimizedProgram.h" />
     <ClInclude Include="Source\opcodes.h" />
     <ClInclude Include="Source\syntaxAnalyzer.h" />
     <ClInclude Include="Source\virtualMachine.h" />

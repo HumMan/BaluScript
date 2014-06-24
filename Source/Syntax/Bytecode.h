@@ -1,0 +1,39 @@
+
+class TBytecode:public TStatement
+{
+	
+	struct TBytecodeOp
+	{
+		enum TOpParamType
+		{
+			VALUE,
+			GET_ARR_ELEMENT_CLASS_ID
+		};
+		TOpParamType f[2];
+		TNameId id[2];
+		TOp op;
+		TBytecodeOp()
+		{
+			f[0]=VALUE;
+			f[1]=VALUE;
+		}
+	};
+	TVector<TBytecodeOp> code;
+	void operator=(const TBytecode& use_source);
+public:
+	TBytecode(TClass* use_owner,TMethod* use_method,TStatements* use_parent,int use_stmt_id)
+		:TStatement(TStatementType::Bytecode,use_owner,use_method,use_parent,use_stmt_id)
+	{
+		method->SetHasReturn(true);
+	}
+	void InitOwner(TClass* use_owner,TMethod* use_method,TStatements* use_parent)
+	{
+		TStatement::_InitOwner(use_owner,use_method,use_parent);
+	}
+	void AnalyzeSyntax(TLexer& source);
+	TFormalParam Build(TNotOptimizedProgram &program,int& local_var_offset);
+	TStatement* GetCopy()
+	{
+		return new TBytecode(*this);
+	}
+};

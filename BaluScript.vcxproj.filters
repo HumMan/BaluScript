@@ -30,6 +30,9 @@
     <ClInclude Include="Include\baluScript.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\notOptimizedProgram.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\class.cpp">

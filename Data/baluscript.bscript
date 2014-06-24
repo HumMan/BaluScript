@@ -1,0 +1,24 @@
+
+ class TGame 
+{
+	
+ class TShape
+ {
+ 	public:
+ 	constr
+	{
+	}
+ }
+ class TInstance
+ {
+ 	TShape sprite;
+ 	constr
+ 	{
+ 	}
+ }
+ class TMouseContrl		
+ {			
+	 TInstance	test;
+ }
+ 
+ }

@@ -347,3 +347,133 @@ bool TClass::HasConversion(TClass* target_type) {
 	return GetConversion(true, target_type)
 			|| GetConversion(false, target_type);
 }
+
+void TClass::AccessDecl(TLexer& source, bool& readonly,
+		TTypeOfAccess::Enum& access) {
+	if (source.Type() == TTokenType::ResWord) {
+		switch (source.Token()) {
+		case TResWord::Readonly:
+			source.GetToken();
+			source.GetToken(TTokenType::Colon);
+			readonly = true;
+			access = TTypeOfAccess::Public;
+			break;
+		case TResWord::Public:
+			source.GetToken();
+			source.GetToken(TTokenType::Colon);
+			readonly = false;
+			access = TTypeOfAccess::Public;
+			break;
+		case TResWord::Protected:
+			source.GetToken();
+			source.GetToken(TTokenType::Colon);
+			readonly = false;
+			access = TTypeOfAccess::Protected;
+			break;
+		case TResWord::Private:
+			source.GetToken();
+			source.GetToken(TTokenType::Colon);
+			readonly = false;
+			access = TTypeOfAccess::Private;
+			break;
+		}
+	}
+}
+
+void TClass::AnalyzeSyntax(TLexer& source) {
+	InitPos(source);
+
+	if(source.TestAndGet(TTokenType::ResWord,TResWord::Enum))
+	{
+		size=1;
+		is_enum=true;
+		source.TestToken(TTokenType::Identifier);
+		name=source.NameId();
+		source.GetToken();
+		source.GetToken(TTokenType::LBrace);
+		do
+		{
+			source.Test(TTokenType::Identifier);
+			for(int i=0;i<=enums.GetHigh();i++)
+				if(enums[i]==source.NameId())
+					source.Error("ѕеречисление с таким имененм уже существует!");
+			enums.Push(source.NameId());
+			source.GetToken();
+		}while(source.TestAndGet(TTokenType::Comma));
+		source.GetToken(TTokenType::RBrace);
+		return;
+	}
+
+	source.GetToken(TTokenType::ResWord, TResWord::Class);
+	is_sealed = source.TestAndGet(TTokenType::ResWord, TResWord::Sealed);
+	source.TestToken(TTokenType::Identifier);
+	name = source.NameId();
+	source.GetToken();
+	if (source.TestAndGet(TTokenType::Operator, TOperator::Less)) {
+		is_template = true;
+		do {
+			source.TestToken(TTokenType::Identifier);
+			TTemplateParam p;
+			p.class_pointer = NULL;
+			p.name = source.NameId();
+			template_params.Push(p);
+			source.GetToken();
+			if (!source.TestAndGet(TTokenType::Comma))
+				break;
+		} while (true);
+		source.GetToken(TTokenType::Operator, TOperator::Greater);
+	}
+	if (source.TestAndGet(TTokenType::Colon)) {
+		source.TestToken(TTokenType::Identifier);
+		parent.AnalyzeSyntax(source);
+	}
+	source.GetToken(TTokenType::LBrace);
+
+	bool readonly = false;
+	TTypeOfAccess::Enum access = TTypeOfAccess::Public;
+
+	while (true) {
+		bool end_while = false;
+		AccessDecl(source, readonly, access);
+		if (source.Type() == TTokenType::ResWord)
+			switch (source.Token()) {
+			case TResWord::Class: {
+				TClass* nested = new TClass(this, templates);
+				AddNested(nested);
+				nested->AnalyzeSyntax(source);
+			}
+				break;
+			case TResWord::Enum: {
+				TClass* enumeraiton= new TClass(this,templates);
+				AddNested(enumeraiton);
+				enumeraiton->AnalyzeSyntax(source);
+			}
+				break;
+			case TResWord::Func:
+			case TResWord::Constr:
+			case TResWord::Destr:
+			case TResWord::Operator:
+			case TResWord::Conversion: {
+				TMethod* func = new TMethod(this);
+				func->SetAccess(access);
+				func->AnalyzeSyntax(source);
+			}
+				break;
+			default:
+				end_while = true;
+			}
+		else if (source.Type() == TTokenType::Identifier) {
+			TClassField* temp_field = new TClassField(this);
+			field.Push(temp_field);
+			temp_field->SetAccess(access);
+			temp_field->SetReadOnly(readonly);
+			temp_field->AnalyzeSyntax(source);
+		} else
+			break;
+		if (end_while)
+			break;
+	}
+	source.GetToken(TTokenType::RBrace);
+	if (owner == NULL)
+		source.GetToken(TTokenType::Done);//в файле должен содержатьс¤ только один основной класс
+}

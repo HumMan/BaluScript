@@ -82,11 +82,16 @@ void ConnectOps(TListItem<TOp>* &first_instr, TListItem<TOp>* &last_instr, const
 	last_instr=ops.last;
 }
 
+/// <summary> 
+/// Используется при задании дополнительных операций в начале или в конце метода - например, 
+/// вызов конструктором членов класса перед телом конструктора и аналогично для деструктора
+/// </summary>
 struct TMethodPrePostEvents
 {
 	TListItem<TOp>* event_ops;
 	int method_id;
 	int first_op;
+	
 	bool is_pre_event;
 };
 
@@ -163,8 +168,25 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 
 	for(int i=0;i<=methods_table.GetHigh();i++)
 	{
-		AddMethodToTable(methods_table[i]->GetPreEvent());
-		AddMethodToTable(methods_table[i]->GetPostEvent());
+		if (AddMethodToTable(methods_table[i]->GetPreEvent()) != -1)
+		{
+			TMethodPrePostEvents temp;
+			temp.event_ops = methods_table[i]->GetPreEvent()->GetOps().first;
+			temp.method_id = i;
+			temp.first_op = -1;
+			temp.is_pre_event = true;
+			method_prepost_events.Push(temp);
+		}
+
+		if(AddMethodToTable(methods_table[i]->GetPostEvent())!=-1)
+		{
+			TMethodPrePostEvents temp;
+			temp.event_ops = methods_table[i]->GetPostEvent()->GetOps().first;
+			temp.method_id = i;
+			temp.first_op = -1;
+			temp.is_pre_event = true;
+			method_prepost_events.Push(temp);
+		}
 	}
 
 	for(int i=methods_before_prepost_event;i<=methods_table.GetHigh();i++)
