@@ -5,7 +5,7 @@
 
 TNotOptimizedProgram::~TNotOptimizedProgram()
 {
-	for(int i=0;i<=string_consts.GetHigh();i++)
+	for(int i=0;i<string_consts.size();i++)
 		delete string_consts[i];
 }
 
@@ -57,15 +57,15 @@ void TNotOptimizedProgram::PushFront(TOp use_op, TOpArray &ops_array)
 void TNotOptimizedProgram::ListItems()
 {
 #ifdef _DEBUG
-	ops.SetCount(0);
-	for(int i=0;i<=methods_table.GetHigh();i++)
+	ops.resize(0);
+	for(int i=0;i<methods_table.size();i++)
 	{
 		if(methods_table[i]->IsExternal())continue;
 		TListItem<TOp>* c=methods_table[i]->GetOps().first;
 		TListItem<TOp>* last;
 		if(c==0)continue;//метод с пустым телом, но используемый
 		do{
-			ops.Push(&c->value);
+			ops.push_back(&c->value);
 			last=c;
 			c=c->next;
 		}while(c!=NULL);
@@ -98,78 +98,73 @@ struct TMethodPrePostEvents
 	bool is_pre_event;
 };
 
-void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& time)
+int TNotOptimizedProgram::CreateStaticVarsInitMethod()
 {
-	unsigned long long t=time.GetTime();
+	static_vars_init_method = std::unique_ptr<TMethod>(new TMethod((TClass*)NULL));
+	methods_table.push_back(static_vars_init_method.get());
+	static_vars_init_method->SetAs(static_vars_init, NULL, false, true);
+	static_vars_init_method->CalcParamSize();
+	AddMethodToTable(static_vars_init_method.get());
+	return methods_table.size() - 1;
+}
+int TNotOptimizedProgram::CreateStaticVarsDestroyMethod()
+{
+	static_vars_destroy_method = std::unique_ptr<TMethod>(new TMethod((TClass*)NULL));
+	methods_table.push_back(static_vars_destroy_method.get());
+	static_vars_destroy_method->SetAs(static_vars_destroy, NULL, false, true);
+	static_vars_destroy_method->CalcParamSize();
+	AddMethodToTable(static_vars_destroy_method.get());
+	return methods_table.size() - 1;
+}
 
-	TVector<TMethodPrePostEvents> method_prepost_events;
-
-	optimized.array_class_methods.SetHigh(array_element_classes.GetHigh());
-	for(int i=0;i<=array_element_classes.GetHigh();i++)
+void TNotOptimizedProgram::InitArrayClassMethods(TProgram& optimized)
+{
+	optimized.array_class_methods.resize(array_element_classes.size());
+	for (int i = 0; i<array_element_classes.size(); i++)
 	{
-		TClass* arr_element=array_element_classes[i];
+		TClass* arr_element = array_element_classes[i];
 		TMethod* el_assign_op[2];
-		bool el_has_assign_op=false;
-		for(int t=0;t<2;t++)
+		bool el_has_assign_op = false;
+		for (int t = 0; t<2; t++)
 		{
-			el_assign_op[t]=arr_element->GetBinOp(TOperator::Assign,arr_element,true,arr_element,t);
-			if(el_assign_op[t]!=NULL&&el_assign_op[t]->IsBytecode())
-				el_assign_op[t]=NULL;
-			el_has_assign_op=el_has_assign_op||(el_assign_op[t]!=NULL);
+			el_assign_op[t] = arr_element->GetBinOp(TOperator::Assign, arr_element, true, arr_element, t);
+			if (el_assign_op[t] != NULL&&el_assign_op[t]->IsBytecode())
+				el_assign_op[t] = NULL;
+			el_has_assign_op = el_has_assign_op || (el_assign_op[t] != NULL);
 		}
 
 		TMethod* el_equal_op[2][2];
-		bool el_has_equal_op=false;
-		for(int t=0;t<2;t++)
+		bool el_has_equal_op = false;
+		for (int t = 0; t<2; t++)
 		{
-			for(int k=0;k<2;k++)
+			for (int k = 0; k<2; k++)
 			{
-				el_equal_op[t][k]=arr_element->GetBinOp(TOperator::Equal,arr_element,t,arr_element,k);
-				if(el_equal_op[t][k]!=NULL&&el_equal_op[t][k]->IsBytecode())
-					el_equal_op[t][k]=NULL;
-				el_has_equal_op=el_has_equal_op||(el_equal_op[t][k]!=NULL);
+				el_equal_op[t][k] = arr_element->GetBinOp(TOperator::Equal, arr_element, t, arr_element, k);
+				if (el_equal_op[t][k] != NULL&&el_equal_op[t][k]->IsBytecode())
+					el_equal_op[t][k] = NULL;
+				el_has_equal_op = el_has_equal_op || (el_equal_op[t][k] != NULL);
 			}
 		}
 
 		TArrayClassMethod temp;
 
-		temp.el_size=arr_element->GetSize();
-		temp.el_count=-1;//TODO
-		temp.el_def_constr=AddMethodToTable(arr_element->GetDefConstr());
-		temp.el_copy_constr=AddMethodToTable(arr_element->GetCopyConstr());
-		temp.el_destr=AddMethodToTable(arr_element->GetDestructor());
-		for(int t=0;t<2;t++)
-			temp.el_assign_op[t]=AddMethodToTable(el_assign_op[t]);	
-		for(int t=0;t<4;t++)
-			temp.el_equal_op[0][t]=AddMethodToTable(el_equal_op[0][t]);	
+		temp.el_size = arr_element->GetSize();
+		temp.el_count = -1;//TODO
+		temp.el_def_constr = AddMethodToTable(arr_element->GetDefConstr());
+		temp.el_copy_constr = AddMethodToTable(arr_element->GetCopyConstr());
+		temp.el_destr = AddMethodToTable(arr_element->GetDestructor());
+		for (int t = 0; t<2; t++)
+			temp.el_assign_op[t] = AddMethodToTable(el_assign_op[t]);
+		for (int t = 0; t<4; t++)
+			temp.el_equal_op[0][t] = AddMethodToTable(el_equal_op[0][t]);
 
-		optimized.array_class_methods[i]=temp;
+		optimized.array_class_methods[i] = temp;
 	}
+}
 
-	printf("Array elements creating = %.3f ms\n",time.TimeDiff(time.GetTime(),t)*1000);
-	t=time.GetTime();
-	//
-	ListItems();
-
-	TSmartPointer<TMethod> t0(new TMethod((TClass*)NULL));
-	methods_table.Push(t0.GetPointer());
-	t0->SetAs(static_vars_init,NULL,false,true);
-	t0->CalcParamSize();
-	AddMethodToTable(t0.GetPointer());
-
-	optimized.static_vars_init=methods_table.GetHigh();
-
-	TSmartPointer<TMethod> t1(new TMethod((TClass*)NULL));
-	methods_table.Push(t1.GetPointer());
-	t1->SetAs(static_vars_destroy,NULL,false,true);
-	t1->CalcParamSize();
-	AddMethodToTable(t1.GetPointer());
-
-	optimized.static_vars_destroy=methods_table.GetHigh();
-
-	int methods_before_prepost_event=methods_table.GetCount();
-
-	for(int i=0;i<=methods_table.GetHigh();i++)
+void TNotOptimizedProgram::InitPrePostEvents(std::vector<TMethodPrePostEvents>& method_prepost_events, int methods_before_prepost_event)
+{
+	for (int i = 0; i<methods_table.size(); i++)
 	{
 		if (AddMethodToTable(methods_table[i]->GetPreEvent()) != -1)
 		{
@@ -178,47 +173,43 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 			temp.method_id = i;
 			temp.first_op = -1;
 			temp.is_pre_event = true;
-			method_prepost_events.Push(temp);
+			method_prepost_events.push_back(temp);
 		}
 
-		if(AddMethodToTable(methods_table[i]->GetPostEvent())!=-1)
+		if (AddMethodToTable(methods_table[i]->GetPostEvent()) != -1)
 		{
 			TMethodPrePostEvents temp;
 			temp.event_ops = methods_table[i]->GetPostEvent()->GetOps().first;
 			temp.method_id = i;
 			temp.first_op = -1;
 			temp.is_pre_event = true;
-			method_prepost_events.Push(temp);
+			method_prepost_events.push_back(temp);
 		}
 	}
+}
 
-	for(int i=methods_before_prepost_event;i<=methods_table.GetHigh();i++)
-	{
-		TMethod *pre=methods_table[i]->GetPreEvent();
-		TMethod *post=methods_table[i]->GetPostEvent();
+void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& time)
+{
+	unsigned long long t=time.GetTime();
 
-		//TODO в method_prepost_events могут находится одинаковые методы
-		if(pre!=NULL)
-		{
-			TMethodPrePostEvents temp;
-			temp.event_ops=pre->GetOps().first;
-			temp.method_id=i;
-			temp.first_op=-1;
-			temp.is_pre_event=true;
-			method_prepost_events.Push(temp);
-			AddMethodToTable(pre);
-		}
-		if(post!=NULL)
-		{
-			TMethodPrePostEvents temp;
-			temp.event_ops=post->GetOps().first;
-			temp.method_id=i;
-			temp.first_op=-1;
-			temp.is_pre_event=false;
-			method_prepost_events.Push(temp);
-			AddMethodToTable(post);
-		}
-	}
+	
+
+	InitArrayClassMethods(optimized);
+
+	printf("Array elements creating = %.3f ms\n",time.TimeDiff(time.GetTime(),t)*1000);
+	t=time.GetTime();
+	//
+	ListItems();
+
+	optimized.static_vars_init = CreateStaticVarsInitMethod();
+	optimized.static_vars_destroy = CreateStaticVarsDestroyMethod();
+
+	std::vector<TMethodPrePostEvents> method_prepost_events;
+	int methods_before_prepost_event=methods_table.size();
+
+	InitPrePostEvents(method_prepost_events, methods_before_prepost_event);
+
+	ListItems();
 
 	//оптимизируем комманды
 	//TODO
@@ -226,13 +217,13 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 	//метки можно тоже пометодно создавать если сделать переходы относительными
 
 	//TODO метод не может начинаться с метки
-	for(int i=0;i<=methods_table.GetHigh();i++)
+	for(int i=0;i<methods_table.size();i++)
 		if(methods_table[i]->GetOps().first!=NULL)
 			assert(methods_table[i]->GetOps().first->value.type!=TOpcode::LABEL);
 	//преобразуем все комманды методов в единый непрерывный список
 	TListItem<TOp>* first_instr=NULL;
 	TListItem<TOp>* last_instr=NULL;
-	for(int i=0;i<=methods_table.GetHigh();i++)
+	for(int i=0;i<methods_table.size();i++)
 	{
 		TListItem<TOp>* c=methods_table[i]->GetOps().first;
 		if(c==NULL)continue;//метод с пустым телом, но используемый
@@ -243,7 +234,10 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 	printf("Ops list creating = %.3f ms\n",time.TimeDiff(time.GetTime(),t)*1000);
 	t=time.GetTime();
 	//////////////
+
+
 	int ops_count=0;
+	//if(false)
 	{
 		//считываем метки и запоминаем их позиции
 		int* labels=curr_label>0?new int[curr_label]:NULL;
@@ -269,8 +263,8 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 		printf("Labels analyzing = %.3f ms\n",time.TimeDiff(time.GetTime(),t)*1000);
 		t=time.GetTime();
 
-		optimized.instructions.SetCount(ops_count);
-		optimized.methods_table.SetCount(methods_table.GetCount());
+		optimized.instructions.resize(ops_count);
+		optimized.methods_table.resize(methods_table.size());
 		TListItem<TOp> *curr=first_instr;
 		if(curr!=NULL){
 			int curr_method=0,curr_instr=0,curr_event=0;
@@ -288,24 +282,26 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 				//упаковываем комманды
 				optimized.instructions[curr_instr]=curr->value;
 				//
-				if(curr_method>=methods_before_prepost_event)
-				{
-					if(method_prepost_events[curr_event].event_ops==curr)
-					{
-						TProgram::TMethod& t=optimized.methods_table[curr_method];
-						t.is_external=methods_table[curr_method]->IsExternal();
-						t.is_static=methods_table[curr_method]->IsStatic();
-						t.params_size=methods_table[curr_method]->GetParamsSize();
-						t.pre_event=-1;
-						t.post_event=-1;
-						t.return_size=methods_table[curr_method]->GetRetSize();
-						curr_event++;
-						curr_method++;
-						t.first_op=curr_instr;
-						assert(!t.is_external);//такие методы не должны быть внешними
-					}
-				}
-				else
+				//if(curr_method>=methods_before_prepost_event)
+				//{
+				//	if(method_prepost_events[curr_event].event_ops==curr)
+				//	{
+				//		TProgram::TMethod& t=optimized.methods_table[curr_method];
+				//		t.is_external=methods_table[curr_method]->IsExternal();
+				//		t.is_static=methods_table[curr_method]->IsStatic();
+				//		t.params_size=methods_table[curr_method]->GetParamsSize();
+				//		t.pre_event=-1;
+				//		t.post_event=-1;
+				//		t.return_size=methods_table[curr_method]->GetRetSize();
+				//		curr_event++;
+				//		curr_method++;
+				//		t.first_op=curr_instr;
+				//		assert(!t.is_external);//такие методы не должны быть внешними
+				//	}
+				//}
+				//else
+				if (curr_method < methods_table.size())
+					
 				{
 					while(methods_table[curr_method]->IsExternal())
 					{
@@ -324,18 +320,23 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 						t.is_external=methods_table[curr_method]->IsExternal();
 						t.is_static=methods_table[curr_method]->IsStatic();
 						t.params_size=methods_table[curr_method]->GetParamsSize();
-						t.pre_event=-1;
+						t.pre_event=-1; //TODO индексы тоже надо
 						t.post_event=-1;
 						t.return_size=methods_table[curr_method]->GetRetSize();
 						curr_method++;
-						if(!t.is_external)
-							t.first_op=curr_instr;
+						if (!t.is_external)
+						{
+							t.first_op = curr_instr;
+							//
+							//TOpArray ops = methods_table[curr_method]->GetOps();
+							//TODO довить проверку что команды curr соответствуют командам GetOps() метода
+						}
 					}
 				}
 				curr_instr++;
 			}while((curr=curr->next)!=NULL);
 			assert(curr==NULL);//должны дойти до последней инструкции
-			assert(curr_method==methods_table.GetCount());
+			assert(curr_method==methods_table.size());
 		}
 		if(labels!=NULL)delete[] labels;
 	}
@@ -343,8 +344,8 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 	printf("Ops generating = %.3f ms\n",time.TimeDiff(time.GetTime(),t)*1000);
 	t=time.GetTime();
 
-	optimized.string_consts.SetCount(string_consts.GetCount());
-	for(int i=0;i<=string_consts.GetHigh();i++)
+	optimized.string_consts.resize(string_consts.size());
+	for(int i=0;i<string_consts.size();i++)
 	{
 		optimized.string_consts[i]=string_consts[i];
 	}
@@ -364,7 +365,7 @@ int TNotOptimizedProgram::AddStringConst(TNameId string)
 	char* t=new char[len];
 	strcpy_s(t,len,string);
 	string_consts.Push(t);*/
-	return string_consts.GetHigh();
+	return string_consts.size()-1;
 }
 int TNotOptimizedProgram::AddMethodToTable(TMethod* use_method)
 {
@@ -372,20 +373,20 @@ int TNotOptimizedProgram::AddMethodToTable(TMethod* use_method)
 	int i=FindMethod(use_method);
 	if(i==-1)
 	{
-		methods_table.Push(use_method);
-		return methods_table.GetHigh();
+		methods_table.push_back(use_method);
+		return methods_table.size()-1;
 	}else return i;
 }
 int TNotOptimizedProgram::CreateArrayElementClassId(TClass* use_class)
 {
-	for(int i=0;i<=array_element_classes.GetHigh();i++)
+	for(int i=0;i<array_element_classes.size();i++)
 		if(array_element_classes[i]==use_class)return i;
-	array_element_classes.Push(use_class);
-	return array_element_classes.GetHigh();
+	array_element_classes.push_back(use_class);
+	return array_element_classes.size()-1;
 }
 int TNotOptimizedProgram::FindMethod(TMethod* use_method)
 {
-	for(int i=0;i<=methods_table.GetHigh();i++)
+	for(int i=0;i<methods_table.size();i++)
 		if(methods_table[i]==use_method)return i;
 	return -1;
 }

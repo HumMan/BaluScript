@@ -1,25 +1,25 @@
 #pragma once 
 
 #include "../lexer.h"
+#include <memory>
 
 class TClass;
 class TNotOptimizedProgram;
 
 struct TType:public TTokenPos
 {
-	friend class TTypes;
 	struct TClassName
 	{
 		TNameId name;
 		TClass* class_pointer;
 		TVectorList<TClassName> template_params;
-		TSmartPointer<TClassName> member;
+		std::shared_ptr<TClassName> member;
 		TClass* Build(bool use_build_methods,TClass* use_curr_class,TClass* owner,TTokenPos& source,TNotOptimizedProgram* program);
 		TClassName():class_pointer(NULL){}
 	};
 private:
 	TClass* owner;
-	TVector<int> dim;
+	std::vector<int> dim;
 	TClassName class_name;
 	TClass* class_pointer;
 	void AnalyzeSyntax(TClassName* use_class_name,TLexer& source);

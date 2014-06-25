@@ -199,7 +199,7 @@ void TExpression::BuildPostfix() {
 		case TTokenType::Identifier:
 			temp.type = TPostfixOp::OP_ID;
 			temp.id = source->NameId();
-			out.Push(temp);
+			out.push_back(temp);
 			source->GetToken();
 			break;
 		case TTokenType::Value:
@@ -217,25 +217,32 @@ void TExpression::BuildPostfix() {
 				temp.int_val = source->Bool();
 				break;
 			}
-			out.Push(temp);
+			out.push_back(temp);
 			source->GetToken();
 			break;
 		case TTokenType::Operator:
 			temp.type = TPostfixOp::OP_OPERATOR;
 			temp.operator_type = source->Token();
-			stack.Push(temp);
+			stack.push_back(temp);
 			{
-				int t = stack.GetHigh();
+				int t = stack.size()-1;
 				while (t > 0 && stack[t - 1].type == TPostfixOp::OP_OPERATOR
-						&& operators_priority[stack[t - 1].operator_type]
-								>= operators_priority[stack[t].operator_type])
-					stack.Swap(t - 1, t);//TODO достаточно помен¤ть только тип оператора
+					&& operators_priority[stack[t - 1].operator_type]
+					>= operators_priority[stack[t].operator_type])
+				{
+					TPostfixOp temp = stack[t - 1]; stack[t - 1] = stack[t]; stack[t] = temp;
+					//stack.swap(t - 1, t);
+					//TODO достаточно поменять тип оператора
+				}
 			}
 			source->GetToken();
 			break;
 		default:
-			while (stack.GetHigh() > -1)
-				out.Push(stack.GetPop());
+			while (stack.size() > 0)
+			{
+				out.push_back(stack.back());
+				stack.pop_back();
+			}
 			return;
 		}
 	}

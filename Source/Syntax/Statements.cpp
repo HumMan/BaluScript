@@ -57,7 +57,7 @@ void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
 	switch (source.Type()) {
 	case TTokenType::LBrace: {
 		TStatements* s = new TStatements(owner, method, this,
-				statement.GetHigh() + 1);
+				statement.size());
 		Add(s);
 		s->AnalyzeSyntax(source);
 		return;
@@ -65,8 +65,7 @@ void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
 	case TTokenType::ResWord: {
 		switch (source.Token()) {
 		case TResWord::Return: {
-			TReturn* t = new TReturn(owner, method, this, statement.GetHigh()
-					+ 1);
+			TReturn* t = new TReturn(owner, method, this, statement.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
 			if (!end_semicolon)
@@ -75,7 +74,7 @@ void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
 			return;
 		}
 		case TResWord::If: {
-			TIf* t = new TIf(owner, method, this, statement.GetHigh() + 1);
+			TIf* t = new TIf(owner, method, this, statement.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
 			return;
@@ -85,11 +84,11 @@ void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
 			source.GetToken(TTokenType::LParenth);
 
 			TStatements* for_stmt = new TStatements(owner, method, this,
-					statement.GetHigh() + 1);
+					statement.size());
 			Add(for_stmt);
 
 			TFor* t =
-					new TFor(owner, method, for_stmt, for_stmt->GetHigh() + 1);
+					new TFor(owner, method, for_stmt, for_stmt->GetHigh()+1);
 			for_stmt->AnalyzeSyntax(source);
 			for_stmt->Add(t);
 
@@ -98,7 +97,7 @@ void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
 		}
 		case TResWord::This: {
 			TExpression* t = new TExpression(owner, method, this,
-					statement.GetHigh() + 1);
+					statement.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
 			if (end_semicolon)
@@ -107,7 +106,7 @@ void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
 		}
 		case TResWord::Bytecode: {
 			TBytecode* t = new TBytecode(owner, method, this,
-					statement.GetHigh() + 1);
+					statement.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
 			if (end_semicolon)
@@ -120,13 +119,13 @@ void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
 	default:
 		if (IsVarDecl(source)) {
 			TLocalVar* t = new TLocalVar(owner, method, this,
-					statement.GetHigh() + 1);
+					statement.size());
 			Add(t);
-			var_declarations.Push(TVarDecl(statement.GetHigh(), t));
+			var_declarations.push_back(TVarDecl(statement.size()-1, t));
 			t->AnalyzeSyntax(source);
 		} else {
 			TExpression* t = new TExpression(owner, method, this,
-					statement.GetHigh() + 1);
+					statement.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
 		}
@@ -147,19 +146,19 @@ void TStatements::AnalyzeSyntax(TLexer& source) {
 }
 
 void TStatements::AddVar(TLocalVar* use_var) {
-	statement.Push((TStatement*)use_var);
-	use_var->SetStmtId(statement.GetHigh());
-	var_declarations.Push(TVarDecl(statement.GetHigh(), use_var));
+	statement.push_back(std::shared_ptr<TStatement>(use_var));
+	use_var->SetStmtId(statement.size()-1);
+	var_declarations.push_back(TVarDecl(statement.size() - 1, use_var));
 }
 
 void TStatements::Add(TStatement* use_statement){
-	statement.Push(use_statement);
-	use_statement->SetStmtId(statement.GetHigh());//TODO не нужно
+	statement.push_back(std::shared_ptr<TStatement>(use_statement));
+	use_statement->SetStmtId(statement.size() + 1);//TODO не нужно
 }
 
 TStatement* TStatements::GetStatement(int i)
 {
-	return statement[i];
+	return statement[i].get();
 }
 TStatement* TStatements::GetCopy()
 {
@@ -170,18 +169,14 @@ TStatement* TStatements::GetCopy()
 void TStatements::InitOwner(TClass* use_owner, TMethod* use_method, TStatements* use_parent)
 {
 	TStatement::_InitOwner(use_owner, use_method, use_parent);
-	for (int i = 0; i <= statement.GetHigh(); i++)
+	for (int i = 0; i < statement.size(); i++)
 		statement[i]->InitOwner(use_owner, use_method, this);
 }
 int TStatements::GetHigh()
 {
-	return statement.GetHigh();
+	return statement.size()-1;
 }
 TStatements::TStatements(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id)
 	:TStatement(TStatementType::Statements, use_owner, use_method, use_parent, use_stmt_id)
 {
-}
-TStatements::~TStatements()
-{
-	for (int i = 0; i <= statement.GetHigh(); i++)delete statement[i];
 }

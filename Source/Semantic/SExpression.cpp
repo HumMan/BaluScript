@@ -215,7 +215,7 @@ TFormalParam TExpression::TCallParamsOp::Build(TNotOptimizedProgram &program,TEx
 	TFormalParam left_result=left->Build(program,parent);
 	std::vector<TFormalParam> params_result;
 
-	for(int i=0;i<=param.GetHigh();i++)
+	for(int i=0;i<param.size();i++)
 		params_result.push_back(param[i]->Build(program,parent));
 	int conv_need=0;
 	if(left_result.IsMethods())
@@ -228,7 +228,7 @@ TFormalParam TExpression::TCallParamsOp::Build(TNotOptimizedProgram &program,TEx
 			ValidateAccess(this,parent->owner,method);
 			TOpArray params_ops;
 			TFormalParam call_ops=method->BuildCall(program,params_result);
-			for(int i=0;i<=param.GetHigh();i++)
+			for(int i=0;i<param.size();i++)
 				params_ops+=params_result[i].GetOps();
 			if(!method->IsStatic()&&left_result.NeedPushThis())
 				program.Push(TOp(TOpcode::PUSH_THIS),params_ops);
@@ -257,7 +257,7 @@ TFormalParam TExpression::TCallParamsOp::Build(TNotOptimizedProgram &program,TEx
 			//}
 			TOpArray call_ops=constructor->BuildCall(program,params_result).GetOps();
 			TOpArray params_ops;
-			for(int i=0;i<=param.GetHigh();i++)
+			for(int i=0;i<param.size();i++)
 				params_ops+=params_result[i].GetOps();
 			return before_params+params_ops+TFormalParam(constr_class,false,call_ops);
 		}else if(params_result.size()>0)

@@ -3,6 +3,8 @@
 #include "Void.h"
 #include "Type.h"
 
+#include <list>
+
 class TVariable;
 
 class TExpression:public TStatement
@@ -31,9 +33,9 @@ class TExpression:public TStatement
 		int int_val;
 		float float_val;
 	};
-	TVector<TPostfixOp> stack;
-	TVector<TPostfixOp> out;
-	TVector<int> methods;
+	std::vector<TPostfixOp> stack;
+	std::vector<TPostfixOp> out;
+	std::vector<int> methods;
 	void BuildPostfix();
 	//
 	class TOperation: public TTokenPos
@@ -222,7 +224,7 @@ class TExpression:public TStatement
 	class TCallParamsOp:public TOperation
 	{
 		TOperation *left;
-		TVectorList<TOperation> param;
+		std::vector<TOperation*> param;
 		bool is_bracket;
 	public:
 		TCallParamsOp(){}
@@ -231,7 +233,7 @@ class TExpression:public TStatement
 		}
 		void AddParam(TOperation* use_param)
 		{
-			param.Push(use_param);
+			param.push_back(use_param);
 		}
 		TFormalParam Build(TNotOptimizedProgram &program,TExpression* parent);
 		~TCallParamsOp()
@@ -248,8 +250,8 @@ class TExpression:public TStatement
 			*((TOperation*)copy)=*this;
 			copy->is_bracket=is_bracket;
 			copy->left=left->GetCopy();
-			for(int i=0;i<=param.GetHigh();i++)
-				copy->param.Push(param[i]->GetCopy());
+			for(int i=0;i<param.size();i++)
+				copy->param.push_back(param[i]->GetCopy());
 			return copy;
 		}
 	};

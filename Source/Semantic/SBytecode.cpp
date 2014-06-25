@@ -8,7 +8,7 @@
 TFormalParam TBytecode::Build(TNotOptimizedProgram &program,int& local_var_offset)
 {
 	TOpArray temp;
-	for(int i=0;i<=code.GetHigh();i++)
+	for(int i=0;i<code.size();i++)
 	{
 		if(code[i].f[0]==TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID)
 		{

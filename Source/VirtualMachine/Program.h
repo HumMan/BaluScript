@@ -6,6 +6,8 @@
 #include "Op.h"
 #include "ArrayClassMethod.h"
 
+#include <vector>
+
 typedef void(*TExternalMethod)(int*&, int*, int*);// параметры: вершина стека, указатель на первый параметр, указатель на объект
 
 class TProgram
@@ -23,11 +25,11 @@ public:
 		int return_size;//используется для внешних методов, для USER методов все есть в RETURN
 		TMethod():first_op(-1),extern_method(NULL){}
 	};
-	TVector<TOp> instructions;//TODO в дальнейшем в TVector<int>
+	std::vector<TOp> instructions;//TODO в дальнейшем в TVector<int>
 	
-	TVector<TArrayClassMethod> array_class_methods;
-	TVector<std::string> string_consts;
-	TVector<TMethod> methods_table;
+	std::vector<TArrayClassMethod> array_class_methods;
+	std::vector<std::string> string_consts;
+	std::vector<TMethod> methods_table;
 	int static_vars_init;
 	int static_vars_destroy;
 	int static_vars_size;

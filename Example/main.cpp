@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 		char* source;
 		{
 			//TFileData file("C:\\developments\\BaluFramework\\BaluScript\\Output\\mingw\\script1.bscript"/*FindFileData.cFileName*/,"rb");
-			TFileData file("../Data/baluscript.bscript"/*FindFileData.cFileName*/,"rb");
+			TFileData file("../Data/script_methods_test.bscript"/*FindFileData.cFileName*/,"rb");
 			source=file.ReadAll();
 			source[file.GetSize()]='\0';
 		}
@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 				syntax.GetProgram(program,time);
 				if(print_info)
 					printf("ok (%i ops, op_size = %i, %.3f ms)\n",
-					program.instructions.GetCount(),
+					program.instructions.size(),
 					sizeof(TOp),
 					time.TimeDiff(time.GetTime(),t0)*1000);
 				t0=time.GetTime();

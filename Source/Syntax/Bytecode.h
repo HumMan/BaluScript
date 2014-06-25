@@ -31,7 +31,7 @@ class TBytecode:public TStatement
 			f[1]=VALUE;
 		}
 	};
-	TVector<TBytecodeOp> code;
+	std::vector<TBytecodeOp> code;
 	void operator=(const TBytecode& use_source);
 public:
 	TBytecode(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);

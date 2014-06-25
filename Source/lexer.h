@@ -321,7 +321,7 @@ private:
 	THash<std::string,char*,TToken,8> res_words;
 
 	int curr_unique_id;
-	TVector<std::string*> ids;
+	std::vector<std::string*> ids;
 
 	char* source;
 	char* curr_char;
@@ -329,7 +329,7 @@ private:
 	int line;
 	char c;
 
-	TVector<TToken> tokens;
+	std::vector<TToken> tokens;
 	int curr_token;
 
 	__forceinline void NextChar()
@@ -344,7 +344,7 @@ private:
 		std::string* key;
 		if(ids_table.Add(hash,use_name,curr_unique_id,key,d))
 		{
-			ids.Push(key);
+			ids.push_back(key);
 #ifdef _DEBUG
 			curr_unique_id++;
 			return TNameId(curr_unique_id-1,ids[curr_unique_id-1]);

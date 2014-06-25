@@ -106,6 +106,6 @@ TClass* TType::TClassName::Build(bool use_build_methods,TClass* use_curr_class,T
 		class_pointer->InitAutoMethods(*program);
 		class_pointer->BuildMethods(*program);
 	}
-	if(member.IsNull())return use_curr_class;
+	if(!member)return use_curr_class;
 	else return member->Build(use_build_methods,use_curr_class,owner,source,program);
 }

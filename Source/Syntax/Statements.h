@@ -1,7 +1,5 @@
 #pragma once
 
-#include <baluLib.h>
-
 #include "../lexer.h"
 #include "Statement.h"
 
@@ -24,8 +22,8 @@ class TStatements:public TStatement
 	};
 	int curr_local_var_offset;
 	int last_locals_offset;
-	TVector<TStatement*> statement;
-	TVector<TVarDecl> var_declarations;
+	std::vector<std::shared_ptr<TStatement>> statement;
+	std::vector<TVarDecl> var_declarations;
 	void operator=(const TStatements& use_source);
 public:
 	void Add(TStatement* use_statement);
@@ -36,7 +34,6 @@ public:
 	void InitOwner(TClass* use_owner, TMethod* use_method, TStatements* use_parent);
 	int GetHigh();
 	TStatements(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);
-	~TStatements();
 	void AnalyzeStatement(TLexer& source,bool end_semicolon);
 	void AnalyzeSyntax(TLexer& source);
 	TFormalParam Build(TNotOptimizedProgram &program,int& local_var_offset);

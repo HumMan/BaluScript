@@ -6,6 +6,7 @@
 class TMethod;
 class TClass;
 class TNameId;
+class TMethodPrePostEvents;
 
 class TNotOptimizedProgram
 {
@@ -14,12 +15,19 @@ private:
 	TAllocator<TListItem<TOp>, 1023> instr_alloc;
 	int curr_label;
 
-	TVector<char*> string_consts;
+	std::vector<char*> string_consts;
 #ifndef NDEBUG
-	TVector<TOp*> ops;
+	std::vector<TOp*> ops;
 #endif
-	TVector<TMethod*> methods_table;
-	TVector<TClass*> array_element_classes;
+	std::vector<TMethod*> methods_table;
+	std::vector<TClass*> array_element_classes;
+
+	std::unique_ptr<TMethod> static_vars_init_method, static_vars_destroy_method;
+
+	int CreateStaticVarsInitMethod();
+	int CreateStaticVarsDestroyMethod();
+	void InitArrayClassMethods(TProgram& optimized);
+	void InitPrePostEvents(std::vector<TMethodPrePostEvents>& method_prepost_events, int methods_before_prepost_event);
 public:
 
 	TOpArray static_vars_init;
@@ -27,7 +35,7 @@ public:
 
 	int static_vars_size;
 
-	TVectorList<TMethod> internal_methods;
+	std::vector<std::unique_ptr<TMethod>> internal_methods;
 
 	TNotOptimizedProgram();
 	~TNotOptimizedProgram();
@@ -40,4 +48,6 @@ public:
 	int AddMethodToTable(TMethod* use_method);
 	int CreateArrayElementClassId(TClass* use_class);
 	int FindMethod(TMethod* use_method);
+
+
 };

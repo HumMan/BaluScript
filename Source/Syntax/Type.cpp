@@ -48,8 +48,8 @@ void TType::AnalyzeSyntax(TClassName* use_class_name, TLexer& source) {
 	}
 	if (source.Test(TTokenType::Dot)) {
 		source.GetToken();
-		use_class_name->member = new TClassName();
-		AnalyzeSyntax(use_class_name->member.GetPointer(), source);
+		use_class_name->member = std::shared_ptr<TClassName>(new TClassName());
+		AnalyzeSyntax(use_class_name->member.get(), source);
 	}
 }
 
@@ -61,13 +61,13 @@ void TType::AnalyzeSyntax(TLexer& source) {
 		while (true) {
 			if (source.TestAndGet(TTokenType::LBracket)) {
 				if (source.Test(TTokenType::Value, TValue::Int)) {
-					dim.Push(source.Int());
+					dim.push_back(source.Int());
 					source.GetToken();
 				}
 				source.GetToken(TTokenType::RBracket);
 			} else if (source.TestAndGet(TTokenType::Operator,
 					TOperator::GetArrayElement)) {
-				dim.Push(0);
+				dim.push_back(0);
 			} else
 				break;
 		}

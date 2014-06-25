@@ -2,7 +2,7 @@
 
 TLexer::TLexer():source(NULL),curr_char(NULL),col(1),line(1)
 {
-	tokens.SetReserve(5000);
+	tokens.reserve(5000);
 	curr_unique_id=0;
 	res_words.Add("if",			TToken(TTokenType::ResWord, TResWord::If));
 	res_words.Add("else",		TToken(TTokenType::ResWord, TResWord::Else));		
@@ -44,10 +44,11 @@ void TLexer::ParseSource(char* use_source)
 	line=1;
 	c=*curr_char;
 	curr_token=0;
-	tokens.SetCount(0);
+	tokens.resize(0);
 	int token_col=col;
 	int token_line=line;
-	TVector<char,128> id_buf;
+	std::vector<char> id_buf;
+	id_buf.reserve(128);
 	while(c!='\0')
 	{
 		if(c==' '||c=='\t'||c==13){
@@ -107,9 +108,9 @@ void TLexer::ParseSource(char* use_source)
 				val=pow(val,epow);
 				is_int=(floor(epow)==epow);
 			}
-			if(is_int)tokens.Push(TToken(TTokenType::Value,TValue::Int,int(val)));
-			else tokens.Push(TToken(TTokenType::Value,TValue::Float,float(val))); 
-			tokens.GetTop(0).SetLineCol(token_line,token_col);
+			if(is_int)tokens.push_back(TToken(TTokenType::Value,TValue::Int,int(val)));
+			else tokens.push_back(TToken(TTokenType::Value, TValue::Float, float(val)));
+			tokens.back().SetLineCol(token_line,token_col);
 		}
 		else if (isalpha(c)||c=='_')
 		{
@@ -118,16 +119,16 @@ void TLexer::ParseSource(char* use_source)
 			{
 				NextChar();chars_count++;
 			}
-			id_buf.SetCount(chars_count+1);
+			id_buf.resize(chars_count+1);
 			strncpy_s(&id_buf[0], chars_count + 1,(char*)(curr_char - chars_count), chars_count);
 			id_buf[chars_count]='\0';
 			std::string* key;
 			TToken* data;
 			if(res_words.Find(res_words.GetHash(&id_buf[0]),&id_buf[0],key,data))
-				tokens.Push(*data);
+				tokens.push_back(*data);
 			else
-				tokens.Push(TToken(TTokenType::Identifier,-1,AddIdentifier(&id_buf[0])));
-			tokens.GetTop(0).SetLineCol(token_line,token_col);
+				tokens.push_back(TToken(TTokenType::Identifier, -1, AddIdentifier(&id_buf[0])));
+			tokens.back().SetLineCol(token_line,token_col);
 		}
 		else if (c=='"')
 		{
@@ -142,7 +143,7 @@ void TLexer::ParseSource(char* use_source)
 				}
 				NextChar();chars_count++;
 			}
-			id_buf.SetCount(chars_count+1);
+			id_buf.resize(chars_count+1);
 			char* currh=(char*)(curr_char-chars_count);
 			int t=0;
 			while(currh<curr_char)
@@ -165,8 +166,8 @@ void TLexer::ParseSource(char* use_source)
 			id_buf[t]='\0';
 			NextChar();
 
-			tokens.Push(TToken(TTokenType::Value,TValue::String,AddIdentifier(&id_buf[0])));
-			tokens.GetTop(0).SetLineCol(token_line,token_col);
+			tokens.push_back(TToken(TTokenType::Value, TValue::String, AddIdentifier(&id_buf[0])));
+			tokens.back().SetLineCol(token_line,token_col);
 		}
 		else if (c=='\'')
 		{
@@ -191,8 +192,8 @@ void TLexer::ParseSource(char* use_source)
 			NextChar();
 			if(c!='\'')Error("Символьное значение должно состоять из одного символа!");
 			NextChar();
-			tokens.Push(TToken(TTokenType::Value,TValue::Char,result));
-			tokens.GetTop(0).SetLineCol(token_line,token_col);
+			tokens.push_back(TToken(TTokenType::Value, TValue::Char, result));
+			tokens.back().SetLineCol(token_line,token_col);
 		}
 		else
 		{
@@ -207,11 +208,11 @@ void TLexer::ParseSource(char* use_source)
 					if(c=='=')
 					{
 						NextChar();
-						tokens.Push(TToken(TTokenType::Operator, TOperator::AndA));
+						tokens.push_back(TToken(TTokenType::Operator, TOperator::AndA));
 					}
-					else tokens.Push(TToken(TTokenType::Operator, TOperator::And));
+					else tokens.push_back(TToken(TTokenType::Operator, TOperator::And));
 				}
-				else tokens.Push(TToken(TTokenType::Ampersand));
+				else tokens.push_back(TToken(TTokenType::Ampersand));
 				break;
 			case '|':
 				NextChar();
@@ -219,21 +220,21 @@ void TLexer::ParseSource(char* use_source)
 					NextChar();
 					if(c=='='){
 						NextChar();
-						tokens.Push(TToken(TTokenType::Operator, TOperator::OrA));
+						tokens.push_back(TToken(TTokenType::Operator, TOperator::OrA));
 					}
-					else tokens.Push(TToken(TTokenType::Operator, TOperator::Or));
+					else tokens.push_back(TToken(TTokenType::Operator, TOperator::Or));
 				}
-				else tokens.Push(TToken(TTokenType::Vertical));
+				else tokens.push_back(TToken(TTokenType::Vertical));
 				break;
-			case '+':NextChar();if(c=='='){NextChar();tokens.Push(TToken(TTokenType::Operator, TOperator::PlusA));}
-					 else tokens.Push(TToken(TTokenType::Operator, TOperator::Plus));
+			case '+':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::PlusA)); }
+					 else tokens.push_back(TToken(TTokenType::Operator, TOperator::Plus));
 					 break;
 			case '-':
 				NextChar();
-				if(c=='='){NextChar();tokens.Push(TToken(TTokenType::Operator, TOperator::MinusA));}
+				if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::MinusA)); }
 				else 
 				{
-					TTokenType::Enum prev=(TTokenType::Enum)(tokens.GetHigh()>-1?(TTokenType::Enum)tokens.GetTop(0).type:-1);
+					TTokenType::Enum prev=(TTokenType::Enum)(tokens.size()>0?(TTokenType::Enum)tokens.back().type:-1);
 					if(prev==TTokenType::ResWord||
 						prev==TTokenType::Operator||
 						prev==TTokenType::Comma||
@@ -242,63 +243,63 @@ void TLexer::ParseSource(char* use_source)
 						prev==TTokenType::LParenth||
 						prev==TTokenType::LBrace||
 						prev==TTokenType::LBracket)
-						tokens.Push(TToken(TTokenType::Operator, TOperator::UnaryMinus));
+						tokens.push_back(TToken(TTokenType::Operator, TOperator::UnaryMinus));
 					else
-						tokens.Push(TToken(TTokenType::Operator, TOperator::Minus));
+						tokens.push_back(TToken(TTokenType::Operator, TOperator::Minus));
 				}
 				break;
-			case '*':NextChar();if(c=='='){NextChar();tokens.Push(TToken(TTokenType::Operator, TOperator::MulA));}
-					 else tokens.Push(TToken(TTokenType::Operator, TOperator::Mul));
+			case '*':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::MulA)); }
+					 else tokens.push_back(TToken(TTokenType::Operator, TOperator::Mul));
 					 break;
-			case '/':NextChar();if(c=='='){NextChar();tokens.Push(TToken(TTokenType::Operator, TOperator::DivA));}
-					 else tokens.Push(TToken(TTokenType::Operator, TOperator::Div));
+			case '/':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::DivA)); }
+					 else tokens.push_back(TToken(TTokenType::Operator, TOperator::Div));
 					 break;
-			case '%':NextChar();if(c=='='){NextChar();tokens.Push(TToken(TTokenType::Operator, TOperator::PercentA));}
-					 else tokens.Push(TToken(TTokenType::Operator, TOperator::Percent));
+			case '%':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::PercentA)); }
+					 else tokens.push_back(TToken(TTokenType::Operator, TOperator::Percent));
 					 break; 
-			case '<':NextChar();if(c=='='){NextChar();tokens.Push(TToken(TTokenType::Operator, TOperator::LessEqual));}
-					 else tokens.Push(TToken(TTokenType::Operator, TOperator::Less));
+			case '<':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::LessEqual)); }
+					 else tokens.push_back(TToken(TTokenType::Operator, TOperator::Less));
 					 break;
-			case '=':NextChar();if(c=='='){NextChar();tokens.Push(TToken(TTokenType::Operator, TOperator::Equal));}
-					 else tokens.Push(TToken(TTokenType::Operator, TOperator::Assign));
+			case '=':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::Equal)); }
+					 else tokens.push_back(TToken(TTokenType::Operator, TOperator::Assign));
 					 break;
-			case '!':NextChar();if(c=='='){NextChar();tokens.Push(TToken(TTokenType::Operator, TOperator::NotEqual));}
-					 else tokens.Push(TToken(TTokenType::Operator, TOperator::Not));
+			case '!':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::NotEqual)); }
+					 else tokens.push_back(TToken(TTokenType::Operator, TOperator::Not));
 					 break;
-			case '>':NextChar();if(c=='='){NextChar();tokens.Push(TToken(TTokenType::Operator, TOperator::GreaterEqual));}
-					 else tokens.Push(TToken(TTokenType::Operator, TOperator::Greater));
+			case '>':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::GreaterEqual)); }
+					 else tokens.push_back(TToken(TTokenType::Operator, TOperator::Greater));
 					 break;
-			case '[':NextChar();if(c==']'){NextChar();tokens.Push(TToken(TTokenType::Operator, TOperator::GetArrayElement));}
-					 else tokens.Push(TToken(TTokenType::LBracket));
+			case '[':NextChar(); if (c == ']'){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::GetArrayElement)); }
+					 else tokens.push_back(TToken(TTokenType::LBracket));
 					 break;
-			case ']':NextChar();tokens.Push(TToken(TTokenType::RBracket));
+			case ']':NextChar(); tokens.push_back(TToken(TTokenType::RBracket));
 					 break;
-			case '(':NextChar();if(c==')'){NextChar();tokens.Push(TToken(TTokenType::Operator, TOperator::ParamsCall));}
-					 else tokens.Push(TToken(TTokenType::LParenth));
+			case '(':NextChar(); if (c == ')'){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::ParamsCall)); }
+					 else tokens.push_back(TToken(TTokenType::LParenth));
 					 break;
-			case ')':NextChar();tokens.Push(TToken(TTokenType::RParenth));
+			case ')':NextChar(); tokens.push_back(TToken(TTokenType::RParenth));
 					 break;
-			case '{':NextChar();tokens.Push(TToken(TTokenType::LBrace));
+			case '{':NextChar(); tokens.push_back(TToken(TTokenType::LBrace));
 					 break;
-			case '}':NextChar();tokens.Push(TToken(TTokenType::RBrace));
+			case '}':NextChar(); tokens.push_back(TToken(TTokenType::RBrace));
 					 break;
-			case ';':NextChar();tokens.Push(TToken(TTokenType::Semicolon));
+			case ';':NextChar(); tokens.push_back(TToken(TTokenType::Semicolon));
 					 break;
-			case ':':NextChar();tokens.Push(TToken(TTokenType::Colon));
+			case ':':NextChar(); tokens.push_back(TToken(TTokenType::Colon));
 					 break;
-			case '?':NextChar();tokens.Push(TToken(TTokenType::Question));
+			case '?':NextChar(); tokens.push_back(TToken(TTokenType::Question));
 					 break;
-			case ',':NextChar();tokens.Push(TToken(TTokenType::Comma));
+			case ',':NextChar(); tokens.push_back(TToken(TTokenType::Comma));
 					 break;
-			case '.':NextChar();tokens.Push(TToken(TTokenType::Dot));
+			case '.':NextChar(); tokens.push_back(TToken(TTokenType::Dot));
 					 break;
 			default: 
 				Error("Неизвестный идентификатор!");
 			}
-			tokens.GetTop(0).SetLineCol(token_line,token_col);
+			tokens.back().SetLineCol(token_line,token_col);
 		}
 	}
-	tokens.Push(TToken(TTokenType::Done));
+	tokens.push_back(TToken(TTokenType::Done));
 	source=NULL;
 	curr_char=NULL;
 }

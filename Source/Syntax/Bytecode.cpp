@@ -72,7 +72,7 @@ void TBytecode::AnalyzeSyntax(TLexer& source) {
 		if (GetBytecodeParamExists((TOpcode::Enum) type, 3))
 			op.v2 = params[t++];
 		_op.op = op;
-		code.Push(_op);
+		code.push_back(_op);
 		source.GetToken(TTokenType::Semicolon);
 	}
 	source.GetToken(TTokenType::RBrace);

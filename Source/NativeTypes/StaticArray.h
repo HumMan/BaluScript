@@ -9,6 +9,10 @@ struct TStaticArr
 	{
 	int COUNT;
 	public:
+		TStaticArr()
+		{
+			COUNT = 1;
+		}
 		TStaticArr(int COUNT)
 		{
 			this->COUNT = COUNT;

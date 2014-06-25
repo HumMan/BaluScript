@@ -11,14 +11,14 @@ TStatements::TStatements(const TStatements& use_source):TStatement(use_source)
 {
 	curr_local_var_offset=use_source.curr_local_var_offset;
 	last_locals_offset=use_source.last_locals_offset;
-	statement.SetHigh(use_source.statement.GetHigh());
-	for(int i=0;i<=statement.GetHigh();i++)
-		statement[i]=use_source.statement[i]->GetCopy();
-	var_declarations.SetHigh(use_source.var_declarations.GetHigh());
-	for(int i=0;i<=var_declarations.GetHigh();i++)
+	statement.resize(use_source.statement.size());
+	for(int i=0;i<statement.size();i++)
+		statement[i]=std::shared_ptr<TStatement>(use_source.statement[i]->GetCopy());
+	var_declarations.resize(use_source.var_declarations.size());
+	for(int i=0;i<var_declarations.size();i++)
 	{
 		var_declarations[i].stmt_id=use_source.var_declarations[i].stmt_id;
-		var_declarations[i].pointer=(TLocalVar*)statement[var_declarations[i].stmt_id];
+		var_declarations[i].pointer=(TLocalVar*)statement[var_declarations[i].stmt_id].get();
 		assert(statement[var_declarations[i].stmt_id]->GetType()==TStatementType::VarDecl);
 	}
 }
@@ -28,7 +28,7 @@ TFormalParam TStatements::Build(TNotOptimizedProgram &program,int& local_var_off
 	TOpArray ops_array;
 	curr_local_var_offset=local_var_offset;
 	last_locals_offset=local_var_offset;
-	for(int i=0;i<=statement.GetHigh();i++)
+	for(int i=0;i<statement.size();i++)
 	{
 		TFormalParam t=statement[i]->Build(program,curr_local_var_offset);
 		ops_array+=t.GetOps();
@@ -56,11 +56,11 @@ TOpArray TStatements::BuildLocalsAndParamsDestructor(TNotOptimizedProgram &progr
 
 int TStatements::BuildCurrLocalsDestructor(TOpArray& ops_array,TNotOptimizedProgram &program,bool deallocate_stack)
 {
-	for(int i=0;i<=statement.GetHigh();i++)
+	for(int i=0;i<statement.size();i++)
 	{
 		if(statement[i]->GetType()==TStatementType::VarDecl)
 		{
-			TLocalVar* v=((TLocalVar*)(statement[i]));
+			TLocalVar* v=((TLocalVar*)(statement[i].get()));
 			if(v->IsStatic()||v->GetClass()->GetDestructor()==NULL)continue;
 			program.Push(TOp(TOpcode::PUSH_LOCAL_REF,v->GetOffset()),ops_array);
 			ops_array+=v->GetClass()->GetDestructor()->BuildCall(program).GetOps();
@@ -76,7 +76,7 @@ int TStatements::BuildCurrLocalsDestructor(TOpArray& ops_array,TNotOptimizedProg
 
 TVariable* TStatements::GetVar(TNameId name,int sender_id)
 {
-	for(int i=0;i<=var_declarations.GetHigh();i++)
+	for(int i=0;i<var_declarations.size();i++)
 	{
 		if(var_declarations[i].stmt_id<=sender_id
 			&&var_declarations[i].pointer->GetName()==name)

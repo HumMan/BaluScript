@@ -8,7 +8,10 @@
 #include "..\Source\lexer.h"
 #include "..\Source\virtualMachine.h"
 #include "..\Source\syntaxAnalyzer.h"
-
+#include "..\Source\NativeTypes\StaticArray.h"
+#include "..\Source\NativeTypes\DynArray.h"
+#include "..\Source\NativeTypes\String.h"
+#include "..\Source\Syntax\ClassField.h"
 
 #define BSCRIPT_VOID_METHOD(class_name,name) \
 	void static name(int*& stack,int* first_param,int* _obj)\
