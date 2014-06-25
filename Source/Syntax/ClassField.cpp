@@ -1,4 +1,8 @@
+
 #include "ClassField.h"
+#include "Class.h"
+#include "Method.h"
+#include "Statements.h"
 
 void TClassField::AnalyzeSyntax(TLexer& source) {
 	InitPos(source);

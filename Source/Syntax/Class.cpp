@@ -2,12 +2,13 @@
 
 #include "../NativeTypes/DynArray.h"
 #include "Method.h"
+#include "Statements.h"
 
 void TClass::InitOwner(TClass* use_owner)
 {
 	owner = use_owner;
 	//при копировании надо перенастраивать указатель owner у всех
-	for (const std::unique_ptr<TClassField>& var : fields)
+	for (const std::shared_ptr<TClassField>& var : fields)
 		var->InitOwner(use_owner);
 	constructors.InitOwner(this);
 	if (destructor)
@@ -15,7 +16,7 @@ void TClass::InitOwner(TClass* use_owner)
 	for (int i = 0; i<TOperator::End; i++)
 		operators[i].InitOwner(this);
 	conversions.InitOwner(this);
-	for (const std::unique_ptr<TClass>& nested_class : nested_classes)
+	for (const std::shared_ptr<TClass>& nested_class : nested_classes)
 		nested_class->InitOwner(this);
 }
 
@@ -42,8 +43,8 @@ void TClass::SetIsTemplate(bool use_is_template){
 TClass* TClass::GetTemplateParamClass(int id){
 	return template_params[id].class_pointer;
 }
-int TClass::GetTemplateParamsHigh(){
-	return template_params.GetHigh();
+int TClass::GetTemplateParamsCount(){
+	return template_params.size();
 }
 
 TNameId TClass::GetName(){
@@ -63,7 +64,7 @@ TTemplateRealizations* TClass::GetTemplates(){
 }
 
 TMethod* TClass::GetAutoDestructor(){
-	return auto_destr.GetPointer();
+	return auto_destr.get();
 }
 
 TClass::TClass(TClass* use_owner, TTemplateRealizations* use_templates) :parent(this) 
@@ -91,7 +92,7 @@ void TClass::CreateInternalClasses() {
 	t->methods_build = true;
 	t->auto_methods_build = true;
 	t->methods_declared = true;
-	nested_class.Push(t);
+	nested_classes.push_back(std::unique_ptr<TClass>(t));
 
 	t = new TClass(this, templates);
 	t->size = _INTSIZEOF(TDynArr) / 4;
@@ -99,37 +100,38 @@ void TClass::CreateInternalClasses() {
 	t->methods_build = true;
 	t->auto_methods_build = true;
 	t->methods_declared = true;
-	nested_class.Push(t);
+	nested_classes.push_back(std::unique_ptr<TClass>(t));
 }
 
-void TClass::BuildClass(TVector<TClass*> buff) {
+void TClass::BuildClass(std::vector<TClass*> buff) {
 	assert(!is_template);//шаблон используется только для создания реализаций
 	if (size > 0)
 		return;
 	ValidateSizes(buff);
-	for (int i = 0; i <= nested_class.GetHigh(); i++)
-		if (!nested_class[i]->IsTemplate())
-			nested_class[i]->BuildClass();
+	for (const std::shared_ptr<TClass>& nested_class : nested_classes)
+		if (!nested_class->IsTemplate())
+			nested_class->BuildClass();
 }
 
 void TClass::BuildClass() {
 	assert(!is_template);
 	if (size > 0)
 		return;
-	TVector<TClass*> buff;
+	std::vector<TClass*> buff;
 	ValidateSizes(buff);
-	for (int i = 0; i <= nested_class.GetHigh(); i++)
-		if (!nested_class[i]->IsTemplate())
-			nested_class[i]->BuildClass();
+	for (const std::shared_ptr<TClass>& nested_class : nested_classes)
+		if (!nested_class->IsTemplate())
+			nested_class->BuildClass();
 }
 
-void TClass::ValidateSizes(TVector<TClass*> &owners) {
+void TClass::ValidateSizes(std::vector<TClass*> &owners) {
 	int class_size = 0;
-	if (owners.Find(this) != -1) {
+	if (std::find(owners.begin(), owners.end(), this) != owners.end()) 
+	{
 		//Error("Класс не может содержать поле с собственным типом(кроме дин. массивов)!");//TODO см. initautomethods для дин массивов
 		Error("Класс не может содержать поле собственного типа!");
 	} else {
-		owners.Push(this);
+		owners.push_back(this);
 		if (parent.GetClass() != NULL) {
 			TClass* parent_class = parent.GetClass();
 			parent_class->BuildClass(owners);
@@ -147,15 +149,16 @@ void TClass::ValidateSizes(TVector<TClass*> &owners) {
 				parent_class = parent_class->GetParent();
 			} while (parent_class != NULL);
 		}
-		for (int i = 0; i <= field.GetHigh(); i++) {
-			field[i]->GetClass()->BuildClass(owners);
-			if (!field[i]->IsStatic()) {
-				field[i]->SetOffset(class_size);
-				class_size += field[i]->GetClass()->GetSize();
+		for (const std::shared_ptr<TClassField>& field : fields)
+		{
+			field->GetClass()->BuildClass(owners);
+			if (!field->IsStatic()) {
+				field->SetOffset(class_size);
+				class_size += field->GetClass()->GetSize();
 			}
 		}
 	}
-	owners.Pop();
+	owners.pop_back();
 	size = class_size;
 }
 
@@ -163,42 +166,42 @@ void TClass::DeclareMethods() {
 	assert(!is_template);
 	if (methods_declared)
 		return;
-	for (TOverloadedMethod var : method)
+	for (std::shared_ptr<TOverloadedMethod>& method : methods)
 	{
-		var.Declare();
+		method->Declare();
 	}
-	constructor.Declare();
-	if (!destructor.IsNull())
+	constructors.Declare();
+	if (destructor)
 		destructor->Declare();
 
 	for (int i = 0; i < TOperator::End; i++)
 		operators[i].Declare();
-	conversion.Declare();
+	conversions.Declare();
 	methods_declared = true;
-	for (int i = 0; i <= nested_class.GetHigh(); i++)
-		if (!nested_class[i]->IsTemplate())
-			nested_class[i]->DeclareMethods();
+	for (const std::shared_ptr<TClass>& nested_class : nested_classes)
+		if (!nested_class->IsTemplate())
+			nested_class->DeclareMethods();
 }
 
 void TClass::BuildMethods(TNotOptimizedProgram &program) {
 	assert(!is_template);
 	if (methods_build)
 		return;
-	for (TOverloadedMethod var : method)
+	for (std::shared_ptr<TOverloadedMethod>& method : methods)
 	{
-		var.Build(program);
+		method->Build(program);
 	}
-	constructor.Build(program);
-	if (!destructor.IsNull())
+	constructors.Build(program);
+	if (destructor)
 		destructor->Build(program);
 
 	for (int i = 0; i < TOperator::End; i++)
 		operators[i].Build(program);
-	conversion.Build(program);
+	conversions.Build(program);
 	methods_build = true;
-	for (int i = 0; i <= nested_class.GetHigh(); i++)
-		if (!nested_class[i]->IsTemplate())
-			nested_class[i]->BuildMethods(program);
+	for (const std::shared_ptr<TClass>& nested_class : nested_classes)
+		if (!nested_class->IsTemplate())
+			nested_class->BuildMethods(program);
 }
 
 bool TClass::IsChildOf(TClass* use_parent) {
@@ -212,62 +215,63 @@ bool TClass::IsChildOf(TClass* use_parent) {
 void TClass::AddMethod(TMethod* use_method, TNameId name) {
 	//Ищем перегруженные методы с таким же именем, иначе добавляем новый
 	TOverloadedMethod* temp = NULL;
-	for (TOverloadedMethod var : method)
-		if (var.GetName() == name)
-			temp = &var;
+	for (std::shared_ptr<TOverloadedMethod>& method : methods)
+		if (method->GetName() == name)
+			temp = method.get();
 	if (temp == NULL)
 	{
-		method.push_back(TOverloadedMethod(name));
-		temp = &method.back();
+		methods.push_back(std::shared_ptr<TOverloadedMethod>(new TOverloadedMethod(name)));
+		temp = methods.back().get();
 	}
-	temp->methods.push_back(use_method);
+	temp->methods.push_back(std::unique_ptr<TMethod>(use_method));
 }
 
 void TClass::AddOperator(TOperator::Enum op, TMethod* use_method) {
-	operators[op].method.Push(use_method);
+	operators[op].methods.push_back(std::unique_ptr<TMethod>(use_method));
 }
 
-void TClass::AddConversion(TMethod* method) {
-	conversion.method.Push(method);
+void TClass::AddConversion(TMethod* use_method) {
+	conversions.methods.push_back(std::unique_ptr<TMethod>(use_method));
 }
 
 void TClass::AddConstr(TMethod* use_method) {
-	if(use_method->GetParamsHigh()==-1)
+	if(use_method->GetParamsCount()==0)
 		constr_override=true;
-	constructor.method.Push(use_method);
+	constructors.methods.push_back(std::unique_ptr<TMethod>(use_method));
 }
 
 void TClass::AddDestr(TMethod* use_method) {
-	if (!destructor.IsNull())
+	if (destructor)
 		Error("Деструктор уже существует!");
-	destructor = use_method;
+	destructor = std::shared_ptr<TMethod>(use_method);
 }
 
 void TClass::AddNested(TClass* use_class) {
-	nested_class.Push(use_class);
+	nested_classes.push_back(std::shared_ptr<TClass>(use_class));
 }
 
 void TClass::AddField(TClassField* use_field) {
-	field.Push(use_field);
+	fields.push_back(std::shared_ptr<TClassField>(use_field));
 }
 
 TClass* TClass::GetNested(TNameId name) {
-	for (int i = 0; i <= nested_class.GetHigh(); i++)
-		if (nested_class[i]->name == name)
-			return nested_class[i];
+	for (const std::shared_ptr<TClass>& nested_class : nested_classes)
+		if (nested_class->name == name)
+			return nested_class.get();
 	return NULL;
 }
 
 TClass* TClass::GetClass(TNameId use_name) {
 	if (name == use_name)
 		return this;
-	for (int i = 0; i <= nested_class.GetHigh(); i++)
-		if (nested_class[i]->name == use_name)
-			return nested_class[i];
+	for (const std::shared_ptr<TClass>& nested_class : nested_classes)
+		if (nested_class->name == use_name)
+			return nested_class.get();
 	assert(!is_template);
-	for (int i = 0; i <= template_params.GetHigh(); i++)
-		if (template_params[i].name == use_name)
-			return template_params[i].class_pointer;
+
+	for (const TTemplateParam& template_param : template_params)
+		if (template_param.name == use_name)
+			return template_param.class_pointer;
 	if (owner != NULL)
 		return owner->GetClass(use_name);
 	return NULL;
@@ -288,9 +292,10 @@ TClassField* TClass::GetField(TNameId name, bool is_static, bool only_in_this) {
 		result_parent = parent.GetClass()->GetField(name, true);
 	if (result_parent != NULL)
 		return result_parent;
-	for (int i = 0; i <= field.GetHigh(); i++) {
-		if (field[i]->IsStatic() == is_static && field[i]->GetName() == name) {
-			return field[i];
+	for (const std::shared_ptr<TClassField>& field : fields)
+	{
+		if (field->IsStatic() == is_static && field->GetName() == name) {
+			return field.get();
 		}
 	}
 	if (!only_in_this && is_static && owner != NULL)
@@ -298,36 +303,39 @@ TClassField* TClass::GetField(TNameId name, bool is_static, bool only_in_this) {
 	return NULL;
 }
 
-bool TClass::GetConstructors(TVector<TMethod*> &result) {
+bool TClass::GetConstructors(std::vector<TMethod*> &result) {
 	assert(methods_declared&&auto_methods_build);
-	for (int k = 0; k <= constructor.method.GetHigh(); k++) {
-		result.Push(constructor.method[k]);
+	for (const std::shared_ptr<TMethod>& constructor : constructors.methods)
+	{
+		result.push_back(constructor.get());
 	}
-	if (!constr_override && !auto_def_constr.IsNull())
-		result.Push(auto_def_constr.GetPointer());
-	return result.GetHigh() >= 0;
+
+	if (!constr_override && auto_def_constr)
+		result.push_back(auto_def_constr.get());
+	return result.size() > 0;
 }
 
 TMethod* TClass::GetDefConstr() {
 	assert(methods_declared&&auto_methods_build);
 	if (constr_override)
 	{
-		for (int i = 0; i <= constructor.method.GetHigh(); i++) 
-			if (constructor.method[i]->GetParamsHigh() == -1) 
-				return constructor.method[i];
+		for (const std::shared_ptr<TMethod>& constructor : constructors.methods)
+			if (constructor->GetParamsCount() == 0) 
+				return constructor.get();
 	}
 	else
-		return auto_def_constr.GetPointer();
+		return auto_def_constr.get();
 	return NULL;
 }
 
 TMethod* TClass::GetCopyConstr() {
 	assert(methods_declared);
-	for (int i = 0; i <= constructor.method.GetHigh(); i++) {
-		if (constructor.method[i]->GetParamsHigh() == 0
-				&& constructor.method[i]->GetParam(0)->GetClass() == this
-				&& constructor.method[i]->GetParam(0)->IsRef() == true) {
-			return constructor.method[i];
+	for (const std::shared_ptr<TMethod>& constructor : constructors.methods)
+	{
+		if (constructor->GetParamsCount() == 1
+				&& constructor->GetParam(0)->GetClass() == this
+				&& constructor->GetParam(0)->IsRef() == true) {
+			return constructor.get();
 		}
 	}
 	return NULL;
@@ -335,70 +343,75 @@ TMethod* TClass::GetCopyConstr() {
 
 TMethod* TClass::GetDestructor() {
 	assert(methods_declared&&auto_methods_build);
-	return (!destructor.IsNull()) ? destructor.GetPointer() : auto_destr.GetPointer();
+	return (destructor) ? destructor.get() : auto_destr.get();
 }
 
-bool TClass::GetOperators(TVector<TMethod*> &result, TOperator::Enum op) {
+bool TClass::GetOperators(std::vector<TMethod*> &result, TOperator::Enum op) {
 	assert(methods_declared&&auto_methods_build);
 	operators[op].GetMethods(result);
-	return result.GetHigh() >= 0;
+	return result.size() > 0;
 }
 
 TMethod* TClass::GetBinOp(TOperator::Enum op, TClass* left, bool left_ref,
 		TClass* right, bool right_ref) {
 	assert(methods_declared&&auto_methods_build);
-	for (int i = 0; i <= operators[op].method.GetHigh(); i++) {
-		assert(operators[op].method[i]->GetParamsHigh()==1);
-		if (operators[op].method[i]->GetParam(0)->GetClass() == this
-			&& operators[op].method[i]->GetParam(0)->IsRef() == true
-			&& operators[op].method[i]->GetParam(1)->GetClass() == this
-			&& operators[op].method[i]->GetParam(1)->IsRef()
+	for (std::shared_ptr<TMethod>& oper : operators[op].methods)
+	{
+		assert(oper->GetParamsCount() == 2);
+		if (oper->GetParam(0)->GetClass() == this
+			&& oper->GetParam(0)->IsRef() == true
+			&& oper->GetParam(1)->GetClass() == this
+			&& oper->GetParam(1)->IsRef()
 			== right_ref) {
-				return operators[op].method[i];
+			return oper.get();
 		}
 	}
 	return NULL;
 }
 
-bool TClass::GetMethods(TVector<TMethod*> &result, TNameId use_method_name) {
+bool TClass::GetMethods(std::vector<TMethod*> &result, TNameId use_method_name) {
 	assert(methods_declared);
-	for (TOverloadedMethod var : method)
-		if (var.GetName() == use_method_name) {
-		for (int k = 0; k <= var.method.GetHigh(); k++)
-			result.Push(var.method[k]);
+	for (const std::shared_ptr<TOverloadedMethod>& ov_method : methods)
+	{
+		if (ov_method->GetName() == use_method_name)
+		{
+			for (const std::shared_ptr<TMethod>& method : ov_method->methods)
+				result.push_back(method.get());
 		}
+	}
 	if (owner != NULL)
 		owner->GetMethods(result, use_method_name, true);
 	if (parent.GetClass() != NULL)
 		parent.GetClass()->GetMethods(result, use_method_name);
-	return result.GetHigh() >= 0;
+	return result.size() > 0;
 }
 
-bool TClass::GetMethods(TVector<TMethod*> &result, TNameId use_method_name,
+bool TClass::GetMethods(std::vector<TMethod*> &result, TNameId use_method_name,
 		bool is_static) {
 	assert(methods_declared);
-	for (TOverloadedMethod var : method)
+	for (const std::shared_ptr<TOverloadedMethod>& ov_method : methods)
 	{
-		if (var.GetName() == use_method_name)
+		if (ov_method->GetName() == use_method_name)
 		{
-			for (int k = 0; k <= var.method.GetHigh(); k++)
-				if (var.method[k]->IsStatic() == is_static)
-					result.Push(var.method[k]);
+			for (const std::shared_ptr<TMethod>& method : ov_method->methods)
+				if (method->IsStatic() == is_static)
+					result.push_back(method.get());
 		}
 	}
 	if (is_static && owner != NULL)
 		owner->GetMethods(result, use_method_name, true);
 	if (parent.GetClass() != NULL)
 		parent.GetClass()->GetMethods(result, use_method_name, is_static);
-	return result.GetHigh() >= 0;
+	return result.size() > 0;
 }
 
 TMethod* TClass::GetConversion(bool source_ref, TClass* target_type) {
 	assert(methods_declared);
-	for (int i = 0; i <= conversion.method.GetHigh(); i++) {
-		if (conversion.method[i]->GetRetClass() == target_type
-				&& conversion.method[i]->GetParam(0)->IsRef() == source_ref) {
-			return conversion.method[i];
+	for (const std::shared_ptr<TMethod>& conversion : conversions.methods)
+	{
+		if (conversion->GetRetClass() == target_type
+			&& conversion->GetParam(0)->IsRef() == source_ref) {
+			return conversion.get();
 		}
 	}
 	return NULL;
@@ -425,7 +438,7 @@ bool TClass::HasConversion(TClass* target_type) {
 }
 
 void TClass::AccessDecl(TLexer& source, bool& readonly,
-		TTypeOfAccess::Enum& access) {
+		TTypeOfAccess::Enum access) {
 	if (source.Type() == TTokenType::ResWord) {
 		switch (source.Token()) {
 		case TResWord::Readonly:
@@ -470,10 +483,10 @@ void TClass::AnalyzeSyntax(TLexer& source) {
 		do
 		{
 			source.Test(TTokenType::Identifier);
-			for(int i=0;i<=enums.GetHigh();i++)
+			for(int i=0;i<enums.size();i++)
 				if(enums[i]==source.NameId())
 					source.Error("ѕеречисление с таким имененм уже существует!");
-			enums.Push(source.NameId());
+			enums.push_back(source.NameId());
 			source.GetToken();
 		}while(source.TestAndGet(TTokenType::Comma));
 		source.GetToken(TTokenType::RBrace);
@@ -492,7 +505,7 @@ void TClass::AnalyzeSyntax(TLexer& source) {
 			TTemplateParam p;
 			p.class_pointer = NULL;
 			p.name = source.NameId();
-			template_params.Push(p);
+			template_params.push_back(p);
 			source.GetToken();
 			if (!source.TestAndGet(TTokenType::Comma))
 				break;
@@ -540,7 +553,7 @@ void TClass::AnalyzeSyntax(TLexer& source) {
 			}
 		else if (source.Type() == TTokenType::Identifier) {
 			TClassField* temp_field = new TClassField(this);
-			field.Push(temp_field);
+			fields.push_back(std::unique_ptr<TClassField>(temp_field));
 			temp_field->SetAccess(access);
 			temp_field->SetReadOnly(readonly);
 			temp_field->AnalyzeSyntax(source);

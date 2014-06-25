@@ -1,5 +1,7 @@
 #include "Expression.h"
 
+#include "Statements.h"
+
 TExpression::TOperation* TExpression::ParamsCall(TLexer& source,
 		TExpression::TOperation* curr_operation) {
 	bool use_brackets = source.Test(TTokenType::LBracket) || source.Test(

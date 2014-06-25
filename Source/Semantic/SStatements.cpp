@@ -1,6 +1,11 @@
 #include "../Syntax/Statements.h"
+
 #include <assert.h>
+
 #include "../Syntax/Void.h"
+#include "../Syntax/Class.h"
+#include "../Syntax/Method.h"
+#include "../Syntax/LocalVar.h"
 
 TStatements::TStatements(const TStatements& use_source):TStatement(use_source)
 {

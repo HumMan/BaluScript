@@ -1,5 +1,8 @@
 #include "notOptimizedProgram.h"
 
+#include "Syntax/Method.h"
+#include "Syntax/Statements.h"
+
 TNotOptimizedProgram::~TNotOptimizedProgram()
 {
 	for(int i=0;i<=string_consts.GetHigh();i++)

@@ -2,33 +2,10 @@
 
 #include "../VirtualMachine/Op.h"
 #include "../VirtualMachine/OpArray.h"
-#include "Class.h"
 #include "Variable.h"
-#include "FormalParam.h"
-
-namespace TTypeOfAccess
-{
-	enum Enum
-	{
-		Private,
-		Protected,
-		Public
-	};
-}
-
-class TAccessible
-{
-protected:
-	TTypeOfAccess::Enum access;
-public:
-	TAccessible():access(TTypeOfAccess::Public){}
-	TTypeOfAccess::Enum GetAccess()const{
-		return access;
-	}
-	void SetAccess(TTypeOfAccess::Enum use_access){
-		access=use_access;
-	}
-};
+#include "Type.h"
+#include "../lexer.h"
+#include "Accessible.h"
 
 class TClassField:public TAccessible,public TVariable,public TTokenPos
 {

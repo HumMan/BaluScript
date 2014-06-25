@@ -1,6 +1,9 @@
 #include "../Syntax/Return.h"
 
 #include "../Syntax/Void.h"
+#include "../Syntax/Method.h"
+#include "../syntaxAnalyzer.h"
+#include "../Syntax/Statements.h"
 
 TFormalParam TReturn::Build(TNotOptimizedProgram &program,int& local_var_offset)
 {

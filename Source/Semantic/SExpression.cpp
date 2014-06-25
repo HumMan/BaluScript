@@ -1,11 +1,16 @@
 #include "../Syntax/Expression.h"
 
+#include "../syntaxAnalyzer.h"
+#include "../Syntax/Class.h"
+#include "../Syntax/Method.h"
+#include "../Syntax/Statements.h"
+
 TFormalParam TExpression::TBinOp::Build(TNotOptimizedProgram &program,TExpression* parent)
 {
-	TVector<TFormalParam> param;
-	TVector<TMethod*> bin_operators;
+	std::vector<TFormalParam> param;
+	std::vector<TMethod*> bin_operators;
 
-	param.SetCount(2);
+	param.resize(2);
 	param[0]=left->Build(program,parent);
 	param[1]=right->Build(program,parent);
 
@@ -18,7 +23,7 @@ TFormalParam TExpression::TBinOp::Build(TNotOptimizedProgram &program,TExpressio
 	if(param[1].IsVoid())
 		Error("  правому операнду нельз€ применить бинарный оператор (нужен тип отличающийс€ от void)!");
 
-	TVector<TMethod*> operators;
+	std::vector<TMethod*> operators;
 
 	param[0].GetClass()->GetOperators(operators,op);
 	bin_operator=FindMethod(this,operators,param,left_conv_count);
@@ -27,7 +32,7 @@ TFormalParam TExpression::TBinOp::Build(TNotOptimizedProgram &program,TExpressio
 
 	if(!(op>=TOperator::Assign&&op<=TOperator::OrA))
 	{
-		operators.SetCount(0);
+		operators.resize(0);
 		param[1].GetClass()->GetOperators(operators,op);
 		bin_operator2=FindMethod(this,operators,param,right_conv_count);
 	}
@@ -49,9 +54,9 @@ TFormalParam TExpression::TBinOp::Build(TNotOptimizedProgram &program,TExpressio
 
 TFormalParam TExpression::TUnaryOp::Build(TNotOptimizedProgram &program,TExpression* parent)
 {
-	TVector<TFormalParam> param;
+	std::vector<TFormalParam> param;
 
-	param.SetCount(1);
+	param.resize(1);
 	param[0]=left->Build(program,parent);
 
 	int conv_count;
@@ -60,7 +65,7 @@ TFormalParam TExpression::TUnaryOp::Build(TNotOptimizedProgram &program,TExpress
 	if(param[0].GetClass()==NULL)
 		Error("  данному операнду нельз€ применить унарный оператор (нужен тип отличающийс€ от void)!");
 
-	TVector<TMethod*> operators;
+	std::vector<TMethod*> operators;
 	param[0].GetClass()->GetOperators(operators,op);
 
 	unary_operator=FindMethod(this,operators,param,conv_count);
@@ -91,19 +96,19 @@ TFormalParam TExpression::TId::Build(TNotOptimizedProgram &program,TExpression* 
 			program.Push(TOp(TOpcode::PUSH_THIS),temp);
 		return temp+var->PushRefToStack(program);
 	}
-	TVector<TMethod*> methods;
+	std::vector<TMethod*> methods;
 	if(parent->method->IsStatic())
 		parent->owner->GetMethods(methods,name,true);
 	else
 		parent->owner->GetMethods(methods,name);
-	if(methods.GetHigh()!=-1)
+	if(methods.size()!=0)
 	{
 		return TFormalParam(methods,true);
 	}else
 	{
 		if(parent->method->IsStatic())
 		{
-			methods.SetHigh(-1);
+			methods.clear();
 			if(parent->owner->GetMethods(methods,name,false))
 			{
 				Error("  нестатическому методу класса нельз€ обращатьс€ из статического метода!");
@@ -150,7 +155,7 @@ TFormalParam TExpression::TGetMemberOp::Build(TNotOptimizedProgram &program,TExp
 			TClassField* static_member=left_result.GetType()->GetField(name,true,true);
 			if(static_member!=NULL)
 				return static_member->PushRefToStack(program);
-			TVector<TMethod*> methods;
+			std::vector<TMethod*> methods;
 			if(left_result.GetType()->GetMethods(methods,name,true))
 				return TFormalParam(methods,false);
 			TClass* nested=left_result.GetType()->GetNested(name);
@@ -195,7 +200,7 @@ TFormalParam TExpression::TGetMemberOp::Build(TNotOptimizedProgram &program,TExp
 	{
 		if(!left_result.IsRef())
 			Error("¬ызов метода дл€ временного объекта недопустим!");
-		TVector<TMethod*> methods;
+		std::vector<TMethod*> methods;
 		if(!left_result.GetClass()->GetMethods(methods,name,false))
 			Error("„лена класса с таким именем не существует!");
 		TFormalParam result(methods,false);
@@ -208,10 +213,10 @@ TFormalParam TExpression::TGetMemberOp::Build(TNotOptimizedProgram &program,TExp
 TFormalParam TExpression::TCallParamsOp::Build(TNotOptimizedProgram &program,TExpression* parent)
 {
 	TFormalParam left_result=left->Build(program,parent);
-	TVector<TFormalParam> params_result;
+	std::vector<TFormalParam> params_result;
 
 	for(int i=0;i<=param.GetHigh();i++)
-		params_result.Push(param[i]->Build(program,parent));
+		params_result.push_back(param[i]->Build(program,parent));
 	int conv_need=0;
 	if(left_result.IsMethods())
 	{
@@ -236,7 +241,7 @@ TFormalParam TExpression::TCallParamsOp::Build(TNotOptimizedProgram &program,TEx
 		//if(left_result.GetType()->GetType()==TYPE_ENUM)
 		//	Error("ƒл€ перечислений нельз€ использовать оператор вызова параметров!");
 		int conv_need=-1;
-		TVector<TMethod*> constructors;
+		std::vector<TMethod*> constructors;
 		TClass* constr_class=left_result.GetType();
 		constr_class->GetConstructors(constructors);
 		TMethod* constructor=FindMethod(this,constructors,params_result,conv_need);
@@ -255,13 +260,13 @@ TFormalParam TExpression::TCallParamsOp::Build(TNotOptimizedProgram &program,TEx
 			for(int i=0;i<=param.GetHigh();i++)
 				params_ops+=params_result[i].GetOps();
 			return before_params+params_ops+TFormalParam(constr_class,false,call_ops);
-		}else if(params_result.GetHigh()>-1)
+		}else if(params_result.size()>0)
 			Error(" онструктора с такими параметрами не существует!");
 	}
 	else
 	{
-		params_result.Insert(left_result,-1);
-		TVector<TMethod*> operators;
+		params_result.insert(params_result.begin(),left_result);
+		std::vector<TMethod*> operators;
 		left_result.GetClass()->GetOperators(operators,is_bracket?(TOperator::GetArrayElement):(TOperator::ParamsCall));
 		TMethod* method=FindMethod(this,operators,params_result,conv_need);
 		if(method!=NULL)
@@ -269,7 +274,7 @@ TFormalParam TExpression::TCallParamsOp::Build(TNotOptimizedProgram &program,TEx
 			ValidateAccess(this,parent->owner,method);
 			TOpArray params_ops;
 			TFormalParam call_ops=method->BuildCall(program,params_result);
-			for(int i=0;i<=params_result.GetHigh();i++)
+			for(int i=0;i<params_result.size();i++)
 				params_ops+=params_result[i].GetOps();
 			return params_ops+call_ops;
 		}

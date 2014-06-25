@@ -1,6 +1,8 @@
 #include "Type.h"
 
 #include "Class.h"
+#include "Method.h"
+#include "Statements.h"
 
 TType::TType(TNameId use_class_name, TClass *use_owner) :
 	owner(use_owner) {

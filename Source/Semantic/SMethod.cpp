@@ -1,6 +1,11 @@
 #include "../Syntax/Method.h"
 
-TFormalParam TMethod::BuildCall(TNotOptimizedProgram &program,TVector<TFormalParam> &formal_params)
+#include <assert.h>
+
+#include "../Syntax/Statements.h"
+#include "../Syntax/Method.h"
+
+TFormalParam TMethod::BuildCall(TNotOptimizedProgram &program, std::vector<TFormalParam> &formal_params)
 {
 	assert(this!=NULL);
 	if(member_type!=TClassMember::Conversion)
@@ -13,7 +18,7 @@ TFormalParam TMethod::BuildCall(TNotOptimizedProgram &program,TVector<TFormalPar
 		if(IsBytecode())
 		{
 			int not_used=-1;
-			ops_array+=statements.Build(program,not_used).GetOps();
+			ops_array+=statements->Build(program,not_used).GetOps();
 		}
 		else
 			program.Push(TOp(TOpcode::CALL_METHOD,program.AddMethodToTable(this)),ops_array);
@@ -24,7 +29,7 @@ TFormalParam TMethod::BuildCall(TNotOptimizedProgram &program,TVector<TFormalPar
 void TMethod::Declare()
 {
 	params_size=0;
-	for(int i=0;i<=param.GetHigh();i++)
+	for(int i=0;i<param.size();i++)
 	{
 		param[i]->SetOffset(params_size);
 		params_size+=param[i]->GetSize();
@@ -40,7 +45,7 @@ void TMethod::Build(TNotOptimizedProgram &program)
 	if(!(is_extern||IsBytecode()))
 	{
 		int local_var_offset=params_size;
-		ops_array+=statements.Build(program,local_var_offset).GetOps();
+		ops_array+=statements->Build(program,local_var_offset).GetOps();
 		if(ret.GetClass()!=NULL)
 		{
 			if(!has_return)
@@ -62,7 +67,7 @@ void TMethod::Build(TNotOptimizedProgram &program)
 TOpArray TMethod::BuildParametersDestructor(TNotOptimizedProgram &program)
 {
 	TOpArray ops_array;
-	for(int i=0;i<=param.GetHigh();i++)
+	for(int i=0;i<param.size();i++)
 	{
 		if(!param[i]->IsRef()&&param[i]->GetClass()->HasDestr())
 		{
@@ -99,8 +104,8 @@ void TMethod::BuildFormalParamConversion(TNotOptimizedProgram &program,TFormalPa
 			}
 		}
 		assert(conversion!=NULL);//ошибка в FindMethod
-		TVector<TFormalParam> conv_method_params;
-		conv_method_params.Push(formal_par);
+		std::vector<TFormalParam> conv_method_params;
+		conv_method_params.push_back(formal_par);
 		formal_par=formal_par.GetOps()+conversion->BuildCall(program,conv_method_params);
 	}
 	//если в стеке находится ссылка, а в качестве параметра требуется значение, то добавляем преобразование
@@ -112,18 +117,18 @@ void TMethod::BuildFormalParamConversion(TNotOptimizedProgram &program,TFormalPa
 	}
 }
 
-void TMethod::BuildFormalParamsConversion(TNotOptimizedProgram &program,TVector<TFormalParam> &formal_params)
+void TMethod::BuildFormalParamsConversion(TNotOptimizedProgram &program, std::vector<TFormalParam> &formal_params)
 {
-	assert(formal_params.GetHigh()==param.GetHigh());//ошибка в FindMethod
-	for(int i=0;i<=param.GetHigh();i++){
+	assert(formal_params.size()==param.size());//ошибка в FindMethod
+	for(int i=0;i<param.size();i++){
 		BuildFormalParamConversion(program,formal_params[i],param[i]->GetClass(),param[i]->IsRef());			
 	}
 }
 
 TFormalParam TMethod::BuildCall(TNotOptimizedProgram &program,TClass* par0,bool par0_ref,TOpArray& par0_ops,TClass* par1,bool par1_ref,TOpArray& par1_ops)
 {
-	TVector<TFormalParam> params;
-	params.SetHigh(1);
+	std::vector<TFormalParam> params;
+	params.resize(2);
 	params[0]=TFormalParam(par0,par0_ref,par0_ops);
 	params[1]=TFormalParam(par1,par1_ref,par1_ops);
 	return BuildCall(program,params);
@@ -131,22 +136,22 @@ TFormalParam TMethod::BuildCall(TNotOptimizedProgram &program,TClass* par0,bool 
 
 TFormalParam TMethod::BuildCall(TNotOptimizedProgram &program,TClass* par0,bool par0_ref,TOpArray& par0_ops)
 {
-	TVector<TFormalParam> params;
-	params.SetHigh(0);
+	std::vector<TFormalParam> params;
+	params.resize(1);
 	params[0]=TFormalParam(par0,par0_ref,par0_ops);
 	return BuildCall(program,params);
 }
 
 TFormalParam TMethod::BuildCall(TNotOptimizedProgram &program)
 {
-	TVector<TFormalParam> params;
+	std::vector<TFormalParam> params;
 	return BuildCall(program,params);
 }
 
 TVariable* TMethod::GetVar(TNameId name)
 {
-	for(int i=0;i<=param.GetHigh();i++)
-		if(param[i]->GetName()==name)return param[i];
+	for(int i=0;i<param.size();i++)
+		if(param[i]->GetName()==name)return param[i].get();
 	return owner->GetField(name,false);
 }
 
@@ -154,7 +159,7 @@ void TMethod::CheckForErrors()
 {
 	if(owner->GetOwner()==NULL&&!is_static)
 		Error("Базовый класс может содержать только статические методы!");
-	for(int i=0;i<=param.GetHigh();i++)
+	for(int i=0;i<param.size();i++)
 	{
 		if(!param[i]->GetName().IsNull())
 			for(int k=0;k<i;k++)
@@ -201,27 +206,27 @@ void TMethod::CheckForErrors()
 			break;
 		case TClassMember::Destr:	
 			if(ret.GetClass()!=NULL)Error("Деструктор не должен возвращать значение!");
-			if(param.GetCount()!=0)Error("Деструктор не имеет параметров!");
+			if(param.size()!=0)Error("Деструктор не имеет параметров!");
 			break;
 		case TClassMember::Operator:
 			if(operator_type==TOperator::Not)//унарные операторы
 			{
-				if(GetParamsHigh()!=0)
+				if(GetParamsCount()!=1)
 					Error("Унарный оператор должен иметь один параметр!");
 				if(GetParam(0)->GetClass()!=owner)
 					Error("Хотя бы один из параметров оператора должен быть классом для которого он используется!");
 			}
 			else if(operator_type==TOperator::UnaryMinus)
 			{
-				if(!IsIn(GetParamsHigh(),0,1))
+				if (!IsIn(GetParamsCount(), 1, 2))
 					Error("У унарного оператора ""-"" должнен быть 1 параметр!");
 				if(GetParam(0)->GetClass()!=owner
-					&&(GetParamsHigh()==1&&GetParam(1)->GetClass()!=owner))
+					&& (GetParamsCount() == 2 && GetParam(1)->GetClass() != owner))
 					Error("Параметром унарного оператора должен быть класс для которого он используется!");
 			}
 			else if(operator_type==TOperator::ParamsCall||operator_type==TOperator::GetArrayElement)
 			{
-				if(GetParamsHigh()<1)
+				if (GetParamsCount()<2)
 					Error("Оператор вызова параметров должен иметь минимум 2 операнда!");
 				if(GetParam(0)->GetClass()!=owner)
 					Error("Первый параметр оператора вызова должен быть данным классом!");
@@ -230,15 +235,15 @@ void TMethod::CheckForErrors()
 			{
 				if((operator_type==TOperator::Equal||operator_type==TOperator::NotEqual)&&ret.GetClass()!=owner->GetClass(source->GetIdFromName("bool")))
 					Error("Оператор сравнения должен возвращать логическое значение!");
-				if(GetParamsHigh()!=1)
+				if (GetParamsCount() != 2)
 					Error("У бинарного оператора должно быть 2 параметра!");
 				if(GetParam(0)->GetClass()!=owner
-					&&(GetParamsHigh()==1&&GetParam(1)->GetClass()!=owner))
+					&& (GetParamsCount() == 2 && GetParam(1)->GetClass() != owner))
 					Error("Хотя бы один из параметров оператора должен быть классом для которого он используется!");
 			}
 			break;
 		case TClassMember::Conversion:
-			if(GetParamsHigh()!=0
+			if (GetParamsCount() != 1
 				||GetParam(0)->GetClass()!=owner)
 				Error("Оператор приведения типа должен иметь один параметр с типом равным классу в котором он находится!");
 			break;

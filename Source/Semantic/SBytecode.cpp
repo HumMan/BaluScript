@@ -1,6 +1,9 @@
 #include "../Syntax/Bytecode.h"
 
 #include "../Syntax/Void.h"
+#include "../Syntax/Class.h"
+#include "../Syntax/Method.h"
+#include "../Syntax/Statements.h"
 
 TFormalParam TBytecode::Build(TNotOptimizedProgram &program,int& local_var_offset)
 {

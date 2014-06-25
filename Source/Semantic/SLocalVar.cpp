@@ -1,8 +1,13 @@
 #include "../Syntax/LocalVar.h"
 
+#include "../Syntax/Class.h"
+#include "../Syntax/Statements.h"
+#include "../Syntax/Expression.h"
+#include "../Syntax/Method.h"
+
 TFormalParam TLocalVar::Build(TNotOptimizedProgram &program,int& local_var_offset)
 {
-	TVector<TMethod*> methods;
+	std::vector<TMethod*> methods;
 	if(owner->GetMethods(methods,name))
 		Error("ћетод не может быть именем переменной!");
 	if(owner->GetClass(name)!=NULL)
@@ -31,21 +36,21 @@ TFormalParam TLocalVar::Build(TNotOptimizedProgram &program,int& local_var_offse
 		local_var_offset+=type.GetClass(true,&program)->GetSize();
 	}
 
-	TVector<TFormalParam> params_result;
+	std::vector<TFormalParam> params_result;
 	TOpArray params_ops,before_params,after_params;
 	for(int i=0;i<=params.GetHigh();i++)
 	{
-		params_result.Push(params[i]->Build(program,local_var_offset));
+		params_result.push_back(params[i]->Build(program,local_var_offset));
 		params_ops+=params_result[i].GetOps();
 	}
 	int conv_need=0;
-	TVector<TMethod*> constructors;
+	std::vector<TMethod*> constructors;
 	type.GetClass()->GetConstructors(constructors);
 	TMethod* constructor=FindMethod(this,constructors,params_result,conv_need);
-	if(constructor==NULL&&params_result.GetHigh()>-1)
+	if(constructor==NULL&&params_result.size()>0)
 		Error(" оструктора с такими парметрами не существует!");
 
-	bool need_testandget=is_static&&(params_result.GetHigh()>-1||assign_expr!=NULL);
+	bool need_testandget=is_static&&(params_result.size()>0||assign_expr!=NULL);
 
 	if((constructor==NULL||!constructor->IsBytecode())&&!is_static)
 		program.Push(TOp(TOpcode::PUSH_COUNT,type.GetClass()->GetSize()),before_params);

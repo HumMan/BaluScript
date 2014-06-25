@@ -1,10 +1,12 @@
 #pragma once
 
 #include <baluLib.h>
+
 #include "../VirtualMachine/Op.h"
+#include "../notOptimizedProgram.h"
+
 #include "Statement.h"
 #include "FormalParam.h"
-#include "../notOptimizedProgram.h"
 
 class TClass;
 class TMethod;

@@ -8,8 +8,9 @@
 
 typedef void(*TExternalMethod)(int*&, int*, int*);// параметры: вершина стека, указатель на первый параметр, указатель на объект
 
-struct TProgram
+class TProgram
 {
+public:
 	struct TMethod
 	{
 		bool is_static;

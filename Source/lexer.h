@@ -260,19 +260,20 @@ public:
 		s=use_id.s;
 #endif
 	}
-	int GetId(){
+	int GetId()const
+	{
 		return id;
 	}
-	bool operator==(TNameId right)
+	bool operator==(TNameId right)const
 	{
 		assert(!(id==-1||right.id==-1));
 		return id==right.id;
 	}
-	bool operator!=(TNameId right)
+	bool operator!=(TNameId right)const
 	{
 		return id!=right.id;
 	}
-	bool IsNull()
+	bool IsNull()const
 	{
 		assert(id>=-1);
 		return id==-1;

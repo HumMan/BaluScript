@@ -1,5 +1,10 @@
 #include "syntaxAnalyzer.h"
 
+#include "Syntax/ClassField.h"
+#include "Syntax/Class.h"
+#include "Syntax/Method.h"
+#include "Syntax/Statements.h"
+
 void ValidateAccess(TTokenPos* field_pos,TClass* source,TClassField* target)
 {
 	if(target->GetAccess()==TTypeOfAccess::Public)return;
@@ -37,25 +42,25 @@ bool IsEqualClasses(TFormalParam formal_par,TClass* param_class,bool param_ref,i
 	return true;
 }
 
-TMethod* FindMethod(TTokenPos* source, TVector<TMethod*> &methods_to_call,TVector<TFormalParam> &formal_params,int& conv_needed)
+TMethod* FindMethod(TTokenPos* source, std::vector<TMethod*> &methods_to_call,const std::vector<TFormalParam> &formal_params, int& conv_needed)
 {
-	for(int k=0;k<=formal_params.GetHigh();k++){
+	for(int k=0;k<formal_params.size();k++){
 		if(formal_params[k].IsVoid())
 			source->Error("Параметр метода должен иметь тип отличный от void!");
 	}
 	int i,k;
 	int min_conv_method=-1,temp_conv,conv;
 	conv_needed=-1;
-	for (i=0;i<=methods_to_call.GetHigh();i++)
+	for (i=0;i<methods_to_call.size();i++)
 	{			
-		if(formal_params.GetHigh()==-1&&methods_to_call[i]->GetParamsHigh()==-1){
+		if(formal_params.size()==0&&methods_to_call[i]->GetParamsCount()==0){
 			conv_needed=0;
 			return methods_to_call[i];
 		}
-		if(formal_params.GetHigh()!=methods_to_call[i]->GetParamsHigh())goto end_search;
+		if(formal_params.size()!=methods_to_call[i]->GetParamsCount())goto end_search;
 		temp_conv=0;
 		conv=0;
-		for(k=0;k<=formal_params.GetHigh();k++){
+		for(k=0;k<formal_params.size();k++){
 			TParameter* p=methods_to_call[i]->GetParam(k);
 			if(!IsEqualClasses(formal_params[k],p->GetClass(),p->IsRef(),conv))goto end_search;
 			else temp_conv+=conv;
@@ -105,7 +110,7 @@ int TSyntaxAnalyzer::GetMethod(char* use_method)
 	TMethod* method_decl=new TMethod(base_class);
 	method_decl->AnalyzeSyntax(lexer,false);
 	method_decl->Declare();
-	TVector<TMethod*> methods;
+	std::vector<TMethod*> methods;
 	TMethod* method=NULL;
 	switch(method_decl->GetMemberType())
 	{
@@ -131,20 +136,20 @@ int TSyntaxAnalyzer::GetMethod(char* use_method)
 			temp==TClassMember::Constr||
 			temp==TClassMember::Operator)
 	{
-		for (int i=0;i<=methods.GetHigh();i++)
+		for (int i=0;i<methods.size();i++)
 		{
-			if(method_decl->GetParamsHigh()==-1&&methods[i]->GetParamsHigh()==-1){
+			if(method_decl->GetParamsCount()==0&&methods[i]->GetParamsCount()==0){
 				method=methods[i];
 				break;
 			}
-			if(method_decl->GetParamsHigh()!=methods[i]->GetParamsHigh())continue;
-			for(int k=0;k<=method_decl->GetParamsHigh();k++)
+			if (method_decl->GetParamsCount() != methods[i]->GetParamsCount())continue;
+			for (int k = 0; k < method_decl->GetParamsCount(); k++)
 			{
 				if(!methods[i]->GetParam(k)->IsEqualTo(*method_decl->GetParam(k)))
 					goto end_search;
 			}
 			method=methods[i];
-			i=methods.GetCount();end_search:continue;
+			i=methods.size();end_search:continue;
 		}
 	}
 

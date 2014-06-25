@@ -1,5 +1,10 @@
 #include "../Syntax/Statement.h"
 
+#include "../Syntax/Class.h"
+#include "../syntaxAnalyzer.h"
+#include "../Syntax/Method.h"
+#include "../Syntax/Statements.h"
+
 void TStatement::TestBoolExpr(TNotOptimizedProgram &program,TFormalParam& compare_result,int go_false_label)
 {
 	int conv_needed;

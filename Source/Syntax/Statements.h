@@ -1,15 +1,17 @@
 #pragma once
 
-#include "Class.h"
-#include "LocalVar.h"
-#include "Statement.h"
-#include "Statements.h"
-#include "baluLib.h"
-#include "Method.h"
-#include "FormalParam.h"
-#include "Variable.h"
-#include "../syntaxAnalyzer.h"
+#include <baluLib.h>
+
 #include "../lexer.h"
+#include "Statement.h"
+
+#include "../syntaxAnalyzer.h"
+
+
+class TLocalVar;
+class TClass;
+class TStatements;
+class TVariable;
 
 class TStatements:public TStatement
 {
@@ -26,37 +28,15 @@ class TStatements:public TStatement
 	TVector<TVarDecl> var_declarations;
 	void operator=(const TStatements& use_source);
 public:
-	void Add(TStatement* use_statement){
-		statement.Push(use_statement);
-		use_statement->SetStmtId(statement.GetHigh());//TODO не нужно
-	}
+	void Add(TStatement* use_statement);
 	void AddVar(TLocalVar* use_var);
-	TStatement* GetStatement(int i)
-	{
-		return statement[i];
-	}
-	TStatement* GetCopy()
-	{
-		TStatements* copy=new TStatements(*this);
-		return copy;
-	}
+	TStatement* GetStatement(int i);
+	TStatement* GetCopy();
 	TStatements(const TStatements& use_source);
-	void InitOwner(TClass* use_owner,TMethod* use_method,TStatements* use_parent)
-	{
-		TStatement::_InitOwner(use_owner,use_method,use_parent);
-		for(int i=0;i<=statement.GetHigh();i++)
-			statement[i]->InitOwner(use_owner,use_method,this);
-	}
-	int GetHigh()
-	{
-		return statement.GetHigh();
-	}
-	TStatements(TClass* use_owner,TMethod* use_method,TStatements* use_parent,int use_stmt_id)
-		:TStatement(TStatementType::Statements,use_owner,use_method,use_parent,use_stmt_id){}
-	~TStatements()
-	{
-		for(int i=0;i<=statement.GetHigh();i++)delete statement[i];
-	}
+	void InitOwner(TClass* use_owner, TMethod* use_method, TStatements* use_parent);
+	int GetHigh();
+	TStatements(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);
+	~TStatements();
 	void AnalyzeStatement(TLexer& source,bool end_semicolon);
 	void AnalyzeSyntax(TLexer& source);
 	TFormalParam Build(TNotOptimizedProgram &program,int& local_var_offset);

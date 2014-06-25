@@ -1,56 +1,62 @@
 #include "../Syntax/Class.h"
 
+#include "../syntaxAnalyzer.h"
+#include "../Syntax/ClassField.h"
+#include "../Syntax/Method.h"
+#include "../Syntax/Statements.h"
+
 void TClass::CheckForErrors()
 {
 	if(owner!=NULL&&owner->GetOwner()!=NULL&&owner->GetOwner()->GetClass(name))
 		Error("Класс с таким именем уже существует!");
-	for(int i=0;i<=nested_class.GetHigh();i++)
+	//for (const std::unique_ptr<TClass> nested_class : nested_classes)
+	for(int i=0;i<nested_classes.size();i++)
 	{
 		for(int k=0;k<i;k++)
 		{
-			if(nested_class[i]->GetName()==nested_class[k]->GetName())
-				nested_class[i]->Error("Класс с таким именем уже существует!");
+			if(nested_classes[i]->GetName()==nested_classes[k]->GetName())
+				nested_classes[i]->Error("Класс с таким именем уже существует!");
 		}
 	}
-	for(int i=0;i<=field.GetHigh();i++)
+	for(int i=0;i<fields.size();i++)
 	{
 		for(int k=0;k<i;k++)
 		{
-			if(owner==NULL&&!field[i]->IsStatic())
+			if(owner==NULL&&!fields[i]->IsStatic())
 				Error("Базовый класс может содержать только статические поля!");
-			if(field[i]->GetName()==field[k]->GetName())
-				field[i]->Error("Поле класса с таким именем уже существует!");
+			if(fields[i]->GetName()==fields[k]->GetName())
+				fields[i]->Error("Поле класса с таким именем уже существует!");
 			//TODO как быть со статическими членами класса
 		}
-		TVector<TMethod*> m;
+		std::vector<TMethod*> m;
 		if((owner!=NULL&&owner->GetField(name,true,false)!=NULL)||GetMethods(m,name))
-			field[i]->Error("Член класса с таким имененем уже существует!");
+			fields[i]->Error("Член класса с таким имененем уже существует!");
 	}
-	for(int i=0;i<=method.GetHigh();i++)
+	for(int i=0;i<methods.size();i++)
 	{
-		if((owner!=NULL&&owner->GetField(method[i]->GetName(),true,false)!=NULL))
-			method[i]->method[0]->Error("Статическое поле класса с таким имененем уже существует!");
-		method[i]->CheckForErrors();
-		TVector<TMethod*> owner_methods;
-		if(owner!=NULL&&owner->GetMethods(owner_methods,method[i]->GetName()))
+		if((owner!=NULL&&owner->GetField(methods[i]->GetName(),true,false)!=NULL))
+			methods[i]->methods[0]->Error("Статическое поле класса с таким имененем уже существует!");
+		methods[i]->CheckForErrors();
+		std::vector<TMethod*> owner_methods;
+		if(owner!=NULL&&owner->GetMethods(owner_methods,methods[i]->GetName()))
 		{
-			for(int k=0;k<=owner_methods.GetHigh();k++)
+			for(int k=0;k<owner_methods.size();k++)
 			{
-				TMethod* temp=method[i]->FindParams(owner_methods[k]);
+				TMethod* temp=methods[i]->FindParams(owner_methods[k]);
 				if(temp!=NULL)
 					temp->Error("Статический метод с такими параметрами уже существует!");
 			}
 		}
 	}
-	constructor.CheckForErrors();
-	conversion.CheckForErrors(true);
+	constructors.CheckForErrors();
+	conversions.CheckForErrors(true);
 	for(int i=0;i<TOperator::End;i++)
 	{
 		operators[i].CheckForErrors();
 	}
-	for(int i=0;i<=nested_class.GetHigh();i++)
-		if(!nested_class[i]->IsTemplate())
-			nested_class[i]->DeclareMethods();
+	for(int i=0;i<nested_classes.size();i++)
+		if(!nested_classes[i]->IsTemplate())
+			nested_classes[i]->DeclareMethods();
 }
 
 void TClass::InitAutoMethods(TNotOptimizedProgram &program)
@@ -59,45 +65,45 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 	if(auto_methods_build)return;
 	if(parent.GetClass()!=NULL)
 		parent.GetClass()->InitAutoMethods(program);
-	for(int i=0;i<=field.GetHigh();i++)
+	for(int i=0;i<fields.size();i++)
 	{
-		field[i]->GetClass()->InitAutoMethods(program);
+		fields[i]->GetClass()->InitAutoMethods(program);
 		//создаем конструктор для статических полей класса
-		if(field[i]->IsStatic())
+		if(fields[i]->IsStatic())
 		{
-			field[i]->SetOffset(program.static_vars_size);
-			TVector<TMethod*> constructors;
-			field[i]->GetClass()->GetConstructors(constructors);
-			TVector<TFormalParam> params;
+			fields[i]->SetOffset(program.static_vars_size);
+			std::vector<TMethod*> constructors;
+			fields[i]->GetClass()->GetConstructors(constructors);
+			std::vector<TFormalParam> params;
 			int conv_need=0;
 			{
 				TMethod* constructor=FindMethod(this,constructors,params,conv_need);
 				if(constructor!=NULL)
 				{
-					ValidateAccess(field[i],this,constructor);
+					ValidateAccess(fields[i].get(),this,constructor);
 					program.Push(TOp(TOpcode::PUSH_GLOBAL_REF,program.static_vars_size),program.static_vars_init);
 					program.static_vars_init+=constructor->BuildCall(program,params).GetOps();
 				}
 			}
 			{
-				TMethod* destructor=field[i]->GetClass()->GetDestructor();
+				TMethod* destructor=fields[i]->GetClass()->GetDestructor();
 				if(destructor!=NULL)
 				{
-					ValidateAccess(field[i],this,destructor);
+					ValidateAccess(fields[i].get(),this,destructor);
 					program.Push(TOp(TOpcode::PUSH_GLOBAL_REF,program.static_vars_size),program.static_vars_destroy);
 					program.static_vars_destroy+=destructor->BuildCall(program,params).GetOps();
 				}
 			}
-			program.static_vars_size+=field[i]->GetClass()->GetSize();
+			program.static_vars_size+=fields[i]->GetClass()->GetSize();
 		}
 	}
 	//TODO что делать если будет bytecode пользовательский конструктор и auto_def_constr?
 	{//defConstructor
 		bool field_has_def_constr=false;
 		bool parent_has_def_constr=parent.GetClass()==NULL?false:parent.GetClass()->HasDefConstr();
-		for(int i=0;i<=field.GetHigh();i++){
-			TMethod* field_def_constr=field[i]->GetClass()->GetDefConstr();
-			if(field_def_constr!=NULL&&!field_def_constr->IsBytecode()&&!field[i]->IsStatic()){
+		for(int i=0;i<fields.size();i++){
+			TMethod* field_def_constr=fields[i]->GetClass()->GetDefConstr();
+			if(field_def_constr!=NULL&&!field_def_constr->IsBytecode()&&!fields[i]->IsStatic()){
 				field_has_def_constr=true;
 				break;
 			}
@@ -111,26 +117,26 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 				program.Push(TOp(TOpcode::PUSH_THIS),ops);
 				ops+=parent.GetClass()->GetDefConstr()->BuildCall(program).GetOps();
 			}
-			for(int i=0;i<=field.GetHigh();i++)
+			for(int i=0;i<fields.size();i++)
 			{
-				if(!field[i]->IsStatic())
+				if(!fields[i]->IsStatic())
 				{
-					TClass* field_class=field[i]->GetClass();
+					TClass* field_class=fields[i]->GetClass();
 					if(field_class->HasDefConstr())
 					{
-						ValidateAccess(field[i],this,field_class->GetDefConstr());
-						program.Push(TOp(TOpcode::PUSH_MEMBER_REF,field[i]->GetOffset()),ops);
+						ValidateAccess(fields[i].get(),this,field_class->GetDefConstr());
+						program.Push(TOp(TOpcode::PUSH_MEMBER_REF,fields[i]->GetOffset()),ops);
 						ops+=field_class->GetDefConstr()->BuildCall(program).GetOps();
 					}
 				}
 			}
 			program.Push(TOp(TOpcode::RETURN,1,0),ops);
-			auto_def_constr = new TMethod(this);
+			auto_def_constr = std::unique_ptr<TMethod>(new TMethod(this));
 			auto_def_constr->SetAs(ops, NULL, false, false);
 			auto_def_constr->CalcParamSize();
-			for(int i=0;i<=constructor.method.GetHigh();i++)
-				if(constructor.method[i]!=NULL&&!constructor.method[i]->IsBytecode())
-					constructor.method[i]->SetPreEvent(auto_def_constr.GetPointer());
+			for(int i=0;i<constructors.methods.size();i++)
+				if(constructors.methods[i]!=NULL&&!constructors.methods[i]->IsBytecode())
+					constructors.methods[i]->SetPreEvent(auto_def_constr.get());
 		}
 	}
 
@@ -138,9 +144,9 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 	{
 		bool field_has_copy_constr=false;
 		bool parent_has_copy_constr=parent.GetClass()==NULL?false:parent.GetClass()->HasCopyConstr();
-		for(int i=0;i<=field.GetHigh();i++){
-			TMethod* field_copy_constr=field[i]->GetClass()->GetCopyConstr();
-			if(field_copy_constr!=NULL&&!field_copy_constr->IsBytecode()&&!field[i]->IsStatic()){
+		for(int i=0;i<fields.size();i++){
+			TMethod* field_copy_constr=fields[i]->GetClass()->GetCopyConstr();
+			if(field_copy_constr!=NULL&&!field_copy_constr->IsBytecode()&&!fields[i]->IsStatic()){
 				field_has_copy_constr=true;
 				break;
 			}
@@ -160,17 +166,17 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 				ops+=parent.GetClass()->GetCopyConstr()->BuildCall(program,parent.GetClass(),true,ops).GetOps();
 			}
 			//вызываем конструкторы копий
-			for(int i=0;i<=field.GetHigh();i++)
+			for(int i=0;i<fields.size();i++)
 			{
-				if(!field[i]->IsStatic())
+				if(!fields[i]->IsStatic())
 				{
-					TClass* field_class=field[i]->GetClass();
+					TClass* field_class=fields[i]->GetClass();
 					if(field_class->HasCopyConstr())
 					{
-						ValidateAccess(field[i],this,field_class->GetCopyConstr());
-						program.Push(TOp(TOpcode::PUSH_MEMBER_REF,field[i]->GetOffset()),ops);
+						ValidateAccess(fields[i].get(),this,field_class->GetCopyConstr());
+						program.Push(TOp(TOpcode::PUSH_MEMBER_REF,fields[i]->GetOffset()),ops);
 						program.Push(TOp(TOpcode::PUSH_LOCAL_REF_COPY,0),ops);
-						program.Push(TOp(TOpcode::ADD_OFFSET,field[i]->GetOffset()),ops);
+						program.Push(TOp(TOpcode::ADD_OFFSET,fields[i]->GetOffset()),ops);
 						ops+=field_class->GetCopyConstr()->BuildCall(program,field_class,true,ops).GetOps();
 					}
 				}
@@ -182,16 +188,16 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 			t->SetAs(true, this);
 			auto_copy_constr->AddParam(t);
 			auto_copy_constr->CalcParamSize();
-			constructor.method.Push(auto_copy_constr);
+			constructors.methods.push_back(std::unique_ptr<TMethod>(auto_copy_constr));
 		}
 	}
 
 	{
 		bool field_has_destr=false;
 		bool parent_has_destr=parent.GetClass()==NULL?false:parent.GetClass()->HasDestr();
-		for(int i=0;i<=field.GetHigh();i++){
-			TMethod* field_destr=field[i]->GetClass()->GetDestructor();
-			if(field_destr!=NULL&&!field_destr->IsBytecode()&&!field[i]->IsStatic()){
+		for(int i=0;i<fields.size();i++){
+			TMethod* field_destr=fields[i]->GetClass()->GetDestructor();
+			if(field_destr!=NULL&&!field_destr->IsBytecode()&&!fields[i]->IsStatic()){
 				field_has_destr=true;
 				break;
 			}
@@ -205,29 +211,29 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 				program.Push(TOp(TOpcode::PUSH_THIS),ops);
 				ops+=parent.GetClass()->GetDestructor()->BuildCall(program).GetOps();
 			}
-			for(int i=0;i<=field.GetHigh();i++)
+			for(int i=0;i<fields.size();i++)
 			{
-				if(!field[i]->IsStatic())
+				if(!fields[i]->IsStatic())
 				{
-					TClass* field_class=field[i]->GetClass();
+					TClass* field_class=fields[i]->GetClass();
 					if(field_class->HasDestr())
 					{
-						ValidateAccess(field[i],this,field_class->GetDestructor());
-						program.Push(TOp(TOpcode::PUSH_MEMBER_REF,field[i]->GetOffset()),ops);
+						ValidateAccess(fields[i].get(),this,field_class->GetDestructor());
+						program.Push(TOp(TOpcode::PUSH_MEMBER_REF,fields[i]->GetOffset()),ops);
 						ops+=field_class->GetDestructor()->BuildCall(program).GetOps();
 					}
 				}
 			}
 			program.Push(TOp(TOpcode::RETURN,1,0),ops);
-			auto_destr = new TMethod(this);
+			auto_destr = std::unique_ptr<TMethod>(new TMethod(this));
 			auto_destr->SetAs(ops, NULL, false, false);
 			auto_destr->CalcParamSize();
-			if(!destructor.IsNull()&&!destructor->IsBytecode())
-				destructor->SetPostEvent(auto_destr.GetPointer());
+			if(destructor&&!destructor->IsBytecode())
+				destructor->SetPostEvent(auto_destr.get());
 		}
 	}
 
-	if(operators[TOperator::Assign].method.GetCount()==0)
+	if(operators[TOperator::Assign].methods.size()==0)
 	{
 		//TODO оператор = (&left,right)
 		//TODO у членов проверяется только оператор (&,&) нужно брать в расчет и (&,val)
@@ -235,10 +241,10 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 		TMethod* parent_assign_op=parent.GetClass()!=NULL?parent.GetClass()->GetBinOp(TOperator::Assign,parent.GetClass(),true,parent.GetClass(),true):NULL;
 		//if(parent_assign_op!=NULL&&parent_assign_op->GetType()==MT_INTERNAL)parent_assign_op=NULL;
 		bool parent_has_assign_op=parent.GetClass()==NULL?false:parent_assign_op!=NULL;
-		for(int i=0;i<=field.GetHigh();i++){
-			if(!field[i]->IsStatic())
+		for(int i=0;i<fields.size();i++){
+			if(!fields[i]->IsStatic())
 			{
-				TClass* field_class=field[i]->GetClass();//TODO проверять не является ли метод bytecode
+				TClass* field_class=fields[i]->GetClass();//TODO проверять не является ли метод bytecode
 				TMethod* field_assign_op=field_class->GetBinOp(TOperator::Assign,field_class,true,field_class,true);
 				if(field_assign_op!=NULL&&!field_assign_op->IsBytecode()){
 					field_has_assign_op=true;break;
@@ -255,20 +261,20 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 				program.Push(TOp(TOpcode::PUSH_LOCAL_REF_COPY,1),ops);
 				parent_assign_op->BuildCall(program,parent.GetClass(),true,ops,parent.GetClass(),true,ops);
 			}
-			for(int i=0;i<=field.GetHigh();i++)
+			for(int i=0;i<fields.size();i++)
 			{
-				if(!field[i]->IsStatic())
+				if(!fields[i]->IsStatic())
 				{
-					TClass* field_class=field[i]->GetClass();
+					TClass* field_class=fields[i]->GetClass();
 
 					program.Push(TOp(TOpcode::PUSH_LOCAL_REF_COPY,0),ops);
-					program.Push(TOp(TOpcode::ADD_OFFSET,field[i]->GetOffset()),ops);
+					program.Push(TOp(TOpcode::ADD_OFFSET,fields[i]->GetOffset()),ops);
 					program.Push(TOp(TOpcode::PUSH_LOCAL_REF_COPY,1),ops);
-					program.Push(TOp(TOpcode::ADD_OFFSET,field[i]->GetOffset()),ops);
+					program.Push(TOp(TOpcode::ADD_OFFSET,fields[i]->GetOffset()),ops);
 					TMethod* field_assign_op=field_class->GetBinOp(TOperator::Assign,field_class,true,field_class,true);
 					if(field_assign_op!=NULL)
 					{
-						ValidateAccess(field[i],this,field_assign_op);
+						ValidateAccess(fields[i].get(),this,field_assign_op);
 						ops+=field_assign_op->BuildCall(program,field_class,true,ops,field_class,true,ops).GetOps();
 					}
 					else
@@ -286,7 +292,7 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 			t->SetAs(true, this);
 			method->AddParam(t);
 			method->CalcParamSize();
-			operators[TOperator::Assign].method.Push(method);
+			operators[TOperator::Assign].methods.push_back(std::unique_ptr<TMethod>(method));
 		}else
 		{
 			TOpArray ops;
@@ -306,7 +312,7 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 			op->AddParam(t);
 			op->CalcParamSize();
 
-			operators[TOperator::Assign].method.Push(op);
+			operators[TOperator::Assign].methods.push_back(std::unique_ptr<TMethod>(op));
 		}
 	}
 	if(is_enum)
@@ -324,10 +330,10 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 		op->AddParam(t);
 		op->CalcParamSize();
 
-		operators[TOperator::Equal].method.Push(op);
+		operators[TOperator::Equal].methods.push_back(std::unique_ptr<TMethod>(op));
 	}
 	auto_methods_build=true;
-	for(int i=0;i<=nested_class.GetHigh();i++)
-		if(!nested_class[i]->IsTemplate())
-			nested_class[i]->InitAutoMethods(program);
+	for(int i=0;i<nested_classes.size();i++)
+		if(!nested_classes[i]->IsTemplate())
+			nested_classes[i]->InitAutoMethods(program);
 }

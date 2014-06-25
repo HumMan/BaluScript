@@ -4,15 +4,16 @@
 
 #include "Type.h"
 #include "OverloadedMethod.h"
-#include "ClassField.h"
-
 #include "../notOptimizedProgram.h"
+#include "Accessible.h"
 
 #include <list>
 #include <vector>
 #include <memory>
 
 class TTemplateRealizations;
+class TClassField;
+class TOverloadedMethod;
 
 class TClass:public TTokenPos
 {
@@ -33,19 +34,19 @@ class TClass:public TTokenPos
 
 	TTemplateRealizations* templates;
 
-	std::vector<std::unique_ptr <TClassField>> fields;
-	std::list<TOverloadedMethod> methods;
+	std::vector<std::shared_ptr <TClassField>> fields;
+	std::vector<std::shared_ptr<TOverloadedMethod>> methods;
 	TOverloadedMethod constructors;
-	std::unique_ptr<TMethod> destructor;
+	std::shared_ptr<TMethod> destructor;
 	TOverloadedMethod operators[TOperator::End];
 	TOverloadedMethod conversions;
 	std::vector<TNameId> enums;
 
-	std::vector<std::unique_ptr<TClass>> nested_classes;
+	std::vector<std::shared_ptr<TClass>> nested_classes;
 
-	std::unique_ptr< TMethod> auto_def_constr;
+	std::shared_ptr<TMethod> auto_def_constr;
 	bool constr_override;//имеется пользовательский конструктор по умолчанию
-	std::unique_ptr<TMethod> auto_destr;
+	std::shared_ptr<TMethod> auto_destr;
 
 	TNameId name;
 	TType parent;
@@ -68,7 +69,7 @@ public:
 	void InitAutoMethods(TNotOptimizedProgram &program);
 	void BuildMethods(TNotOptimizedProgram &program);
 
-	void AccessDecl(TLexer& source,bool& readonly, TTypeOfAccess::Enum& access);
+	void AccessDecl(TLexer& source,bool& readonly, TTypeOfAccess::Enum access);
 
 	bool IsTemplate();
 	bool IsEnum();
@@ -76,7 +77,7 @@ public:
 	void SetTemplateParamClass(int id, TClass* use_class);
 	void SetIsTemplate(bool use_is_template);
 	TClass* GetTemplateParamClass(int id);
-	int GetTemplateParamsHigh();
+	int GetTemplateParamsCount();
 	bool IsChildOf(TClass* use_parent);
 	void AddMethod(TMethod* use_method,TNameId name);
 	void AddOperator(TOperator::Enum op,TMethod* use_method);

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <baluLib.h>
 #include "../VirtualMachine/OpArray.h"
+#include <vector>
 
 class TClass;
 class TMethod;
@@ -12,12 +12,12 @@ class TFormalParam
 	TClass* type;//указатель на тип (для доступа к статическим членам и функциям)
 	bool is_ref;
 	TOpArray ops;
-	TVector<TMethod*> methods;//указатель на перегруженые методы
+	std::vector<TMethod*> methods;//указатель на перегруженые методы
 	bool need_push_this;//если вызывются методы класса из самого класса 
 	void Init();
 public:
 	TFormalParam();
-	TFormalParam(TVector<TMethod*> use_methods, bool use_need_push_this);
+	TFormalParam(std::vector<TMethod*> use_methods, bool use_need_push_this);
 	TFormalParam(TClass* use_class, bool use_is_ref, TOpArray use_ops);
 	TFormalParam(TClass* use_type);
 	bool IsRef()const;
@@ -26,16 +26,11 @@ public:
 	bool IsMethods()const;
 	bool IsType()const;
 	TClass* GetType()const;
-	TVector<TMethod*>& GetMethods();
+	std::vector<TMethod*>& GetMethods();
 	TClass* GetClass()const;
 	bool IsVoid()const;
 	TOpArray& GetOps();
 	TOpArray GetOps()const;
 };
 
-inline static TFormalParam operator+(const TOpArray& use_left,const TFormalParam& use_right)
-{
-	TFormalParam result(use_right);
-	result.GetOps()=use_left+use_right.GetOps();
-	return result;
-}
+TFormalParam operator+(const TOpArray& use_left, const TFormalParam& use_right);

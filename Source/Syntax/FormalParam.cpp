@@ -1,6 +1,8 @@
 #include "FormalParam.h"
 
 #include "Class.h"
+#include "Method.h"
+#include "Statements.h"
 
 void TFormalParam::Init(){
 	class_pointer = NULL;
@@ -11,7 +13,7 @@ void TFormalParam::Init(){
 TFormalParam::TFormalParam(){
 	Init();
 }
-TFormalParam::TFormalParam(TVector<TMethod*> use_methods, bool use_need_push_this){
+TFormalParam::TFormalParam(std::vector<TMethod*> use_methods, bool use_need_push_this){
 	Init();
 	methods = use_methods;
 	need_push_this = use_need_push_this;
@@ -36,7 +38,7 @@ bool TFormalParam::NeedPushThis()const{
 	return need_push_this;
 }
 bool TFormalParam::IsMethods()const{
-	return methods.GetCount() != 0;
+	return methods.size() != 0;
 }
 bool TFormalParam::IsType()const{
 	return type != NULL;
@@ -44,7 +46,7 @@ bool TFormalParam::IsType()const{
 TClass* TFormalParam::GetType()const{
 	return type;
 }
-TVector<TMethod*>& TFormalParam::GetMethods(){
+std::vector<TMethod*>& TFormalParam::GetMethods(){
 	return methods;
 }
 TClass* TFormalParam::GetClass()const{
@@ -58,4 +60,11 @@ TOpArray& TFormalParam::GetOps(){
 }
 TOpArray TFormalParam::GetOps()const{
 	return ops;
+}
+
+TFormalParam operator+(const TOpArray& use_left, const TFormalParam& use_right)
+{
+	TFormalParam result(use_right);
+	result.GetOps() = use_left + use_right.GetOps();
+	return result;
 }

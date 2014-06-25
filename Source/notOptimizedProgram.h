@@ -5,6 +5,7 @@
 
 class TMethod;
 class TClass;
+class TNameId;
 
 class TNotOptimizedProgram
 {

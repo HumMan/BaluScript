@@ -4,7 +4,7 @@
 #include "If.h"
 #include "For.h"
 #include "Bytecode.h"
-
+#include "LocalVar.h"
 
 bool ClassName(TLexer& source) {
 	if (!source.TestAndGet(TTokenType::Identifier))
@@ -150,4 +150,38 @@ void TStatements::AddVar(TLocalVar* use_var) {
 	statement.Push((TStatement*)use_var);
 	use_var->SetStmtId(statement.GetHigh());
 	var_declarations.Push(TVarDecl(statement.GetHigh(), use_var));
+}
+
+void TStatements::Add(TStatement* use_statement){
+	statement.Push(use_statement);
+	use_statement->SetStmtId(statement.GetHigh());//TODO не нужно
+}
+
+TStatement* TStatements::GetStatement(int i)
+{
+	return statement[i];
+}
+TStatement* TStatements::GetCopy()
+{
+	TStatements* copy = new TStatements(*this);
+	return copy;
+}
+
+void TStatements::InitOwner(TClass* use_owner, TMethod* use_method, TStatements* use_parent)
+{
+	TStatement::_InitOwner(use_owner, use_method, use_parent);
+	for (int i = 0; i <= statement.GetHigh(); i++)
+		statement[i]->InitOwner(use_owner, use_method, this);
+}
+int TStatements::GetHigh()
+{
+	return statement.GetHigh();
+}
+TStatements::TStatements(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id)
+	:TStatement(TStatementType::Statements, use_owner, use_method, use_parent, use_stmt_id)
+{
+}
+TStatements::~TStatements()
+{
+	for (int i = 0; i <= statement.GetHigh(); i++)delete statement[i];
 }

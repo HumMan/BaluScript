@@ -1,6 +1,9 @@
 #pragma once
 #include "Statement.h"
 #include "Void.h"
+#include "Type.h"
+
+class TVariable;
 
 class TExpression:public TStatement
 {

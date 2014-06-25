@@ -1,9 +1,9 @@
 #pragma once 
 
 #include "../lexer.h"
-#include "../notOptimizedProgram.h"
 
 class TClass;
+class TNotOptimizedProgram;
 
 struct TType:public TTokenPos
 {

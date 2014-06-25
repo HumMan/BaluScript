@@ -1,5 +1,10 @@
 #include "../Syntax/Type.h"
 
+#include "../Syntax/Class.h"
+#include "../Syntax/TemplateRealizations.h"
+#include "../Syntax/Method.h"
+#include "../Syntax/Statements.h"
+
 TClass*  TType::GetClass(bool use_build_methods,TNotOptimizedProgram* program)
 {
 	if(use_build_methods) assert(class_pointer==NULL);
@@ -32,7 +37,7 @@ TClass* TType::TClassName::Build(bool use_build_methods,TClass* use_curr_class,T
 		TTemplateRealizations* templates=owner->GetTemplates();
 		if(!use_curr_class->IsTemplate())
 			source.Error("Класс не является шаблонным!");
-		if(template_params.GetHigh()!=use_curr_class->GetTemplateParamsHigh())
+		if(template_params.GetHigh()!=(use_curr_class->GetTemplateParamsCount()-1))
 			source.Error("Шаблон имеет другое количество параметров!");
 		for(int i=0;i<=template_params.GetHigh();i++)
 			template_params[i]->Build(use_build_methods,NULL,owner,source,program);
@@ -44,10 +49,10 @@ TClass* TType::TClassName::Build(bool use_build_methods,TClass* use_curr_class,T
 			//TODO !!!!!!!!!!  шаблонный класс не имеет доступа к своему шаблону
 			for(int k=0;k<=temp->GetHigh();k++)
 			{
-				if((*temp)[k]->GetTemplateParamsHigh()!=template_params.GetHigh())
+				if(((*temp)[k]->GetTemplateParamsCount()-1)!=template_params.GetHigh())
 					continue;
 				bool found=true;
-				for(int t=0;t<=(*temp)[k]->GetTemplateParamsHigh();t++)
+				for(int t=0;t<(*temp)[k]->GetTemplateParamsCount();t++)
 				{
 					if((*temp)[k]->GetTemplateParamClass(t)!=
 						template_params[t]->class_pointer)
