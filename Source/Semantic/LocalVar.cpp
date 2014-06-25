@@ -1,3 +1,4 @@
+#include "../Syntax/LocalVar.h"
 
 TFormalParam TLocalVar::Build(TNotOptimizedProgram &program,int& local_var_offset)
 {

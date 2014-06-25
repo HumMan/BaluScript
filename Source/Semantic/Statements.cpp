@@ -1,3 +1,6 @@
+#include "../Syntax/Statements.h"
+#include <assert.h>
+#include "../Syntax/Void.h"
 
 TStatements::TStatements(const TStatements& use_source):TStatement(use_source)
 {

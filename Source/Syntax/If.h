@@ -1,4 +1,6 @@
+#pragma once
 
+#include "Statement.h"
 
 class TIf:public TStatement
 {

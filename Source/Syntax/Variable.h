@@ -1,3 +1,8 @@
+#pragma once
+
+#include "FormalParam.h"
+#include "../notOptimizedProgram.h"
+
 namespace TVariableType
 {
 	enum Enum

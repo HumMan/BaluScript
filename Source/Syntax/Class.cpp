@@ -1,4 +1,70 @@
-#include <baluScript.h>
+#include "Class.h"
+
+#include "../NativeTypes/DynArray.h"
+#include "Method.h"
+
+void TClass::InitOwner(TClass* use_owner)
+{
+	owner = use_owner;
+	//при копировании надо перенастраивать указатель owner у всех
+	for (const std::unique_ptr<TClassField>& var : fields)
+		var->InitOwner(use_owner);
+	constructors.InitOwner(this);
+	if (destructor)
+		destructor->InitOwner(this);
+	for (int i = 0; i<TOperator::End; i++)
+		operators[i].InitOwner(this);
+	conversions.InitOwner(this);
+	for (const std::unique_ptr<TClass>& nested_class : nested_classes)
+		nested_class->InitOwner(this);
+}
+
+bool TClass::IsTemplate(){
+	return is_template;
+}
+bool TClass::IsEnum(){
+	return is_enum;
+}
+int TClass::GetEnumId(TNameId use_enum)
+{
+	assert(is_enum);
+	for (int i = 0; i < enums.size();i++)
+		if (enums[i] == use_enum)
+			return i;
+	return -1;
+}
+void TClass::SetTemplateParamClass(int id, TClass* use_class){
+	template_params[id].class_pointer = use_class;
+}
+void TClass::SetIsTemplate(bool use_is_template){
+	is_template = use_is_template;
+}
+TClass* TClass::GetTemplateParamClass(int id){
+	return template_params[id].class_pointer;
+}
+int TClass::GetTemplateParamsHigh(){
+	return template_params.GetHigh();
+}
+
+TNameId TClass::GetName(){
+	return name;
+}
+int TClass::GetSize(){
+	return size;
+}
+TClass* TClass::GetOwner(){
+	return owner;
+}
+TClass* TClass::GetParent(){
+	return parent.GetClass();
+}
+TTemplateRealizations* TClass::GetTemplates(){
+	return templates;
+}
+
+TMethod* TClass::GetAutoDestructor(){
+	return auto_destr.GetPointer();
+}
 
 TClass::TClass(TClass* use_owner, TTemplateRealizations* use_templates) :parent(this) 
 {
@@ -28,7 +94,7 @@ void TClass::CreateInternalClasses() {
 	nested_class.Push(t);
 
 	t = new TClass(this, templates);
-	t->size = _INTSIZEOF(TVirtualMachine::TDynArr) / 4;
+	t->size = _INTSIZEOF(TDynArr) / 4;
 	t->name = source->GetIdFromName("TDynArrayInternalFields");
 	t->methods_build = true;
 	t->auto_methods_build = true;
@@ -97,8 +163,10 @@ void TClass::DeclareMethods() {
 	assert(!is_template);
 	if (methods_declared)
 		return;
-	for (int i = 0; i <= method.GetHigh(); i++)
-		method[i]->Declare();
+	for (TOverloadedMethod var : method)
+	{
+		var.Declare();
+	}
 	constructor.Declare();
 	if (!destructor.IsNull())
 		destructor->Declare();
@@ -116,8 +184,10 @@ void TClass::BuildMethods(TNotOptimizedProgram &program) {
 	assert(!is_template);
 	if (methods_build)
 		return;
-	for (int i = 0; i <= method.GetHigh(); i++)
-		method[i]->Build(program);
+	for (TOverloadedMethod var : method)
+	{
+		var.Build(program);
+	}
 	constructor.Build(program);
 	if (!destructor.IsNull())
 		destructor->Build(program);
@@ -142,12 +212,15 @@ bool TClass::IsChildOf(TClass* use_parent) {
 void TClass::AddMethod(TMethod* use_method, TNameId name) {
 	//Ищем перегруженные методы с таким же именем, иначе добавляем новый
 	TOverloadedMethod* temp = NULL;
-	for (int i = 0; i <= method.GetHigh(); i++)
-		if (method[i]->GetName() == name)
-			temp = method[i];
+	for (TOverloadedMethod var : method)
+		if (var.GetName() == name)
+			temp = &var;
 	if (temp == NULL)
-		temp = method.Push(new TOverloadedMethod(name));
-	temp->method.Push(use_method);
+	{
+		method.push_back(TOverloadedMethod(name));
+		temp = &method.back();
+	}
+	temp->methods.push_back(use_method);
 }
 
 void TClass::AddOperator(TOperator::Enum op, TMethod* use_method) {
@@ -289,10 +362,10 @@ TMethod* TClass::GetBinOp(TOperator::Enum op, TClass* left, bool left_ref,
 
 bool TClass::GetMethods(TVector<TMethod*> &result, TNameId use_method_name) {
 	assert(methods_declared);
-	for (int i = 0; i <= method.GetHigh(); i++)
-		if (method[i]->GetName() == use_method_name) {
-			for (int k = 0; k <= method[i]->method.GetHigh(); k++)
-				result.Push(method[i]->method[k]);
+	for (TOverloadedMethod var : method)
+		if (var.GetName() == use_method_name) {
+		for (int k = 0; k <= var.method.GetHigh(); k++)
+			result.Push(var.method[k]);
 		}
 	if (owner != NULL)
 		owner->GetMethods(result, use_method_name, true);
@@ -304,12 +377,15 @@ bool TClass::GetMethods(TVector<TMethod*> &result, TNameId use_method_name) {
 bool TClass::GetMethods(TVector<TMethod*> &result, TNameId use_method_name,
 		bool is_static) {
 	assert(methods_declared);
-	for (int i = 0; i <= method.GetHigh(); i++)
-		if (method[i]->GetName() == use_method_name) {
-			for (int k = 0; k <= method[i]->method.GetHigh(); k++)
-				if (method[i]->method[k]->IsStatic() == is_static)
-					result.Push(method[i]->method[k]);
+	for (TOverloadedMethod var : method)
+	{
+		if (var.GetName() == use_method_name)
+		{
+			for (int k = 0; k <= var.method.GetHigh(); k++)
+				if (var.method[k]->IsStatic() == is_static)
+					result.Push(var.method[k]);
 		}
+	}
 	if (is_static && owner != NULL)
 		owner->GetMethods(result, use_method_name, true);
 	if (parent.GetClass() != NULL)

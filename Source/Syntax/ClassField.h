@@ -1,3 +1,10 @@
+#pragma once
+
+#include "../VirtualMachine/Op.h"
+#include "../VirtualMachine/OpArray.h"
+#include "Class.h"
+#include "Variable.h"
+#include "FormalParam.h"
 
 namespace TTypeOfAccess
 {

@@ -1,4 +1,10 @@
-#include "baluScript.h"
+#include "virtualMachine.h"
+
+#include "VirtualMachine/Program.h"
+
+#include "NativeTypes/DynArray.h"
+#include "NativeTypes/StaticArray.h"
+#include "NativeTypes/String.h"
 
 #define BALU_SCRIPT_OPCODE_BEGIN( ENUM_NAME ) \
 struct TOpcodeInfo{char* name;int count;bool f1,f2,v1,v2;};\
@@ -8,7 +14,7 @@ struct TOpcodeInfo{char* name;int count;bool f1,f2,v1,v2;};\
 #define BALU_SCRIPT_OPCODE_ELEM0( element ) {"ASM_"#element,0,0,0,0,0}
 #define BALU_SCRIPT_OPCODE_END() ;
 
-#include "opcodes.h"
+#include "VirtualMachine/opcodes.h"
 
 #undef BALU_SCRIPT_OPCODE_ELEM4
 #undef BALU_SCRIPT_OPCODE_ELEM2
@@ -45,6 +51,24 @@ bool ValidateOpParams(TOpcode::Enum op, bool f1,bool f2,bool v1,bool v2)
 		OpcodeInfo[op].f2==f2&&
 		OpcodeInfo[op].v1==v1&&
 		OpcodeInfo[op].v2==v2;
+}
+
+TArrayClassMethod TVirtualMachine::GetArrayClassMethod(int id)
+{
+	return program->array_class_methods[id];
+}
+
+void TVirtualMachine::ConstructStaticVars()
+{
+	sp = sp + program->static_vars_size;
+	memset(sp_first, 0, program->static_vars_size * 4);
+	Execute(program->static_vars_init, 0, 0);
+}
+void TVirtualMachine::DestructStaticVars()
+{
+	Execute(program->static_vars_destroy, 0, 0);
+	sp = sp - program->static_vars_size;
+	if (sp != &sp_first[-1])assert(false);//где-то в коммандах не очищается стек
 }
 
 void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
@@ -237,18 +261,18 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 			//static array
 
 		case R_STATIC_ARR_DEF_CONSTR:
-			((TStaticArr<1>*)this_pointer)->DefConstr(this,op->v1);
+			((TStaticArr*)this_pointer)->DefConstr(this,op->v1);
 			break;
 		case RR_STATIC_ARR_COPY_CONSTR:
-			((TStaticArr<1>*)this_pointer)->RCopyConstr(this,sp);
+			((TStaticArr*)this_pointer)->RCopyConstr(this,sp);
 			break;
 		case R_STATIC_ARR_DESTR:
-			((TStaticArr<1>*)this_pointer)->Destr(this);
+			((TStaticArr*)this_pointer)->Destr(this);
 			break;
 		case RV_STATIC_ARR_GET_ELEMENT:
 			{
 				temp=*(sp--);
-				TStaticArr<1>* s_arr=(TStaticArr<1>*)*sp;
+				TStaticArr* s_arr=(TStaticArr*)*sp;
 				if(temp>s_arr->methods->el_count-1||temp<-1)throw "Ошибка доступа к элементу массива!";
 				*sp=(int)&s_arr->data[temp*s_arr->methods->el_size];
 				break;
@@ -256,16 +280,16 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 		case STATIC_ARR_ASSIGN:
 			s=sp-(unsigned int)(op->f1?0:(op->v1-1));
 			d=s-1;
-			((TStaticArr<1>*)*d)->AssignOp(this,(TStaticArr<1>*)(op->f1?(int*)*s:s));
-			if(!op->f1)((TStaticArr<1>*)s)->Destr(this);
+			((TStaticArr*)*d)->AssignOp(this,(TStaticArr*)(op->f1?(int*)*s:s));
+			if(!op->f1)((TStaticArr*)s)->Destr(this);
 			break;
 		case STATIC_ARR_EQUAL:
 			s=sp-(unsigned int)(op->f2?0:(op->v1-1));
 			d=s-(unsigned int)(op->f1?1:op->v1);
-			temp=((TStaticArr<1>*)(op->f1?(int*)*d:d))->EqualOp(this,(TStaticArr<1>*)(op->f2?(int*)*s:s));
+			temp=((TStaticArr*)(op->f1?(int*)*d:d))->EqualOp(this,(TStaticArr*)(op->f2?(int*)*s:s));
 			*(++sp)=temp;
-			if(!op->f1)((TStaticArr<1>*)d)->Destr(this);
-			if(!op->f2)((TStaticArr<1>*)s)->Destr(this);
+			if(!op->f1)((TStaticArr*)d)->Destr(this);
+			if(!op->f2)((TStaticArr*)s)->Destr(this);
 			break;
 
 			//////////////////////////////////////////////////

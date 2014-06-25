@@ -1,3 +1,8 @@
+#pragma once
+
+#include "Statement.h"
+#include "Expression.h"
+
 class TReturn:public TStatement
 {
 	TExpression result;

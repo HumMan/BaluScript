@@ -1,3 +1,4 @@
+#include "../Syntax/Method.h"
 
 TFormalParam TMethod::BuildCall(TNotOptimizedProgram &program,TVector<TFormalParam> &formal_params)
 {

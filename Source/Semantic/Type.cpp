@@ -1,3 +1,4 @@
+#include "../Syntax/Type.h"
 
 TClass*  TType::GetClass(bool use_build_methods,TNotOptimizedProgram* program)
 {

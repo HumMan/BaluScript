@@ -13,12 +13,21 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Semantic">
+      <UniqueIdentifier>{39db4a43-2115-4b45-b8c3-f41c84c5d76a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Syntax">
+      <UniqueIdentifier>{ccf70f23-530b-4476-a58a-53559fbb906c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\VirtualMachine">
+      <UniqueIdentifier>{1245fd06-f495-4de3-ac1a-3a570d571e90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\NativeTypes">
+      <UniqueIdentifier>{a20be754-833d-42bd-b019-349cc636a09e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\lexer.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\opcodes.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\syntaxAnalyzer.h">
@@ -33,11 +42,89 @@
     <ClInclude Include="Source\notOptimizedProgram.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Syntax\Bytecode.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\Class.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\ClassField.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\Expression.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\For.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\FormalParam.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\If.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\LocalVar.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\Method.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\Parameter.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\Return.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\Statement.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\Statements.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\Type.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\Variable.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\Void.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\While.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Op.h">
+      <Filter>Source Files\VirtualMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\Program.h">
+      <Filter>Source Files\VirtualMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\opcodes.h">
+      <Filter>Source Files\VirtualMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NativeTypes\DynArray.h">
+      <Filter>Source Files\NativeTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NativeTypes\StaticArray.h">
+      <Filter>Source Files\NativeTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NativeTypes\String.h">
+      <Filter>Source Files\NativeTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\ArrayClassMethod.h">
+      <Filter>Source Files\VirtualMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VirtualMachine\OpArray.h">
+      <Filter>Source Files\VirtualMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\TemplateRealizations.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\OverloadedMethod.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\class.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\lexer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -52,6 +139,120 @@
     </ClCompile>
     <ClCompile Include="Source\virtualMachine.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\Bytecode.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\Class.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\Expression.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\Method.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\Statement.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\Statements.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\Bytecode.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\Class.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\Expression.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\For.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\If.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\LocalVar.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\Method.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\Parameter.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\Return.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\Statement.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\Statements.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\Type.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\While.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\Type.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\LocalVar.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\Parameter.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\ClassField.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\For.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\If.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\Return.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\While.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\NativeTypes\DynArray.cpp">
+      <Filter>Source Files\NativeTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\NativeTypes\StaticArray.cpp">
+      <Filter>Source Files\NativeTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\NativeTypes\String.cpp">
+      <Filter>Source Files\NativeTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\FormalParam.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\Variable.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\Void.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\ArrayClassMethod.cpp">
+      <Filter>Source Files\VirtualMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Op.cpp">
+      <Filter>Source Files\VirtualMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\OpArray.cpp">
+      <Filter>Source Files\VirtualMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\VirtualMachine\Program.cpp">
+      <Filter>Source Files\VirtualMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\OverloadedMethod.cpp">
+      <Filter>Source Files\Syntax</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

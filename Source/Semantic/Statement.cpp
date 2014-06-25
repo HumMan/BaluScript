@@ -1,3 +1,4 @@
+#include "../Syntax/Statement.h"
 
 void TStatement::TestBoolExpr(TNotOptimizedProgram &program,TFormalParam& compare_result,int go_false_label)
 {

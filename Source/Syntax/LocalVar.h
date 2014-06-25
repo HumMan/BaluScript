@@ -1,3 +1,7 @@
+#pragma once
+
+#include "Statement.h"
+#include "Expression.h"
 
 class TLocalVar:public TStatement,public TVariable
 {

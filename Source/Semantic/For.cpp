@@ -1,3 +1,6 @@
+#include "../Syntax/For.h"
+
+#include "../Syntax/Void.h"
 
 TFormalParam TFor::Build(TNotOptimizedProgram &program,int& local_var_offset)
 {

@@ -1,3 +1,10 @@
+#pragma once 
+
+#include "../lexer.h"
+#include "../notOptimizedProgram.h"
+
+class TClass;
+
 struct TType:public TTokenPos
 {
 	friend class TTypes;
@@ -17,20 +24,9 @@ private:
 	TClass* class_pointer;
 	void AnalyzeSyntax(TClassName* use_class_name,TLexer& source);
 public:
-	bool IsEqualTo(const TType& use_right)const
-	{
-		assert(class_name.class_pointer!=NULL&&use_right.class_name.class_pointer!=NULL);
-		return class_name.class_pointer==use_right.class_name.class_pointer;
-	}
-	void InitOwner(TClass* use_owner)
-	{
-		owner=use_owner;
-	}
-	void SetAs(TClass* use_class_pointer)
-	{
-		assert(class_name.class_pointer==NULL);
-		class_name.class_pointer=use_class_pointer;
-	}
+	bool IsEqualTo(const TType& use_right)const;
+	void InitOwner(TClass* use_owner);
+	void SetAs(TClass* use_class_pointer);
 	TClass* GetClass(bool use_build_methods=false,TNotOptimizedProgram* program=NULL);
 	TType(TClass* use_owner);
 	TType(TNameId use_class_name,TClass* use_owner);

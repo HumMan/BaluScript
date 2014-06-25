@@ -1,3 +1,7 @@
+#include "../Syntax/Bytecode.h"
+
+#include "../Syntax/Void.h"
+
 TFormalParam TBytecode::Build(TNotOptimizedProgram &program,int& local_var_offset)
 {
 	TOpArray temp;

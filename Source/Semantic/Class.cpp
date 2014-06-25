@@ -1,3 +1,4 @@
+#include "../Syntax/Class.h"
 
 void TClass::CheckForErrors()
 {

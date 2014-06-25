@@ -1,3 +1,12 @@
+#pragma once
+
+#include "Parameter.h"
+#include "../notOptimizedProgram.h"
+#include "Statements.h"
+#include "ClassField.h"
+
+class TClass;
+
 namespace TClassMember
 {
 	enum Enum
@@ -180,70 +189,3 @@ public:
 	TFormalParam BuildCall(TNotOptimizedProgram &program);
 };
 
-
-class TOverloadedMethod
-{
-private:
-	TNameId name;
-public:
-	TVectorList<TMethod> method;
-	TOverloadedMethod(){}
-	TOverloadedMethod(TNameId use_name):name(use_name){}
-	void InitOwner(TClass* use_owner)
-	{
-		for(int i=0;i<=method.GetHigh();i++)
-			method[i]->InitOwner(use_owner);
-	}
-	TNameId GetName()const{
-		return name;
-	}
-	TMethod* FindParams(TVectorList<TParameter>& params)
-	{
-		for (int i=0;i<=method.GetHigh();i++)
-			if(method[i]->HasParams(params))return method[i];			
-		return NULL;
-	}
-	TMethod* FindConversion(TVectorList<TParameter>& params,TClass* ret_class)
-	{
-		for (int i=0;i<=method.GetHigh();i++)
-			if(method[i]->HasParams(params)&&method[i]->GetRetClass()==ret_class)return method[i];			
-		return NULL;
-	}
-	bool ParamsExists(TMethod* use_method)
-	{
-		return FindParams(use_method->param)!=NULL;
-	}
-	TMethod* FindParams(TMethod* use_method)
-	{
-		return FindParams(use_method->param);
-	}
-	void Declare()
-	{
-		for(int i=0;i<=method.GetHigh();i++)method[i]->Declare();
-	}
-	void Build(TNotOptimizedProgram &program)
-	{
-		for(int i=0;i<=method.GetHigh();i++)method[i]->Build(program);
-	}
-	void GetMethods(TVector<TMethod*> &result)
-	{
-		for(int i=0;i<=method.GetHigh();i++)
-			result.Push(method[i]);
-	}
-	void CheckForErrors(bool is_conversion=false)
-	{
-		for (int i=0;i<=method.GetHigh();i++)
-		{
-			method[i]->CheckForErrors();
-			if(is_conversion)
-			{
-				if(FindConversion(method[i]->param,method[i]->GetRetClass())!=method[i])
-					method[i]->Error("Метод с такими параметрами уже существует!");
-			}else
-			{
-				if(FindParams(method[i]->param)!=method[i])
-					method[i]->Error("Метод с такими параметрами уже существует!");
-			}
-		}
-	}
-};	

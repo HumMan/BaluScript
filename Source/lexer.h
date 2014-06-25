@@ -1,5 +1,9 @@
 #pragma once
 
+#include <stdarg.h>
+#include <string>
+#include <baluLib.h>
+
 //TODO русские буквы непереваривает
 namespace TTokenType
 {
@@ -110,6 +114,8 @@ namespace TOperator
 		End //используется для получения количества операторов
 	};
 }
+
+
 
 template<class TKey,class TExtKey, class TData, int hash_bits_count=8>
 class THash
@@ -495,5 +501,23 @@ public:
 	void GetToken()
 	{
 		curr_token++;
+	}
+};
+
+class TTokenPos
+{
+	int token_id;
+public:
+	TLexer* source;
+	void InitPos(TLexer& use_source)
+	{
+		source = &use_source;
+		token_id = use_source.GetCurrentToken();
+	}
+	void Error(char* s, ...)
+	{
+		va_list args;
+		va_start(args, s);
+		source->Error(s, token_id, args);
 	}
 };

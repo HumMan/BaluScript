@@ -1,3 +1,15 @@
+#pragma once
+
+#include "Class.h"
+#include "LocalVar.h"
+#include "Statement.h"
+#include "Statements.h"
+#include "baluLib.h"
+#include "Method.h"
+#include "FormalParam.h"
+#include "Variable.h"
+#include "../syntaxAnalyzer.h"
+#include "../lexer.h"
 
 class TStatements:public TStatement
 {

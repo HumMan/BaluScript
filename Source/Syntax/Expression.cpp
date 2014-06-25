@@ -1,3 +1,4 @@
+#include "Expression.h"
 
 TExpression::TOperation* TExpression::ParamsCall(TLexer& source,
 		TExpression::TOperation* curr_operation) {
@@ -236,4 +237,9 @@ void TExpression::BuildPostfix() {
 			return;
 		}
 	}
+}
+
+TVariable* TExpression::GetVar(TNameId name)
+{
+	return parent->GetVar(name, stmt_id);
 }

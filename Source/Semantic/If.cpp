@@ -1,3 +1,6 @@
+#include "../Syntax/If.h"
+
+#include "../Syntax/Void.h"
 
 TFormalParam TIf::Build(TNotOptimizedProgram &program,int& local_var_offset)
 {

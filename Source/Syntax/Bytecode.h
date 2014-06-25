@@ -1,3 +1,14 @@
+#pragma once
+
+#include <baluLib.h>
+#include "../VirtualMachine/Op.h"
+#include "Statement.h"
+#include "FormalParam.h"
+#include "../notOptimizedProgram.h"
+
+class TClass;
+class TMethod;
+class TStatements;
 
 class TBytecode:public TStatement
 {
@@ -21,11 +32,7 @@ class TBytecode:public TStatement
 	TVector<TBytecodeOp> code;
 	void operator=(const TBytecode& use_source);
 public:
-	TBytecode(TClass* use_owner,TMethod* use_method,TStatements* use_parent,int use_stmt_id)
-		:TStatement(TStatementType::Bytecode,use_owner,use_method,use_parent,use_stmt_id)
-	{
-		method->SetHasReturn(true);
-	}
+	TBytecode(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);
 	void InitOwner(TClass* use_owner,TMethod* use_method,TStatements* use_parent)
 	{
 		TStatement::_InitOwner(use_owner,use_method,use_parent);

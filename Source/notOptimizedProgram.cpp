@@ -1,4 +1,4 @@
-#include "baluScript.h"
+#include "notOptimizedProgram.h"
 
 TNotOptimizedProgram::~TNotOptimizedProgram()
 {
@@ -128,7 +128,7 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 			}
 		}
 
-		TProgram::TArrayClassMethod temp;
+		TArrayClassMethod temp;
 
 		temp.el_size=arr_element->GetSize();
 		temp.el_count=-1;//TODO

@@ -1,4 +1,8 @@
+#pragma once
 
+#include "Statement.h"
+#include "For.h"
+#include "Expression.h"
 
 class TWhile:public TStatement
 {

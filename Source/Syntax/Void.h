@@ -1,3 +1,7 @@
+#pragma once
+
+#include "FormalParam.h"
+
 class TVoid:public TFormalParam
 {
 public:

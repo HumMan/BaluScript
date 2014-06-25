@@ -1,4 +1,6 @@
+#include "../Syntax/While.h"
 
+#include "../Syntax/Void.h"
 
 TFormalParam TWhile::Build(TNotOptimizedProgram &program,int& local_var_offset)
 {

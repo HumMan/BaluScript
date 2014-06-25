@@ -1,3 +1,4 @@
+#include "../Syntax/Expression.h"
 
 TFormalParam TExpression::TBinOp::Build(TNotOptimizedProgram &program,TExpression* parent)
 {

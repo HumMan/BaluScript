@@ -1,3 +1,8 @@
+#pragma once
+
+#include "Variable.h"
+#include "../lexer.h"
+#include "Class.h"
 
 class TParameter:public TVariable,public TTokenPos
 {

@@ -1,3 +1,6 @@
+#include "../Syntax/Return.h"
+
+#include "../Syntax/Void.h"
 
 TFormalParam TReturn::Build(TNotOptimizedProgram &program,int& local_var_offset)
 {

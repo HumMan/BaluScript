@@ -1,4 +1,17 @@
 
+#include "Bytecode.h"
+
+#include "../lexer.h"
+#include <stdio.h>
+
+#include "Method.h"
+
+TBytecode::TBytecode(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id)
+	:TStatement(TStatementType::Bytecode, use_owner, use_method, use_parent, use_stmt_id)
+{
+	method->SetHasReturn(true);
+}
+
 void TBytecode::AnalyzeSyntax(TLexer& source) {
 	InitPos(source);
 	source.GetToken(TTokenType::ResWord, TResWord::Bytecode);
@@ -16,7 +29,7 @@ void TBytecode::AnalyzeSyntax(TLexer& source) {
 			if (source.Test(TTokenType::Identifier)) {
 				if (source.NameId() != source.GetIdFromName(
 						"CreateArrayElementClassId"))
-					source.Error("Ќеизвестный идентификатор!");
+					source.Error("Неизвестный идентификатор!");
 				source.GetToken();
 				source.GetToken(TTokenType::LParenth);
 				source.TestToken(TTokenType::Identifier);
@@ -33,7 +46,7 @@ void TBytecode::AnalyzeSyntax(TLexer& source) {
 				source.GetToken();
 			}
 			if (params_count > 4)
-				source.Error("—лишком много параметров!");
+				source.Error("Слишком много параметров!");
 			if (!source.TestAndGet(TTokenType::Comma))
 				break;
 		}
@@ -42,7 +55,7 @@ void TBytecode::AnalyzeSyntax(TLexer& source) {
 			char buf[256];
 			sprintf_s(
 					buf,
-					"Ќеправильное количество параметров: дл¤ %s надо %i параметра!",
+					"Неправильное количество параметров: для %s надо %i параметра!",
 					GetBytecodeString((TOpcode::Enum) type), params_count_info);
 			source.Error(buf);
 		}

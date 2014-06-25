@@ -1,3 +1,13 @@
+#pragma once
+
+#include <assert.h>
+#include "../lexer.h"
+#include "FormalParam.h"
+#include "../notOptimizedProgram.h"
+
+class TMethod;
+class TStatements;
+class TClass;
 
 namespace TStatementType
 {

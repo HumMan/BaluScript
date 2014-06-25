@@ -1,3 +1,6 @@
+#pragma once
+#include "Statement.h"
+#include "Void.h"
 
 class TExpression:public TStatement
 {
@@ -303,6 +306,8 @@ public:
 
 	TExpression(TClass* use_owner,TMethod* use_method,TStatements* use_parent,int use_stmt_id)
 		:TStatement(TStatementType::Expression,use_owner,use_method,use_parent,use_stmt_id),first_op(NULL){}
+
+
 	TFormalParam Build(TNotOptimizedProgram &program,int& local_var_offset)
 	{
 		if(first_op!=NULL)
@@ -316,8 +321,5 @@ public:
 		if(first_op!=NULL)
 			delete first_op;
 	}
-	TVariable* GetVar(TNameId name)
-	{
-		return parent->GetVar(name,stmt_id);
-	}
+	TVariable* GetVar(TNameId name);
 };

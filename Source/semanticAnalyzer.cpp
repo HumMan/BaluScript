@@ -1,4 +1,4 @@
-#include "baluScript.h"
+#include "syntaxAnalyzer.h"
 
 void ValidateAccess(TTokenPos* field_pos,TClass* source,TClassField* target)
 {

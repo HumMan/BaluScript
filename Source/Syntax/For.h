@@ -1,3 +1,6 @@
+#pragma once
+
+#include "Statement.h"
 
 class TFor:public TStatement
 {
