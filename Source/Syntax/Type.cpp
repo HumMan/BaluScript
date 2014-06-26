@@ -40,7 +40,7 @@ void TType::AnalyzeSyntax(TClassName* use_class_name, TLexer& source) {
 		source.GetToken();
 		while (!source.TestAndGet(TTokenType::Operator, TOperator::Greater)) {
 			TClassName* template_param = new TClassName();
-			use_class_name->template_params.Push(template_param);
+			use_class_name->template_params.push_back(std::shared_ptr<TClassName>(template_param));
 			AnalyzeSyntax(template_param, source);
 			if (!source.Test(TTokenType::Operator, TOperator::Greater))
 				source.GetToken(TTokenType::Comma);
@@ -61,13 +61,13 @@ void TType::AnalyzeSyntax(TLexer& source) {
 		while (true) {
 			if (source.TestAndGet(TTokenType::LBracket)) {
 				if (source.Test(TTokenType::Value, TValue::Int)) {
-					dim.push_back(source.Int());
+					//dim.push_back(source.Int());
 					source.GetToken();
 				}
 				source.GetToken(TTokenType::RBracket);
 			} else if (source.TestAndGet(TTokenType::Operator,
 					TOperator::GetArrayElement)) {
-				dim.push_back(0);
+				//dim.push_back(0);
 			} else
 				break;
 		}

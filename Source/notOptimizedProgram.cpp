@@ -21,7 +21,7 @@ int TNotOptimizedProgram::GetUniqueLabel()
 }
 void TNotOptimizedProgram::Push(TOp use_op, TOpArray &ops_array)
 {
-	TListItem<TOp>* op=instr_alloc.New();
+	BaluLib::TListItem<TOp>* op = instr_alloc.New();
 	op->value=use_op;
 	if(ops_array.IsNull())
 	{
@@ -38,7 +38,7 @@ void TNotOptimizedProgram::Push(TOp use_op, TOpArray &ops_array)
 }
 void TNotOptimizedProgram::PushFront(TOp use_op, TOpArray &ops_array)
 {
-	TListItem<TOp>* op=instr_alloc.New();
+	BaluLib::TListItem<TOp>* op = instr_alloc.New();
 	op->value=use_op;
 	if(ops_array.IsNull())
 	{
@@ -61,8 +61,8 @@ void TNotOptimizedProgram::ListItems()
 	for(int i=0;i<methods_table.size();i++)
 	{
 		if(methods_table[i]->IsExternal())continue;
-		TListItem<TOp>* c=methods_table[i]->GetOps().first;
-		TListItem<TOp>* last;
+		BaluLib::TListItem<TOp>* c = methods_table[i]->GetOps().first;
+		BaluLib::TListItem<TOp>* last;
 		if(c==0)continue;//метод с пустым телом, но используемый
 		do{
 			ops.push_back(&c->value);
@@ -74,7 +74,7 @@ void TNotOptimizedProgram::ListItems()
 #endif
 }
 
-void ConnectOps(TListItem<TOp>* &first_instr, TListItem<TOp>* &last_instr, const TOpArray& ops)
+void ConnectOps(BaluLib::TListItem<TOp>* &first_instr, BaluLib::TListItem<TOp>* &last_instr, const TOpArray& ops)
 {
 	assert(ops.first->prev==NULL&&ops.last->next==NULL);
 	if(ops.IsNull())return;
@@ -91,7 +91,7 @@ void ConnectOps(TListItem<TOp>* &first_instr, TListItem<TOp>* &last_instr, const
 /// </summary>
 struct TMethodPrePostEvents
 {
-	TListItem<TOp>* event_ops;
+	BaluLib::TListItem<TOp>* event_ops;
 	int method_id;
 	int first_op;
 	
@@ -221,11 +221,11 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 		if(methods_table[i]->GetOps().first!=NULL)
 			assert(methods_table[i]->GetOps().first->value.type!=TOpcode::LABEL);
 	//преобразуем все комманды методов в единый непрерывный список
-	TListItem<TOp>* first_instr=NULL;
-	TListItem<TOp>* last_instr=NULL;
+	BaluLib::TListItem<TOp>* first_instr = NULL;
+	BaluLib::TListItem<TOp>* last_instr = NULL;
 	for(int i=0;i<methods_table.size();i++)
 	{
-		TListItem<TOp>* c=methods_table[i]->GetOps().first;
+		BaluLib::TListItem<TOp>* c = methods_table[i]->GetOps().first;
 		if(c==NULL)continue;//метод с пустым телом, но используемый
 		assert(c->value.type!=TOpcode::LABEL);//TODO будет ошибка т.к. ккомманда вырежется
 		ConnectOps(first_instr,last_instr,methods_table[i]->GetOps());
@@ -244,7 +244,7 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 		//if(curr_label>0) т.к. нам надо подсчитать количество инструкций
 		{
 			//TODO а разьве метод не может начинаться с метки
-			TListItem<TOp>* curr=first_instr;
+			BaluLib::TListItem<TOp>* curr = first_instr;
 			if(curr!=NULL){
 				int i=0;
 				do{
@@ -265,7 +265,7 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 
 		optimized.instructions.resize(ops_count);
 		optimized.methods_table.resize(methods_table.size());
-		TListItem<TOp> *curr=first_instr;
+		BaluLib::TListItem<TOp> *curr = first_instr;
 		if(curr!=NULL){
 			int curr_method=0,curr_instr=0,curr_event=0;
 			do{
@@ -309,8 +309,8 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 						t.is_external=methods_table[curr_method]->IsExternal();
 						t.is_static=methods_table[curr_method]->IsStatic();
 						t.params_size=methods_table[curr_method]->GetParamsSize();
-						t.pre_event=-1;
-						t.post_event=-1;
+						t.pre_event = AddMethodToTable(methods_table[curr_method]->GetPreEvent());
+						t.post_event = AddMethodToTable(methods_table[curr_method]->GetPostEvent());;
 						t.return_size=methods_table[curr_method]->GetRetSize();
 						curr_method++;
 					}
@@ -320,8 +320,8 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 						t.is_external=methods_table[curr_method]->IsExternal();
 						t.is_static=methods_table[curr_method]->IsStatic();
 						t.params_size=methods_table[curr_method]->GetParamsSize();
-						t.pre_event=-1; //TODO индексы тоже надо
-						t.post_event=-1;
+						t.pre_event = AddMethodToTable(methods_table[curr_method]->GetPreEvent());
+						t.post_event = AddMethodToTable(methods_table[curr_method]->GetPostEvent());;
 						t.return_size=methods_table[curr_method]->GetRetSize();
 						curr_method++;
 						if (!t.is_external)

@@ -24,8 +24,8 @@ void TLocalVar::AnalyzeSyntax(TLexer& source) {
 				TOperator::Assign);
 		source.SetCurrentToken(identifier_token);
 		if (is_next_assign) {
-			curr_var->assign_expr = new TExpression(owner, method, parent,
-					curr_var->stmt_id);
+			curr_var->assign_expr = std::shared_ptr<TExpression>(new TExpression(owner, method, parent,
+					curr_var->stmt_id));
 			curr_var->assign_expr->AnalyzeSyntax(source);
 		} else {
 			source.GetToken();
@@ -34,7 +34,7 @@ void TLocalVar::AnalyzeSyntax(TLexer& source) {
 					TExpression* expr = new TExpression(owner, method, parent,
 							curr_var->stmt_id);
 					expr->AnalyzeSyntax(source);
-					curr_var->params.Push(expr);
+					curr_var->params.push_back(std::shared_ptr<TExpression>(expr));
 					if (!source.TestAndGet(TTokenType::Comma))
 						break;
 				}
@@ -59,11 +59,6 @@ offset(-1), is_static(false)
 TNameId TLocalVar::GetName(){
 	return name;
 }
-
-TLocalVar::~TLocalVar()
-{
-	delete assign_expr;
-}
 TClass* TLocalVar::GetClass(){
 	return type.GetClass();
 }
@@ -86,7 +81,7 @@ TStatement* TLocalVar::GetCopy()
 {
 	TLocalVar* copy = new TLocalVar(*this);
 	if (assign_expr != NULL)
-		copy->assign_expr = new TExpression(*assign_expr);
+		copy->assign_expr = std::shared_ptr<TExpression>(new TExpression(*assign_expr));
 	return copy;
 }
 void TLocalVar::InitOwner(TClass* use_owner, TMethod* use_method, TStatements* use_parent)
@@ -94,6 +89,6 @@ void TLocalVar::InitOwner(TClass* use_owner, TMethod* use_method, TStatements* u
 	TStatement::_InitOwner(use_owner, use_method, use_parent);
 	type.InitOwner(use_owner);
 	if (assign_expr != NULL)assign_expr->InitOwner(use_owner, use_method, use_parent);
-	for (int i = 0; i <= params.GetHigh(); i++)
+	for (int i = 0; i < params.size(); i++)
 		params[i]->InitOwner(use_owner, use_method, use_parent);
 }

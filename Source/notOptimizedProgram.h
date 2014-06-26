@@ -12,7 +12,7 @@ class TNotOptimizedProgram
 {
 private:
 	//TList<TOp> instructions;
-	TAllocator<TListItem<TOp>, 1023> instr_alloc;
+	BaluLib::TAllocator<BaluLib::TListItem<TOp>, 1023> instr_alloc;
 	int curr_label;
 
 	std::vector<char*> string_consts;

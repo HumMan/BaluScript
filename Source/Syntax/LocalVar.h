@@ -10,8 +10,8 @@ class TLocalVar:public TStatement,public TVariable
 {
 	TType type;
 	TNameId name;
-	TExpression* assign_expr;
-	TVectorList<TExpression> params;
+	std::shared_ptr<TExpression> assign_expr;
+	std::vector<std::shared_ptr<TExpression>> params;
 	int offset;
 	bool is_static;
 	void operator=(const TLocalVar& use_source);
@@ -20,7 +20,6 @@ public:
 	void AnalyzeSyntax(TLexer& source);
 	TNameId GetName();
 	TFormalParam Build(TNotOptimizedProgram &program,int& local_var_offset);
-	~TLocalVar();
 	TClass* GetClass();
 	int GetOffset();
 	bool IsStatic();

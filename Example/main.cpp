@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 		char* source;
 		{
 			//TFileData file("C:\\developments\\BaluFramework\\BaluScript\\Output\\mingw\\script1.bscript"/*FindFileData.cFileName*/,"rb");
-			TFileData file("../Data/script_methods_test.bscript"/*FindFileData.cFileName*/,"rb");
+			TFileData file("../Data/template_crossref_test.bscript"/*FindFileData.cFileName*/,"rb");
 			source=file.ReadAll();
 			source[file.GetSize()]='\0';
 		}
@@ -56,15 +56,15 @@ int main(int argc, char* argv[])
 			{
 				syntax.Compile(source,time);
 
-				//if(print_info)
-				//	printf("ok (%.3f ms)\n",time.TimeDiff(time.GetTime(),t0)*1000);
-				//t0=time.GetTime();
-				//main_func=syntax.GetMethod("func static TMainClass.Main");
-				//if(print_info)
-				//	printf("Linking extenral methods (%.3f ms)\n",time.TimeDiff(time.GetTime(),t0)*1000);
-				//t0=time.GetTime();
-				//if(print_info)
-				//	printf("Generating program ...\n");
+				if(print_info)
+					printf("ok (%.3f ms)\n",time.TimeDiff(time.GetTime(),t0)*1000);
+				t0=time.GetTime();
+				main_func=syntax.GetMethod("func static TGame.Main");
+				if(print_info)
+					printf("Linking extenral methods (%.3f ms)\n",time.TimeDiff(time.GetTime(),t0)*1000);
+				t0=time.GetTime();
+				if(print_info)
+					printf("Generating program ...\n");
 				syntax.GetProgram(program,time);
 				if(print_info)
 					printf("ok (%i ops, op_size = %i, %.3f ms)\n",

@@ -1,4 +1,6 @@
-﻿#include "baluScript.h"
+﻿#include "lexer.h"
+
+#include "VirtualMachine/Op.h"
 
 TLexer::TLexer():source(NULL),curr_char(NULL),col(1),line(1)
 {

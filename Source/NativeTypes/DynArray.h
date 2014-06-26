@@ -7,7 +7,7 @@
 class TArrayClassMethod;
 struct TDynArr
 {
-	TVector<int> v;
+	BaluLib::TVector<int> v;
 	int el_size;
 	TArrayClassMethod* methods;
 	int* Get(int i);

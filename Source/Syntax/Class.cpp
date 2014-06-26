@@ -265,15 +265,20 @@ TClass* TClass::GetClass(TNameId use_name) {
 	if (name == use_name)
 		return this;
 	for (const std::shared_ptr<TClass>& nested_class : nested_classes)
+	{
 		if (nested_class->name == use_name)
 			return nested_class.get();
-	assert(!is_template);
-
-	for (const TTemplateParam& template_param : template_params)
-		if (template_param.name == use_name)
-			return template_param.class_pointer;
-	if (owner != NULL)
-		return owner->GetClass(use_name);
+	}
+	
+	//assert(!is_template);
+	if (!is_template)
+	{
+		for (const TTemplateParam& template_param : template_params)
+			if (template_param.name == use_name)
+				return template_param.class_pointer;
+	}
+		if (owner != NULL)
+			return owner->GetClass(use_name);
 	return NULL;
 }
 

@@ -1,0 +1,58 @@
+
+ class TGame 
+{
+enum TestEnumerationName
+	{
+		ENUM_0,
+		ENUM_1,
+		ENUM_2,
+		ENUM_3,
+		ENUM_4,
+		ENUM_5,
+		ENUM_6,
+		ENUM_7
+	}
+	class sealed int
+	{
+	private:
+		dword unnamed;
+	public:
+		constr(int v) bytecode{};
+		
+		operator static = (int& l,int r)bytecode{ASM_ASSIGN 0,1;};
+		operator static +=(int& l,int r)bytecode{ASM_INT_PLUS_A;};
+		operator static -=(int& l,int r)bytecode{ASM_INT_MINUS_A;};
+		operator static *=(int& l,int r)bytecode{ASM_INT_MUL_A;};
+		operator static /=(int& l,int r)bytecode{ASM_INT_DIV_A;};
+		operator static %=(int& l,int r)bytecode{ASM_INT_MOD_A;};
+
+		operator static +(int l,int r):int bytecode{ASM_INT_PLUS;};
+		operator static -(int l,int r):int bytecode{ASM_INT_MINUS;};
+		operator static *(int l,int r):int bytecode{ASM_INT_MUL;};
+		operator static /(int l,int r):int bytecode{ASM_INT_DIV;};
+		operator static %(int l,int r):int bytecode{ASM_INT_MOD;};
+
+		operator static -(int  l):int bytecode{ASM_INT_UNARY_MINUS;};
+		operator static -(int& l):int bytecode{ASM_R_INT_UNARY_MINUS;};
+
+	}
+	func static Abs(int v		):int bytecode{ASM_INT_ABS;};
+	func static Max(int v0,int v1):int bytecode{ASM_INT_MAXIMUM;};
+	func static Min(int v0,int v1):int bytecode{ASM_INT_MINIMUM;};
+	func static Sign(int v		):int bytecode{ASM_INT_SIGN;}; 
+ class TShape
+ {
+ 	public:
+	func Test33
+	{
+	}
+ 	constr
+	{
+	}
+ }
+	func static Main
+	{
+	TShape[6] ttt;
+	ttt[3].Test33();
+	}
+ }

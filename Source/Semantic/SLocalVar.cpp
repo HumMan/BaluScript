@@ -38,7 +38,7 @@ TFormalParam TLocalVar::Build(TNotOptimizedProgram &program,int& local_var_offse
 
 	std::vector<TFormalParam> params_result;
 	TOpArray params_ops,before_params,after_params;
-	for(int i=0;i<=params.GetHigh();i++)
+	for(int i=0;i<params.size();i++)
 	{
 		params_result.push_back(params[i]->Build(program,local_var_offset));
 		params_ops+=params_result[i].GetOps();

@@ -20,7 +20,6 @@ TClass*  TType::GetClass(bool use_build_methods,TNotOptimizedProgram* program)
 }
 TClass* TType::TClassName::Build(bool use_build_methods,TClass* use_curr_class,TClass* owner,TTokenPos& source,TNotOptimizedProgram* program)
 {
-	//TODO можно сделать все это без рекурсии при пом. цикла и массива состояний к тому же если нет шаблонных параметров, то рекурсия не нужна
 	if(use_curr_class==NULL)
 	{
 		use_curr_class=owner->GetClass(name);
@@ -32,24 +31,25 @@ TClass* TType::TClassName::Build(bool use_build_methods,TClass* use_curr_class,T
 		if(use_curr_class==NULL)
 			source.Error("Вложенного класса с таким именем не существует!");
 	}
-	if(template_params.GetCount()!=0)
+	if(template_params.size()!=0)
 	{
 		TTemplateRealizations* templates=owner->GetTemplates();
 		if(!use_curr_class->IsTemplate())
 			source.Error("Класс не является шаблонным!");
-		if(template_params.GetHigh()!=(use_curr_class->GetTemplateParamsCount()-1))
+		if(template_params.size()!=use_curr_class->GetTemplateParamsCount())
 			source.Error("Шаблон имеет другое количество параметров!");
-		for(int i=0;i<=template_params.GetHigh();i++)
+		for(int i=0;i<template_params.size();i++)
 			template_params[i]->Build(use_build_methods,NULL,owner,source,program);
 		TClass* realization=NULL;
-		TVectorList<TClass>* temp=NULL;
+		std::vector<std::unique_ptr<TClass>>* temp = NULL;
 		temp=templates->FindTemplate(use_curr_class);
 		if(temp!=NULL)
 		{
 			//TODO !!!!!!!!!!  шаблонный класс не имеет доступа к своему шаблону
-			for(int k=0;k<=temp->GetHigh();k++)
+			//при указании имени класса без шаблонныйх параметров - то же самое что с параметрами текущего класса
+			for(int k=0;k<temp->size();k++)
 			{
-				if(((*temp)[k]->GetTemplateParamsCount()-1)!=template_params.GetHigh())
+				if(((*temp)[k]->GetTemplateParamsCount())!=template_params.size())
 					continue;
 				bool found=true;
 				for(int t=0;t<(*temp)[k]->GetTemplateParamsCount();t++)
@@ -63,7 +63,7 @@ TClass* TType::TClassName::Build(bool use_build_methods,TClass* use_curr_class,T
 				}
 				if(found)
 				{
-					realization=(*temp)[k];
+					realization=(*temp)[k].get();
 					break;
 				}
 			}
@@ -72,8 +72,8 @@ TClass* TType::TClassName::Build(bool use_build_methods,TClass* use_curr_class,T
 		{
 			if(temp==NULL)
 			{
-				TTemplateRealizations::TTemplateRealization* t=
-					templates->templates.Push(new TTemplateRealizations::TTemplateRealization());
+				TTemplateRealizations::TTemplateRealization* t = new TTemplateRealizations::TTemplateRealization();
+					templates->templates.push_back(std::unique_ptr<TTemplateRealizations::TTemplateRealization>(t));
 				t->template_pointer=use_curr_class;
 				temp=&t->realizations;
 			}
@@ -81,11 +81,11 @@ TClass* TType::TClassName::Build(bool use_build_methods,TClass* use_curr_class,T
 			//temp->Push(realization);
 			//*realization=*use_curr_class;
 			realization=new TClass(*use_curr_class);
-			temp->Push(realization);
+			temp->push_back(std::unique_ptr<TClass>(realization));
 			//
 			realization->InitOwner(use_curr_class->GetOwner());
 			realization->SetIsTemplate(false);
-			for(int i=0;i<=template_params.GetHigh();i++)
+			for(int i=0;i<template_params.size();i++)
 				realization->SetTemplateParamClass(i,template_params[i]->class_pointer);
 			realization->BuildClass();
 			if(use_build_methods)

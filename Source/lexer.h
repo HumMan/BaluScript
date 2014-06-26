@@ -132,7 +132,7 @@ private:
 		TNode* next;
 	};
 	TNode* table[table_size];
-	TAllocator<TNode,255> nodes;
+	BaluLib::TAllocator<TNode, 255> nodes;
 	
 public:
 	THash()
