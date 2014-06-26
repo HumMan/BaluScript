@@ -8,8 +8,8 @@ void TClass::InitOwner(TClass* use_owner)
 {
 	owner = use_owner;
 	//при копировании надо перенастраивать указатель owner у всех
-	for (const std::shared_ptr<TClassField>& var : fields)
-		var->InitOwner(use_owner);
+	for (TClassField var : fields)
+		var.InitOwner(use_owner);
 	constructors.InitOwner(this);
 	if (destructor)
 		destructor->InitOwner(this);
@@ -35,13 +35,29 @@ int TClass::GetEnumId(TNameId use_enum)
 	return -1;
 }
 void TClass::SetTemplateParamClass(int id, TClass* use_class){
-	template_params[id].class_pointer = use_class;
+	//template_params[id].class_pointer = use_class;
+	int i = 0;
+	std::list<TTemplateParam>::iterator it = template_params.begin();
+	while (i != id)
+	{
+		it++;
+		i++;
+	}
+	it->class_pointer = use_class;
 }
 void TClass::SetIsTemplate(bool use_is_template){
 	is_template = use_is_template;
 }
 TClass* TClass::GetTemplateParamClass(int id){
-	return template_params[id].class_pointer;
+	//return template_params[id].class_pointer;
+	int i = 0;
+	std::list<TTemplateParam>::iterator it = template_params.begin();
+	while (i!=id)
+	{
+		it++;
+		i++;
+	}
+	return it->class_pointer;
 }
 int TClass::GetTemplateParamsCount(){
 	return template_params.size();
@@ -149,12 +165,12 @@ void TClass::ValidateSizes(std::vector<TClass*> &owners) {
 				parent_class = parent_class->GetParent();
 			} while (parent_class != NULL);
 		}
-		for (const std::shared_ptr<TClassField>& field : fields)
+		for (TClassField& field : fields)
 		{
-			field->GetClass()->BuildClass(owners);
-			if (!field->IsStatic()) {
-				field->SetOffset(class_size);
-				class_size += field->GetClass()->GetSize();
+			field.GetClass()->BuildClass(owners);
+			if (!field.IsStatic()) {
+				field.SetOffset(class_size);
+				class_size += field.GetClass()->GetSize();
 			}
 		}
 	}
@@ -166,9 +182,9 @@ void TClass::DeclareMethods() {
 	assert(!is_template);
 	if (methods_declared)
 		return;
-	for (std::shared_ptr<TOverloadedMethod>& method : methods)
+	for (TOverloadedMethod& method : methods)
 	{
-		method->Declare();
+		method.Declare();
 	}
 	constructors.Declare();
 	if (destructor)
@@ -187,9 +203,9 @@ void TClass::BuildMethods(TNotOptimizedProgram &program) {
 	assert(!is_template);
 	if (methods_build)
 		return;
-	for (std::shared_ptr<TOverloadedMethod>& method : methods)
+	for (TOverloadedMethod& method : methods)
 	{
-		method->Build(program);
+		method.Build(program);
 	}
 	constructors.Build(program);
 	if (destructor)
@@ -215,13 +231,13 @@ bool TClass::IsChildOf(TClass* use_parent) {
 void TClass::AddMethod(TMethod* use_method, TNameId name) {
 	//Ищем перегруженные методы с таким же именем, иначе добавляем новый
 	TOverloadedMethod* temp = NULL;
-	for (std::shared_ptr<TOverloadedMethod>& method : methods)
-		if (method->GetName() == name)
-			temp = method.get();
+	for (TOverloadedMethod& method : methods)
+		if (method.GetName() == name)
+			temp = &method;
 	if (temp == NULL)
 	{
-		methods.push_back(std::shared_ptr<TOverloadedMethod>(new TOverloadedMethod(name)));
-		temp = methods.back().get();
+		methods.push_back(name);
+		temp = &methods.back();
 	}
 	temp->methods.push_back(std::unique_ptr<TMethod>(use_method));
 }
@@ -250,8 +266,13 @@ void TClass::AddNested(TClass* use_class) {
 	nested_classes.push_back(std::shared_ptr<TClass>(use_class));
 }
 
-void TClass::AddField(TClassField* use_field) {
-	fields.push_back(std::shared_ptr<TClassField>(use_field));
+//void TClass::AddField(TClassField* use_field) {
+	//fields.emplace_back(std::shared_ptr<TClassField>(use_field));
+//}
+TClassField* TClass::AddField(TClass* use_field_owner)
+{
+	fields.emplace_back(use_field_owner);
+	return &fields.back();
 }
 
 TClass* TClass::GetNested(TNameId name) {
@@ -297,10 +318,10 @@ TClassField* TClass::GetField(TNameId name, bool is_static, bool only_in_this) {
 		result_parent = parent.GetClass()->GetField(name, true);
 	if (result_parent != NULL)
 		return result_parent;
-	for (const std::shared_ptr<TClassField>& field : fields)
+	for (TClassField& field : fields)
 	{
-		if (field->IsStatic() == is_static && field->GetName() == name) {
-			return field.get();
+		if (field.IsStatic() == is_static && field.GetName() == name) {
+			return &field;
 		}
 	}
 	if (!only_in_this && is_static && owner != NULL)
@@ -376,11 +397,11 @@ TMethod* TClass::GetBinOp(TOperator::Enum op, TClass* left, bool left_ref,
 
 bool TClass::GetMethods(std::vector<TMethod*> &result, TNameId use_method_name) {
 	assert(methods_declared);
-	for (const std::shared_ptr<TOverloadedMethod>& ov_method : methods)
+	for (TOverloadedMethod& ov_method : methods)
 	{
-		if (ov_method->GetName() == use_method_name)
+		if (ov_method.GetName() == use_method_name)
 		{
-			for (const std::shared_ptr<TMethod>& method : ov_method->methods)
+			for (const std::shared_ptr<TMethod>& method : ov_method.methods)
 				result.push_back(method.get());
 		}
 	}
@@ -394,11 +415,11 @@ bool TClass::GetMethods(std::vector<TMethod*> &result, TNameId use_method_name) 
 bool TClass::GetMethods(std::vector<TMethod*> &result, TNameId use_method_name,
 		bool is_static) {
 	assert(methods_declared);
-	for (const std::shared_ptr<TOverloadedMethod>& ov_method : methods)
+	for (TOverloadedMethod& ov_method : methods)
 	{
-		if (ov_method->GetName() == use_method_name)
+		if (ov_method.GetName() == use_method_name)
 		{
-			for (const std::shared_ptr<TMethod>& method : ov_method->methods)
+			for (const std::shared_ptr<TMethod>& method : ov_method.methods)
 				if (method->IsStatic() == is_static)
 					result.push_back(method.get());
 		}
@@ -557,11 +578,10 @@ void TClass::AnalyzeSyntax(TLexer& source) {
 				end_while = true;
 			}
 		else if (source.Type() == TTokenType::Identifier) {
-			TClassField* temp_field = new TClassField(this);
-			fields.push_back(std::unique_ptr<TClassField>(temp_field));
-			temp_field->SetAccess(access);
-			temp_field->SetReadOnly(readonly);
-			temp_field->AnalyzeSyntax(source);
+			fields.push_back(this);
+			fields.back().SetAccess(access);
+			fields.back().SetReadOnly(readonly);
+			fields.back().AnalyzeSyntax(source);
 		} else
 			break;
 		if (end_while)

@@ -3,6 +3,7 @@
 #include "../Syntax/Void.h"
 #include "../Syntax/Expression.h"
 #include "../Syntax/Statements.h"
+#include "../Syntax/ClassField.h"
 
 TFormalParam TFor::Build(TNotOptimizedProgram &program,int& local_var_offset)
 {

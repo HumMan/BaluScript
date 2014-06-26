@@ -3,6 +3,7 @@
 #include "LocalVar.h"
 #include "Expression.h"
 #include "Statements.h"
+#include "ClassField.h"
 
 void TLocalVar::AnalyzeSyntax(TLexer& source) {
 	InitPos(source);

@@ -2,6 +2,7 @@
 
 #include "Statements.h"
 #include "Expression.h"
+#include "ClassField.h"
 
 void TIf::AnalyzeSyntax(TLexer& source) {
 	InitPos(source);

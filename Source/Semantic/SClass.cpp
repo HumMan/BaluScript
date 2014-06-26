@@ -18,31 +18,34 @@ void TClass::CheckForErrors()
 				nested_classes[i]->Error("Класс с таким именем уже существует!");
 		}
 	}
-	for(int i=0;i<fields.size();i++)
+	for (TClassField& field : fields)
 	{
-		for(int k=0;k<i;k++)
+		for (TClassField& other_field : fields)
+		//for(int k=0;k<i;k++)
 		{
-			if(owner==NULL&&!fields[i]->IsStatic())
+			if (&field == &other_field)
+				break;
+			if(owner==NULL&&!field.IsStatic())
 				Error("Базовый класс может содержать только статические поля!");
-			if(fields[i]->GetName()==fields[k]->GetName())
-				fields[i]->Error("Поле класса с таким именем уже существует!");
+			if (field.GetName() == other_field.GetName())
+				field.Error("Поле класса с таким именем уже существует!");
 			//TODO как быть со статическими членами класса
 		}
 		std::vector<TMethod*> m;
 		if((owner!=NULL&&owner->GetField(name,true,false)!=NULL)||GetMethods(m,name))
-			fields[i]->Error("Член класса с таким имененем уже существует!");
+			field.Error("Член класса с таким имененем уже существует!");
 	}
-	for(int i=0;i<methods.size();i++)
+	for (TOverloadedMethod& method : methods)
 	{
-		if((owner!=NULL&&owner->GetField(methods[i]->GetName(),true,false)!=NULL))
-			methods[i]->methods[0]->Error("Статическое поле класса с таким имененем уже существует!");
-		methods[i]->CheckForErrors();
+		if((owner!=NULL&&owner->GetField(method.GetName(),true,false)!=NULL))
+			method.methods[0]->Error("Статическое поле класса с таким имененем уже существует!");
+		method.CheckForErrors();
 		std::vector<TMethod*> owner_methods;
-		if(owner!=NULL&&owner->GetMethods(owner_methods,methods[i]->GetName()))
+		if(owner!=NULL&&owner->GetMethods(owner_methods,method.GetName()))
 		{
 			for(int k=0;k<owner_methods.size();k++)
 			{
-				TMethod* temp=methods[i]->FindParams(owner_methods[k]);
+				TMethod* temp=method.FindParams(owner_methods[k]);
 				if(temp!=NULL)
 					temp->Error("Статический метод с такими параметрами уже существует!");
 			}
@@ -65,45 +68,46 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 	if(auto_methods_build)return;
 	if(parent.GetClass()!=NULL)
 		parent.GetClass()->InitAutoMethods(program);
-	for(int i=0;i<fields.size();i++)
+	for (TClassField& field : fields)
 	{
-		fields[i]->GetClass()->InitAutoMethods(program);
+		field.GetClass()->InitAutoMethods(program);
 		//создаем конструктор для статических полей класса
-		if(fields[i]->IsStatic())
+		if (field.IsStatic())
 		{
-			fields[i]->SetOffset(program.static_vars_size);
+			field.SetOffset(program.static_vars_size);
 			std::vector<TMethod*> constructors;
-			fields[i]->GetClass()->GetConstructors(constructors);
+			field.GetClass()->GetConstructors(constructors);
 			std::vector<TFormalParam> params;
 			int conv_need=0;
 			{
 				TMethod* constructor=FindMethod(this,constructors,params,conv_need);
 				if(constructor!=NULL)
 				{
-					ValidateAccess(fields[i].get(),this,constructor);
+					ValidateAccess(&field,this,constructor);
 					program.Push(TOp(TOpcode::PUSH_GLOBAL_REF,program.static_vars_size),program.static_vars_init);
 					program.static_vars_init+=constructor->BuildCall(program,params).GetOps();
 				}
 			}
 			{
-				TMethod* destructor=fields[i]->GetClass()->GetDestructor();
+				TMethod* destructor=field.GetClass()->GetDestructor();
 				if(destructor!=NULL)
 				{
-					ValidateAccess(fields[i].get(),this,destructor);
+					ValidateAccess(&field,this,destructor);
 					program.Push(TOp(TOpcode::PUSH_GLOBAL_REF,program.static_vars_size),program.static_vars_destroy);
 					program.static_vars_destroy+=destructor->BuildCall(program,params).GetOps();
 				}
 			}
-			program.static_vars_size+=fields[i]->GetClass()->GetSize();
+			program.static_vars_size+=field.GetClass()->GetSize();
 		}
 	}
 	//TODO что делать если будет bytecode пользовательский конструктор и auto_def_constr?
 	{//defConstructor
 		bool field_has_def_constr=false;
 		bool parent_has_def_constr=parent.GetClass()==NULL?false:parent.GetClass()->HasDefConstr();
-		for(int i=0;i<fields.size();i++){
-			TMethod* field_def_constr=fields[i]->GetClass()->GetDefConstr();
-			if(field_def_constr!=NULL&&!field_def_constr->IsBytecode()&&!fields[i]->IsStatic()){
+		for (TClassField& field : fields)
+		{
+			TMethod* field_def_constr=field.GetClass()->GetDefConstr();
+			if(field_def_constr!=NULL&&!field_def_constr->IsBytecode()&&!field.IsStatic()){
 				field_has_def_constr=true;
 				break;
 			}
@@ -117,15 +121,15 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 				program.Push(TOp(TOpcode::PUSH_THIS),ops);
 				ops+=parent.GetClass()->GetDefConstr()->BuildCall(program).GetOps();
 			}
-			for(int i=0;i<fields.size();i++)
+			for (TClassField& field : fields)
 			{
-				if(!fields[i]->IsStatic())
+				if(!field.IsStatic())
 				{
-					TClass* field_class=fields[i]->GetClass();
+					TClass* field_class=field.GetClass();
 					if(field_class->HasDefConstr())
 					{
-						ValidateAccess(fields[i].get(),this,field_class->GetDefConstr());
-						program.Push(TOp(TOpcode::PUSH_MEMBER_REF,fields[i]->GetOffset()),ops);
+						ValidateAccess(&field,this,field_class->GetDefConstr());
+						program.Push(TOp(TOpcode::PUSH_MEMBER_REF,field.GetOffset()),ops);
 						ops+=field_class->GetDefConstr()->BuildCall(program).GetOps();
 					}
 				}
@@ -144,9 +148,10 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 	{
 		bool field_has_copy_constr=false;
 		bool parent_has_copy_constr=parent.GetClass()==NULL?false:parent.GetClass()->HasCopyConstr();
-		for(int i=0;i<fields.size();i++){
-			TMethod* field_copy_constr=fields[i]->GetClass()->GetCopyConstr();
-			if(field_copy_constr!=NULL&&!field_copy_constr->IsBytecode()&&!fields[i]->IsStatic()){
+		for (TClassField& field : fields)
+		{
+			TMethod* field_copy_constr=field.GetClass()->GetCopyConstr();
+			if(field_copy_constr!=NULL&&!field_copy_constr->IsBytecode()&&!field.IsStatic()){
 				field_has_copy_constr=true;
 				break;
 			}
@@ -166,17 +171,17 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 				ops+=parent.GetClass()->GetCopyConstr()->BuildCall(program,parent.GetClass(),true,ops).GetOps();
 			}
 			//вызываем конструкторы копий
-			for(int i=0;i<fields.size();i++)
+			for (TClassField& field : fields)
 			{
-				if(!fields[i]->IsStatic())
+				if(!field.IsStatic())
 				{
-					TClass* field_class=fields[i]->GetClass();
+					TClass* field_class=field.GetClass();
 					if(field_class->HasCopyConstr())
 					{
-						ValidateAccess(fields[i].get(),this,field_class->GetCopyConstr());
-						program.Push(TOp(TOpcode::PUSH_MEMBER_REF,fields[i]->GetOffset()),ops);
+						ValidateAccess(&field,this,field_class->GetCopyConstr());
+						program.Push(TOp(TOpcode::PUSH_MEMBER_REF,field.GetOffset()),ops);
 						program.Push(TOp(TOpcode::PUSH_LOCAL_REF_COPY,0),ops);
-						program.Push(TOp(TOpcode::ADD_OFFSET,fields[i]->GetOffset()),ops);
+						program.Push(TOp(TOpcode::ADD_OFFSET,field.GetOffset()),ops);
 						ops+=field_class->GetCopyConstr()->BuildCall(program,field_class,true,ops).GetOps();
 					}
 				}
@@ -195,9 +200,10 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 	{
 		bool field_has_destr=false;
 		bool parent_has_destr=parent.GetClass()==NULL?false:parent.GetClass()->HasDestr();
-		for(int i=0;i<fields.size();i++){
-			TMethod* field_destr=fields[i]->GetClass()->GetDestructor();
-			if(field_destr!=NULL&&!field_destr->IsBytecode()&&!fields[i]->IsStatic()){
+		for (TClassField& field : fields)
+		{
+			TMethod* field_destr=field.GetClass()->GetDestructor();
+			if(field_destr!=NULL&&!field_destr->IsBytecode()&&!field.IsStatic()){
 				field_has_destr=true;
 				break;
 			}
@@ -211,15 +217,15 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 				program.Push(TOp(TOpcode::PUSH_THIS),ops);
 				ops+=parent.GetClass()->GetDestructor()->BuildCall(program).GetOps();
 			}
-			for(int i=0;i<fields.size();i++)
+			for (TClassField& field : fields)
 			{
-				if(!fields[i]->IsStatic())
+				if(!field.IsStatic())
 				{
-					TClass* field_class=fields[i]->GetClass();
+					TClass* field_class=field.GetClass();
 					if(field_class->HasDestr())
 					{
-						ValidateAccess(fields[i].get(),this,field_class->GetDestructor());
-						program.Push(TOp(TOpcode::PUSH_MEMBER_REF,fields[i]->GetOffset()),ops);
+						ValidateAccess(&field,this,field_class->GetDestructor());
+						program.Push(TOp(TOpcode::PUSH_MEMBER_REF,field.GetOffset()),ops);
 						ops+=field_class->GetDestructor()->BuildCall(program).GetOps();
 					}
 				}
@@ -241,10 +247,11 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 		TMethod* parent_assign_op=parent.GetClass()!=NULL?parent.GetClass()->GetBinOp(TOperator::Assign,parent.GetClass(),true,parent.GetClass(),true):NULL;
 		//if(parent_assign_op!=NULL&&parent_assign_op->GetType()==MT_INTERNAL)parent_assign_op=NULL;
 		bool parent_has_assign_op=parent.GetClass()==NULL?false:parent_assign_op!=NULL;
-		for(int i=0;i<fields.size();i++){
-			if(!fields[i]->IsStatic())
+		for (TClassField& field : fields)
+		{
+			if(!field.IsStatic())
 			{
-				TClass* field_class=fields[i]->GetClass();//TODO проверять не является ли метод bytecode
+				TClass* field_class=field.GetClass();//TODO проверять не является ли метод bytecode
 				TMethod* field_assign_op=field_class->GetBinOp(TOperator::Assign,field_class,true,field_class,true);
 				if(field_assign_op!=NULL&&!field_assign_op->IsBytecode()){
 					field_has_assign_op=true;break;
@@ -261,20 +268,20 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 				program.Push(TOp(TOpcode::PUSH_LOCAL_REF_COPY,1),ops);
 				parent_assign_op->BuildCall(program,parent.GetClass(),true,ops,parent.GetClass(),true,ops);
 			}
-			for(int i=0;i<fields.size();i++)
+			for (TClassField& field : fields)
 			{
-				if(!fields[i]->IsStatic())
+				if(!field.IsStatic())
 				{
-					TClass* field_class=fields[i]->GetClass();
+					TClass* field_class=field.GetClass();
 
 					program.Push(TOp(TOpcode::PUSH_LOCAL_REF_COPY,0),ops);
-					program.Push(TOp(TOpcode::ADD_OFFSET,fields[i]->GetOffset()),ops);
+					program.Push(TOp(TOpcode::ADD_OFFSET,field.GetOffset()),ops);
 					program.Push(TOp(TOpcode::PUSH_LOCAL_REF_COPY,1),ops);
-					program.Push(TOp(TOpcode::ADD_OFFSET,fields[i]->GetOffset()),ops);
+					program.Push(TOp(TOpcode::ADD_OFFSET,field.GetOffset()),ops);
 					TMethod* field_assign_op=field_class->GetBinOp(TOperator::Assign,field_class,true,field_class,true);
 					if(field_assign_op!=NULL)
 					{
-						ValidateAccess(fields[i].get(),this,field_assign_op);
+						ValidateAccess(&field,this,field_assign_op);
 						ops+=field_assign_op->BuildCall(program,field_class,true,ops,field_class,true,ops).GetOps();
 					}
 					else

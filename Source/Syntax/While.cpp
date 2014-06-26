@@ -2,6 +2,8 @@
 
 #include "Expression.h"
 #include "Statements.h"
+#include "Class.h"
+#include "ClassField.h"
 
 void TWhile::AnalyzeSyntax(TLexer& source) {
 	InitPos(source);

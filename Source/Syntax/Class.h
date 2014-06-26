@@ -30,12 +30,12 @@ class TClass:public TTokenPos
 		TClass* class_pointer;
 	};
 
-	std::vector<TTemplateParam> template_params;
+	std::list<TTemplateParam> template_params;
 
 	TTemplateRealizations* templates;
 
-	std::vector<std::shared_ptr <TClassField>> fields;
-	std::vector<std::shared_ptr<TOverloadedMethod>> methods;
+	std::list<TClassField> fields;
+	std::list<TOverloadedMethod> methods;
 	TOverloadedMethod constructors;
 	std::shared_ptr<TMethod> destructor;
 	TOverloadedMethod operators[TOperator::End];
@@ -57,6 +57,8 @@ class TClass:public TTokenPos
 	void ValidateSizes(std::vector<TClass*> &owners);
 public:
 	TClass(TClass* use_owner,TTemplateRealizations* use_templates);
+
+	//TODO вместо InitOwner у всех типов, сделать полноценный конструктор копии + перейти на unique_ptr
 	void InitOwner(TClass* use_owner);
 	void AnalyzeSyntax(TLexer& source);
 
@@ -85,7 +87,8 @@ public:
 	void AddConstr(TMethod* use_method);
 	void AddDestr(TMethod* use_method);
 	void AddNested(TClass* use_class);
-	void AddField(TClassField* use_field);
+	//void AddField(TClassField* use_field);
+	TClassField* AddField(TClass* use_field_owner);
 	TClass* GetNested(TNameId name);
 	TClass* GetClass(TNameId use_name);
 	TNameId GetName();

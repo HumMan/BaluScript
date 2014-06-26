@@ -1,6 +1,7 @@
 #include "Expression.h"
 
 #include "Statements.h"
+#include "ClassField.h"
 
 TExpression::TOperation* TExpression::ParamsCall(TLexer& source,
 		TExpression::TOperation* curr_operation) {

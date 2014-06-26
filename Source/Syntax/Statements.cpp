@@ -5,6 +5,7 @@
 #include "For.h"
 #include "Bytecode.h"
 #include "LocalVar.h"
+#include "ClassField.h"
 
 bool ClassName(TLexer& source) {
 	if (!source.TestAndGet(TTokenType::Identifier))
