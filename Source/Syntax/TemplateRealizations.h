@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include "Class.h"
 
@@ -7,12 +7,12 @@ class TTemplateRealizations
 public:
 	struct TTemplateRealization
 	{
-		///<summary>Указатель на исходный шаблонный класс</summary>
+		///<summary>вЂќРєР°Р·Р°С‚РµР»СЊ РЅР° РёСЃС…РѕРґРЅС‹Р№ С€Р°Р±Р»РѕРЅРЅС‹Р№ РєР»Р°СЃСЃ</summary>
 		TClass* template_pointer;
-		///<summary>Список реализаций данного шаблона с различными шаблонными параметрами</summary>
+		///<summary>вЂ”РїРёСЃРѕРє СЂРµР°Р»РёР·Р°С†РёР№ РґР°РЅРЅРѕРіРѕ С€Р°Р±Р»РѕРЅР° СЃ СЂР°Р·Р»РёС‡РЅС‹РјРё С€Р°Р±Р»РѕРЅРЅС‹РјРё РїР°СЂР°РјРµС‚СЂР°РјРё</summary>
 		std::vector<std::unique_ptr<TClass>> realizations;
 	};
-	///<summary>Список всех шаблонов и их реализаций</summary>
+	///<summary>вЂ”РїРёСЃРѕРє РІСЃРµС… С€Р°Р±Р»РѕРЅРѕРІ Рё РёС… СЂРµР°Р»РёР·Р°С†РёР№</summary>
 	std::vector<std::unique_ptr<TTemplateRealization>> templates;
 	std::vector<std::unique_ptr<TClass>>* FindTemplate(TClass* use_template)
 	{

@@ -1,4 +1,4 @@
-#include "../Syntax/LocalVar.h"
+ï»¿#include "../Syntax/LocalVar.h"
 
 #include "../Syntax/Class.h"
 #include "../Syntax/Statements.h"
@@ -9,20 +9,20 @@ TFormalParam TLocalVar::Build(TNotOptimizedProgram &program,int& local_var_offse
 {
 	std::vector<TMethod*> methods;
 	if(owner->GetMethods(methods,name))
-		Error("Ìåòîä íå ìîæåò áûòü èìåíåì ïåðåìåííîé!");
+		Error("ÐœÐµÑ‚Ð¾Ð´ Ð½Ðµ Ð¼Ð¾Ð¶ÐµÑ‚ Ð±Ñ‹Ñ‚ÑŒ Ð¸Ð¼ÐµÐ½ÐµÐ¼ Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ð¾Ð¹!");
 	if(owner->GetClass(name)!=NULL)
-		Error("Êëàññ íå ìîæåò áûòü èìåíåì ïåðåìåííîé!");
+		Error("ÐšÐ»Ð°ÑÑ Ð½Ðµ Ð¼Ð¾Ð¶ÐµÑ‚ Ð±Ñ‹Ñ‚ÑŒ Ð¸Ð¼ÐµÐ½ÐµÐ¼ Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ð¾Ð¹!");
 	TVariable* t=parent->GetVar(name,stmt_id);
 	if(t!=NULL&&t!=this)
 	{
 		switch(t->GetType())
 		{
 		case TVariableType::ClassField:
-			Error("Ëîêàëüíàÿ ïåðåìåííàÿ ïåðåêðûâàåò ÷ëåí êëàññà!");
+			Error("Ð›Ð¾ÐºÐ°Ð»ÑŒÐ½Ð°Ñ Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ð°Ñ Ð¿ÐµÑ€ÐµÐºÑ€Ñ‹Ð²Ð°ÐµÑ‚ Ñ‡Ð»ÐµÐ½ ÐºÐ»Ð°ÑÑÐ°!");
 		case TVariableType::Parameter:
-			Error("Ëîêàëüíàÿ ïåðåìåííàÿ ïåðåêðûâàåò ïàðàìåòð!");
+			Error("Ð›Ð¾ÐºÐ°Ð»ÑŒÐ½Ð°Ñ Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ð°Ñ Ð¿ÐµÑ€ÐµÐºÑ€Ñ‹Ð²Ð°ÐµÑ‚ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€!");
 		case TVariableType::LocalVar:
-			Error("Ëîêàëüíàÿ ïåðåìåííàÿ ñ òàêèì èìåíåì óæå ñóùåñòâóåò!");
+			Error("Ð›Ð¾ÐºÐ°Ð»ÑŒÐ½Ð°Ñ Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ð°Ñ Ñ Ñ‚Ð°ÐºÐ¸Ð¼ Ð¸Ð¼ÐµÐ½ÐµÐ¼ ÑƒÐ¶Ðµ ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÐµÑ‚!");
 		default:assert(false);
 		}
 	}
@@ -48,7 +48,7 @@ TFormalParam TLocalVar::Build(TNotOptimizedProgram &program,int& local_var_offse
 	type.GetClass()->GetConstructors(constructors);
 	TMethod* constructor=FindMethod(this,constructors,params_result,conv_need);
 	if(constructor==NULL&&params_result.size()>0)
-		Error("Êîñòðóêòîðà ñ òàêèìè ïàðìåòðàìè íå ñóùåñòâóåò!");
+		Error("ÐšÐ¾ÑÑ‚Ñ€ÑƒÐºÑ‚Ð¾Ñ€Ð° Ñ Ñ‚Ð°ÐºÐ¸Ð¼Ð¸ Ð¿Ð°Ñ€Ð¼ÐµÑ‚Ñ€Ð°Ð¼Ð¸ Ð½Ðµ ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÐµÑ‚!");
 
 	bool need_testandget=is_static&&(params_result.size()>0||assign_expr!=NULL);
 

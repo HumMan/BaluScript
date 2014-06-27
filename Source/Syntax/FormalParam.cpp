@@ -1,4 +1,4 @@
-#include "FormalParam.h"
+п»ї#include "FormalParam.h"
 
 #include "Class.h"
 #include "Method.h"
@@ -53,7 +53,7 @@ TClass* TFormalParam::GetClass()const{
 	return class_pointer;
 }
 bool TFormalParam::IsVoid()const{
-	return class_pointer == NULL && (!IsMethods()) && type == NULL;//TODO в дальнейшем methods_pointer не должен считаться void
+	return class_pointer == NULL && (!IsMethods()) && type == NULL;//TODO РІ РґР°Р»СЊРЅРµР№С€РµРј methods_pointer РЅРµ РґРѕР»Р¶РµРЅ СЃС‡РёС‚Р°С‚СЊСЃСЏ void
 }
 TOpArray& TFormalParam::GetOps(){
 	return ops;

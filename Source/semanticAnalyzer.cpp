@@ -1,4 +1,4 @@
-#include "syntaxAnalyzer.h"
+п»ї#include "syntaxAnalyzer.h"
 
 #include "Syntax/ClassField.h"
 #include "Syntax/Class.h"
@@ -10,9 +10,9 @@ void ValidateAccess(TTokenPos* field_pos,TClass* source,TClassField* target)
 	if(target->GetAccess()==TTypeOfAccess::Public)return;
 	if(source==target->GetOwner())return;
 	if(target->GetAccess()==TTypeOfAccess::Protected&&!source->IsChildOf(target->GetOwner()))
-		field_pos->Error("Данное поле класса доступно только из классов наследников (protected)!");
+		field_pos->Error("Р”Р°РЅРЅРѕРµ РїРѕР»Рµ РєР»Р°СЃСЃР° РґРѕСЃС‚СѓРїРЅРѕ С‚РѕР»СЊРєРѕ РёР· РєР»Р°СЃСЃРѕРІ РЅР°СЃР»РµРґРЅРёРєРѕРІ (protected)!");
 	else if(target->GetAccess()==TTypeOfAccess::Private&&source!=target->GetOwner())
-		field_pos->Error("Данное поле класса доступно только из класса в котором оно объявлено (private)!");
+		field_pos->Error("Р”Р°РЅРЅРѕРµ РїРѕР»Рµ РєР»Р°СЃСЃР° РґРѕСЃС‚СѓРїРЅРѕ С‚РѕР»СЊРєРѕ РёР· РєР»Р°СЃСЃР° РІ РєРѕС‚РѕСЂРѕРј РѕРЅРѕ РѕР±СЉСЏРІР»РµРЅРѕ (private)!");
 }
 
 void ValidateAccess(TTokenPos* field_pos,TClass* source,TMethod* target)
@@ -20,14 +20,14 @@ void ValidateAccess(TTokenPos* field_pos,TClass* source,TMethod* target)
 	if(target->GetAccess()==TTypeOfAccess::Public)return;
 	if(source==target->GetOwner())return;
 	if(target->GetAccess()==TTypeOfAccess::Protected&&!source->IsChildOf(target->GetOwner()))
-		field_pos->Error("Данный метод доступен только из классов наследников (protected)!");
+		field_pos->Error("Р”Р°РЅРЅС‹Р№ РјРµС‚РѕРґ РґРѕСЃС‚СѓРїРµРЅ С‚РѕР»СЊРєРѕ РёР· РєР»Р°СЃСЃРѕРІ РЅР°СЃР»РµРґРЅРёРєРѕРІ (protected)!");
 	else if(target->GetAccess()==TTypeOfAccess::Private&&source!=target->GetOwner())
-		field_pos->Error("Данный метод доступен только из класса в котором он объявлен (private)!");
+		field_pos->Error("Р”Р°РЅРЅС‹Р№ РјРµС‚РѕРґ РґРѕСЃС‚СѓРїРµРЅ С‚РѕР»СЊРєРѕ РёР· РєР»Р°СЃСЃР° РІ РєРѕС‚РѕСЂРѕРј РѕРЅ РѕР±СЉСЏРІР»РµРЅ (private)!");
 }
 
 bool IsEqualClasses(TFormalParam formal_par,TClass* param_class,bool param_ref,int& need_conv)
-//============== На выходе =========================================
-//результат - равенство классов или возможность приведения класса
+//============== РќР° РІС‹С…РѕРґРµ =========================================
+//СЂРµР·СѓР»СЊС‚Р°С‚ - СЂР°РІРµРЅСЃС‚РІРѕ РєР»Р°СЃСЃРѕРІ РёР»Рё РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РїСЂРёРІРµРґРµРЅРёСЏ РєР»Р°СЃСЃР°
 {
 	need_conv=0;
 	if((!formal_par.IsRef())&&param_ref)return false;		
@@ -46,7 +46,7 @@ TMethod* FindMethod(TTokenPos* source, std::vector<TMethod*> &methods_to_call,co
 {
 	for(int k=0;k<formal_params.size();k++){
 		if(formal_params[k].IsVoid())
-			source->Error("Параметр метода должен иметь тип отличный от void!");
+			source->Error("РџР°СЂР°РјРµС‚СЂ РјРµС‚РѕРґР° РґРѕР»Р¶РµРЅ РёРјРµС‚СЊ С‚РёРї РѕС‚Р»РёС‡РЅС‹Р№ РѕС‚ void!");
 	}
 	int i,k;
 	int min_conv_method=-1,temp_conv,conv;
@@ -156,17 +156,17 @@ int TSyntaxAnalyzer::GetMethod(char* use_method)
 	if(method!=NULL)
 	{
 		if(method_decl->IsStatic()!=method->IsStatic())
-			lexer.Error("Метод отличается по статичности!");
+			lexer.Error("РњРµС‚РѕРґ РѕС‚Р»РёС‡Р°РµС‚СЃСЏ РїРѕ СЃС‚Р°С‚РёС‡РЅРѕСЃС‚Рё!");
 		if(method_decl->IsExternal()!=method->IsExternal())
-			lexer.Error("Несоответствует классификатор extern!");
+			lexer.Error("РќРµСЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РєР»Р°СЃСЃРёС„РёРєР°С‚РѕСЂ extern!");
 		if(method_decl->GetRetClass()!=method->GetRetClass()
 			||method_decl->IsReturnRef()!=method->IsReturnRef())
-			lexer.Error("Метод возвращает другое значение!");
+			lexer.Error("РњРµС‚РѕРґ РІРѕР·РІСЂР°С‰Р°РµС‚ РґСЂСѓРіРѕРµ Р·РЅР°С‡РµРЅРёРµ!");
 		delete method_decl;
 		return program.AddMethodToTable(method);
 	}
 	else
-		lexer.Error("Такого метода не существует!");
+		lexer.Error("РўР°РєРѕРіРѕ РјРµС‚РѕРґР° РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 	delete method_decl;
 	return -1;
 }
@@ -175,7 +175,7 @@ TClassField* TSyntaxAnalyzer::GetStaticField(char* use_var)
 {
 	lexer.ParseSource(use_var);
 	if(lexer.NameId()!=base_class->GetName())
-		lexer.Error("Ожидалось имя класса!");
+		lexer.Error("РћР¶РёРґР°Р»РѕСЃСЊ РёРјСЏ РєР»Р°СЃСЃР°!");
 	lexer.GetToken();
 	TClassField* result=NULL;
 	TClass* curr_class=base_class;
@@ -189,7 +189,7 @@ TClassField* TSyntaxAnalyzer::GetStaticField(char* use_var)
 			result=curr_class->GetField(lexer.NameId(),true);
 		}else curr_class=t;
 	}
-	if(result==NULL)lexer.Error("Статического члена класса с таким именем не существует!");
-	//if(!result->IsStatic())lexer->Error("Член класса с таким именем не является статическим!");
+	if(result==NULL)lexer.Error("РЎС‚Р°С‚РёС‡РµСЃРєРѕРіРѕ С‡Р»РµРЅР° РєР»Р°СЃСЃР° СЃ С‚Р°РєРёРј РёРјРµРЅРµРј РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
+	//if(!result->IsStatic())lexer->Error("Р§Р»РµРЅ РєР»Р°СЃСЃР° СЃ С‚Р°РєРёРј РёРјРµРЅРµРј РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЃС‚Р°С‚РёС‡РµСЃРєРёРј!");
 	return result;
 }

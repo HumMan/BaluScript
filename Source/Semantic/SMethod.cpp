@@ -1,4 +1,4 @@
-#include "../Syntax/Method.h"
+п»ї#include "../Syntax/Method.h"
 
 #include <assert.h>
 
@@ -49,13 +49,13 @@ void TMethod::Build(TNotOptimizedProgram &program)
 		if(ret.GetClass()!=NULL)
 		{
 			if(!has_return)
-				Error("Метод должен возвращать значение!");
-			//TODO не работает с методами содержащими только байткод
+				Error("РњРµС‚РѕРґ РґРѕР»Р¶РµРЅ РІРѕР·РІСЂР°С‰Р°С‚СЊ Р·РЅР°С‡РµРЅРёРµ!");
+			//TODO РЅРµ СЂР°Р±РѕС‚Р°РµС‚ СЃ РјРµС‚РѕРґР°РјРё СЃРѕРґРµСЂР¶Р°С‰РёРјРё С‚РѕР»СЊРєРѕ Р±Р°Р№С‚РєРѕРґ
 			//program.Push(TOp(TOpcode::METHOD_HAS_NOT_RETURN_A_VALUE),ops_array);
 			program.Push(TOp(TOpcode::RETURN,
 				GetParamsSize()+!IsStatic(),GetRetSize()),ops_array);
-			//TODO добавить информацию о методе
-			//TODO лучше добавить проверку на return, но как быть с байткодом по которому нельзя определить возвращает ли он значение или нет
+			//TODO РґРѕР±Р°РІРёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РјРµС‚РѕРґРµ
+			//TODO Р»СѓС‡С€Рµ РґРѕР±Р°РІРёС‚СЊ РїСЂРѕРІРµСЂРєСѓ РЅР° return, РЅРѕ РєР°Рє Р±С‹С‚СЊ СЃ Р±Р°Р№С‚РєРѕРґРѕРј РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РЅРµР»СЊР·СЏ РѕРїСЂРµРґРµР»РёС‚СЊ РІРѕР·РІСЂР°С‰Р°РµС‚ Р»Рё РѕРЅ Р·РЅР°С‡РµРЅРёРµ РёР»Рё РЅРµС‚
 		}
 		else{
 			ops_array+=BuildParametersDestructor(program);
@@ -87,8 +87,8 @@ int TMethod::GetRetSize()
 
 void TMethod::BuildFormalParamConversion(TNotOptimizedProgram &program,TFormalParam& formal_par,  TClass* param_class,bool param_ref)
 {	
-	assert(!(param_ref&&!formal_par.IsRef()));//ошибка в FindMethod
-	//если необходимо преобразование типа формального параметра то добавляем его
+	assert(!(param_ref&&!formal_par.IsRef()));//РѕС€РёР±РєР° РІ FindMethod
+	//РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ С‚РёРїР° С„РѕСЂРјР°Р»СЊРЅРѕРіРѕ РїР°СЂР°РјРµС‚СЂР° С‚Рѕ РґРѕР±Р°РІР»СЏРµРј РµРіРѕ
 	if(formal_par.GetClass()!=param_class)
 	{
 		TMethod* conversion=formal_par.GetClass()->GetConversion(formal_par.IsRef(),param_class);
@@ -103,12 +103,12 @@ void TMethod::BuildFormalParamConversion(TNotOptimizedProgram &program,TFormalPa
 				conversion=formal_par.GetClass()->GetConversion(false,param_class);
 			}
 		}
-		assert(conversion!=NULL);//ошибка в FindMethod
+		assert(conversion!=NULL);//РѕС€РёР±РєР° РІ FindMethod
 		std::vector<TFormalParam> conv_method_params;
 		conv_method_params.push_back(formal_par);
 		formal_par=formal_par.GetOps()+conversion->BuildCall(program,conv_method_params);
 	}
-	//если в стеке находится ссылка, а в качестве параметра требуется значение, то добавляем преобразование
+	//РµСЃР»Рё РІ СЃС‚РµРєРµ РЅР°С…РѕРґРёС‚СЃСЏ СЃСЃС‹Р»РєР°, Р° РІ РєР°С‡РµСЃС‚РІРµ РїР°СЂР°РјРµС‚СЂР° С‚СЂРµР±СѓРµС‚СЃСЏ Р·РЅР°С‡РµРЅРёРµ, С‚Рѕ РґРѕР±Р°РІР»СЏРµРј РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ
 	else if(formal_par.IsRef()&&!param_ref)
 	{
 		TMethod* copy_constr=formal_par.GetClass()->GetCopyConstr();
@@ -119,7 +119,7 @@ void TMethod::BuildFormalParamConversion(TNotOptimizedProgram &program,TFormalPa
 
 void TMethod::BuildFormalParamsConversion(TNotOptimizedProgram &program, std::vector<TFormalParam> &formal_params)
 {
-	assert(formal_params.size()==param.size());//ошибка в FindMethod
+	assert(formal_params.size()==param.size());//РѕС€РёР±РєР° РІ FindMethod
 	for(int i=0;i<param.size();i++){
 		BuildFormalParamConversion(program,formal_params[i],param[i]->GetClass(),param[i]->IsRef());			
 	}
@@ -158,23 +158,23 @@ TVariable* TMethod::GetVar(TNameId name)
 void TMethod::CheckForErrors()
 {
 	if(owner->GetOwner()==NULL&&!is_static)
-		Error("Базовый класс может содержать только статические методы!");
+		Error("Р‘Р°Р·РѕРІС‹Р№ РєР»Р°СЃСЃ РјРѕР¶РµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ С‚РѕР»СЊРєРѕ СЃС‚Р°С‚РёС‡РµСЃРєРёРµ РјРµС‚РѕРґС‹!");
 	for(int i=0;i<param.size();i++)
 	{
 		if(!param[i]->GetName().IsNull())
 			for(int k=0;k<i;k++)
 			{
 				if(param[i]->GetName()==param[k]->GetName())
-					param[i]->Error("Параметр с таким именем уже существует!");
+					param[i]->Error("РџР°СЂР°РјРµС‚СЂ СЃ С‚Р°РєРёРј РёРјРµРЅРµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 			}
 	}
 	if(!method_name.IsNull())
 	{
 		if(owner->GetClass(method_name)!=NULL)
-			Error("Класс не может быть именем метода!");
+			Error("РљР»Р°СЃСЃ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РёРјРµРЅРµРј РјРµС‚РѕРґР°!");
 		if(owner->GetField(method_name,false)!=NULL)
-			Error("Член класса с таким именем уже существует!");
-		//TODO проверить члены родительского класса и т.д. (полный запрет на перекрытие имен)
+			Error("Р§Р»РµРЅ РєР»Р°СЃСЃР° СЃ С‚Р°РєРёРј РёРјРµРЅРµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
+		//TODO РїСЂРѕРІРµСЂРёС‚СЊ С‡Р»РµРЅС‹ СЂРѕРґРёС‚РµР»СЊСЃРєРѕРіРѕ РєР»Р°СЃСЃР° Рё С‚.Рґ. (РїРѕР»РЅС‹Р№ Р·Р°РїСЂРµС‚ РЅР° РїРµСЂРµРєСЂС‹С‚РёРµ РёРјРµРЅ)
 	}
 	switch(member_type)
 	{
@@ -182,70 +182,70 @@ void TMethod::CheckForErrors()
 		assert(!method_name.IsNull());
 		break;
 	case TResWord::Constr:	
-		if(is_static)Error("Конструктор должен быть не статичным!");
+		if(is_static)Error("РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РЅРµ СЃС‚Р°С‚РёС‡РЅС‹Рј!");
 		break;
 	case TResWord::Destr:
-		if(is_static)Error("Деструктор должен быть не статичным!");
+		if(is_static)Error("Р”РµСЃС‚СЂСѓРєС‚РѕСЂ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РЅРµ СЃС‚Р°С‚РёС‡РЅС‹Рј!");
 		break;
 	case TResWord::Operator:
-		if(!is_static)Error("Оператор должен быть статичным!");
+		if(!is_static)Error("РћРїРµСЂР°С‚РѕСЂ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЃС‚Р°С‚РёС‡РЅС‹Рј!");
 		break;
 	case TResWord::Conversion:
-		if(!is_static)Error("Оператор приведения типа должен быть статичным!");
+		if(!is_static)Error("РћРїРµСЂР°С‚РѕСЂ РїСЂРёРІРµРґРµРЅРёСЏ С‚РёРїР° РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЃС‚Р°С‚РёС‡РЅС‹Рј!");
 		break;
 	default:assert(false);
 	}
 	{
-		//проверяем правильность указания параметров и возвращаемого значения
+		//РїСЂРѕРІРµСЂСЏРµРј РїСЂР°РІРёР»СЊРЅРѕСЃС‚СЊ СѓРєР°Р·Р°РЅРёСЏ РїР°СЂР°РјРµС‚СЂРѕРІ Рё РІРѕР·РІСЂР°С‰Р°РµРјРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ
 		switch(member_type)
 		{
 		case TClassMember::Func:	
 			break;
 		case TClassMember::Constr:	
-			if(ret.GetClass()!=NULL)Error("Конструктор не должен возвращать значение!");
+			if(ret.GetClass()!=NULL)Error("РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РЅРµ РґРѕР»Р¶РµРЅ РІРѕР·РІСЂР°С‰Р°С‚СЊ Р·РЅР°С‡РµРЅРёРµ!");
 			break;
 		case TClassMember::Destr:	
-			if(ret.GetClass()!=NULL)Error("Деструктор не должен возвращать значение!");
-			if(param.size()!=0)Error("Деструктор не имеет параметров!");
+			if(ret.GetClass()!=NULL)Error("Р”РµСЃС‚СЂСѓРєС‚РѕСЂ РЅРµ РґРѕР»Р¶РµРЅ РІРѕР·РІСЂР°С‰Р°С‚СЊ Р·РЅР°С‡РµРЅРёРµ!");
+			if(param.size()!=0)Error("Р”РµСЃС‚СЂСѓРєС‚РѕСЂ РЅРµ РёРјРµРµС‚ РїР°СЂР°РјРµС‚СЂРѕРІ!");
 			break;
 		case TClassMember::Operator:
-			if(operator_type==TOperator::Not)//унарные операторы
+			if(operator_type==TOperator::Not)//СѓРЅР°СЂРЅС‹Рµ РѕРїРµСЂР°С‚РѕСЂС‹
 			{
 				if(GetParamsCount()!=1)
-					Error("Унарный оператор должен иметь один параметр!");
+					Error("РЈРЅР°СЂРЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ РґРѕР»Р¶РµРЅ РёРјРµС‚СЊ РѕРґРёРЅ РїР°СЂР°РјРµС‚СЂ!");
 				if(GetParam(0)->GetClass()!=owner)
-					Error("Хотя бы один из параметров оператора должен быть классом для которого он используется!");
+					Error("РҐРѕС‚СЏ Р±С‹ РѕРґРёРЅ РёР· РїР°СЂР°РјРµС‚СЂРѕРІ РѕРїРµСЂР°С‚РѕСЂР° РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РєР»Р°СЃСЃРѕРј РґР»СЏ РєРѕС‚РѕСЂРѕРіРѕ РѕРЅ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ!");
 			}
 			else if(operator_type==TOperator::UnaryMinus)
 			{
 				if (!IsIn(GetParamsCount(), 1, 2))
-					Error("У унарного оператора ""-"" должнен быть 1 параметр!");
+					Error("РЈ СѓРЅР°СЂРЅРѕРіРѕ РѕРїРµСЂР°С‚РѕСЂР° ""-"" РґРѕР»Р¶РЅРµРЅ Р±С‹С‚СЊ 1 РїР°СЂР°РјРµС‚СЂ!");
 				if(GetParam(0)->GetClass()!=owner
 					&& (GetParamsCount() == 2 && GetParam(1)->GetClass() != owner))
-					Error("Параметром унарного оператора должен быть класс для которого он используется!");
+					Error("РџР°СЂР°РјРµС‚СЂРѕРј СѓРЅР°СЂРЅРѕРіРѕ РѕРїРµСЂР°С‚РѕСЂР° РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РєР»Р°СЃСЃ РґР»СЏ РєРѕС‚РѕСЂРѕРіРѕ РѕРЅ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ!");
 			}
 			else if(operator_type==TOperator::ParamsCall||operator_type==TOperator::GetArrayElement)
 			{
 				if (GetParamsCount()<2)
-					Error("Оператор вызова параметров должен иметь минимум 2 операнда!");
+					Error("РћРїРµСЂР°С‚РѕСЂ РІС‹Р·РѕРІР° РїР°СЂР°РјРµС‚СЂРѕРІ РґРѕР»Р¶РµРЅ РёРјРµС‚СЊ РјРёРЅРёРјСѓРј 2 РѕРїРµСЂР°РЅРґР°!");
 				if(GetParam(0)->GetClass()!=owner)
-					Error("Первый параметр оператора вызова должен быть данным классом!");
+					Error("РџРµСЂРІС‹Р№ РїР°СЂР°РјРµС‚СЂ РѕРїРµСЂР°С‚РѕСЂР° РІС‹Р·РѕРІР° РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РґР°РЅРЅС‹Рј РєР»Р°СЃСЃРѕРј!");
 			}
-			else //остальные бинарные операторы
+			else //РѕСЃС‚Р°Р»СЊРЅС‹Рµ Р±РёРЅР°СЂРЅС‹Рµ РѕРїРµСЂР°С‚РѕСЂС‹
 			{
 				if((operator_type==TOperator::Equal||operator_type==TOperator::NotEqual)&&ret.GetClass()!=owner->GetClass(source->GetIdFromName("bool")))
-					Error("Оператор сравнения должен возвращать логическое значение!");
+					Error("РћРїРµСЂР°С‚РѕСЂ СЃСЂР°РІРЅРµРЅРёСЏ РґРѕР»Р¶РµРЅ РІРѕР·РІСЂР°С‰Р°С‚СЊ Р»РѕРіРёС‡РµСЃРєРѕРµ Р·РЅР°С‡РµРЅРёРµ!");
 				if (GetParamsCount() != 2)
-					Error("У бинарного оператора должно быть 2 параметра!");
+					Error("РЈ Р±РёРЅР°СЂРЅРѕРіРѕ РѕРїРµСЂР°С‚РѕСЂР° РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ 2 РїР°СЂР°РјРµС‚СЂР°!");
 				if(GetParam(0)->GetClass()!=owner
 					&& (GetParamsCount() == 2 && GetParam(1)->GetClass() != owner))
-					Error("Хотя бы один из параметров оператора должен быть классом для которого он используется!");
+					Error("РҐРѕС‚СЏ Р±С‹ РѕРґРёРЅ РёР· РїР°СЂР°РјРµС‚СЂРѕРІ РѕРїРµСЂР°С‚РѕСЂР° РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РєР»Р°СЃСЃРѕРј РґР»СЏ РєРѕС‚РѕСЂРѕРіРѕ РѕРЅ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ!");
 			}
 			break;
 		case TClassMember::Conversion:
 			if (GetParamsCount() != 1
 				||GetParam(0)->GetClass()!=owner)
-				Error("Оператор приведения типа должен иметь один параметр с типом равным классу в котором он находится!");
+				Error("РћРїРµСЂР°С‚РѕСЂ РїСЂРёРІРµРґРµРЅРёСЏ С‚РёРїР° РґРѕР»Р¶РµРЅ РёРјРµС‚СЊ РѕРґРёРЅ РїР°СЂР°РјРµС‚СЂ СЃ С‚РёРїРѕРј СЂР°РІРЅС‹Рј РєР»Р°СЃСЃСѓ РІ РєРѕС‚РѕСЂРѕРј РѕРЅ РЅР°С…РѕРґРёС‚СЃСЏ!");
 			break;
 		default:assert(false);
 		}

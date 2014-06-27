@@ -1,4 +1,4 @@
-#include "notOptimizedProgram.h"
+п»ї#include "notOptimizedProgram.h"
 
 #include "Syntax/Method.h"
 #include "Syntax/Statements.h"
@@ -63,7 +63,7 @@ void TNotOptimizedProgram::ListItems()
 		if(methods_table[i]->IsExternal())continue;
 		BaluLib::TListItem<TOp>* c = methods_table[i]->GetOps().first;
 		BaluLib::TListItem<TOp>* last;
-		if(c==0)continue;//метод с пустым телом, но используемый
+		if(c==0)continue;//РјРµС‚РѕРґ СЃ РїСѓСЃС‚С‹Рј С‚РµР»РѕРј, РЅРѕ РёСЃРїРѕР»СЊР·СѓРµРјС‹Р№
 		do{
 			ops.push_back(&c->value);
 			last=c;
@@ -86,8 +86,8 @@ void ConnectOps(BaluLib::TListItem<TOp>* &first_instr, BaluLib::TListItem<TOp>* 
 }
 
 /// <summary> 
-/// Используется при задании дополнительных операций в начале или в конце метода - например, 
-/// вызов конструктором членов класса перед телом конструктора и аналогично для деструктора
+/// РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РїСЂРё Р·Р°РґР°РЅРёРё РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РѕРїРµСЂР°С†РёР№ РІ РЅР°С‡Р°Р»Рµ РёР»Рё РІ РєРѕРЅС†Рµ РјРµС‚РѕРґР° - РЅР°РїСЂРёРјРµСЂ, 
+/// РІС‹Р·РѕРІ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂРѕРј С‡Р»РµРЅРѕРІ РєР»Р°СЃСЃР° РїРµСЂРµРґ С‚РµР»РѕРј РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР° Рё Р°РЅР°Р»РѕРіРёС‡РЅРѕ РґР»СЏ РґРµСЃС‚СЂСѓРєС‚РѕСЂР°
 /// </summary>
 struct TMethodPrePostEvents
 {
@@ -211,23 +211,23 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 
 	ListItems();
 
-	//оптимизируем комманды
+	//РѕРїС‚РёРјРёР·РёСЂСѓРµРј РєРѕРјРјР°РЅРґС‹
 	//TODO
-	//лучше сначала оптимизировать пометодно а потом сливать в один список
-	//метки можно тоже пометодно создавать если сделать переходы относительными
+	//Р»СѓС‡С€Рµ СЃРЅР°С‡Р°Р»Р° РѕРїС‚РёРјРёР·РёСЂРѕРІР°С‚СЊ РїРѕРјРµС‚РѕРґРЅРѕ Р° РїРѕС‚РѕРј СЃР»РёРІР°С‚СЊ РІ РѕРґРёРЅ СЃРїРёСЃРѕРє
+	//РјРµС‚РєРё РјРѕР¶РЅРѕ С‚РѕР¶Рµ РїРѕРјРµС‚РѕРґРЅРѕ СЃРѕР·РґР°РІР°С‚СЊ РµСЃР»Рё СЃРґРµР»Р°С‚СЊ РїРµСЂРµС…РѕРґС‹ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹РјРё
 
-	//TODO метод не может начинаться с метки
+	//TODO РјРµС‚РѕРґ РЅРµ РјРѕР¶РµС‚ РЅР°С‡РёРЅР°С‚СЊСЃСЏ СЃ РјРµС‚РєРё
 	for(int i=0;i<methods_table.size();i++)
 		if(methods_table[i]->GetOps().first!=NULL)
 			assert(methods_table[i]->GetOps().first->value.type!=TOpcode::LABEL);
-	//преобразуем все комманды методов в единый непрерывный список
+	//РїСЂРµРѕР±СЂР°Р·СѓРµРј РІСЃРµ РєРѕРјРјР°РЅРґС‹ РјРµС‚РѕРґРѕРІ РІ РµРґРёРЅС‹Р№ РЅРµРїСЂРµСЂС‹РІРЅС‹Р№ СЃРїРёСЃРѕРє
 	BaluLib::TListItem<TOp>* first_instr = NULL;
 	BaluLib::TListItem<TOp>* last_instr = NULL;
 	for(int i=0;i<methods_table.size();i++)
 	{
 		BaluLib::TListItem<TOp>* c = methods_table[i]->GetOps().first;
-		if(c==NULL)continue;//метод с пустым телом, но используемый
-		assert(c->value.type!=TOpcode::LABEL);//TODO будет ошибка т.к. ккомманда вырежется
+		if(c==NULL)continue;//РјРµС‚РѕРґ СЃ РїСѓСЃС‚С‹Рј С‚РµР»РѕРј, РЅРѕ РёСЃРїРѕР»СЊР·СѓРµРјС‹Р№
+		assert(c->value.type!=TOpcode::LABEL);//TODO Р±СѓРґРµС‚ РѕС€РёР±РєР° С‚.Рє. РєРєРѕРјРјР°РЅРґР° РІС‹СЂРµР¶РµС‚СЃСЏ
 		ConnectOps(first_instr,last_instr,methods_table[i]->GetOps());
 	}
 
@@ -239,17 +239,17 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 	int ops_count=0;
 	//if(false)
 	{
-		//считываем метки и запоминаем их позиции
+		//СЃС‡РёС‚С‹РІР°РµРј РјРµС‚РєРё Рё Р·Р°РїРѕРјРёРЅР°РµРј РёС… РїРѕР·РёС†РёРё
 		int* labels=curr_label>0?new int[curr_label]:NULL;
-		//if(curr_label>0) т.к. нам надо подсчитать количество инструкций
+		//if(curr_label>0) С‚.Рє. РЅР°Рј РЅР°РґРѕ РїРѕРґСЃС‡РёС‚Р°С‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ РёРЅСЃС‚СЂСѓРєС†РёР№
 		{
-			//TODO а разьве метод не может начинаться с метки
+			//TODO Р° СЂР°Р·СЊРІРµ РјРµС‚РѕРґ РЅРµ РјРѕР¶РµС‚ РЅР°С‡РёРЅР°С‚СЊСЃСЏ СЃ РјРµС‚РєРё
 			BaluLib::TListItem<TOp>* curr = first_instr;
 			if(curr!=NULL){
 				int i=0;
 				do{
 					while(curr->value.type==TOpcode::LABEL){
-						assert(curr!=NULL);//программа не может прерываться меткой, обязательно будет RETURN
+						assert(curr!=NULL);//РїСЂРѕРіСЂР°РјРјР° РЅРµ РјРѕР¶РµС‚ РїСЂРµСЂС‹РІР°С‚СЊСЃСЏ РјРµС‚РєРѕР№, РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ Р±СѓРґРµС‚ RETURN
 						labels[curr->value.v1]=i;
 						(curr->next->prev=curr->prev)->next=curr->next;
 						curr=curr->next;
@@ -269,7 +269,7 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 		if(curr!=NULL){
 			int curr_method=0,curr_instr=0,curr_event=0;
 			do{
-				//настраиваем комманды использующие переходы
+				//РЅР°СЃС‚СЂР°РёРІР°РµРј РєРѕРјРјР°РЅРґС‹ РёСЃРїРѕР»СЊР·СѓСЋС‰РёРµ РїРµСЂРµС…РѕРґС‹
 				switch(curr->value.type)
 				{
 				case TOpcode::GOTO:
@@ -279,7 +279,7 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 					curr->value.v1=labels[curr->value.v1];
 				default:;
 				}
-				//упаковываем комманды
+				//СѓРїР°РєРѕРІС‹РІР°РµРј РєРѕРјРјР°РЅРґС‹
 				optimized.instructions[curr_instr]=curr->value;
 				//
 				//if(curr_method>=methods_before_prepost_event)
@@ -296,7 +296,7 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 				//		curr_event++;
 				//		curr_method++;
 				//		t.first_op=curr_instr;
-				//		assert(!t.is_external);//такие методы не должны быть внешними
+				//		assert(!t.is_external);//С‚Р°РєРёРµ РјРµС‚РѕРґС‹ РЅРµ РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РІРЅРµС€РЅРёРјРё
 				//	}
 				//}
 				//else
@@ -329,13 +329,13 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 							t.first_op = curr_instr;
 							//
 							//TOpArray ops = methods_table[curr_method]->GetOps();
-							//TODO довить проверку что команды curr соответствуют командам GetOps() метода
+							//TODO РґРѕРІРёС‚СЊ РїСЂРѕРІРµСЂРєСѓ С‡С‚Рѕ РєРѕРјР°РЅРґС‹ curr СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‚ РєРѕРјР°РЅРґР°Рј GetOps() РјРµС‚РѕРґР°
 						}
 					}
 				}
 				curr_instr++;
 			}while((curr=curr->next)!=NULL);
-			assert(curr==NULL);//должны дойти до последней инструкции
+			assert(curr==NULL);//РґРѕР»Р¶РЅС‹ РґРѕР№С‚Рё РґРѕ РїРѕСЃР»РµРґРЅРµР№ РёРЅСЃС‚СЂСѓРєС†РёРё
 			assert(curr_method==methods_table.size());
 		}
 		if(labels!=NULL)delete[] labels;

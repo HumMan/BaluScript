@@ -1,4 +1,4 @@
-#include "StaticArray.h"
+п»ї#include "StaticArray.h"
 #include "../VirtualMachine/ArrayClassMethod.h"
 
 		int* TStaticArr::Get(int i)
@@ -54,7 +54,7 @@
 			bool result=true;
 			int el_size=methods->el_size;
 			int high=methods->el_count-1;
-			int el_equal_op=methods->el_equal_op[true][true];//TODO выбор оптимального оператора из доступных
+			int el_equal_op=methods->el_equal_op[true][true];//TODO РІС‹Р±РѕСЂ РѕРїС‚РёРјР°Р»СЊРЅРѕРіРѕ РѕРїРµСЂР°С‚РѕСЂР° РёР· РґРѕСЃС‚СѓРїРЅС‹С…
 			if(el_equal_op!=-1)
 				result=machine->ArrayElementsRREqualOp(&data[0],&right->data[0],el_size,high+1,el_equal_op);
 			else if(high>-1) result=(memcmp(&data[0],&right->data[0],(high+1)*el_size*4)==0);

@@ -1,4 +1,4 @@
-#include "../Syntax/While.h"
+п»ї#include "../Syntax/While.h"
 
 #include "../Syntax/Void.h"
 
@@ -7,7 +7,7 @@ TFormalParam TWhile::Build(TNotOptimizedProgram &program,int& local_var_offset)
 	/*TFormalParam bool_result=bool_expr.Build(ops_array,program,local_var_offset);
 	int conv_needed;
 	if(!IsEqualClasses(bool_result,owner->GetClassCmp("bool"),false,conv_needed))
-	Error("Выражение невозможно преобразовать в логический тип!");
+	Error("Р’С‹СЂР°Р¶РµРЅРёРµ РЅРµРІРѕР·РјРѕР¶РЅРѕ РїСЂРµРѕР±СЂР°Р·РѕРІР°С‚СЊ РІ Р»РѕРіРёС‡РµСЃРєРёР№ С‚РёРї!");
 	method->BuildFormalParamConversion(program,bool_result,owner->GetClassCmp("bool"),false);	
 	last_op=bool_result.LastOp();
 	int end_if=program.GetUniqueLabel();

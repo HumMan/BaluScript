@@ -1,10 +1,10 @@
-#pragma once
+ï»¿#pragma once
 
 #include <stdarg.h>
 #include <string>
 #include <baluLib.h>
 
-//TODO ðóññêèå áóêâû íåïåðåâàðèâàåò
+//TODO Ñ€ÑƒÑÑÐºÐ¸Ðµ Ð±ÑƒÐºÐ²Ñ‹ Ð½ÐµÐ¿ÐµÑ€ÐµÐ²Ð°Ñ€Ð¸Ð²Ð°ÐµÑ‚
 namespace TTokenType
 {
 	enum Enum
@@ -61,7 +61,7 @@ namespace TResWord
 		Operator,
 		Conversion,
 
-		End //èñïîëüçóåòñÿ äëÿ ïîëó÷åíèÿ êîëè÷åñòâà çàðåçåðâèðîâàííûõ ñëîâ
+		End //Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÑ‚ÑÂ¤ Ð´Ð»Â¤ Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Â¤ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð° Ð·Ð°Ñ€ÐµÐ·ÐµÑ€Ð²Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ñ‹Ñ… ÑÐ»Ð¾Ð²
 	};
 }
 namespace TValue
@@ -88,7 +88,7 @@ namespace TOperator
 
 		And,
 		Or,
-		Not,   //óíàðíîå ëîãè÷åñêîå íå
+		Not,   //ÑƒÐ½Ð°Ñ€Ð½Ð¾Ðµ Ð»Ð¾Ð³Ð¸Ñ‡ÐµÑÐºÐ¾Ðµ Ð½Ðµ
 
 		Assign,
 		PlusA,
@@ -111,7 +111,7 @@ namespace TOperator
 
 		UnaryMinus,
 
-		End //èñïîëüçóåòñÿ äëÿ ïîëó÷åíèÿ êîëè÷åñòâà îïåðàòîðîâ
+		End //Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÑ‚ÑÂ¤ Ð´Ð»Â¤ Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Â¤ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð° Ð¾Ð¿ÐµÑ€Ð°Ñ‚Ð¾Ñ€Ð¾Ð²
 	};
 }
 
@@ -162,12 +162,12 @@ public:
 		return false;
 	}
 	bool Add(int use_hash, TExtKey use_key, TData use_data, TKey* &key, TData* &data)
-		//use_hash - õåø äëÿ äîñòóïà ê òàáëèöå
-		//use_key - êëþ÷åâîå ïîëå äëÿ ñðàâíåíèé â ÿ÷åéêå òàáëèöû
-		//use_data - äàííûå êîòîðûå áóäóò äîáàâëåíû åñëè êëþ÷ îòñóòñòâóåò
-		//key - óêàçàòåëü íà óæå èìåþùååñÿ êëþ÷åâîå ïîëå
-		//data - óêàçàòåëü íà óæå èìåþùèåñÿ äàííûå
-		//return: true - äàííûå äîáàâëåíû; false - äàííûå óæå èìåþòñÿ
+		//use_hash - Ñ…ÐµÑˆ Ð´Ð»Â¤ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ðº Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ðµ
+		//use_key - ÐºÐ»ÑŽÑ‡ÐµÐ²Ð¾Ðµ Ð¿Ð¾Ð»Ðµ Ð´Ð»Â¤ ÑÑ€Ð°Ð²Ð½ÐµÐ½Ð¸Ð¹ Ð² Â¤Ñ‡ÐµÐ¹ÐºÐµ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñ‹
+		//use_data - Ð´Ð°Ð½Ð½Ñ‹Ðµ ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ðµ Ð±ÑƒÐ´ÑƒÑ‚ Ð´Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ñ‹ ÐµÑÐ»Ð¸ ÐºÐ»ÑŽÑ‡ Ð¾Ñ‚ÑÑƒÑ‚ÑÑ‚Ð²ÑƒÐµÑ‚
+		//key - ÑƒÐºÐ°Ð·Ð°Ñ‚ÐµÐ»ÑŒ Ð½Ð° ÑƒÐ¶Ðµ Ð¸Ð¼ÐµÑŽÑ‰ÐµÐµÑÂ¤ ÐºÐ»ÑŽÑ‡ÐµÐ²Ð¾Ðµ Ð¿Ð¾Ð»Ðµ
+		//data - ÑƒÐºÐ°Ð·Ð°Ñ‚ÐµÐ»ÑŒ Ð½Ð° ÑƒÐ¶Ðµ Ð¸Ð¼ÐµÑŽÑ‰Ð¸ÐµÑÂ¤ Ð´Ð°Ð½Ð½Ñ‹Ðµ
+		//return: true - Ð´Ð°Ð½Ð½Ñ‹Ðµ Ð´Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ñ‹; false - Ð´Ð°Ð½Ð½Ñ‹Ðµ ÑƒÐ¶Ðµ Ð¸Ð¼ÐµÑŽÑ‚ÑÂ¤
 	{
 		assert(use_hash>=0&&use_hash<table_size);
 		TNode* curr=table[use_hash];
@@ -375,7 +375,7 @@ public:
 
 		if(token_id==-1)token_id=curr_token;
 
-		if(_snprintf_s(err_head,err_head_length,"Îøèáêà (ñòðîêà %i ñèìâîë %i): %s\n",tokens[token_id].line,tokens[token_id].col,err)<0)
+		if(_snprintf_s(err_head,err_head_length,"ÑœÑˆÐ¸Ð±ÐºÐ° (ÑÑ‚Ñ€Ð¾ÐºÐ° %i ÑÐ¸Ð¼Ð²Ð¾Ð» %i): %s\n",tokens[token_id].line,tokens[token_id].col,err)<0)
 			err_head[err_head_length]='\0';
 
 		throw std::string(err_head);
@@ -387,7 +387,7 @@ public:
 	TNameId NameId()
 	{
 		if(!(tokens[curr_token].type==TTokenType::Identifier))
-			Error("Îæèäàëñÿ èäåíòèôèêàòîð!");
+			Error("ÑœÐ¶Ð¸Ð´Ð°Ð»ÑÂ¤ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€!");
 #ifdef _DEBUG
 		return TNameId(tokens[curr_token].identifier,ids[tokens[curr_token].identifier]);
 #else
@@ -397,7 +397,7 @@ public:
 	TNameId String()
 	{
 		if(!(tokens[curr_token].type==TTokenType::Value&&tokens[curr_token].token==TValue::String))
-			Error("Îæèäàëàñü ñòðîêîâàÿ êîíñòàíòà!");
+			Error("ÑœÐ¶Ð¸Ð´Ð°Ð»Ð°ÑÑŒ ÑÑ‚Ñ€Ð¾ÐºÐ¾Ð²Ð°Â¤ ÐºÐ¾Ð½ÑÑ‚Ð°Ð½Ñ‚Ð°!");
 #ifdef _DEBUG
 		return TNameId(tokens[curr_token].identifier,ids[tokens[curr_token].identifier]);
 #else
@@ -407,35 +407,35 @@ public:
 	float Float()
 	{
 		if(!(tokens[curr_token].type==TTokenType::Value&&tokens[curr_token].token==TValue::Float))
-			Error("Îæèäàëîñü äåéñòâèòåëüíîå ÷èñëî!");
+			Error("ÑœÐ¶Ð¸Ð´Ð°Ð»Ð¾ÑÑŒ Ð´ÐµÐ¹ÑÑ‚Ð²Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾Ðµ Ñ‡Ð¸ÑÐ»Ð¾!");
 		return tokens[curr_token].float_attrib;
 	}
 	int Int()
 	{
 		if(!(tokens[curr_token].type==TTokenType::Value&&tokens[curr_token].token==TValue::Int))
-			Error("Îæèäàëîñü öåëîå ÷èñëî!");
+			Error("ÑœÐ¶Ð¸Ð´Ð°Ð»Ð¾ÑÑŒ Ñ†ÐµÐ»Ð¾Ðµ Ñ‡Ð¸ÑÐ»Ð¾!");
 		return tokens[curr_token].int_attrib;
 	}
 	bool Bool()
 	{
-		//TODO âîçìîæíî ëèøíèå ïðîâåðêè
+		//TODO Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾ Ð»Ð¸ÑˆÐ½Ð¸Ðµ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ¸
 		if(!(tokens[curr_token].type==TTokenType::Value&&tokens[curr_token].token==TValue::Bool))
-			Error("Îæèäàëàñü áóëåâà êîíñòàíòà!");
+			Error("ÑœÐ¶Ð¸Ð´Ð°Ð»Ð°ÑÑŒ Ð±ÑƒÐ»ÐµÐ²Ð° ÐºÐ¾Ð½ÑÑ‚Ð°Ð½Ñ‚Ð°!");
 		return tokens[curr_token].int_attrib!=0;
 	}
 	char Char()
 	{
 		if(!(tokens[curr_token].type==TTokenType::Value&&tokens[curr_token].token==TValue::Char))
-			Error("Îæèäàëàñü ñèìâîëüíàÿ êîíñòàíòà!");
+			Error("ÑœÐ¶Ð¸Ð´Ð°Ð»Ð°ÑÑŒ ÑÐ¸Ð¼Ð²Ð¾Ð»ÑŒÐ½Ð°Â¤ ÐºÐ¾Ð½ÑÑ‚Ð°Ð½Ñ‚Ð°!");
 		return tokens[curr_token].int_attrib;
 	}
-	int GetAttrib()//èñïîëüçóåòñÿ â áàéòêîäå ÷òîáû íå äåëàòü ëèøíèõ ïðèâåäåíèé òèïà
+	int GetAttrib()//Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÑ‚ÑÂ¤ Ð² Ð±Ð°Ð¹Ñ‚ÐºÐ¾Ð´Ðµ Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð½Ðµ Ð´ÐµÐ»Ð°Ñ‚ÑŒ Ð»Ð¸ÑˆÐ½Ð¸Ñ… Ð¿Ñ€Ð¸Ð²ÐµÐ´ÐµÐ½Ð¸Ð¹ Ñ‚Ð¸Ð¿Ð°
 	{
 		if(!(tokens[curr_token].type==TTokenType::Value&&
 		(tokens[curr_token].token==TValue::Bool||
 		tokens[curr_token].token==TValue::Int||
 		tokens[curr_token].token==TValue::Float)))
-			Error("Îæèäàëîñü öåëàÿ, áóëåâà èëè äåéñòâèòåëüíàÿ êîíñòàíòà!");
+			Error("ÑœÐ¶Ð¸Ð´Ð°Ð»Ð¾ÑÑŒ Ñ†ÐµÐ»Ð°Â¤, Ð±ÑƒÐ»ÐµÐ²Ð° Ð¸Ð»Ð¸ Ð´ÐµÐ¹ÑÑ‚Ð²Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð°Â¤ ÐºÐ¾Ð½ÑÑ‚Ð°Ð½Ñ‚Ð°!");
 		return tokens[curr_token].int_attrib;
 	}
 	std::string GetNameFromId(TNameId use_id)
@@ -481,23 +481,23 @@ public:
 	void TestToken(int type,int token)
 	{
 		if(type!=tokens[curr_token].type&&token==tokens[curr_token].token)
-			Error("Îæèäàëñÿ äðóãîé òîêåí!");
+			Error("ÑœÐ¶Ð¸Ð´Ð°Ð»ÑÂ¤ Ð´Ñ€ÑƒÐ³Ð¾Ð¹ Ñ‚Ð¾ÐºÐµÐ½!");
 	}
 	void TestToken(int type)
 	{
-		if(type!=tokens[curr_token].type)Error("Îæèäàëñÿ äðóãîé òîêåí!");
+		if(type!=tokens[curr_token].type)Error("ÑœÐ¶Ð¸Ð´Ð°Ð»ÑÂ¤ Ð´Ñ€ÑƒÐ³Ð¾Ð¹ Ñ‚Ð¾ÐºÐµÐ½!");
 	}
 	void GetToken(int type,int token)
 	{
 		if(type==tokens[curr_token].type&&token==tokens[curr_token].token)
 			curr_token++;
-		else Error("Îæèäàëñÿ äðóãîé òîêåí!");
+		else Error("ÑœÐ¶Ð¸Ð´Ð°Ð»ÑÂ¤ Ð´Ñ€ÑƒÐ³Ð¾Ð¹ Ñ‚Ð¾ÐºÐµÐ½!");
 	}
 	void GetToken(int type)
 	{
 		if(type==tokens[curr_token].type)
 			curr_token++;
-		else Error("Îæèäàëñÿ äðóãîé òîêåí!");
+		else Error("ÑœÐ¶Ð¸Ð´Ð°Ð»ÑÂ¤ Ð´Ñ€ÑƒÐ³Ð¾Ð¹ Ñ‚Ð¾ÐºÐµÐ½!");
 	}
 	void GetToken()
 	{

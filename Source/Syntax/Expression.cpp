@@ -1,4 +1,4 @@
-#include "Expression.h"
+ï»¿#include "Expression.h"
 
 #include "Statements.h"
 #include "ClassField.h"
@@ -56,7 +56,7 @@ TExpression::TOperation* TExpression::Factor(TLexer& source) {
 	TTokenPos token_pos;
 	token_pos.InitPos(source);
 	if (source.Test(TTokenType::Value))
-	//—èíòàêñèñ: Value
+	//â€”Ð¸Ð½Ñ‚Ð°ÐºÑÐ¸Ñ: Value
 	{
 		switch (source.Token()) {
 		case TValue::Int:
@@ -88,20 +88,20 @@ TExpression::TOperation* TExpression::Factor(TLexer& source) {
 			curr_operation = new TThis();
 			*(TTokenPos*) curr_operation = token_pos;
 		} else if (source.Test(TTokenType::Identifier))
-		//—èíòàêñèñ: Identifier
+		//â€”Ð¸Ð½Ñ‚Ð°ÐºÑÐ¸Ñ: Identifier
 		{
 			curr_operation = new TId(source.NameId());
 			*(TTokenPos*) curr_operation = token_pos;
 			source.GetToken();
 		} else if (source.TestAndGet(TTokenType::LParenth))
-		//—èíòàêñèñ: Expr
+		//â€”Ð¸Ð½Ñ‚Ð°ÐºÑÐ¸Ñ: Expr
 		{
 			curr_operation = Expr(source, 0);
 			source.GetToken(TTokenType::RParenth);
 		}
 		if (curr_operation == NULL)
-			source.Error("øèáêà â âûðàæåíèè!");
-		//—èíòàêñèñ: SpecialPostfixOp*
+			source.Error("ÑœÑˆÐ¸Ð±ÐºÐ° Ð² Ð²Ñ‹Ñ€Ð°Ð¶ÐµÐ½Ð¸Ð¸!");
+		//â€”Ð¸Ð½Ñ‚Ð°ÐºÑÐ¸Ñ: SpecialPostfixOp*
 		do {
 			curr_operation = SpecialPostfix(source, curr_operation);
 		} while (source.Test(TTokenType::LParenth) || source.Test(
@@ -151,7 +151,7 @@ TExpression::TOperation* TExpression::Expr(TLexer& source, int curr_prior_level)
 	const int operators_priority_max = 8;
 
 	//TODO
-	//dyn_test2=dyn_test1; åñëè dyn_test1 íå îáú¤âëåí òî â îøèáêå íåïðàâèëüíî óêàçûâàåòñ¤ ñèìâîë
+	//dyn_test2=dyn_test1; ÐµÑÐ»Ð¸ dyn_test1 Ð½Ðµ Ð¾Ð±ÑŠÂ¤Ð²Ð»ÐµÐ½ Ñ‚Ð¾ Ð² Ð¾ÑˆÐ¸Ð±ÐºÐµ Ð½ÐµÐ¿Ñ€Ð°Ð²Ð¸Ð»ÑŒÐ½Ð¾ ÑƒÐºÐ°Ð·Ñ‹Ð²Ð°ÐµÑ‚ÑÂ¤ ÑÐ¸Ð¼Ð²Ð¾Ð»
 
 	TOperation *left;
 	TOperator::Enum curr_op, curr_unary_op;
@@ -233,7 +233,7 @@ void TExpression::BuildPostfix() {
 				{
 					TPostfixOp temp = stack[t - 1]; stack[t - 1] = stack[t]; stack[t] = temp;
 					//stack.swap(t - 1, t);
-					//TODO äîñòàòî÷íî ïîìåíÿòü òèï îïåðàòîðà
+					//TODO Ð´Ð¾ÑÑ‚Ð°Ñ‚Ð¾Ñ‡Ð½Ð¾ Ð¿Ð¾Ð¼ÐµÐ½ÑÑ‚ÑŒ Ñ‚Ð¸Ð¿ Ð¾Ð¿ÐµÑ€Ð°Ñ‚Ð¾Ñ€Ð°
 				}
 			}
 			source->GetToken();

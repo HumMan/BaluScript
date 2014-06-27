@@ -1,4 +1,4 @@
-#include "../Syntax/Class.h"
+п»ї#include "../Syntax/Class.h"
 
 #include "../syntaxAnalyzer.h"
 #include "../Syntax/ClassField.h"
@@ -8,14 +8,14 @@
 void TClass::CheckForErrors()
 {
 	if(owner!=NULL&&owner->GetOwner()!=NULL&&owner->GetOwner()->GetClass(name))
-		Error("Класс с таким именем уже существует!");
+		Error("В Р»Р°СЃСЃ СЃ С‚Р°РєРёРј РёРјРµРЅРµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 	//for (const std::unique_ptr<TClass> nested_class : nested_classes)
 	for(int i=0;i<nested_classes.size();i++)
 	{
 		for(int k=0;k<i;k++)
 		{
 			if(nested_classes[i]->GetName()==nested_classes[k]->GetName())
-				nested_classes[i]->Error("Класс с таким именем уже существует!");
+				nested_classes[i]->Error("В Р»Р°СЃСЃ СЃ С‚Р°РєРёРј РёРјРµРЅРµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 		}
 	}
 	for (TClassField& field : fields)
@@ -26,19 +26,19 @@ void TClass::CheckForErrors()
 			if (&field == &other_field)
 				break;
 			if(owner==NULL&&!field.IsStatic())
-				Error("Базовый класс может содержать только статические поля!");
+				Error("Р…Р°Р·РѕРІС‹Р№ РєР»Р°СЃСЃ РјРѕР¶РµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ С‚РѕР»СЊРєРѕ СЃС‚Р°С‚РёС‡РµСЃРєРёРµ РїРѕР»В¤!");
 			if (field.GetName() == other_field.GetName())
-				field.Error("Поле класса с таким именем уже существует!");
-			//TODO как быть со статическими членами класса
+				field.Error("С•РѕР»Рµ РєР»Р°СЃСЃР° СЃ С‚Р°РєРёРј РёРјРµРЅРµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
+			//TODO РєР°Рє Р±С‹С‚СЊ СЃРѕ СЃС‚Р°С‚РёС‡РµСЃРєРёРјРё С‡Р»РµРЅР°РјРё РєР»Р°СЃСЃР°
 		}
 		std::vector<TMethod*> m;
 		if((owner!=NULL&&owner->GetField(name,true,false)!=NULL)||GetMethods(m,name))
-			field.Error("Член класса с таким имененем уже существует!");
+			field.Error("вЂћР»РµРЅ РєР»Р°СЃСЃР° СЃ С‚Р°РєРёРј РёРјРµРЅРµРЅРµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 	}
 	for (TOverloadedMethod& method : methods)
 	{
 		if((owner!=NULL&&owner->GetField(method.GetName(),true,false)!=NULL))
-			method.methods[0]->Error("Статическое поле класса с таким имененем уже существует!");
+			method.methods[0]->Error("вЂ”С‚Р°С‚РёС‡РµСЃРєРѕРµ РїРѕР»Рµ РєР»Р°СЃСЃР° СЃ С‚Р°РєРёРј РёРјРµРЅРµРЅРµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 		method.CheckForErrors();
 		std::vector<TMethod*> owner_methods;
 		if(owner!=NULL&&owner->GetMethods(owner_methods,method.GetName()))
@@ -47,7 +47,7 @@ void TClass::CheckForErrors()
 			{
 				TMethod* temp=method.FindParams(owner_methods[k]);
 				if(temp!=NULL)
-					temp->Error("Статический метод с такими параметрами уже существует!");
+					temp->Error("вЂ”С‚Р°С‚РёС‡РµСЃРєРёР№ РјРµС‚РѕРґ СЃ С‚Р°РєРёРјРё РїР°СЂР°РјРµС‚СЂР°РјРё СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 			}
 		}
 	}
@@ -71,7 +71,7 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 	for (TClassField& field : fields)
 	{
 		field.GetClass()->InitAutoMethods(program);
-		//создаем конструктор для статических полей класса
+		//СЃРѕР·РґР°РµРј РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ Рё РґРµСЃС‚СЂСѓРєС‚РѕСЂ РґР»В¤ СЃС‚Р°С‚РёС‡РµСЃРєРёС… РїРѕР»РµР№ РєР»Р°СЃСЃР°
 		if (field.IsStatic())
 		{
 			field.SetOffset(program.static_vars_size);
@@ -100,7 +100,7 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 			program.static_vars_size+=field.GetClass()->GetSize();
 		}
 	}
-	//TODO что делать если будет bytecode пользовательский конструктор и auto_def_constr?
+	//TODO С‡С‚Рѕ РґРµР»Р°С‚СЊ РµСЃР»Рё Р±СѓРґРµС‚ bytecode РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёР№ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ Рё auto_def_constr?
 	{//defConstructor
 		bool field_has_def_constr=false;
 		bool parent_has_def_constr=parent.GetClass()==NULL?false:parent.GetClass()->HasDefConstr();
@@ -159,18 +159,18 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 		if(field_has_copy_constr||parent_has_copy_constr)
 		{
 			TOpArray ops;
-			//копируем члены не имеющие конструктора копии
-			program.Push(TOp(TOpcode::PUSH_THIS),ops);//TODO копирование должно производиться один раз
+			//РєРѕРїРёСЂСѓРµРј С‡Р»РµРЅС‹ РЅРµ РёРјРµСЋС‰РёРµ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР° РєРѕРїРёРё
+			program.Push(TOp(TOpcode::PUSH_THIS),ops);//TODO РєРѕРїРёСЂРѕРІР°РЅРёРµ РґРѕР»Р¶РЅРѕ РїСЂРѕРёР·РІРѕРґРёС‚СЊСЃВ¤ РѕРґРёРЅ СЂР°Р·
 			program.Push(TOp(TOpcode::PUSH_LOCAL_REF_COPY,0),ops);
 			program.Push(TOp(TOpcode::ASSIGN,(char)true,GetSize()),ops);
 			if(parent_has_copy_constr)
 			{
-				ValidateAccess(&parent,this,parent.GetClass()->GetCopyConstr());//TODO в таких местах будет непонятно где ошибка
+				ValidateAccess(&parent,this,parent.GetClass()->GetCopyConstr());//TODO РІ С‚Р°РєРёС… РјРµСЃС‚Р°С… Р±СѓРґРµС‚ РЅРµРїРѕРЅВ¤С‚РЅРѕ РіРґРµ РѕС€РёР±РєР°
 				program.Push(TOp(TOpcode::PUSH_THIS),ops);
 				program.Push(TOp(TOpcode::PUSH_LOCAL_REF_COPY,0),ops);
 				ops+=parent.GetClass()->GetCopyConstr()->BuildCall(program,parent.GetClass(),true,ops).GetOps();
 			}
-			//вызываем конструкторы копий
+			//РІС‹Р·С‹РІР°РµРј РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂС‹ РєРѕРїРёР№
 			for (TClassField& field : fields)
 			{
 				if(!field.IsStatic())
@@ -241,8 +241,8 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 
 	if(operators[TOperator::Assign].methods.size()==0)
 	{
-		//TODO оператор = (&left,right)
-		//TODO у членов проверяется только оператор (&,&) нужно брать в расчет и (&,val)
+		//TODO РѕРїРµСЂР°С‚РѕСЂ = (&left,right)
+		//TODO Сѓ С‡Р»РµРЅРѕРІ РїСЂРѕРІРµСЂВ¤РµС‚СЃВ¤ С‚РѕР»СЊРєРѕ РѕРїРµСЂР°С‚РѕСЂ (&,&) РЅСѓР¶РЅРѕ Р±СЂР°С‚СЊ РІ СЂР°СЃС‡РµС‚ Рё (&,val)
 		bool field_has_assign_op=false;
 		TMethod* parent_assign_op=parent.GetClass()!=NULL?parent.GetClass()->GetBinOp(TOperator::Assign,parent.GetClass(),true,parent.GetClass(),true):NULL;
 		//if(parent_assign_op!=NULL&&parent_assign_op->GetType()==MT_INTERNAL)parent_assign_op=NULL;
@@ -251,7 +251,7 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 		{
 			if(!field.IsStatic())
 			{
-				TClass* field_class=field.GetClass();//TODO проверять не является ли метод bytecode
+				TClass* field_class=field.GetClass();//TODO РїСЂРѕРІРµСЂВ¤С‚СЊ РЅРµ В¤РІР»В¤РµС‚СЃВ¤ Р»Рё РјРµС‚РѕРґ bytecode
 				TMethod* field_assign_op=field_class->GetBinOp(TOperator::Assign,field_class,true,field_class,true);
 				if(field_assign_op!=NULL&&!field_assign_op->IsBytecode()){
 					field_has_assign_op=true;break;
@@ -263,7 +263,7 @@ void TClass::InitAutoMethods(TNotOptimizedProgram &program)
 			TOpArray ops;
 			if(parent_has_assign_op)
 			{
-				ValidateAccess(&parent,this,parent_assign_op);//TODO доделать далее и подправить до
+				ValidateAccess(&parent,this,parent_assign_op);//TODO РґРѕРґРµР»Р°С‚СЊ РґР°Р»РµРµ Рё РїРѕРґРїСЂР°РІРёС‚СЊ РґРѕ
 				program.Push(TOp(TOpcode::PUSH_LOCAL_REF_COPY,0),ops);
 				program.Push(TOp(TOpcode::PUSH_LOCAL_REF_COPY,1),ops);
 				parent_assign_op->BuildCall(program,parent.GetClass(),true,ops,parent.GetClass(),true,ops);

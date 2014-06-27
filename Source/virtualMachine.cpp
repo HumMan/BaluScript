@@ -1,4 +1,4 @@
-#include "virtualMachine.h"
+п»ї#include "virtualMachine.h"
 
 #include "VirtualMachine/Program.h"
 
@@ -68,11 +68,11 @@ void TVirtualMachine::DestructStaticVars()
 {
 	Execute(program->static_vars_destroy, 0, 0);
 	sp = sp - program->static_vars_size;
-	if (sp != &sp_first[-1])assert(false);//где-то в коммандах не очищается стек
+	if (sp != &sp_first[-1])assert(false);//РіРґРµ-С‚Рѕ РІ РєРѕРјРјР°РЅРґР°С… РЅРµ РѕС‡РёС‰Р°РµС‚СЃВ¤ СЃС‚РµРє
 }
 
 void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
-//stack_top: указатель на первый параметр
+//stack_top: СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РїРµСЂРІС‹Р№ РїР°СЂР°РјРµС‚СЂ
 {
 	using namespace std;
 	using namespace TOpcode;
@@ -88,18 +88,18 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 	}
 	if(m->is_external)
 	{
-		assert(m->extern_method!=NULL);//не забываем задать колбэки для внешних методов
+		assert(m->extern_method!=NULL);//РЅРµ Р·Р°Р±С‹РІР°РµРј Р·Р°РґР°С‚СЊ РєРѕР»Р±СЌРєРё РґР»В¤ РІРЅРµС€РЅРёС… РјРµС‚РѕРґРѕРІ
 		((TExternalMethod)m->extern_method)(sp,stack_top,this_pointer);
-		//чистим стек
-		//деструкторы естественно надо вызывать вручную
-		//возвращаемое значение
+		//С‡РёСЃС‚РёРј СЃС‚РµРє
+		//РґРµСЃС‚СЂСѓРєС‚РѕСЂС‹ РµСЃС‚РµСЃС‚РІРµРЅРЅРѕ РЅР°РґРѕ РІС‹Р·С‹РІР°С‚СЊ РІСЂСѓС‡РЅСѓСЋ
+		//РІРѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ
 		int par=m->params_size+!m->is_static;
 		if(m->return_size!=0)
 		{
 			memcpy(&sp[1-par-m->return_size],&sp[1-m->return_size],m->return_size*4);
 		}
 		sp-=par;
-		if(m->post_event!=-1)//TODO одно и то же в нескольких местах и в RETURN 
+		if(m->post_event!=-1)//TODO РѕРґРЅРѕ Рё С‚Рѕ Р¶Рµ РІ РЅРµСЃРєРѕР»СЊРєРёС… РјРµСЃС‚Р°С… Рё РІ RETURN 
 		{
 			*(++sp)=(int)this_pointer;
 			Execute(m->post_event,NULL,this_pointer);
@@ -110,7 +110,7 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 	while(true)
 	{
 		assert(sp-sp_first<=stack_size);
-		//TODO контроль размера стека 
+		//TODO РєРѕРЅС‚СЂРѕР»СЊ СЂР°Р·РјРµСЂР° СЃС‚РµРєР° 
 		switch(op->type)
 		{
 		case METHOD_HAS_NOT_RETURN_A_VALUE:
@@ -118,9 +118,9 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 			break;
 
 			//////////////////////////////////////////////////
-			// ветвления
+			// РІРµС‚РІР»РµРЅРёВ¤
 		case LABEL:
-			assert(false);//должны удалиться при оптимизации
+			assert(false);//РґРѕР»Р¶РЅС‹ СѓРґР°Р»РёС‚СЊСЃВ¤ РїСЂРё РѕРїС‚РёРјРёР·Р°С†РёРё
 			break;
 		case GOTRUE:
 			if(*(sp--)){
@@ -139,7 +139,7 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 			continue;
 
 			//////////////////////////////////////////////////
-			// помещение в стек значений, ссылок и т.д.
+			// РїРѕРјРµС‰РµРЅРёРµ РІ СЃС‚РµРє Р·РЅР°С‡РµРЅРёР№, СЃСЃС‹Р»РѕРє Рё С‚.Рґ.
 		case PUSH:
 			*(++sp)=op->v1;break;
 		case PUSH_GLOBAL_REF:
@@ -254,7 +254,7 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 				*(++sp)=(int)this_pointer;
 				Execute(m->post_event,NULL,this_pointer);
 			}
-			//TODO для надежности следует заполнять неиспользуемую память 0xfeefee
+			//TODO РґР»В¤ РЅР°РґРµР¶РЅРѕСЃС‚Рё СЃР»РµРґСѓРµС‚ Р·Р°РїРѕР»РЅВ¤С‚СЊ РЅРµРёСЃРїРѕР»СЊР·СѓРµРјСѓСЋ РїР°РјВ¤С‚СЊ 0xfeefee
 			return;
 
 			//////////////////////////////////////////////////
@@ -273,7 +273,7 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 			{
 				temp=*(sp--);
 				TStaticArr* s_arr=(TStaticArr*)*sp;
-				if(temp>s_arr->methods->el_count-1||temp<-1)throw "Ошибка доступа к элементу массива!";
+				if(temp>s_arr->methods->el_count-1||temp<-1)throw "СњС€РёР±РєР° РґРѕСЃС‚СѓРїР° Рє СЌР»РµРјРµРЅС‚Сѓ РјР°СЃСЃРёРІР°!";
 				*sp=(int)&s_arr->data[temp*s_arr->methods->el_size];
 				break;
 			}
@@ -308,7 +308,7 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 			{
 				temp=*(sp--);
 				TDynArr* d_arr=(TDynArr*)*sp;
-				if(temp>d_arr->v.GetHigh()||temp<-1)throw "Ошибка доступа к элементу массива!";//TODO вывод инфы где и что
+				if(temp>d_arr->v.GetHigh()||temp<-1)throw "СњС€РёР±РєР° РґРѕСЃС‚СѓРїР° Рє СЌР»РµРјРµРЅС‚Сѓ РјР°СЃСЃРёРІР°!";//TODO РІС‹РІРѕРґ РёРЅС„С‹ РіРґРµ Рё С‡С‚Рѕ
 				*sp=(int)&d_arr->v[temp*d_arr->el_size];
 				break;
 			}
@@ -361,7 +361,7 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 			//case RV_STRING_PLUS_ASSIGN:
 			//	break;
 		case STRING_EQUAL:
-			s=sp-(unsigned int)(op->f2?0:(_INTSIZEOF(TString)/4-1));//TODO заменить все sizeof()/4 на _INT_SIZE
+			s=sp-(unsigned int)(op->f2?0:(_INTSIZEOF(TString)/4-1));//TODO Р·Р°РјРµРЅРёС‚СЊ РІСЃРµ sizeof()/4 РЅР° _INT_SIZE
 			d=s-(unsigned int)(op->f1?1:(_INTSIZEOF(TString)/4));
 			temp=((TString*)(op->f1?(int*)*d:d))->EqualOp((TString*)(op->f2?(int*)*s:s));
 			sp=d;
@@ -625,12 +625,12 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 			break;
 
 		case RV_VEC2_GET_ELEMENT:
-			if(*sp!=0&&*sp!=1)throw "Ошибка доступа к элементу вектора!";
+			if(*sp!=0&&*sp!=1)throw "СњС€РёР±РєР° РґРѕСЃС‚СѓРїР° Рє СЌР»РµРјРµРЅС‚Сѓ РІРµРєС‚РѕСЂР°!";
 			*(sp-1)=(int)((int*)(sp[-1])+*sp);
 			sp--;break;
 
 		case VV_VEC2_GET_ELEMENT:
-			if(*sp!=0&&*sp!=1)throw "Ошибка доступа к элементу вектора!";
+			if(*sp!=0&&*sp!=1)throw "СњС€РёР±РєР° РґРѕСЃС‚СѓРїР° Рє СЌР»РµРјРµРЅС‚Сѓ РІРµРєС‚РѕСЂР°!";
 			*(sp-2)=sp[*sp-2];
 			sp-=2;break;
 

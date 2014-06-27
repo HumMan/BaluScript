@@ -1,4 +1,4 @@
-#include "Return.h"
+﻿#include "Return.h"
 
 void TReturn::AnalyzeSyntax(TLexer& source) {
 	InitPos(source);

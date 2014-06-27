@@ -1,9 +1,9 @@
-#include "Method.h"
+п»ї#include "Method.h"
 
 #include "Statements.h"
 
 void TMethod::ParametersDecl(TLexer& source) {
-	//Считываем все параметры метода и возвращаемое значение
+	//вЂ”С‡РёС‚С‹РІР°РµРј РІСЃРµ РїР°СЂР°РјРµС‚СЂС‹ РјРµС‚РѕРґР° Рё РІРѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ
 	if (source.TestAndGet(TTokenType::Operator, TOperator::ParamsCall)) {
 	} else if (source.Test(TTokenType::LParenth)) {
 		source.GetToken(TTokenType::LParenth);
@@ -19,7 +19,7 @@ void TMethod::ParametersDecl(TLexer& source) {
 		source.GetToken(TTokenType::RParenth);
 	}
 	if (source.TestAndGet(TTokenType::Colon)) {
-		ret_ref = source.TestAndGet(TTokenType::Ampersand);//TODO проверка ссылки после типа а то не понятно почему ошибка
+		ret_ref = source.TestAndGet(TTokenType::Ampersand);//TODO РїСЂРѕРІРµСЂРєР° СЃСЃС‹Р»РєРё РїРѕСЃР»Рµ С‚РёРїР° Р° С‚Рѕ РЅРµ РїРѕРЅВ¤С‚РЅРѕ РїРѕС‡РµРјСѓ РѕС€РёР±РєР°
 		ret.AnalyzeSyntax(source);
 	}
 }
@@ -30,7 +30,7 @@ void TMethod::AnalyzeSyntax(TLexer& source, bool realization) {
 	member_type = (TClassMember::Enum) source.Token();
 	if (!IsIn(member_type, TClassMember::Func, TClassMember::Conversion))
 		source.Error(
-				"Ожидалось объявление метода,конструктора,деструктора,оператора или приведения типа!");
+				"СњР¶РёРґР°Р»РѕСЃСЊ РѕР±СЉВ¤РІР»РµРЅРёРµ РјРµС‚РѕРґР°,РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР°,РґРµСЃС‚СЂСѓРєС‚РѕСЂР°,РѕРїРµСЂР°С‚РѕСЂР° РёР»Рё РїСЂРёРІРµРґРµРЅРёВ¤ С‚РёРїР°!");
 	source.GetToken();
 	is_extern = source.TestAndGet(TTokenType::ResWord, TResWord::Extern);
 	is_static = source.TestAndGet(TTokenType::ResWord, TResWord::Static);
@@ -43,12 +43,12 @@ void TMethod::AnalyzeSyntax(TLexer& source, bool realization) {
 		break;
 	default:
 		source.Error(
-				"Ожидалось объявление метода,конструктора,деструктора,оператора или приведения типа!");
+				"СњР¶РёРґР°Р»РѕСЃСЊ РѕР±СЉВ¤РІР»РµРЅРёРµ РјРµС‚РѕРґР°,РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР°,РґРµСЃС‚СЂСѓРєС‚РѕСЂР°,РѕРїРµСЂР°С‚РѕСЂР° РёР»Рё РїСЂРёРІРµРґРµРЅРёВ¤ С‚РёРїР°!");
 	}
 	//
 	if (!realization) {
 		if (source.NameId() != owner->GetName())
-			Error("Ожидалось имя базового класса!");
+			Error("СњР¶РёРґР°Р»РѕСЃСЊ РёРјВ¤ Р±Р°Р·РѕРІРѕРіРѕ РєР»Р°СЃСЃР°!");
 		source.GetToken();
 		while (source.Test(TTokenType::Dot)) {
 			source.GetToken(TTokenType::Dot);
@@ -105,7 +105,7 @@ void TMethod::AnalyzeSyntax(TLexer& source, bool realization) {
 	}
 	if (is_extern && realization) {
 		if (!source.Test(TTokenType::Semicolon))
-			source.Error("Для внешнего метода тело должно отсутствовать!");
+			source.Error("Ж’Р»В¤ РІРЅРµС€РЅРµРіРѕ РјРµС‚РѕРґР° С‚РµР»Рѕ РґРѕР»Р¶РЅРѕ РѕС‚СЃСѓС‚СЃС‚РІРѕРІР°С‚СЊ!");
 		source.GetToken(TTokenType::Semicolon);
 	} else if (realization) {
 		one_instruction = !source.Test(TTokenType::LBrace);
@@ -122,15 +122,15 @@ void TMethod::InitOwner(TClass* use_owner)
 	statements->InitOwner(use_owner, this, NULL);
 }
 void TMethod::SetPreEvent(TMethod* use_event)
-//используется для вызова автом. конструктора для пользов/внешнего метода
+
 {
 	//assert(!use_event->IsBytecode());
-	pre_event = use_event;//TODO проверить на правильность метода
+	pre_event = use_event;//TODO РїСЂРѕРІРµСЂРёС‚СЊ РЅР° РїСЂР°РІРёР»СЊРЅРѕСЃС‚СЊ РјРµС‚РѕРґР°
 }
 void TMethod::SetPostEvent(TMethod* use_event)
-//используется для вызова автом. дестр. для пользов/внешнего метода
+//РёСЃРїРѕР»СЊР·СѓРµС‚СЃВ¤ РґР»В¤ РІС‹Р·РѕРІР° Р°РІС‚РѕРј. РґРµСЃС‚СЂ. РґР»В¤ РїРѕР»СЊР·РѕРІ/РІРЅРµС€РЅРµРіРѕ РјРµС‚РѕРґР°
 {
-	post_event = use_event;//TODO проверить на правильность метода
+	post_event = use_event;//TODO РїСЂРѕРІРµСЂРёС‚СЊ РЅР° РїСЂР°РІРёР»СЊРЅРѕСЃС‚СЊ РјРµС‚РѕРґР°
 }
 void TMethod::SetAs(TOpArray use_ops, TClass* use_ret_class_pointer, bool use_ret_ref, bool use_is_static, int use_is_bytecode)
 {

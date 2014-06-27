@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include "../VirtualMachine/OpArray.h"
 #include <vector>
@@ -9,11 +9,11 @@ class TMethod;
 class TFormalParam
 {
 	TClass* class_pointer;
-	TClass* type;//указатель на тип (для доступа к статическим членам и функциям)
+	TClass* type;//СѓРєР°Р·Р°С‚РµР»СЊ РЅР° С‚РёРї (РґР»СЏ РґРѕСЃС‚СѓРїР° Рє СЃС‚Р°С‚РёС‡РµСЃРєРёРј С‡Р»РµРЅР°Рј Рё С„СѓРЅРєС†РёСЏРј)
 	bool is_ref;
 	TOpArray ops;
-	std::vector<TMethod*> methods;//указатель на перегруженые методы
-	bool need_push_this;//если вызывются методы класса из самого класса 
+	std::vector<TMethod*> methods;//СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РїРµСЂРµРіСЂСѓР¶РµРЅС‹Рµ РјРµС‚РѕРґС‹
+	bool need_push_this;//РµСЃР»Рё РІС‹Р·С‹РІСЋС‚СЃСЏ РјРµС‚РѕРґС‹ РєР»Р°СЃСЃР° РёР· СЃР°РјРѕРіРѕ РєР»Р°СЃСЃР° 
 	void Init();
 public:
 	TFormalParam();

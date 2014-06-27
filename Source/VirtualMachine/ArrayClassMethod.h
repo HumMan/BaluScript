@@ -1,11 +1,11 @@
-#pragma once
+п»ї#pragma once
 
 #include <memory>
 
 struct TArrayClassMethod
 {
 	int el_size, el_count;
-	//идентификаторы методов и операторов используемых при работе массивов
+	//РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ РјРµС‚РѕРґРѕРІ Рё РѕРїРµСЂР°С‚РѕСЂРѕРІ РёСЃРїРѕР»СЊР·СѓРµРјС‹С… РїСЂРё СЂР°Р±РѕС‚Рµ РјР°СЃСЃРёРІРѕРІ
 	int el_def_constr;
 	int el_copy_constr;
 	int el_destr;

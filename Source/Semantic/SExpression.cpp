@@ -1,4 +1,4 @@
-#include "../Syntax/Expression.h"
+п»ї#include "../Syntax/Expression.h"
 
 #include "../syntaxAnalyzer.h"
 #include "../Syntax/Class.h"
@@ -19,16 +19,16 @@ TFormalParam TExpression::TBinOp::Build(TNotOptimizedProgram &program,TExpressio
 	TMethod *bin_operator=NULL,*bin_operator2=NULL;
 
 	if(param[0].IsVoid())
-		Error("К левому операнду нельзя применить бинарный оператор (нужен тип отличающийся от void)!");
+		Error("Рљ Р»РµРІРѕРјСѓ РѕРїРµСЂР°РЅРґСѓ РЅРµР»СЊР·СЏ РїСЂРёРјРµРЅРёС‚СЊ Р±РёРЅР°СЂРЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ (РЅСѓР¶РµРЅ С‚РёРї РѕС‚Р»РёС‡Р°СЋС‰РёР№СЃСЏ РѕС‚ void)!");
 	if(param[1].IsVoid())
-		Error("К правому операнду нельзя применить бинарный оператор (нужен тип отличающийся от void)!");
+		Error("Рљ РїСЂР°РІРѕРјСѓ РѕРїРµСЂР°РЅРґСѓ РЅРµР»СЊР·СЏ РїСЂРёРјРµРЅРёС‚СЊ Р±РёРЅР°СЂРЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ (РЅСѓР¶РµРЅ С‚РёРї РѕС‚Р»РёС‡Р°СЋС‰РёР№СЃСЏ РѕС‚ void)!");
 
 	std::vector<TMethod*> operators;
 
 	param[0].GetClass()->GetOperators(operators,op);
 	bin_operator=FindMethod(this,operators,param,left_conv_count);
 	if(op>=TOperator::Assign&&op<=TOperator::OrA && !param[0].IsRef())
-		Error("Для присваиваниия требуется ссылка, а не значение!");
+		Error("Р”Р»СЏ РїСЂРёСЃРІР°РёРІР°РЅРёРёСЏ С‚СЂРµР±СѓРµС‚СЃСЏ СЃСЃС‹Р»РєР°, Р° РЅРµ Р·РЅР°С‡РµРЅРёРµ!");
 
 	if(!(op>=TOperator::Assign&&op<=TOperator::OrA))
 	{
@@ -48,7 +48,7 @@ TFormalParam TExpression::TBinOp::Build(TNotOptimizedProgram &program,TExpressio
 		ValidateAccess(this,parent->owner,bin_operator2);
 		result=bin_operator2->BuildCall(program,param);
 	}
-	else Error("Бинарного оператора для данных типов не существует!");
+	else Error("Р‘РёРЅР°СЂРЅРѕРіРѕ РѕРїРµСЂР°С‚РѕСЂР° РґР»СЏ РґР°РЅРЅС‹С… С‚РёРїРѕРІ РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 	return param[0].GetOps()+param[1].GetOps()+result;
 }
 
@@ -63,7 +63,7 @@ TFormalParam TExpression::TUnaryOp::Build(TNotOptimizedProgram &program,TExpress
 	TMethod *unary_operator=NULL;
 
 	if(param[0].GetClass()==NULL)
-		Error("К данному операнду нельзя применить унарный оператор (нужен тип отличающийся от void)!");
+		Error("Рљ РґР°РЅРЅРѕРјСѓ РѕРїРµСЂР°РЅРґСѓ РЅРµР»СЊР·СЏ РїСЂРёРјРµРЅРёС‚СЊ СѓРЅР°СЂРЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ (РЅСѓР¶РµРЅ С‚РёРї РѕС‚Р»РёС‡Р°СЋС‰РёР№СЃСЏ РѕС‚ void)!");
 
 	std::vector<TMethod*> operators;
 	param[0].GetClass()->GetOperators(operators,op);
@@ -76,7 +76,7 @@ TFormalParam TExpression::TUnaryOp::Build(TNotOptimizedProgram &program,TExpress
 		TFormalParam result=unary_operator->BuildCall(program,param);
 		return param[0].GetOps()+result;
 	}
-	else Error("Унарного оператора для данного типа не существует!");
+	else Error("РЈРЅР°СЂРЅРѕРіРѕ РѕРїРµСЂР°С‚РѕСЂР° РґР»СЏ РґР°РЅРЅРѕРіРѕ С‚РёРїР° РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 	return TVoid();
 }
 
@@ -89,7 +89,7 @@ TFormalParam TExpression::TId::Build(TNotOptimizedProgram &program,TExpression* 
 		{
 			ValidateAccess(this,parent->owner,(TClassField*)var);
 			if(!((TClassField*)var)->IsStatic()&&parent->method->IsStatic())
-				Error("К нестатическому полю класса нельзя обращаться из статического метода!");
+				Error("Рљ РЅРµСЃС‚Р°С‚РёС‡РµСЃРєРѕРјСѓ РїРѕР»СЋ РєР»Р°СЃСЃР° РЅРµР»СЊР·СЏ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ РёР· СЃС‚Р°С‚РёС‡РµСЃРєРѕРіРѕ РјРµС‚РѕРґР°!");
 		}
 		TOpArray temp;
 		if(var->NeedPushThis())
@@ -111,14 +111,14 @@ TFormalParam TExpression::TId::Build(TNotOptimizedProgram &program,TExpression* 
 			methods.clear();
 			if(parent->owner->GetMethods(methods,name,false))
 			{
-				Error("К нестатическому методу класса нельзя обращаться из статического метода!");
+				Error("Рљ РЅРµСЃС‚Р°С‚РёС‡РµСЃРєРѕРјСѓ РјРµС‚РѕРґСѓ РєР»Р°СЃСЃР° РЅРµР»СЊР·СЏ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ РёР· СЃС‚Р°С‚РёС‡РµСЃРєРѕРіРѕ РјРµС‚РѕРґР°!");
 			}
 		}
 	}
 	TClass* type=parent->owner->GetClass(name);
 	if(type==NULL)
 	{
-		Error("Неизвестный идентификатор!");
+		Error("РќРµРёР·РІРµСЃС‚РЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ!");
 	}
 	return TFormalParam(type);
 }
@@ -126,7 +126,7 @@ TFormalParam TExpression::TId::Build(TNotOptimizedProgram &program,TExpression* 
 TFormalParam TExpression::TThis::Build(TNotOptimizedProgram &program,TExpression* parent)
 {
 	if(parent->method->IsStatic())
-		Error("Ключевое слово 'this' можно использовать только в нестатических методах!");
+		Error("РљР»СЋС‡РµРІРѕРµ СЃР»РѕРІРѕ 'this' РјРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ С‚РѕР»СЊРєРѕ РІ РЅРµСЃС‚Р°С‚РёС‡РµСЃРєРёС… РјРµС‚РѕРґР°С…!");
 	TOpArray temp;
 	program.Push(TOp(TOpcode::PUSH_THIS),temp);
 	return TFormalParam(parent->owner,true,temp);
@@ -136,15 +136,15 @@ TFormalParam TExpression::TGetMemberOp::Build(TNotOptimizedProgram &program,TExp
 {
 	TFormalParam left_result=left->Build(program,parent);
 	if(left_result.IsMethods())
-		Error("Оператор доступа к члену класса нельзя применить к методу!");
+		Error("РћРїРµСЂР°С‚РѕСЂ РґРѕСЃС‚СѓРїР° Рє С‡Р»РµРЅСѓ РєР»Р°СЃСЃР° РЅРµР»СЊР·СЏ РїСЂРёРјРµРЅРёС‚СЊ Рє РјРµС‚РѕРґСѓ!");
 	if(left_result.IsType())
 	{
 		if(left_result.GetType()->IsEnum())
 		{
 			int id=left_result.GetType()->GetEnumId(name);
-			//TODO ввести спец функции min max count
+			//TODO РІРІРµСЃС‚Рё СЃРїРµС† С„СѓРЅРєС†РёРё min max count
 			if(id==-1)
-				Error("Перечислимого типа с таким именем не существует!");
+				Error("РџРµСЂРµС‡РёСЃР»РёРјРѕРіРѕ С‚РёРїР° СЃ С‚Р°РєРёРј РёРјРµРЅРµРј РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 			else
 			{
 				program.Push(TOp(TOpcode::PUSH,id),left_result.GetOps());
@@ -161,7 +161,7 @@ TFormalParam TExpression::TGetMemberOp::Build(TNotOptimizedProgram &program,TExp
 			TClass* nested=left_result.GetType()->GetNested(name);
 			if(nested!=NULL)
 				return TFormalParam(nested);
-			Error("Статического поля или метода с таким именем не существует!");
+			Error("РЎС‚Р°С‚РёС‡РµСЃРєРѕРіРѕ РїРѕР»СЏ РёР»Рё РјРµС‚РѕРґР° СЃ С‚Р°РєРёРј РёРјРµРЅРµРј РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 		}
 	}
 	TClassField* member=left_result.GetClass()!=NULL
@@ -170,7 +170,7 @@ TFormalParam TExpression::TGetMemberOp::Build(TNotOptimizedProgram &program,TExp
 	if(member!=NULL)
 	{
 		if(member->IsStatic())
-			Error("Оператор доступа к члену класса нельзя применить к объекту для доступа к статическому члену, \nвместо объекта следует использовать имя класса!");
+			Error("РћРїРµСЂР°С‚РѕСЂ РґРѕСЃС‚СѓРїР° Рє С‡Р»РµРЅСѓ РєР»Р°СЃСЃР° РЅРµР»СЊР·СЏ РїСЂРёРјРµРЅРёС‚СЊ Рє РѕР±СЉРµРєС‚Сѓ РґР»СЏ РґРѕСЃС‚СѓРїР° Рє СЃС‚Р°С‚РёС‡РµСЃРєРѕРјСѓ С‡Р»РµРЅСѓ, \nРІРјРµСЃС‚Рѕ РѕР±СЉРµРєС‚Р° СЃР»РµРґСѓРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РёРјСЏ РєР»Р°СЃСЃР°!");
 		ValidateAccess(this,parent->owner,member);
 		if(left_result.IsRef())
 		{
@@ -195,14 +195,14 @@ TFormalParam TExpression::TGetMemberOp::Build(TNotOptimizedProgram &program,TExp
 				left_result.GetOps());
 			return TFormalParam(member->GetClass(),false,left_result.GetOps());
 		}
-		//Error("Оператор доступа к члену объекта нельзя использовать для временного объекта!");//TODO
+		//Error("РћРїРµСЂР°С‚РѕСЂ РґРѕСЃС‚СѓРїР° Рє С‡Р»РµРЅСѓ РѕР±СЉРµРєС‚Р° РЅРµР»СЊР·СЏ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РґР»СЏ РІСЂРµРјРµРЅРЅРѕРіРѕ РѕР±СЉРµРєС‚Р°!");//TODO
 	}else
 	{
 		if(!left_result.IsRef())
-			Error("Вызов метода для временного объекта недопустим!");
+			Error("Р’С‹Р·РѕРІ РјРµС‚РѕРґР° РґР»СЏ РІСЂРµРјРµРЅРЅРѕРіРѕ РѕР±СЉРµРєС‚Р° РЅРµРґРѕРїСѓСЃС‚РёРј!");
 		std::vector<TMethod*> methods;
 		if(!left_result.GetClass()->GetMethods(methods,name,false))
-			Error("Члена класса с таким именем не существует!");
+			Error("Р§Р»РµРЅР° РєР»Р°СЃСЃР° СЃ С‚Р°РєРёРј РёРјРµРЅРµРј РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 		TFormalParam result(methods,false);
 		result.GetOps()=left_result.GetOps();
 		return result;
@@ -220,8 +220,8 @@ TFormalParam TExpression::TCallParamsOp::Build(TNotOptimizedProgram &program,TEx
 	int conv_need=0;
 	if(left_result.IsMethods())
 	{
-		//вызов метода
-		if(is_bracket)assert(false);//при вызове метода используются круглые скобки
+		//РІС‹Р·РѕРІ РјРµС‚РѕРґР°
+		if(is_bracket)assert(false);//РїСЂРё РІС‹Р·РѕРІРµ РјРµС‚РѕРґР° РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ РєСЂСѓРіР»С‹Рµ СЃРєРѕР±РєРё
 		TMethod* method=FindMethod(this,left_result.GetMethods(),params_result,conv_need);
 		if(method!=NULL)
 		{
@@ -234,12 +234,12 @@ TFormalParam TExpression::TCallParamsOp::Build(TNotOptimizedProgram &program,TEx
 				program.Push(TOp(TOpcode::PUSH_THIS),params_ops);
 			return left_result.GetOps()+params_ops+call_ops;
 		}
-		else Error("Метода с такими параметрами не существует");
+		else Error("РњРµС‚РѕРґР° СЃ С‚Р°РєРёРјРё РїР°СЂР°РјРµС‚СЂР°РјРё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚");
 	}
 	else if(left_result.IsType())
 	{
 		//if(left_result.GetType()->GetType()==TYPE_ENUM)
-		//	Error("Для перечислений нельзя использовать оператор вызова параметров!");
+		//	Error("Р”Р»СЏ РїРµСЂРµС‡РёСЃР»РµРЅРёР№ РЅРµР»СЊР·СЏ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РѕРїРµСЂР°С‚РѕСЂ РІС‹Р·РѕРІР° РїР°СЂР°РјРµС‚СЂРѕРІ!");
 		int conv_need=-1;
 		std::vector<TMethod*> constructors;
 		TClass* constr_class=left_result.GetType();
@@ -261,7 +261,7 @@ TFormalParam TExpression::TCallParamsOp::Build(TNotOptimizedProgram &program,TEx
 				params_ops+=params_result[i].GetOps();
 			return before_params+params_ops+TFormalParam(constr_class,false,call_ops);
 		}else if(params_result.size()>0)
-			Error("Конструктора с такими параметрами не существует!");
+			Error("РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР° СЃ С‚Р°РєРёРјРё РїР°СЂР°РјРµС‚СЂР°РјРё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 	}
 	else
 	{
@@ -278,7 +278,7 @@ TFormalParam TExpression::TCallParamsOp::Build(TNotOptimizedProgram &program,TEx
 				params_ops+=params_result[i].GetOps();
 			return params_ops+call_ops;
 		}
-		else Error("Оператора с такими параметрами не существует!");
+		else Error("РћРїРµСЂР°С‚РѕСЂР° СЃ С‚Р°РєРёРјРё РїР°СЂР°РјРµС‚СЂР°РјРё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 	}
 	assert(false);return TVoid();
 }

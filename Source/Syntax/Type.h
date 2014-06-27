@@ -1,4 +1,4 @@
-#pragma once 
+п»ї#pragma once 
 
 #include "../lexer.h"
 #include <memory>
@@ -10,12 +10,12 @@ struct TType:public TTokenPos
 {
 	struct TClassName
 	{
-		///<summary>Текстовый идентификатор имени класса</summary>
+		///<summary>РўРµРєСЃС‚РѕРІС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёРјРµРЅРё РєР»Р°СЃСЃР°</summary>
 		TNameId name;
 		TClass* class_pointer;
-		///<summary>Список шаблонных параметров. Например: TestType&lt;int,TDecl&gt; s;</summary>
+		///<summary>РЎРїРёСЃРѕРє С€Р°Р±Р»РѕРЅРЅС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ. РќР°РїСЂРёРјРµСЂ: TestType&lt;int,TDecl&gt; s;</summary>
 		std::vector<std::shared_ptr<TClassName>> template_params;
-		///<summary>Список измерений статических массивов (0-динамический массив). Например: int[2][][6] variable;</summary>
+		///<summary>РЎРїРёСЃРѕРє РёР·РјРµСЂРµРЅРёР№ СЃС‚Р°С‚РёС‡РµСЃРєРёС… РјР°СЃСЃРёРІРѕРІ (0-РґРёРЅР°РјРёС‡РµСЃРєРёР№ РјР°СЃСЃРёРІ). РќР°РїСЂРёРјРµСЂ: int[2][][6] variable;</summary>
 		std::vector<int> dimensions;
 		std::shared_ptr<TClassName> member;
 		TClass* Build(bool use_build_methods,TClass* use_curr_class,TClass* owner,TTokenPos& source,TNotOptimizedProgram* program);

@@ -1,4 +1,4 @@
-#include "OverloadedMethod.h"
+п»ї#include "OverloadedMethod.h"
 
 #include "ClassField.h"
 #include "Method.h"
@@ -57,12 +57,12 @@ void TOverloadedMethod::CheckForErrors(bool is_conversion)
 		if (is_conversion)
 		{
 			if (FindConversion(i->param, i->GetRetClass()) != &(*i))
-				i->Error("Метод с такими параметрами уже существует!");
+				i->Error("С›РµС‚РѕРґ СЃ С‚Р°РєРёРјРё РїР°СЂР°РјРµС‚СЂР°РјРё СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 		}
 		else
 		{
 			if (FindParams(i->param) != &(*i))
-				i->Error("Метод с такими параметрами уже существует!");
+				i->Error("С›РµС‚РѕРґ СЃ С‚Р°РєРёРјРё РїР°СЂР°РјРµС‚СЂР°РјРё СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 		}
 	}
 }

@@ -1,4 +1,4 @@
-#include "SyntaxAnalyzer.h"
+﻿#include "SyntaxAnalyzer.h"
 
 #include "Syntax/Class.h"
 #include "Syntax/Method.h"

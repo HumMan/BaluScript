@@ -1,4 +1,4 @@
-#include "../Syntax/Type.h"
+п»ї#include "../Syntax/Type.h"
 
 #include "../Syntax/Class.h"
 #include "../Syntax/TemplateRealizations.h"
@@ -24,20 +24,20 @@ TClass* TType::TClassName::Build(bool use_build_methods,TClass* use_curr_class,T
 	{
 		use_curr_class=owner->GetClass(name);
 		if(use_curr_class==NULL)
-			source.Error("Неизвестный тип!");
+			source.Error("РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї!");
 	}else
 	{
 		use_curr_class=use_curr_class->GetNested(name);
 		if(use_curr_class==NULL)
-			source.Error("Вложенного класса с таким именем не существует!");
+			source.Error("Р’Р»РѕР¶РµРЅРЅРѕРіРѕ РєР»Р°СЃСЃР° СЃ С‚Р°РєРёРј РёРјРµРЅРµРј РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 	}
 	if(template_params.size()!=0)
 	{
 		TTemplateRealizations* templates=owner->GetTemplates();
 		if(!use_curr_class->IsTemplate())
-			source.Error("Класс не является шаблонным!");
+			source.Error("РљР»Р°СЃСЃ РЅРµ СЏРІР»СЏРµС‚СЃСЏ С€Р°Р±Р»РѕРЅРЅС‹Рј!");
 		if(template_params.size()!=use_curr_class->GetTemplateParamsCount())
-			source.Error("Шаблон имеет другое количество параметров!");
+			source.Error("РЁР°Р±Р»РѕРЅ РёРјРµРµС‚ РґСЂСѓРіРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РїР°СЂР°РјРµС‚СЂРѕРІ!");
 		for(int i=0;i<template_params.size();i++)
 			template_params[i]->Build(use_build_methods,NULL,owner,source,program);
 		TClass* realization=NULL;
@@ -45,8 +45,8 @@ TClass* TType::TClassName::Build(bool use_build_methods,TClass* use_curr_class,T
 		temp=templates->FindTemplate(use_curr_class);
 		if(temp!=NULL)
 		{
-			//TODO !!!!!!!!!!  шаблонный класс не имеет доступа к своему шаблону
-			//при указании имени класса без шаблонныйх параметров - то же самое что с параметрами текущего класса
+			//TODO !!!!!!!!!!  С€Р°Р±Р»РѕРЅРЅС‹Р№ РєР»Р°СЃСЃ РЅРµ РёРјРµРµС‚ РґРѕСЃС‚СѓРїР° Рє СЃРІРѕРµРјСѓ С€Р°Р±Р»РѕРЅСѓ
+			//РїСЂРё СѓРєР°Р·Р°РЅРёРё РёРјРµРЅРё РєР»Р°СЃСЃР° Р±РµР· С€Р°Р±Р»РѕРЅРЅС‹Р№С… РїР°СЂР°РјРµС‚СЂРѕРІ - С‚Рѕ Р¶Рµ СЃР°РјРѕРµ С‡С‚Рѕ СЃ РїР°СЂР°РјРµС‚СЂР°РјРё С‚РµРєСѓС‰РµРіРѕ РєР»Р°СЃСЃР°
 			for(int k=0;k<temp->size();k++)
 			{
 				if(((*temp)[k]->GetTemplateParamsCount())!=template_params.size())

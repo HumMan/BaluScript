@@ -1,4 +1,4 @@
-
+п»ї
 #include "Bytecode.h"
 
 #include "../lexer.h"
@@ -30,13 +30,13 @@ void TBytecode::AnalyzeSyntax(TLexer& source) {
 			if (source.Test(TTokenType::Identifier)) {
 				if (source.NameId() != source.GetIdFromName(
 						"CreateArrayElementClassId"))
-					source.Error("Неизвестный идентификатор!");
+					source.Error("РќРµРёР·РІРµСЃС‚РЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ!");
 				source.GetToken();
 				source.GetToken(TTokenType::LParenth);
 				source.TestToken(TTokenType::Identifier);
 				//if(params_count<2||params_count>4)
-				//	source.Error("ќшибка в выражении");
-				//TODO разгрести это+ сделать нормальные константные выражени¤+ ссылки на локальные переменные
+				//	source.Error("СњС€РёР±РєР° РІ РІС‹СЂР°Р¶РµРЅРёРё");
+				//TODO СЂР°Р·РіСЂРµСЃС‚Рё СЌС‚Рѕ+ СЃРґРµР»Р°С‚СЊ РЅРѕСЂРјР°Р»СЊРЅС‹Рµ РєРѕРЅСЃС‚Р°РЅС‚РЅС‹Рµ РІС‹СЂР°Р¶РµРЅРёВ¤+ СЃСЃС‹Р»РєРё РЅР° Р»РѕРєР°Р»СЊРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ
 				_op.f[params_count] = TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID;
 				_op.id[params_count] = source.NameId();
 				source.GetToken();
@@ -47,7 +47,7 @@ void TBytecode::AnalyzeSyntax(TLexer& source) {
 				source.GetToken();
 			}
 			if (params_count > 4)
-				source.Error("Слишком много параметров!");
+				source.Error("РЎР»РёС€РєРѕРј РјРЅРѕРіРѕ РїР°СЂР°РјРµС‚СЂРѕРІ!");
 			if (!source.TestAndGet(TTokenType::Comma))
 				break;
 		}
@@ -56,7 +56,7 @@ void TBytecode::AnalyzeSyntax(TLexer& source) {
 			char buf[256];
 			sprintf_s(
 					buf,
-					"Неправильное количество параметров: для %s надо %i параметра!",
+					"РќРµРїСЂР°РІРёР»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РїР°СЂР°РјРµС‚СЂРѕРІ: РґР»СЏ %s РЅР°РґРѕ %i РїР°СЂР°РјРµС‚СЂР°!",
 					GetBytecodeString((TOpcode::Enum) type), params_count_info);
 			source.Error(buf);
 		}

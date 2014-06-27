@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include "notOptimizedProgram.h"
 #include "Syntax/TemplateRealizations.h"
@@ -10,7 +10,7 @@ class TClassField;
 class TMethod;
 class TFormalParam;
 
-//TODO из-за statements тормоза при большом количестве кода вида, видимо приходится просматривать все statements имеющиеся до
+//TODO РёР·-Р·Р° statements С‚РѕСЂРјРѕР·Р° РїСЂРё Р±РѕР»СЊС€РѕРј РєРѕР»РёС‡РµСЃС‚РІРµ РєРѕРґР° РІРёРґР°, РІРёРґРёРјРѕ РїСЂРёС…РѕРґРёС‚СЃСЏ РїСЂРѕСЃРјР°С‚СЂРёРІР°С‚СЊ РІСЃРµ statements РёРјРµСЋС‰РёРµСЃСЏ РґРѕ
 //{
 //TDynArray<int> dyn_test,dyn_test2;
 //TDynArray<TDynArray<int>> dyn_dyn_test;

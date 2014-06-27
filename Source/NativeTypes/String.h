@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include <string>
 
@@ -7,7 +7,7 @@ struct TString
 	char* chars;
 	int length;
 	//bool is_const;
-	//TODO is_const флаг означающий что в данный момент chars указывает на константу(для исключения выделения памяти при работе с литералами)
+	//TODO is_const С„Р»Р°Рі РѕР·РЅР°С‡Р°СЋС‰РёР№ С‡С‚Рѕ РІ РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ chars СѓРєР°Р·С‹РІР°РµС‚ РЅР° РєРѕРЅСЃС‚Р°РЅС‚Сѓ(РґР»СЏ РёСЃРєР»СЋС‡РµРЅРёСЏ РІС‹РґРµР»РµРЅРёСЏ РїР°РјСЏС‚Рё РїСЂРё СЂР°Р±РѕС‚Рµ СЃ Р»РёС‚РµСЂР°Р»Р°РјРё)
 	void Init();
 	void Copy(TString* copy_from);
 	void CopyFromConst(std::string& copy_from);

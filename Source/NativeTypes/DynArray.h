@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <baluLib.h>
 #include "../VirtualMachine/Program.h"

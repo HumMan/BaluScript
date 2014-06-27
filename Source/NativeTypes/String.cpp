@@ -1,4 +1,4 @@
-#include "String.h"
+﻿#include "String.h"
 
 void TString::Init(){
 	chars = NULL;

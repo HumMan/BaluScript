@@ -1,4 +1,4 @@
-#include "Accessible.h"
+﻿#include "Accessible.h"
 
 TAccessible::TAccessible()
 	:access(TTypeOfAccess::Public)

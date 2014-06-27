@@ -1,4 +1,4 @@
-#include "Class.h"
+п»ї#include "Class.h"
 
 #include "../NativeTypes/DynArray.h"
 #include "Method.h"
@@ -7,9 +7,9 @@
 void TClass::InitOwner(TClass* use_owner)
 {
 	owner = use_owner;
-	//при копировании надо перенастраивать указатель owner у всех
-	for (TClassField var : fields)
-		var.InitOwner(use_owner);
+	//РїСЂРё РєРѕРїРёСЂРѕРІР°РЅРёРё РЅР°РґРѕ РїРµСЂРµРЅР°СЃС‚СЂР°РёРІР°С‚СЊ СѓРєР°Р·Р°С‚РµР»СЊ owner Сѓ РІСЃРµС…
+	for (TClassField& var : fields)
+		var.InitOwner(this);
 	constructors.InitOwner(this);
 	if (destructor)
 		destructor->InitOwner(this);
@@ -120,7 +120,7 @@ void TClass::CreateInternalClasses() {
 }
 
 void TClass::BuildClass(std::vector<TClass*> buff) {
-	assert(!is_template);//шаблон используется только для создания реализаций
+	assert(!is_template);//С€Р°Р±Р»РѕРЅ РёСЃРїРѕР»СЊР·СѓРµС‚СЃВ¤ С‚РѕР»СЊРєРѕ РґР»В¤ СЃРѕР·РґР°РЅРёВ¤ СЂРµР°Р»РёР·Р°С†РёР№
 	if (size > 0)
 		return;
 	ValidateSizes(buff);
@@ -144,15 +144,15 @@ void TClass::ValidateSizes(std::vector<TClass*> &owners) {
 	int class_size = 0;
 	if (std::find(owners.begin(), owners.end(), this) != owners.end()) 
 	{
-		//Error("Класс не может содержать поле с собственным типом(кроме дин. массивов)!");//TODO см. initautomethods для дин массивов
-		Error("Класс не может содержать поле собственного типа!");
+		//Error("В Р»Р°СЃСЃ РЅРµ РјРѕР¶РµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ РїРѕР»Рµ СЃ СЃРѕР±СЃС‚РІРµРЅРЅС‹Рј С‚РёРїРѕРј(РєСЂРѕРјРµ РґРёРЅ. РјР°СЃСЃРёРІРѕРІ)!");//TODO СЃРј. initautomethods РґР»В¤ РґРёРЅ РјР°СЃСЃРёРІРѕРІ
+		Error("В Р»Р°СЃСЃ РЅРµ РјРѕР¶РµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ РїРѕР»Рµ СЃРѕР±СЃС‚РІРµРЅРЅРѕРіРѕ С‚РёРїР°!");
 	} else {
 		owners.push_back(this);
 		if (parent.GetClass() != NULL) {
 			TClass* parent_class = parent.GetClass();
 			parent_class->BuildClass(owners);
 			class_size = parent_class->GetSize();
-			//добавляем приведение в родительские классы
+			//РґРѕР±Р°РІР»В¤РµРј РїСЂРёРІРµРґРµРЅРёРµ РІ СЂРѕРґРёС‚РµР»СЊСЃРєРёРµ РєР»Р°СЃСЃС‹
 			do {
 				TMethod* temp = new TMethod(this,TClassMember::Conversion);
 				temp->SetAs(TOpArray(), parent_class, true, true,1);
@@ -229,7 +229,7 @@ bool TClass::IsChildOf(TClass* use_parent) {
 }
 
 void TClass::AddMethod(TMethod* use_method, TNameId name) {
-	//Ищем перегруженные методы с таким же именем, иначе добавляем новый
+	//В»С‰РµРј РїРµСЂРµРіСЂСѓР¶РµРЅРЅС‹Рµ РјРµС‚РѕРґС‹ СЃ С‚Р°РєРёРј Р¶Рµ РёРјРµРЅРµРј, РёРЅР°С‡Рµ РґРѕР±Р°РІР»В¤РµРј РЅРѕРІС‹Р№
 	TOverloadedMethod* temp = NULL;
 	for (TOverloadedMethod& method : methods)
 		if (method.GetName() == name)
@@ -258,7 +258,7 @@ void TClass::AddConstr(TMethod* use_method) {
 
 void TClass::AddDestr(TMethod* use_method) {
 	if (destructor)
-		Error("Деструктор уже существует!");
+		Error("Ж’РµСЃС‚СЂСѓРєС‚РѕСЂ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 	destructor = std::shared_ptr<TMethod>(use_method);
 }
 
@@ -511,7 +511,7 @@ void TClass::AnalyzeSyntax(TLexer& source) {
 			source.Test(TTokenType::Identifier);
 			for(int i=0;i<enums.size();i++)
 				if(enums[i]==source.NameId())
-					source.Error("ѕеречисление с таким имененм уже существует!");
+					source.Error("РЉРµСЂРµС‡РёСЃР»РµРЅРёРµ СЃ С‚Р°РєРёРј РёРјРµРЅРµРЅРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!");
 			enums.push_back(source.NameId());
 			source.GetToken();
 		}while(source.TestAndGet(TTokenType::Comma));
@@ -589,5 +589,5 @@ void TClass::AnalyzeSyntax(TLexer& source) {
 	}
 	source.GetToken(TTokenType::RBrace);
 	if (owner == NULL)
-		source.GetToken(TTokenType::Done);//в файле должен содержатьс¤ только один основной класс
+		source.GetToken(TTokenType::Done);//РІ С„Р°Р№Р»Рµ РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊСЃВ§ С‚РѕР»СЊРєРѕ РѕРґРёРЅ РѕСЃРЅРѕРІРЅРѕР№ РєР»Р°СЃСЃ
 }

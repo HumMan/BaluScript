@@ -1,4 +1,4 @@
-#include "../Syntax/Bytecode.h"
+п»ї#include "../Syntax/Bytecode.h"
 
 #include "../Syntax/Void.h"
 #include "../Syntax/Class.h"
@@ -13,17 +13,17 @@ TFormalParam TBytecode::Build(TNotOptimizedProgram &program,int& local_var_offse
 		if(code[i].f[0]==TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID)
 		{
 			TClass* temp=owner->GetClass(code[i].id[0]);
-			if(temp==NULL)Error("Неизвестный идентификатор!");
+			if(temp==NULL)Error("РќРµРёР·РІРµСЃС‚РЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ!");
 			code[i].op.v1=program.CreateArrayElementClassId(temp);
-		}//TODO сделать нормально без повторений
+		}//TODO СЃРґРµР»Р°С‚СЊ РЅРѕСЂРјР°Р»СЊРЅРѕ Р±РµР· РїРѕРІС‚РѕСЂРµРЅРёР№
 		if(code[i].f[1]==TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID)
 		{
 			TClass* temp=owner->GetClass(code[i].id[1]);
-			if(temp==NULL)Error("Неизвестный идентификатор!");
+			if(temp==NULL)Error("РќРµРёР·РІРµСЃС‚РЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ!");
 			code[i].op.v2=program.CreateArrayElementClassId(temp);
-		}//TODO сделать нормально без повторений
+		}//TODO СЃРґРµР»Р°С‚СЊ РЅРѕСЂРјР°Р»СЊРЅРѕ Р±РµР· РїРѕРІС‚РѕСЂРµРЅРёР№
 		program.Push(code[i].op,temp);
 	}
-	method->SetHasReturn(true);//TODO нельзя определить возвращает ли код значение поэтому считаем что да(определить можно по записям в стек)
+	method->SetHasReturn(true);//TODO РЅРµР»СЊР·СЏ РѕРїСЂРµРґРµР»РёС‚СЊ РІРѕР·РІСЂР°С‰Р°РµС‚ Р»Рё РєРѕРґ Р·РЅР°С‡РµРЅРёРµ РїРѕСЌС‚РѕРјСѓ СЃС‡РёС‚Р°РµРј С‡С‚Рѕ РґР°(РѕРїСЂРµРґРµР»РёС‚СЊ РјРѕР¶РЅРѕ РїРѕ Р·Р°РїРёСЃСЏРј РІ СЃС‚РµРє)
 	return TVoid(temp);
 }

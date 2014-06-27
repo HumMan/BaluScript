@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include <assert.h>
 #include "../lexer.h"
@@ -30,7 +30,7 @@ protected:
 	TMethod* method;
 	TStatements* parent;
 	TClass* owner;
-	int stmt_id;//порядковый номер блока в родительском блоке
+	int stmt_id;//РїРѕСЂСЏРґРєРѕРІС‹Р№ РЅРѕРјРµСЂ Р±Р»РѕРєР° РІ СЂРѕРґРёС‚РµР»СЊСЃРєРѕРј Р±Р»РѕРєРµ
 	TStatementType::Enum stmt_type;
 public:
 	void SetStmtId(int use_id){

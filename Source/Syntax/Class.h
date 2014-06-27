@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include "../lexer.h"
 
@@ -19,10 +19,10 @@ class TClass:public TTokenPos
 {
 	bool is_enum;
 	bool is_template;
-	bool methods_declared;//для всех методов настроены типы параметров
-	bool methods_build;//построены тела методов
-	bool auto_methods_build;//построены тела автоматическких методов
-	int size;//если не "-1" то проверены типы членов класса на зацикливание и настроен размер класса
+	bool methods_declared;//РґР»СЏ РІСЃРµС… РјРµС‚РѕРґРѕРІ РЅР°СЃС‚СЂРѕРµРЅС‹ С‚РёРїС‹ РїР°СЂР°РјРµС‚СЂРѕРІ
+	bool methods_build;//РїРѕСЃС‚СЂРѕРµРЅС‹ С‚РµР»Р° РјРµС‚РѕРґРѕРІ
+	bool auto_methods_build;//РїРѕСЃС‚СЂРѕРµРЅС‹ С‚РµР»Р° Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРєРёС… РјРµС‚РѕРґРѕРІ
+	int size;//РµСЃР»Рё РЅРµ "-1" С‚Рѕ РїСЂРѕРІРµСЂРµРЅС‹ С‚РёРїС‹ С‡Р»РµРЅРѕРІ РєР»Р°СЃСЃР° РЅР° Р·Р°С†РёРєР»РёРІР°РЅРёРµ Рё РЅР°СЃС‚СЂРѕРµРЅ СЂР°Р·РјРµСЂ РєР»Р°СЃСЃР°
 
 	struct TTemplateParam
 	{
@@ -37,6 +37,7 @@ class TClass:public TTokenPos
 	std::list<TClassField> fields;
 	std::list<TOverloadedMethod> methods;
 	TOverloadedMethod constructors;
+	///<summary>РџРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёР№ РґРµСЃС‚СЂСѓРєС‚РѕСЂ (Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРёР№ РґРµСЃС‚СЂСѓРєС‚РѕСЂ, РµСЃР»Рё СЃСѓС‰РµСЃС‚РІСѓРµС‚, Р±СѓРґРµС‚ РґРѕР±Р°РІР»РµРЅ РєР°Рє PostEvent)</summary>
 	std::shared_ptr<TMethod> destructor;
 	TOverloadedMethod operators[TOperator::End];
 	TOverloadedMethod conversions;
@@ -45,20 +46,24 @@ class TClass:public TTokenPos
 	std::vector<std::shared_ptr<TClass>> nested_classes;
 
 	std::shared_ptr<TMethod> auto_def_constr;
-	bool constr_override;//имеется пользовательский конструктор по умолчанию
+	///<summary>РРјРµРµС‚СЃСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёР№ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ</summary>
+	bool constr_override;
+	///<summary>РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРё СЃРѕР·РґР°РЅРЅС‹Р№ РґРµСЃС‚СЂСѓРєС‚РѕСЂ</summary>
 	std::shared_ptr<TMethod> auto_destr;
-
+	///<summary>РќР°Р·РІР°РЅРёРµ РєР»Р°СЃСЃР°</summary>
 	TNameId name;
+	///<summary>РўРёРї РѕС‚ РєРѕС‚РѕСЂРѕРіРѕ СѓРЅР°СЃР»РµРґРѕРІР°РЅ РґР°РЅРЅС‹Р№ РєР»Р°СЃСЃ</summary>
 	TType parent;
+	///<summary>РћС‚ РґР°РЅРЅРѕРіРѕ РєР»Р°СЃСЃР° Р·Р°РїСЂРµС‰РµРЅРѕ РЅР°СЃР»РµРґРѕРІР°РЅРёРµ</summary>
 	bool is_sealed;
-
+	///<summary>РљР»Р°СЃСЃ РІ РїСЂРµРґРµР»Р°С… РєРѕС‚РѕСЂРѕРіРѕ РѕР±СЉСЏРІР»РµРЅ РґР°РЅРЅС‹Р№ РєР»Р°СЃСЃ</summary>
 	TClass* owner;
 
 	void ValidateSizes(std::vector<TClass*> &owners);
 public:
 	TClass(TClass* use_owner,TTemplateRealizations* use_templates);
 
-	//TODO вместо InitOwner у всех типов, сделать полноценный конструктор копии + перейти на unique_ptr
+	//TODO РІРјРµСЃС‚Рѕ InitOwner Сѓ РІСЃРµС… С‚РёРїРѕРІ, СЃРґРµР»Р°С‚СЊ РїРѕР»РЅРѕС†РµРЅРЅС‹Р№ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёРё + РїРµСЂРµР№С‚Рё РЅР° unique_ptr
 	void InitOwner(TClass* use_owner);
 	void AnalyzeSyntax(TLexer& source);
 

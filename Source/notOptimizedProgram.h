@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "VirtualMachine/Program.h"
 #include "VirtualMachine/OpArray.h"

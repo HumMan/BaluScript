@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include <baluLib.h>
 #include <memory>
@@ -8,7 +8,7 @@
 
 #include <vector>
 
-typedef void(*TExternalMethod)(int*&, int*, int*);// параметры: вершина стека, указатель на первый параметр, указатель на объект
+typedef void(*TExternalMethod)(int*&, int*, int*);// РїР°СЂР°РјРµС‚СЂС‹: РІРµСЂС€РёРЅР° СЃС‚РµРєР°, СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РїРµСЂРІС‹Р№ РїР°СЂР°РјРµС‚СЂ, СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РѕР±СЉРµРєС‚
 
 class TProgram
 {
@@ -22,10 +22,10 @@ public:
 		int pre_event;
 		int post_event;
 		int params_size;
-		int return_size;//используется для внешних методов, для USER методов все есть в RETURN
+		int return_size;//РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РІРЅРµС€РЅРёС… РјРµС‚РѕРґРѕРІ, РґР»СЏ USER РјРµС‚РѕРґРѕРІ РІСЃРµ РµСЃС‚СЊ РІ RETURN
 		TMethod():first_op(-1),extern_method(NULL){}
 	};
-	std::vector<TOp> instructions;//TODO в дальнейшем в TVector<int>
+	std::vector<TOp> instructions;//TODO РІ РґР°Р»СЊРЅРµР№С€РµРј РІ TVector<int>
 	
 	std::vector<TArrayClassMethod> array_class_methods;
 	std::vector<std::string> string_consts;
@@ -36,7 +36,7 @@ public:
 	void SetExternalMethod(int method_id,TExternalMethod external_func)
 	{
 		if(!methods_table[method_id].is_external)
-			throw "Данный метод не является внешним!";
+			throw "Р”Р°РЅРЅС‹Р№ РјРµС‚РѕРґ РЅРµ СЏРІР»СЏРµС‚СЃСЏ РІРЅРµС€РЅРёРј!";
 		methods_table[method_id].extern_method=external_func;
 	}
 };

@@ -1,4 +1,4 @@
-#include "DynArray.h"
+п»ї#include "DynArray.h"
 
 		int* TDynArr::Get(int i)
 		{
@@ -53,7 +53,7 @@
 		bool TDynArr::EqualOp(TVirtualMachine* machine, TDynArr* right)
 		{
 			bool result=true;
-			int el_equal_op=methods->el_equal_op[true][true];//TODO выбор оптимального оператора
+			int el_equal_op=methods->el_equal_op[true][true];//TODO РІС‹Р±РѕСЂ РѕРїС‚РёРјР°Р»СЊРЅРѕРіРѕ РѕРїРµСЂР°С‚РѕСЂР°
 			if(v.GetHigh()!=right->v.GetHigh())result=false;
 			else if(el_equal_op!=-1)
 				result=machine->ArrayElementsRREqualOp(&v[0],&right->v[0],el_size,(v.GetCount()/el_size),el_equal_op);

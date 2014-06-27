@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include "Statement.h"
 #include "Expression.h"
@@ -9,7 +9,7 @@ class TReturn:public TStatement
 	void operator=(const TReturn& use_source);
 public:
 	TReturn(TClass* use_owner,TMethod* use_method,TStatements* use_parent,int use_stmt_id)
-		:TStatement(TStatementType::Return,use_owner,use_method,use_parent,use_stmt_id)//TODO вроде здесь родитель и id не нужен вовсе
+		:TStatement(TStatementType::Return,use_owner,use_method,use_parent,use_stmt_id)//TODO РІСЂРѕРґРµ Р·РґРµСЃСЊ СЂРѕРґРёС‚РµР»СЊ Рё id РЅРµ РЅСѓР¶РµРЅ РІРѕРІСЃРµ
 		,result(use_owner,use_method,use_parent,use_stmt_id)
 	{}
 	void AnalyzeSyntax(TLexer& source);

@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include <baluLib.h>
 #include "../VirtualMachine/Program.h"
@@ -18,7 +18,7 @@ struct TStaticArr
 			this->COUNT = COUNT;
 		}
 		TArrayClassMethod* methods;
-		int data[1/*COUNT*/*_INTSIZEOF(int)/4];//размер не имеет значения т.к. TStaticArr никогда не создается
+		int data[1/*COUNT*/*_INTSIZEOF(int)/4];//СЂР°Р·РјРµСЂ РЅРµ РёРјРµРµС‚ Р·РЅР°С‡РµРЅРёСЏ С‚.Рє. TStaticArr РЅРёРєРѕРіРґР° РЅРµ СЃРѕР·РґР°РµС‚СЃСЏ
 		int* Get(int i);
 		int& operator[](int id);
 		void DefConstr(TVirtualMachine* machine,int use_methods_id);

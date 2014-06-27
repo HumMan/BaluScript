@@ -1,4 +1,4 @@
-#include "../Syntax/Parameter.h"
+﻿#include "../Syntax/Parameter.h"
 
 #include "../Syntax/Method.h"
 #include "../Syntax/Statements.h"

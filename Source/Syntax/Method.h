@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include "Parameter.h"
 #include "../notOptimizedProgram.h"
@@ -37,9 +37,9 @@ private:
 	std::unique_ptr<TStatements> statements;
 	bool has_return;
 	
-	bool declared; //настроены типы параметров и возвращаемого значения
-	bool build;    //сгенерировано тело метода
-	bool one_instruction; //метод состоит из одной инструкции(без операторных скобок, напр.: "func M:int return 5;"
+	bool declared; //РЅР°СЃС‚СЂРѕРµРЅС‹ С‚РёРїС‹ РїР°СЂР°РјРµС‚СЂРѕРІ Рё РІРѕР·РІСЂР°С‰Р°РµРјРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ
+	bool build;    //СЃРіРµРЅРµСЂРёСЂРѕРІР°РЅРѕ С‚РµР»Рѕ РјРµС‚РѕРґР°
+	bool one_instruction; //РјРµС‚РѕРґ СЃРѕСЃС‚РѕРёС‚ РёР· РѕРґРЅРѕР№ РёРЅСЃС‚СЂСѓРєС†РёРё(Р±РµР· РѕРїРµСЂР°С‚РѕСЂРЅС‹С… СЃРєРѕР±РѕРє, РЅР°РїСЂ.: "func M:int return 5;"
 
 	TNameId method_name;
 	TOperator::Enum operator_type;
@@ -49,13 +49,14 @@ private:
 	TMethod* post_event;
 
 	int is_bytecode;//0 - not_used; 1 - true; 2 - false
-	//если 0 то определяется через statements
+	//РµСЃР»Рё 0 С‚Рѕ РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ С‡РµСЂРµР· statements
 	
 	//TODO
-	//bool only_inline;// метод можно только встраивать, но не вызывать
+	//bool only_inline;// РјРµС‚РѕРґ РјРѕР¶РЅРѕ С‚РѕР»СЊРєРѕ РІСЃС‚СЂР°РёРІР°С‚СЊ, РЅРѕ РЅРµ РІС‹Р·С‹РІР°С‚СЊ
 
 public:
 	void InitOwner(TClass* use_owner);
+	///<summary>РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РІС‹Р·РѕРІР° Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё СЃРѕР·РґР°РЅРЅРѕРіРѕ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР° РґР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕРіРѕ/РІРЅРµС€РЅРµРіРѕ РјРµС‚РѕРґР°</summary>
 	void SetPreEvent(TMethod* use_event);
 	void SetPostEvent(TMethod* use_event);
 	void SetAs(TOpArray use_ops, TClass* use_ret_class_pointer, bool use_ret_ref, bool use_is_static, int use_is_bytecode = 0);
@@ -64,7 +65,7 @@ public:
 	TMethod(TClass* use_owner, TClassMember::Enum use_member_type = TClassMember::Func);
 
 	void ParametersDecl(TLexer& source);
-	void AnalyzeSyntax(TLexer& source,bool realization=true);//realization - используется при получении идентификатора метода (т.к. только прототип без тела метода)
+	void AnalyzeSyntax(TLexer& source,bool realization=true);//realization - РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РїСЂРё РїРѕР»СѓС‡РµРЅРёРё РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° РјРµС‚РѕРґР° (С‚.Рє. С‚РѕР»СЊРєРѕ РїСЂРѕС‚РѕС‚РёРї Р±РµР· С‚РµР»Р° РјРµС‚РѕРґР°)
 	TVariable* GetVar(TNameId name);
 
 	void SetHasReturn(bool use_has_return);

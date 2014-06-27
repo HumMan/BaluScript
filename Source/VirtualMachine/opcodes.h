@@ -1,4 +1,4 @@
-
+п»ї
 BALU_SCRIPT_OPCODE_BEGIN(Enum)
 {
 	BALU_SCRIPT_OPCODE_ELEM0(NONE),
@@ -12,18 +12,18 @@ BALU_SCRIPT_OPCODE_BEGIN(Enum)
 	//runtime checks
 	BALU_SCRIPT_OPCODE_ELEM0(METHOD_HAS_NOT_RETURN_A_VALUE),
 
-	// помещение в стек значений, ссылок и т.д.
+	// РїРѕРјРµС‰РµРЅРёРµ РІ СЃС‚РµРє Р·РЅР°С‡РµРЅРёР№, СЃСЃС‹Р»РѕРє Рё С‚.Рґ.
 	BALU_SCRIPT_OPCODE_ELEM2(PUSH_GLOBAL_REF,		1/*global var offset*/,0),
-	BALU_SCRIPT_OPCODE_ELEM2(GLOBAL_TESTANDSET,		1/*global_offset*/,1/*gofalse_label*/),	//проверяет значение в глобальной переменной и если оно ноль то устанавливает в 1, иначе переход
-	BALU_SCRIPT_OPCODE_ELEM2(PUSH_LOCAL_REF,		1/*local_var_offset*/,0),		// помещение ссылки на локальную переменную в стек  *sp=(local_var_offset+stack_top)
-	BALU_SCRIPT_OPCODE_ELEM2(PUSH_LOCAL_REF_COPY,	1/*local_var_offset*/,0),		// используется для копирования ссылки параметра по адресу val на вершину
+	BALU_SCRIPT_OPCODE_ELEM2(GLOBAL_TESTANDSET,		1/*global_offset*/,1/*gofalse_label*/),	//РїСЂРѕРІРµСЂСЏРµС‚ Р·РЅР°С‡РµРЅРёРµ РІ РіР»РѕР±Р°Р»СЊРЅРѕР№ РїРµСЂРµРјРµРЅРЅРѕР№ Рё РµСЃР»Рё РѕРЅРѕ РЅРѕР»СЊ С‚Рѕ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РІ 1, РёРЅР°С‡Рµ РїРµСЂРµС…РѕРґ
+	BALU_SCRIPT_OPCODE_ELEM2(PUSH_LOCAL_REF,		1/*local_var_offset*/,0),		// РїРѕРјРµС‰РµРЅРёРµ СЃСЃС‹Р»РєРё РЅР° Р»РѕРєР°Р»СЊРЅСѓСЋ РїРµСЂРµРјРµРЅРЅСѓСЋ РІ СЃС‚РµРє  *sp=(local_var_offset+stack_top)
+	BALU_SCRIPT_OPCODE_ELEM2(PUSH_LOCAL_REF_COPY,	1/*local_var_offset*/,0),		// РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РєРѕРїРёСЂРѕРІР°РЅРёСЏ СЃСЃС‹Р»РєРё РїР°СЂР°РјРµС‚СЂР° РїРѕ Р°РґСЂРµСЃСѓ val РЅР° РІРµСЂС€РёРЅСѓ
 	BALU_SCRIPT_OPCODE_ELEM2(PUSH_MEMBER_REF,		1/*member offset*/,0),			// (member_offset+this_pointer)
 	BALU_SCRIPT_OPCODE_ELEM0(PUSH_THIS),
 	BALU_SCRIPT_OPCODE_ELEM2(PUSH_STRING_CONST,		1/*string id*/,0),
 	BALU_SCRIPT_OPCODE_ELEM2(PUSH,					1/*val*/,0),
 	BALU_SCRIPT_OPCODE_ELEM2(PUSH_COUNT,			1/*count*/,0),
-	BALU_SCRIPT_OPCODE_ELEM2(PUSH_STACK_HIGH_REF,	1/*object_size*/,0),			//поместить в стек (sp-val1)
-	BALU_SCRIPT_OPCODE_ELEM2(ADD_OFFSET,			1/*offset*/,0),				//прибавить смещение к ссылке на вершине стека
+	BALU_SCRIPT_OPCODE_ELEM2(PUSH_STACK_HIGH_REF,	1/*object_size*/,0),			//РїРѕРјРµСЃС‚РёС‚СЊ РІ СЃС‚РµРє (sp-val1)
+	BALU_SCRIPT_OPCODE_ELEM2(ADD_OFFSET,			1/*offset*/,0),				//РїСЂРёР±Р°РІРёС‚СЊ СЃРјРµС‰РµРЅРёРµ Рє СЃСЃС‹Р»РєРµ РЅР° РІРµСЂС€РёРЅРµ СЃС‚РµРєР°
 	//
 	BALU_SCRIPT_OPCODE_ELEM2(POP_COUNT,		1/*count*/,0),	
 	BALU_SCRIPT_OPCODE_ELEM2(RVALUE,		1/*operand_size*/,1/*copy_constr*/),	
@@ -74,7 +74,7 @@ BALU_SCRIPT_OPCODE_BEGIN(Enum)
 
 
 	//////////////////////////////////////////////////////////////////
-	///////////////// Классы
+	///////////////// РљР»Р°СЃСЃС‹
 
 	//int 
 	BALU_SCRIPT_OPCODE_ELEM0(INT_PLUS),

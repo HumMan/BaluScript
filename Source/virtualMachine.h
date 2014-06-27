@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include <assert.h>
 #include <memory.h>
@@ -42,7 +42,7 @@ public:
 	}
 	~TVirtualMachine()
 	{
-		if(sp!=&sp_first[-1])assert(false);//где-то в коммандах не очищается стек
+		if(sp!=&sp_first[-1])assert(false);//РіРґРµ-С‚Рѕ РІ РєРѕРјРјР°РЅРґР°С… РЅРµ РѕС‡РёС‰Р°РµС‚СЃСЏ СЃС‚РµРє
 		delete[] sp_first;
 	}
 	void ConstructStaticVars();
@@ -152,7 +152,7 @@ public:
 			*(++sp)=(int)&copy_to[i];
 			int* second_par=sp+1;
 			sp+=el_size;
-			//вызываем конструктор копии для второго параметра
+			//РІС‹Р·С‹РІР°РµРј РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёРё РґР»СЏ РІС‚РѕСЂРѕРіРѕ РїР°СЂР°РјРµС‚СЂР°
 			*(void**)(++sp)=NULL;
 			*(void**)(++sp)=&copy_from[i];
 			Execute(el_copy_constr,NULL,second_par);
@@ -182,10 +182,10 @@ public:
 			*(void**)(++sp)=&left[i];
 			int* second_par=sp+1;
 			sp+=el_size;
-			//вызываем конструктор копии для второго параметра
+			//РІС‹Р·С‹РІР°РµРј РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёРё РґР»СЏ РІС‚РѕСЂРѕРіРѕ РїР°СЂР°РјРµС‚СЂР°
 			*(void**)(++sp)=NULL;
 			*(void**)(++sp)=&right[i];
-			Execute(el_copy_constr,sp,second_par);//TODO что-то непонятно а где конструктор копии для первого параметра
+			Execute(el_copy_constr,sp,second_par);//TODO С‡С‚Рѕ-С‚Рѕ РЅРµРїРѕРЅСЏС‚РЅРѕ Р° РіРґРµ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёРё РґР»СЏ РїРµСЂРІРѕРіРѕ РїР°СЂР°РјРµС‚СЂР°
 			//
 			Execute(el_equal_op,first_par,NULL);
 			if(*sp==0){sp--;return false;}

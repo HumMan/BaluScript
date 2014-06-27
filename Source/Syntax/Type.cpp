@@ -1,4 +1,4 @@
-#include "Type.h"
+﻿#include "Type.h"
 
 #include "Class.h"
 #include "Method.h"

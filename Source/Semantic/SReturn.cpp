@@ -1,4 +1,4 @@
-#include "../Syntax/Return.h"
+п»ї#include "../Syntax/Return.h"
 
 #include "../Syntax/Void.h"
 #include "../Syntax/Method.h"
@@ -12,11 +12,11 @@ TFormalParam TReturn::Build(TNotOptimizedProgram &program,int& local_var_offset)
 	{
 		int conv_needed;
 		if(result_result.IsVoid())
-			Error("После оператора return должно следовать какое-то выражение!");
+			Error("РџРѕСЃР»Рµ РѕРїРµСЂР°С‚РѕСЂР° return РґРѕР»Р¶РЅРѕ СЃР»РµРґРѕРІР°С‚СЊ РєР°РєРѕРµ-С‚Рѕ РІС‹СЂР°Р¶РµРЅРёРµ!");
 		if(!IsEqualClasses(result_result,method->GetRetClass(),method->IsReturnRef(),conv_needed))
-			Error("Выражение невозможно преобразовать в тип возвращаемого значения!");
+			Error("Р’С‹СЂР°Р¶РµРЅРёРµ РЅРµРІРѕР·РјРѕР¶РЅРѕ РїСЂРµРѕР±СЂР°Р·РѕРІР°С‚СЊ РІ С‚РёРї РІРѕР·РІСЂР°С‰Р°РµРјРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ!");
 		method->BuildFormalParamConversion(program,result_result,method->GetRetClass(),method->IsReturnRef());	
-	}else if(result_result.GetClass()!=NULL) Error("Метод не должен ничего возвращать!");
+	}else if(result_result.GetClass()!=NULL) Error("РњРµС‚РѕРґ РЅРµ РґРѕР»Р¶РµРЅ РЅРёС‡РµРіРѕ РІРѕР·РІСЂР°С‰Р°С‚СЊ!");
 	int locals_size=0;
 	result_result.GetOps()+=BuildLocalsAndParamsDestructor(program,locals_size);
 	if(method->GetMemberType()==TClassMember::Destr)

@@ -1,4 +1,4 @@
-#include "Statements.h"
+п»ї#include "Statements.h"
 
 #include "Return.h"
 #include "If.h"
@@ -49,7 +49,7 @@ bool IsVarDecl(TLexer& source) {
 	int t = source.GetCurrentToken();
 	bool result = ClassName(source);
 	result = result && ArrayDimensions(source);
-	result = result && source.Test(TTokenType::Identifier);//после типа объявляемой переменной следует имя(имена) переменных
+	result = result && source.Test(TTokenType::Identifier);//РїРѕСЃР»Рµ С‚РёРїР° РѕР±СЉВ¤РІР»В¤РµРјРѕР№ РїРµСЂРµРјРµРЅРЅРѕР№ СЃР»РµРґСѓРµС‚ РёРјВ¤(РёРјРµРЅР°) РїРµСЂРµРјРµРЅРЅС‹С…
 	source.SetCurrentToken(t);
 	return result;
 }
@@ -70,7 +70,7 @@ void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
 			Add(t);
 			t->AnalyzeSyntax(source);
 			if (!end_semicolon)
-				source.Error("return можно использовать только как отдельную инструкцию!");
+				source.Error("return РјРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ С‚РѕР»СЊРєРѕ РєР°Рє РѕС‚РґРµР»СЊРЅСѓСЋ РёРЅСЃС‚СЂСѓРєС†РёСЋ!");
 			source.GetToken(TTokenType::Semicolon);
 			return;
 		}
@@ -115,7 +115,7 @@ void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
 			return;
 		}
 		}
-		source.Error("ќжидалс¤ return,if,for,bytecode или this!");
+		source.Error("Р­Р¶РёРґР°Р»СЃВ§ return,if,for,bytecode РёР»Рё this!");
 	}
 	default:
 		if (IsVarDecl(source)) {
@@ -134,7 +134,7 @@ void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
 			source.GetToken(TTokenType::Semicolon);
 		return;
 	}
-	assert(false);//во всех switch должен быть return 
+	assert(false);//РІРѕ РІСЃРµС… switch РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ return 
 }
 void TStatements::AnalyzeSyntax(TLexer& source) {
 	InitPos(source);
@@ -154,7 +154,7 @@ void TStatements::AddVar(TLocalVar* use_var) {
 
 void TStatements::Add(TStatement* use_statement){
 	statement.push_back(std::shared_ptr<TStatement>(use_statement));
-	use_statement->SetStmtId(statement.size() + 1);//TODO не нужно
+	use_statement->SetStmtId(statement.size() + 1);//TODO РЅРµ РЅСѓР¶РЅРѕ
 }
 
 TStatement* TStatements::GetStatement(int i)

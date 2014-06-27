@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include "Statement.h"
 #include "Void.h"
 #include "Type.h"
@@ -9,7 +9,7 @@ class TVariable;
 
 class TExpression:public TStatement
 {
-	//TODO доделать обратную польскую нотацию
+	//TODO РґРѕРґРµР»Р°С‚СЊ РѕР±СЂР°С‚РЅСѓСЋ РїРѕР»СЊСЃРєСѓСЋ РЅРѕС‚Р°С†РёСЋ
 	struct TPostfixOp
 	{
 		enum Type
@@ -43,7 +43,7 @@ class TExpression:public TStatement
 	public:
 		virtual TFormalParam Build(TNotOptimizedProgram &program,TExpression* parent)=0;
 		virtual ~TOperation(){}
-		virtual void InitOwner(TClass* use_owner)=0;//нужно для получения типов литералов
+		virtual void InitOwner(TClass* use_owner)=0;//РЅСѓР¶РЅРѕ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ С‚РёРїРѕРІ Р»РёС‚РµСЂР°Р»РѕРІ
 		virtual TOperation* GetCopy()=0;
 	};
 	class TBinOp:public TOperation
@@ -301,7 +301,7 @@ public:
 	TStatement* GetCopy()
 	{
 		TExpression* copy=new TExpression(*this);
-		//TODO из за таких путаниц с конструкторами запарки с утечками памяти
+		//TODO РёР· Р·Р° С‚Р°РєРёС… РїСѓС‚Р°РЅРёС† СЃ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР°РјРё Р·Р°РїР°СЂРєРё СЃ СѓС‚РµС‡РєР°РјРё РїР°РјСЏС‚Рё
 		return copy;
 	}
 	TExpression(const TExpression &use_source):TStatement(use_source)

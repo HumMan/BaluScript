@@ -1,4 +1,4 @@
-#include "../Syntax/Statement.h"
+п»ї#include "../Syntax/Statement.h"
 
 #include "../Syntax/Class.h"
 #include "../syntaxAnalyzer.h"
@@ -10,7 +10,7 @@ void TStatement::TestBoolExpr(TNotOptimizedProgram &program,TFormalParam& compar
 	int conv_needed;
 	TClass* bool_class=owner->GetClass(source->GetIdFromName("bool"));
 	if(!IsEqualClasses(compare_result,bool_class,false,conv_needed))
-		Error("Выражение невозможно преобразовать в логический тип!");
+		Error("Р’С‹СЂР°Р¶РµРЅРёРµ РЅРµРІРѕР·РјРѕР¶РЅРѕ РїСЂРµРѕР±СЂР°Р·РѕРІР°С‚СЊ РІ Р»РѕРіРёС‡РµСЃРєРёР№ С‚РёРї!");
 	method->BuildFormalParamConversion(program,compare_result,bool_class,false);	
 	program.Push(TOp(TOpcode::GOFALSE,go_false_label),compare_result.GetOps());
 }
