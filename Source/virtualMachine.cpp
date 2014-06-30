@@ -68,7 +68,7 @@ void TVirtualMachine::DestructStaticVars()
 {
 	Execute(program->static_vars_destroy, 0, 0);
 	sp = sp - program->static_vars_size;
-	if (sp != &sp_first[-1])assert(false);//где-то в коммандах не очищаетс¤ стек
+	if (sp != &sp_first[-1])assert(false);//где-то в коммандах не очищается стек
 }
 
 void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
@@ -88,7 +88,7 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 	}
 	if(m->is_external)
 	{
-		assert(m->extern_method!=NULL);//не забываем задать колбэки дл¤ внешних методов
+		assert(m->extern_method!=NULL);//не забываем задать колбэки для внешних методов
 		((TExternalMethod)m->extern_method)(sp,stack_top,this_pointer);
 		//чистим стек
 		//деструкторы естественно надо вызывать вручную
@@ -120,7 +120,7 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 			//////////////////////////////////////////////////
 			// ветвлени¤
 		case LABEL:
-			assert(false);//должны удалитьс¤ при оптимизации
+			assert(false);//должны удалиться при оптимизации
 			break;
 		case GOTRUE:
 			if(*(sp--)){
@@ -254,7 +254,7 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 				*(++sp)=(int)this_pointer;
 				Execute(m->post_event,NULL,this_pointer);
 			}
-			//TODO дл¤ надежности следует заполн¤ть неиспользуемую пам¤ть 0xfeefee
+			//TODO для надежности следует заполнять неиспользуемую память 0xfeefee
 			return;
 
 			//////////////////////////////////////////////////
@@ -273,7 +273,7 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 			{
 				temp=*(sp--);
 				TStaticArr* s_arr=(TStaticArr*)*sp;
-				if(temp>s_arr->methods->el_count-1||temp<-1)throw "ќшибка доступа к элементу массива!";
+				if(temp>s_arr->methods->el_count-1||temp<-1)throw "Ошибка доступа к элементу массива!";
 				*sp=(int)&s_arr->data[temp*s_arr->methods->el_size];
 				break;
 			}
@@ -308,7 +308,7 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 			{
 				temp=*(sp--);
 				TDynArr* d_arr=(TDynArr*)*sp;
-				if(temp>d_arr->v.GetHigh()||temp<-1)throw "ќшибка доступа к элементу массива!";//TODO вывод инфы где и что
+				if(temp>d_arr->v.GetHigh()||temp<-1)throw "Ошибка доступа к элементу массива!";//TODO вывод инфы где и что
 				*sp=(int)&d_arr->v[temp*d_arr->el_size];
 				break;
 			}
@@ -625,12 +625,12 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 			break;
 
 		case RV_VEC2_GET_ELEMENT:
-			if(*sp!=0&&*sp!=1)throw "ќшибка доступа к элементу вектора!";
+			if(*sp!=0&&*sp!=1)throw "Ошибка доступа к элементу вектора!";
 			*(sp-1)=(int)((int*)(sp[-1])+*sp);
 			sp--;break;
 
 		case VV_VEC2_GET_ELEMENT:
-			if(*sp!=0&&*sp!=1)throw "ќшибка доступа к элементу вектора!";
+			if(*sp!=0&&*sp!=1)throw "Ошибка доступа к элементу вектора!";
 			*(sp-2)=sp[*sp-2];
 			sp-=2;break;
 
