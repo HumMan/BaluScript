@@ -3,7 +3,12 @@
 #include "Statements.h"
 #include "ClassField.h"
 
-TOpArray TStatement::BuildLocalsAndParamsDestructor(
-		TNotOptimizedProgram &program, int &deallocate_size) {
-	return parent->BuildLocalsAndParamsDestructor(program, deallocate_size);
+void TStatement::SetStmtId(int use_id)
+{
+	stmt_id = use_id;
+}
+TStatement::TStatement(TStatementType::Enum use_stmt_type, TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id) :
+method(use_method), parent(use_parent), owner(use_owner),
+stmt_id(use_stmt_id), stmt_type(use_stmt_type)
+{
 }

@@ -1,11 +1,11 @@
-﻿#include "../Syntax/Bytecode.h"
+﻿#include "SBytecode.h"
 
 #include "../Syntax/Void.h"
 #include "../Syntax/Class.h"
 #include "../Syntax/Method.h"
 #include "../Syntax/Statements.h"
 
-TFormalParam TBytecode::Build(TNotOptimizedProgram &program,int& local_var_offset)
+TFormalParam TBytecodeSemantic::Build(TNotOptimizedProgram &program, int& local_var_offset)
 {
 	TOpArray temp;
 	for(int i=0;i<code.size();i++)

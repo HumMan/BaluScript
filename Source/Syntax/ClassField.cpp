@@ -29,38 +29,20 @@ void TClassField::AnalyzeSyntax(TLexer& source) {
 	source.GetToken(TTokenType::Semicolon);
 }
 
-TClassField::~TClassField()
-{
-}
-TClass* TClassField::GetClass()
-{
-	return type.GetClass();
-}
 bool TClassField::IsReadOnly()const
 {
 	return read_only;
 }
-void TClassField::InitOwner(TClass* use_owner)
-{
-	owner = use_owner;
-	type.InitOwner(use_owner);
-}
+
 void TClassField::SetReadOnly(bool use_read_only){
 	read_only = use_read_only;
 }
 TClassField::TClassField(TClass* use_owner) :TVariable(true, TVariableType::ClassField)
-, owner(use_owner), type(use_owner), offset(-1)
+, owner(use_owner), type(use_owner)
 , is_static(false), read_only(false)
 {
 }
 
-void TClassField::SetOffset(int use_offset){
-	offset = use_offset;
-}
-int TClassField::GetOffset()const{
-	assert(offset != -1);
-	return offset;
-}
 TClass* TClassField::GetOwner()const{
 	return owner;
 }
@@ -69,14 +51,4 @@ TNameId TClassField::GetName()const{
 }
 bool TClassField::IsStatic()const{
 	return is_static;
-}
-TFormalParam TClassField::PushRefToStack(TNotOptimizedProgram &program)
-{
-	assert(offset >= 0);
-	TOpArray ops_array;
-	if (is_static)
-		program.Push(TOp(TOpcode::PUSH_GLOBAL_REF, offset), ops_array);
-	else
-		program.Push(TOp(TOpcode::ADD_OFFSET, offset), ops_array);
-	return TFormalParam(type.GetClass(), true, ops_array);
 }

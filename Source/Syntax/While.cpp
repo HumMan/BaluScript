@@ -20,14 +20,3 @@ TWhile::TWhile(TClass* use_owner, TMethod* use_method, TStatements* use_parent, 
 	, compare(new TExpression(use_owner, use_method, use_parent, use_stmt_id))
 	, statements(new TStatements(use_owner, use_method, use_parent, use_stmt_id))
 {}
-
-TStatement* TWhile::GetCopy()
-{
-	return new TWhile(*this);
-}
-void TWhile::InitOwner(TClass* use_owner, TMethod* use_method, TStatements* use_parent)
-{
-	TStatement::_InitOwner(use_owner, use_method, use_parent);
-	compare->InitOwner(use_owner, use_method, use_parent);
-	statements->InitOwner(use_owner, use_method, use_parent);
-}

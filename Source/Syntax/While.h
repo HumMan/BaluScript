@@ -13,7 +13,4 @@ class TWhile:public TStatement
 public:
 	TWhile(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);
 	void AnalyzeSyntax(TLexer& source);
-	TFormalParam Build(TNotOptimizedProgram &program,int& local_var_offset);
-	TStatement* GetCopy();
-	void InitOwner(TClass* use_owner, TMethod* use_method, TStatements* use_parent);
 };

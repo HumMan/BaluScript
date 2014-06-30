@@ -3,7 +3,7 @@
 #include "Return.h"
 #include "If.h"
 #include "For.h"
-#include "Bytecode.h"
+#include "../Semantic/SBytecode.h"
 #include "LocalVar.h"
 #include "ClassField.h"
 
@@ -106,7 +106,7 @@ void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
 			return;
 		}
 		case TResWord::Bytecode: {
-			TBytecode* t = new TBytecode(owner, method, this,
+			TBytecodeSemantic* t = new TBytecodeSemantic(owner, method, this,
 					statement.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
@@ -160,18 +160,6 @@ void TStatements::Add(TStatement* use_statement){
 TStatement* TStatements::GetStatement(int i)
 {
 	return statement[i].get();
-}
-TStatement* TStatements::GetCopy()
-{
-	TStatements* copy = new TStatements(*this);
-	return copy;
-}
-
-void TStatements::InitOwner(TClass* use_owner, TMethod* use_method, TStatements* use_parent)
-{
-	TStatement::_InitOwner(use_owner, use_method, use_parent);
-	for (int i = 0; i < statement.size(); i++)
-		statement[i]->InitOwner(use_owner, use_method, this);
 }
 int TStatements::GetHigh()
 {

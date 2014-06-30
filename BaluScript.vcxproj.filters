@@ -57,9 +57,6 @@
     <ClInclude Include="Source\Syntax\For.h">
       <Filter>Source Files\Syntax</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\FormalParam.h">
-      <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Syntax\If.h">
       <Filter>Source Files\Syntax</Filter>
     </ClInclude>
@@ -117,13 +114,46 @@
     <ClInclude Include="Source\VirtualMachine\OpArray.h">
       <Filter>Source Files\VirtualMachine</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\TemplateRealizations.h">
+    <ClInclude Include="Source\Syntax\Accessible.h">
       <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SBytecode.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SClass.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SExpression.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SFor.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SIf.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SLocalVar.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SMethod.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SParameter.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SReturn.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SStatements.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SType.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SWhile.h">
+      <Filter>Source Files\Semantic</Filter>
     </ClInclude>
     <ClInclude Include="Source\Syntax\OverloadedMethod.h">
-      <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\Accessible.h">
       <Filter>Source Files\Syntax</Filter>
     </ClInclude>
   </ItemGroup>
@@ -194,9 +224,6 @@
     <ClCompile Include="Source\NativeTypes\String.cpp">
       <Filter>Source Files\NativeTypes</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\FormalParam.cpp">
-      <Filter>Source Files\Syntax</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Syntax\Variable.cpp">
       <Filter>Source Files\Syntax</Filter>
     </ClCompile>
@@ -214,9 +241,6 @@
     </ClCompile>
     <ClCompile Include="Source\VirtualMachine\Program.cpp">
       <Filter>Source Files\VirtualMachine</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\OverloadedMethod.cpp">
-      <Filter>Source Files\Syntax</Filter>
     </ClCompile>
     <ClCompile Include="Source\Syntax\Accessible.cpp">
       <Filter>Source Files\Syntax</Filter>
@@ -259,6 +283,9 @@
     </ClCompile>
     <ClCompile Include="Source\Semantic\SWhile.cpp">
       <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\OverloadedMethod.cpp">
+      <Filter>Source Files\Syntax</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

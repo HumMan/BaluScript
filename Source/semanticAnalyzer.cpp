@@ -5,26 +5,6 @@
 #include "Syntax/Method.h"
 #include "Syntax/Statements.h"
 
-void ValidateAccess(TTokenPos* field_pos,TClass* source,TClassField* target)
-{
-	if(target->GetAccess()==TTypeOfAccess::Public)return;
-	if(source==target->GetOwner())return;
-	if(target->GetAccess()==TTypeOfAccess::Protected&&!source->IsChildOf(target->GetOwner()))
-		field_pos->Error("Данное поле класса доступно только из классов наследников (protected)!");
-	else if(target->GetAccess()==TTypeOfAccess::Private&&source!=target->GetOwner())
-		field_pos->Error("Данное поле класса доступно только из класса в котором оно объявлено (private)!");
-}
-
-void ValidateAccess(TTokenPos* field_pos,TClass* source,TMethod* target)
-{
-	if(target->GetAccess()==TTypeOfAccess::Public)return;
-	if(source==target->GetOwner())return;
-	if(target->GetAccess()==TTypeOfAccess::Protected&&!source->IsChildOf(target->GetOwner()))
-		field_pos->Error("Данный метод доступен только из классов наследников (protected)!");
-	else if(target->GetAccess()==TTypeOfAccess::Private&&source!=target->GetOwner())
-		field_pos->Error("Данный метод доступен только из класса в котором он объявлен (private)!");
-}
-
 bool IsEqualClasses(TFormalParam formal_par,TClass* param_class,bool param_ref,int& need_conv)
 //============== На выходе =========================================
 //результат - равенство классов или возможность приведения класса
@@ -76,33 +56,6 @@ TMethod* FindMethod(TTokenPos* source, std::vector<TMethod*> &methods_to_call,co
 		return methods_to_call[min_conv_method];		
 	return NULL;
 }
-
-
-void TSyntaxAnalyzer::Compile(char* use_source,TTime& time)
-{
-	unsigned long long t=time.GetTime();
-	lexer.ParseSource(use_source);
-	printf("Source parsing = %.3f ms\n",time.TimeDiff(time.GetTime(),t)*1000);
-	t=time.GetTime();
-	base_class=new TClass(NULL,&templates);	
-	base_class->InitPos(lexer);
-	base_class->CreateInternalClasses();
-
-	base_class->AnalyzeSyntax(lexer);
-	printf("Syntax analyzing = %.3f ms\n",time.TimeDiff(time.GetTime(),t)*1000);
-	t=time.GetTime();
-	base_class->BuildClass();
-	base_class->DeclareMethods();
-	base_class->InitAutoMethods(program);
-	printf("Build class, declare methods, automethods = %.3f ms\n",time.TimeDiff(time.GetTime(),t)*1000);
-	t=time.GetTime();
-	base_class->BuildMethods(program);
-	printf("Methods building = %.3f ms\n",time.TimeDiff(time.GetTime(),t)*1000);
-	t=time.GetTime();
-	program.Push(TOp(TOpcode::RETURN,0,0),program.static_vars_init);
-	program.Push(TOp(TOpcode::RETURN,0,0),program.static_vars_destroy);
-}
-
 
 int TSyntaxAnalyzer::GetMethod(char* use_method)
 {

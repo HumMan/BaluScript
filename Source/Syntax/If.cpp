@@ -24,16 +24,3 @@ TIf::TIf(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int us
 	, statements(new TStatements(use_owner, use_method, use_parent, use_stmt_id))
 	, else_statements(new TStatements(use_owner, use_method, use_parent, use_stmt_id))
 {}
-
-TStatement* TIf::GetCopy()
-{
-	return new TIf(*this);
-}
-
-void TIf::InitOwner(TClass* use_owner, TMethod* use_method, TStatements* use_parent)
-{
-	TStatement::_InitOwner(use_owner, use_method, use_parent);
-	bool_expr->InitOwner(use_owner, use_method, use_parent);
-	statements->InitOwner(use_owner, use_method, use_parent);
-	else_statements->InitOwner(use_owner, use_method, use_parent);
-}

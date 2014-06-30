@@ -51,45 +51,13 @@ void TLocalVar::AnalyzeSyntax(TLexer& source) {
 
 TLocalVar::TLocalVar(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id) :
 TStatement(TStatementType::VarDecl, use_owner, use_method, use_parent, use_stmt_id),
-TVariable(false, TVariableType::LocalVar),
-type(use_owner), assign_expr(NULL),
-offset(-1), is_static(false)
+TVariable(false, TVariableType::LocalVar), type(use_owner), assign_expr(NULL), is_static(false)
 {
 }
 
 TNameId TLocalVar::GetName(){
 	return name;
 }
-TClass* TLocalVar::GetClass(){
-	return type.GetClass();
-}
-int TLocalVar::GetOffset(){
-	return offset;
-}
 bool TLocalVar::IsStatic(){
 	return is_static;
-}
-TFormalParam TLocalVar::PushRefToStack(TNotOptimizedProgram &program)
-{
-	TOpArray ops_array;
-	if (is_static)
-		program.Push(TOp(TOpcode::PUSH_GLOBAL_REF, offset), ops_array);
-	else
-		program.Push(TOp(TOpcode::PUSH_LOCAL_REF, offset), ops_array);
-	return TFormalParam(type.GetClass(), true, ops_array);
-}
-TStatement* TLocalVar::GetCopy()
-{
-	TLocalVar* copy = new TLocalVar(*this);
-	if (assign_expr != NULL)
-		copy->assign_expr = std::shared_ptr<TExpression>(new TExpression(*assign_expr));
-	return copy;
-}
-void TLocalVar::InitOwner(TClass* use_owner, TMethod* use_method, TStatements* use_parent)
-{
-	TStatement::_InitOwner(use_owner, use_method, use_parent);
-	type.InitOwner(use_owner);
-	if (assign_expr != NULL)assign_expr->InitOwner(use_owner, use_method, use_parent);
-	for (int i = 0; i < params.size(); i++)
-		params[i]->InitOwner(use_owner, use_method, use_parent);
 }

@@ -1,34 +1,18 @@
 ﻿#include "Type.h"
 
 #include "Class.h"
+#include "OverloadedMethod.h"
 #include "Method.h"
 #include "Statements.h"
 
 TType::TType(TNameId use_class_name, TClass *use_owner) :
 	owner(use_owner) {
-	class_pointer = NULL;
 	class_name.name = use_class_name;
 	class_name.member = NULL;
 }
 
 TType::TType(TClass *use_owner) :
 	owner(use_owner) {
-	class_pointer = NULL;
-}
-
-bool TType::IsEqualTo(const TType& use_right)const
-{
-	assert(class_name.class_pointer != NULL&&use_right.class_name.class_pointer != NULL);
-	return class_name.class_pointer == use_right.class_name.class_pointer;
-}
-void TType::InitOwner(TClass* use_owner)
-{
-	owner = use_owner;
-}
-void TType::SetAs(TClass* use_class_pointer)
-{
-	assert(class_name.class_pointer == NULL);
-	class_name.class_pointer = use_class_pointer;
 }
 
 void TType::AnalyzeSyntax(TClassName* use_class_name, TLexer& source) {
@@ -39,8 +23,8 @@ void TType::AnalyzeSyntax(TClassName* use_class_name, TLexer& source) {
 	if (source.Test(TTokenType::Operator, TOperator::Less)) {
 		source.GetToken();
 		while (!source.TestAndGet(TTokenType::Operator, TOperator::Greater)) {
-			TClassName* template_param = new TClassName();
-			use_class_name->template_params.push_back(std::shared_ptr<TClassName>(template_param));
+			use_class_name->template_params.emplace_back();
+			TClassName* template_param = &(use_class_name->template_params.back());
 			AnalyzeSyntax(template_param, source);
 			if (!source.Test(TTokenType::Operator, TOperator::Greater))
 				source.GetToken(TTokenType::Comma);
@@ -48,7 +32,7 @@ void TType::AnalyzeSyntax(TClassName* use_class_name, TLexer& source) {
 	}
 	if (source.Test(TTokenType::Dot)) {
 		source.GetToken();
-		use_class_name->member = std::shared_ptr<TClassName>(new TClassName());
+		use_class_name->member = std::unique_ptr<TClassName>(new TClassName());
 		AnalyzeSyntax(use_class_name->member.get(), source);
 	}
 }

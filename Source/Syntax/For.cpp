@@ -20,14 +20,3 @@ TFor::TFor(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int 
 	, statements(new TStatements(use_owner, use_method, use_parent, use_stmt_id))
 {
 }
-TStatement* TFor::GetCopy()
-{
-	return new TFor(*this);
-}
-void TFor::InitOwner(TClass* use_owner, TMethod* use_method, TStatements* use_parent)
-{
-	TStatement::_InitOwner(use_owner, use_method, use_parent);
-	compare->InitOwner(use_owner, use_method, use_parent);
-	increment->InitOwner(use_owner, use_method, use_parent);
-	statements->InitOwner(use_owner, use_method, use_parent);
-}
