@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 			{
 				syntax.Compile(source,time);
 
-				if(print_info)
+		/*		if(print_info)
 					printf("ok (%.3f ms)\n",time.TimeDiff(time.GetTime(),t0)*1000);
 				t0=time.GetTime();
 				main_func=syntax.GetMethod("func static TGame.Main");
@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
 					machine.ConstructStaticVars();
 					machine.Execute(main_func);
 					machine.DestructStaticVars();
-				}
+				}*/
 				if(print_info)
 					printf("ok (%.3f ms)\n",time.TimeDiff(time.GetTime(),t0)*1000);
 			}

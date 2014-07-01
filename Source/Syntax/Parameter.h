@@ -14,11 +14,10 @@ class TParameter :public TVariable, public TTokenPos
 	TNameId name;
 	TClass* owner;
 	TMethod* method;
-	int offset;
 public:
-	TParameter(TClass* use_owner, TMethod* use_method) :TVariable(false, TVariableType::Parameter)
+	TParameter(TClass* use_owner, TMethod* use_method) :TVariable(TVariableType::Parameter)
 		, type(use_owner), is_ref(false)
-		, owner(use_owner), method(use_method), offset(-1)
+		, owner(use_owner), method(use_method)
 	{
 	}
 	void AnalyzeSyntax(TLexer& source);

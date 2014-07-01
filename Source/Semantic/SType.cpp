@@ -1,111 +1,75 @@
-﻿#include "../Syntax/Type.h"
+﻿#include "SType.h"
 
-#include "../Syntax/Class.h"
-#include "../Syntax/TemplateRealizations.h"
-#include "../Syntax/Method.h"
-#include "../Syntax/Statements.h"
+#include "SClass.h"
 
-TClass*  TType::GetClass(bool use_build_methods,TNotOptimizedProgram* program)
+TSType::TSType(TSClass* use_owner, TType* use_syntax_node) :TSyntaxNode(use_syntax_node)
 {
-	if(use_build_methods) assert(class_pointer==NULL);
-	if(class_pointer==NULL)
-	{
-		if(class_name.class_pointer!=NULL)
-			return class_name.class_pointer;
-		if(class_name.name.IsNull())
-			return NULL;
-		class_pointer=class_name.Build(use_build_methods,NULL,owner,*this,program);
-	}
-	return class_pointer;
+	owner = use_owner;
 }
-TClass* TType::TClassName::Build(bool use_build_methods,TClass* use_curr_class,TClass* owner,TTokenPos& source,TNotOptimizedProgram* program)
+
+void TSType::Link(TSClass* use_curr_class)
+{
+}
+
+TSClass* TSType_TClassName::Build(std::list<TSType_TClassName>& classes, TSClass* use_owner, TSClass* use_curr_class)
 {
 	if(use_curr_class==NULL)
 	{
-		use_curr_class=owner->GetClass(name);
+		use_curr_class = use_owner->GetClass(GetSyntax()->name);
 		if(use_curr_class==NULL)
-			source.Error("Неизвестный тип!");
+			use_owner->GetSyntax()->Error("Неизвестный тип!");
 	}else
 	{
-		use_curr_class=use_curr_class->GetNested(name);
+		use_curr_class=use_curr_class->GetNested(GetSyntax()->name);
 		if(use_curr_class==NULL)
-			source.Error("Вложенного класса с таким именем не существует!");
+			use_owner->GetSyntax()->Error("Вложенного класса с таким именем не существует!");
 	}
-	if(template_params.size()!=0)
+
+	auto template_params = &GetSyntax()->template_params;
+
+	if (template_params->size() != 0)
 	{
-		TTemplateRealizations* templates=owner->GetTemplates();
-		if(!use_curr_class->IsTemplate())
-			source.Error("Класс не является шаблонным!");
-		if(template_params.size()!=use_curr_class->GetTemplateParamsCount())
-			source.Error("Шаблон имеет другое количество параметров!");
-		for(int i=0;i<template_params.size();i++)
-			template_params[i]->Build(use_build_methods,NULL,owner,source,program);
-		TClass* realization=NULL;
-		std::vector<std::unique_ptr<TClass>>* temp = NULL;
-		temp=templates->FindTemplate(use_curr_class);
-		if(temp!=NULL)
+		
+		if(!use_curr_class->GetSyntax()->IsTemplate())
+			use_owner->GetSyntax()->Error("Класс не является шаблонным!");
+		if(template_params->size()!=use_curr_class->GetSyntax()->GetTemplateParamsCount())
+			use_owner->GetSyntax()->Error("Шаблон имеет другое количество параметров!");
+		for (const TType::TClassName& t: *template_params)
+		{
+			template_params_classes.emplace_back();
+			//template_params_classes.back().emplace_back(&t);
+			template_params_classes.back().back().Build(template_params_classes.back(), use_owner, NULL);
+		}
+		
+		TTemplateRealizations* templates = use_owner->GetTemplates();
+		std::vector<std::shared_ptr<TSClass>>* template_realizations = templates->FindTemplateRealizations(use_curr_class);
+
+		TSClass* realization = NULL;
+		if (template_realizations == NULL)
+		{
+			
+			TTemplateRealizations::TTemplateRealization* t = new TTemplateRealizations::TTemplateRealization();
+			templates->templates.push_back(std::shared_ptr<TTemplateRealizations::TTemplateRealization>(t));
+			t->template_pointer = use_curr_class;
+			template_realizations = &t->realizations;
+		}
+		realization = templates->FindTemplateRealization(use_curr_class, template_params_classes);
+		if(realization==NULL)
 		{
 			//TODO !!!!!!!!!!  шаблонный класс не имеет доступа к своему шаблону
 			//при указании имени класса без шаблонныйх параметров - то же самое что с параметрами текущего класса
-			for(int k=0;k<temp->size();k++)
-			{
-				if(((*temp)[k]->GetTemplateParamsCount())!=template_params.size())
-					continue;
-				bool found=true;
-				for(int t=0;t<(*temp)[k]->GetTemplateParamsCount();t++)
-				{
-					if((*temp)[k]->GetTemplateParamClass(t)!=
-						template_params[t]->class_pointer)
-					{
-						found=false;
-						break;
-					}
-				}
-				if(found)
-				{
-					realization=(*temp)[k].get();
-					break;
-				}
-			}
-		}
-		if(realization==NULL)
-		{
-			if(temp==NULL)
-			{
-				TTemplateRealizations::TTemplateRealization* t = new TTemplateRealizations::TTemplateRealization();
-					templates->templates.push_back(std::unique_ptr<TTemplateRealizations::TTemplateRealization>(t));
-				t->template_pointer=use_curr_class;
-				temp=&t->realizations;
-			}
-			//realization=new TClass(owner,templates);
-			//temp->Push(realization);
-			//*realization=*use_curr_class;
-			realization=new TClass(*use_curr_class);
-			temp->push_back(std::unique_ptr<TClass>(realization));
-			//
-			realization->InitOwner(use_curr_class->GetOwner());
-			realization->SetIsTemplate(false);
-			for(int i=0;i<template_params.size();i++)
-				realization->SetTemplateParamClass(i,template_params[i]->class_pointer);
-			realization->BuildClass();
-			if(use_build_methods)
-			{
-				realization->DeclareMethods();
-				realization->CheckForErrors();
-				realization->InitAutoMethods(*program);
-				realization->BuildMethods(*program);
-			}
+			realization=new TSClass(*use_curr_class);
+			template_realizations->push_back(std::shared_ptr<TSClass>(realization));
 		}
 		use_curr_class=realization;
 	}
-	class_pointer=use_curr_class;
-	class_pointer->BuildClass();
-	if(use_build_methods)
-	{
-		class_pointer->DeclareMethods();
-		class_pointer->InitAutoMethods(*program);
-		class_pointer->BuildMethods(*program);
-	}
-	if(!member)return use_curr_class;
-	else return member->Build(use_build_methods,use_curr_class,owner,source,program);
+
+	//classes.emplace_back(GetSyntax()->member);
+	TSType_TClassName* class_name = &classes.back();
+	class_name->class_of_type = use_curr_class;
+
+	if(!GetSyntax()->member)
+		return use_curr_class;
+	else 
+		return class_name->Build(classes, use_owner, use_curr_class);
 }

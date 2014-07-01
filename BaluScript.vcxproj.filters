@@ -156,6 +156,18 @@
     <ClInclude Include="Source\Syntax\OverloadedMethod.h">
       <Filter>Source Files\Syntax</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Semantic\TemplateRealizations.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SClassField.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SSyntaxNode.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SOverloadedMethod.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\lexer.cpp">
@@ -286,6 +298,15 @@
     </ClCompile>
     <ClCompile Include="Source\Syntax\OverloadedMethod.cpp">
       <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\SClassField.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\SOverloadedMethod.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\TemplateRealizations.cpp">
+      <Filter>Source Files\Semantic</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -106,7 +106,7 @@ void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
 			return;
 		}
 		case TResWord::Bytecode: {
-			TBytecodeSemantic* t = new TBytecodeSemantic(owner, method, this,
+			TBytecode* t = new TBytecode(owner, method, this,
 					statement.size());
 			Add(t);
 			t->AnalyzeSyntax(source);

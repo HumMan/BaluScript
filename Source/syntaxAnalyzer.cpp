@@ -10,27 +10,6 @@ TSyntaxAnalyzer::~TSyntaxAnalyzer()
 		delete base_class;
 }
 
-void ValidateAccess(TTokenPos* field_pos, TClass* source, TClassField* target)
-{
-	if (target->GetAccess() == TTypeOfAccess::Public)return;
-	if (source == target->GetOwner())return;
-	if (target->GetAccess() == TTypeOfAccess::Protected&&!source->IsChildOf(target->GetOwner()))
-		field_pos->Error("Данное поле класса доступно только из классов наследников (protected)!");
-	else if (target->GetAccess() == TTypeOfAccess::Private&&source != target->GetOwner())
-		field_pos->Error("Данное поле класса доступно только из класса в котором оно объявлено (private)!");
-}
-
-void ValidateAccess(TTokenPos* field_pos, TClass* source, TMethod* target)
-{
-	if (target->GetAccess() == TTypeOfAccess::Public)return;
-	if (source == target->GetOwner())return;
-	if (target->GetAccess() == TTypeOfAccess::Protected&&!source->IsChildOf(target->GetOwner()))
-		field_pos->Error("Данный метод доступен только из классов наследников (protected)!");
-	else if (target->GetAccess() == TTypeOfAccess::Private&&source != target->GetOwner())
-		field_pos->Error("Данный метод доступен только из класса в котором он объявлен (private)!");
-}
-
-
 void TSyntaxAnalyzer::Compile(char* use_source, TTime& time)
 {
 	unsigned long long t = time.GetTime();

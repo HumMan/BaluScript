@@ -54,7 +54,6 @@ public:
 	void SetIsTemplate(bool use_is_template);
 	
 	int GetTemplateParamsCount();
-	bool IsChildOf(TClass* use_parent);
 	void AddMethod(TMethod* use_method, TNameId name);
 	void AddOperator(TOperator::Enum op, TMethod* use_method);
 	void AddConversion(TMethod* method);
@@ -68,9 +67,6 @@ public:
 	
 	TClass* GetOwner();
 	TClass* GetClass(TNameId class_name);
-	
-	TClassField* GetField(TNameId name, bool only_in_this);
-	TClassField* GetField(TNameId name, bool is_static, bool only_in_this);
 	
 	bool GetOperators(std::vector<TMethod*> &result, TOperator::Enum op);
 	bool GetMethods(std::vector<TMethod*> &result, TNameId use_method_name);

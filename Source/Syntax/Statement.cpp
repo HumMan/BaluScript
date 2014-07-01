@@ -12,3 +12,7 @@ method(use_method), parent(use_parent), owner(use_owner),
 stmt_id(use_stmt_id), stmt_type(use_stmt_type)
 {
 }
+
+TStatementType::Enum TStatement::GetType(){
+	return stmt_type;
+}

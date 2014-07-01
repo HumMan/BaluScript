@@ -51,7 +51,7 @@ void TLocalVar::AnalyzeSyntax(TLexer& source) {
 
 TLocalVar::TLocalVar(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id) :
 TStatement(TStatementType::VarDecl, use_owner, use_method, use_parent, use_stmt_id),
-TVariable(false, TVariableType::LocalVar), type(use_owner), assign_expr(NULL), is_static(false)
+TVariable(TVariableType::LocalVar), type(use_owner), assign_expr(NULL), is_static(false)
 {
 }
 

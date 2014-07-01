@@ -248,8 +248,3 @@ void TExpression::BuildPostfix() {
 		}
 	}
 }
-
-TVariable* TExpression::GetVar(TNameId name)
-{
-	return parent->GetVar(name, stmt_id);
-}

@@ -164,5 +164,4 @@ public:
 		if(first_op!=NULL)
 			delete first_op;
 	}
-	TVariable* GetVar(TNameId name);
 };

@@ -8,14 +8,11 @@ void TClassField::AnalyzeSyntax(TLexer& source) {
 	InitPos(source);
 	type.AnalyzeSyntax(source);
 	is_static = source.TestAndGet(TTokenType::ResWord, TResWord::Static);
-	if (is_static)
-		need_push_this = false;
 	TClassField* curr_field = this;
 	do {
 		if (curr_field != this) {
 			curr_field->type = type;
 			curr_field->is_static = is_static;
-			curr_field->need_push_this = need_push_this;
 			*(TTokenPos*) curr_field = *(TTokenPos*) this;
 		}
 		curr_field->name = source.NameId();
@@ -37,7 +34,7 @@ bool TClassField::IsReadOnly()const
 void TClassField::SetReadOnly(bool use_read_only){
 	read_only = use_read_only;
 }
-TClassField::TClassField(TClass* use_owner) :TVariable(true, TVariableType::ClassField)
+TClassField::TClassField(TClass* use_owner) :TVariable(TVariableType::ClassField)
 , owner(use_owner), type(use_owner)
 , is_static(false), read_only(false)
 {

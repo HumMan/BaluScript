@@ -184,12 +184,6 @@ void TMethod::CheckForErrors()
 				param[i]->Error("Параметр с таким именем уже существует!");
 			}
 	}
-	if (!method_name.IsNull())
-	{
-		if (owner->GetField(method_name, false) != NULL)
-			Error("Член класса с таким именем уже существует!");
-		//TODO проверить члены родительского класса и т.д. (полный запрет на перекрытие имен)
-	}
 	switch (member_type)
 	{
 	case TResWord::Func:

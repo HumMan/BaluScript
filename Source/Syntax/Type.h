@@ -36,6 +36,10 @@ private:
 	TClassName class_name;
 	void AnalyzeSyntax(TClassName* use_class_name,TLexer& source);
 public:
+	const TClassName& GetClassName()
+	{
+		return class_name;
+	}
 	TType(TClass* use_owner);
 	TType(TNameId use_class_name, TClass* use_owner);
 	void AnalyzeSyntax(TLexer& source);
