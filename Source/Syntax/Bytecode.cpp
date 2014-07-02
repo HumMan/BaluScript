@@ -10,7 +10,8 @@
 TBytecode::TBytecode(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id)
 	:TStatement(TStatementType::Bytecode, use_owner, use_method, use_parent, use_stmt_id)
 {
-	method->SetHasReturn(true);
+	//TODO
+	//method->SetHasReturn(true);
 }
 
 void TBytecode::AnalyzeSyntax(TLexer& source) {

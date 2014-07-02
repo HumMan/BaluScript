@@ -1,12 +1,12 @@
 ﻿#pragma once
 
-#include "Variable.h"
 #include "Type.h"
 #include "../lexer.h"
 #include "Accessible.h"
 
-class TClassField:public TAccessible,public TVariable,public TTokenPos
+class TClassField:public TAccessible,public TTokenPos
 {
+	friend class TSClassField;
 	TClass* owner;
 	TNameId name;
 	TType type;

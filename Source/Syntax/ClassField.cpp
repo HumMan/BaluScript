@@ -34,8 +34,7 @@ bool TClassField::IsReadOnly()const
 void TClassField::SetReadOnly(bool use_read_only){
 	read_only = use_read_only;
 }
-TClassField::TClassField(TClass* use_owner) :TVariable(TVariableType::ClassField)
-, owner(use_owner), type(use_owner)
+TClassField::TClassField(TClass* use_owner) :owner(use_owner), type(use_owner)
 , is_static(false), read_only(false)
 {
 }

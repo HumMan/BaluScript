@@ -16,6 +16,7 @@ class TMethod;
 
 class TClass:public TTokenPos
 {
+	friend class TSClass;
 protected:
 	bool is_template;
 
@@ -64,11 +65,5 @@ public:
 	TClassField* AddField(TClass* use_field_owner);
 	TClass* GetNested(TNameId name);
 	TNameId GetName();
-	
 	TClass* GetOwner();
-	TClass* GetClass(TNameId class_name);
-	
-	bool GetOperators(std::vector<TMethod*> &result, TOperator::Enum op);
-	bool GetMethods(std::vector<TMethod*> &result, TNameId use_method_name);
-	bool GetMethods(std::vector<TMethod*> &result, TNameId use_method_name, bool is_static);
 };

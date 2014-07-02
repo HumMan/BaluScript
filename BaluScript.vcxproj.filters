@@ -25,6 +25,12 @@
     <Filter Include="Source Files\NativeTypes">
       <UniqueIdentifier>{a20be754-833d-42bd-b019-349cc636a09e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Semantic\Statements">
+      <UniqueIdentifier>{d032bf75-b65c-4744-938d-075201e07e7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Syntax\Statements">
+      <UniqueIdentifier>{48742c71-a7bc-43dc-821e-b68b7ac9dc5e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\lexer.h">
@@ -51,43 +57,16 @@
     <ClInclude Include="Source\Syntax\ClassField.h">
       <Filter>Source Files\Syntax</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\Expression.h">
-      <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\For.h">
-      <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\If.h">
-      <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\LocalVar.h">
-      <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Syntax\Method.h">
       <Filter>Source Files\Syntax</Filter>
     </ClInclude>
     <ClInclude Include="Source\Syntax\Parameter.h">
       <Filter>Source Files\Syntax</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\Return.h">
-      <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\Statement.h">
-      <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\Statements.h">
-      <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Syntax\Type.h">
       <Filter>Source Files\Syntax</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\Variable.h">
-      <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Syntax\Void.h">
-      <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\While.h">
       <Filter>Source Files\Syntax</Filter>
     </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Op.h">
@@ -123,34 +102,13 @@
     <ClInclude Include="Source\Semantic\SClass.h">
       <Filter>Source Files\Semantic</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Semantic\SExpression.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SFor.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SIf.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SLocalVar.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Semantic\SMethod.h">
       <Filter>Source Files\Semantic</Filter>
     </ClInclude>
     <ClInclude Include="Source\Semantic\SParameter.h">
       <Filter>Source Files\Semantic</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Semantic\SReturn.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SStatements.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Semantic\SType.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SWhile.h">
       <Filter>Source Files\Semantic</Filter>
     </ClInclude>
     <ClInclude Include="Source\Syntax\OverloadedMethod.h">
@@ -166,6 +124,63 @@
       <Filter>Source Files\Semantic</Filter>
     </ClInclude>
     <ClInclude Include="Source\Semantic\SOverloadedMethod.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SFor.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SIf.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SLocalVar.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SExpression.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SWhile.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\Expression.h">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\For.h">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\If.h">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\LocalVar.h">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\While.h">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\Statement.h">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\Statements.h">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Syntax\Return.h">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SReturn.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SStatements.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SStatement.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\Variable.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\semanticAnalyzer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\FormalParam.h">
       <Filter>Source Files\Semantic</Filter>
     </ClInclude>
   </ItemGroup>
@@ -191,40 +206,16 @@
     <ClCompile Include="Source\Syntax\Class.cpp">
       <Filter>Source Files\Syntax</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\Expression.cpp">
-      <Filter>Source Files\Syntax</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Syntax\Method.cpp">
       <Filter>Source Files\Syntax</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\Statement.cpp">
-      <Filter>Source Files\Syntax</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\Statements.cpp">
-      <Filter>Source Files\Syntax</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Syntax\Type.cpp">
-      <Filter>Source Files\Syntax</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\LocalVar.cpp">
       <Filter>Source Files\Syntax</Filter>
     </ClCompile>
     <ClCompile Include="Source\Syntax\Parameter.cpp">
       <Filter>Source Files\Syntax</Filter>
     </ClCompile>
     <ClCompile Include="Source\Syntax\ClassField.cpp">
-      <Filter>Source Files\Syntax</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\For.cpp">
-      <Filter>Source Files\Syntax</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\If.cpp">
-      <Filter>Source Files\Syntax</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\Return.cpp">
-      <Filter>Source Files\Syntax</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\While.cpp">
       <Filter>Source Files\Syntax</Filter>
     </ClCompile>
     <ClCompile Include="Source\NativeTypes\DynArray.cpp">
@@ -235,9 +226,6 @@
     </ClCompile>
     <ClCompile Include="Source\NativeTypes\String.cpp">
       <Filter>Source Files\NativeTypes</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\Variable.cpp">
-      <Filter>Source Files\Syntax</Filter>
     </ClCompile>
     <ClCompile Include="Source\Syntax\Void.cpp">
       <Filter>Source Files\Syntax</Filter>
@@ -263,37 +251,13 @@
     <ClCompile Include="Source\Semantic\SClass.cpp">
       <Filter>Source Files\Semantic</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Semantic\SExpression.cpp">
-      <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SFor.cpp">
-      <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SIf.cpp">
-      <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SLocalVar.cpp">
-      <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Semantic\SMethod.cpp">
       <Filter>Source Files\Semantic</Filter>
     </ClCompile>
     <ClCompile Include="Source\Semantic\SParameter.cpp">
       <Filter>Source Files\Semantic</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Semantic\SReturn.cpp">
-      <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SStatement.cpp">
-      <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SStatements.cpp">
-      <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Semantic\SType.cpp">
-      <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SWhile.cpp">
       <Filter>Source Files\Semantic</Filter>
     </ClCompile>
     <ClCompile Include="Source\Syntax\OverloadedMethod.cpp">
@@ -306,6 +270,60 @@
       <Filter>Source Files\Semantic</Filter>
     </ClCompile>
     <ClCompile Include="Source\Semantic\TemplateRealizations.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\SFor.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\SIf.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\SLocalVar.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\SExpression.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\SWhile.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\Expression.cpp">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\For.cpp">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\If.cpp">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\LocalVar.cpp">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\While.cpp">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\Statement.cpp">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\Statements.cpp">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\Return.cpp">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\SReturn.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\SStatement.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\SStatements.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\Variable.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\FormalParam.cpp">
       <Filter>Source Files\Semantic</Filter>
     </ClCompile>
   </ItemGroup>

@@ -23,6 +23,7 @@ namespace TClassMember
 class TMethod:public TTokenPos,public TAccessible
 {
 	friend class TOverloadedMethod;
+	friend class TSMethod;
 private:
 	TType ret;
 	bool ret_ref;
@@ -30,7 +31,7 @@ private:
 	bool is_static;
 	bool is_extern;
 
-	std::vector<std::unique_ptr<TParameter>> param;
+	std::vector<std::unique_ptr<TParameter>> parameters;
 
 	std::unique_ptr<TStatements> statements;
 	bool has_return;
@@ -50,7 +51,6 @@ public:
 
 	void ParametersDecl(TLexer& source);
 	void AnalyzeSyntax(TLexer& source,bool realization=true);//realization - используется при получении идентификатора метода (т.к. только прототип без тела метода)
-	TVariable* GetVar(TNameId name);
 
 	void SetHasReturn(bool use_has_return);
 	TNameId GetName();
@@ -58,7 +58,6 @@ public:
 	TOperator::Enum GetOperatorType();
 	TClassMember::Enum GetMemberType()const;
 	int GetParamsSize();
-	int GetRetSize();
 	TParameter* GetParam(int use_id);
 	int GetParamsCount();
 	bool IsReturnRef()const;
@@ -68,5 +67,9 @@ public:
 	void AddParam(TParameter* use_param);
 	bool HasParams(std::vector<std::unique_ptr<TParameter>> &use_params)const;
 	void CheckForErrors();
+	TType* GetRetType()
+	{
+		return &ret;
+	}
 };
 

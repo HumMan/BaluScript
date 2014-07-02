@@ -14,8 +14,8 @@ class TSParameter :public TSyntaxNode<TParameter>
 	TSClass* owner;
 	TSMethod* method;
 public:
-	TSParameter(TSClass* use_owner, TSMethod* use_method, TParameter* use_syntax_node, TType* use_type_syntax_node) : TSyntaxNode(use_syntax_node),
-		  type(use_owner, use_type_syntax_node), owner(use_owner), method(use_method)
-	{
-	}
+	TSParameter(TSClass* use_owner, TSMethod* use_method, TParameter* use_syntax_node, TType* use_type_syntax_node);
+	void Link();
+	TSClass* GetClass();
+	bool IsEqualTo(const TSParameter& right)const;
 };

@@ -1,8 +1,21 @@
-﻿#include "../Syntax/Parameter.h"
+﻿#include "SParameter.h"
 
-#include "../Syntax/Method.h"
-#include "../Syntax/Statements.h"
+TSParameter::TSParameter(TSClass* use_owner, TSMethod* use_method, TParameter* use_syntax_node, TType* use_type_syntax_node) : TSyntaxNode(use_syntax_node),
+type(use_owner, use_type_syntax_node), owner(use_owner), method(use_method)
+{
+}
 
-int TParameter::GetSize(){
-	return is_ref?1:type.GetClass()->GetSize();
+void TSParameter::Link()
+{
+	type.Link();
+}
+
+TSClass* TSParameter::GetClass()
+{
+	return type.GetClass();
+}
+
+bool TSParameter::IsEqualTo(const TSParameter& right)const
+{
+	return type.IsEqualTo(right.type) && GetSyntax()->IsRef() == right.GetSyntax()->IsRef();
 }

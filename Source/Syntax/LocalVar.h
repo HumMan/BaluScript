@@ -1,13 +1,13 @@
 ﻿#pragma once
 
 #include "Statement.h"
-#include "Variable.h"
 #include "Type.h"
 
 class TExpression;
 
-class TLocalVar:public TStatement,public TVariable
+class TLocalVar:public TStatement
 {
+	friend class TSLocalVar;
 	TType type;
 	TNameId name;
 	std::shared_ptr<TExpression> assign_expr;

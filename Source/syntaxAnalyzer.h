@@ -9,8 +9,7 @@ class TClassField;
 class TMethod;
 class TFormalParam;
 
-void ValidateAccess(TTokenPos* field_pos,TClass* source,TClassField* target);
-void ValidateAccess(TTokenPos* field_pos,TClass* source,TMethod* target);
+
 
 class TSyntaxAnalyzer
 {

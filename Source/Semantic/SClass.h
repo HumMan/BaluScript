@@ -19,11 +19,11 @@ class TSClass:public TSyntaxNode<TClass>
 
 	std::list<TSClassField> fields;
 	std::list<TSOverloadedMethod> methods;
-	TSOverloadedMethod constructors;
+	std::shared_ptr<TSOverloadedMethod> constructors;
 	///<summary>ѕользовательский деструктор (автоматический деструктор, если существует, будет добавлен как PostEvent)</summary>
 	std::shared_ptr<TSMethod> destructor;
-	TSOverloadedMethod operators[TOperator::End];
-	TSOverloadedMethod conversions;
+	std::shared_ptr<TSOverloadedMethod> operators[TOperator::End];
+	std::shared_ptr<TSOverloadedMethod> conversions;
 
 	std::vector<std::shared_ptr<TSClass>> nested_classes;
 
@@ -39,6 +39,7 @@ class TSClass:public TSyntaxNode<TClass>
 	///<summary> ласс в пределах которого объ€влен данный класс</summary>
 	TSClass* owner;
 
+	bool linked;
 public:
 	TSClass(TSClass* use_owner, TTemplateRealizations* use_templates,TClass* use_syntax_node);
 	TSClass* GetClass(TNameId use_name);
@@ -51,9 +52,16 @@ public:
 	{
 		return template_params;
 	}
+	bool HasConversion(TSClass* target_type);
+	bool IsNestedIn(TSClass* use_parent);
 	bool GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name);
 	bool GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name, bool is_static);
+	bool GetConstructors(std::vector<TSMethod*> &result);
+	TSMethod* GetDestructor();
+	TSMethod* GetConversion(bool source_ref, TSClass* target_type);
 	TSClass* GetNested(TNameId name);
 	TTemplateRealizations* GetTemplates();
+	///<summary>ѕостоение семанитческого дерева по синтаксическому(дл€ всех кроме тел методов)</summary>
+	void Build();
 	void Link();
 };

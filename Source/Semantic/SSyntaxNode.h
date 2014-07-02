@@ -16,7 +16,7 @@ public:
 	//{
 	//	syntax_node = use_node;
 	//}
-	T* GetSyntax()
+	T* GetSyntax()const
 	{
 		return syntax_node;
 	}

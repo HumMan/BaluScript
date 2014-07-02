@@ -36,7 +36,7 @@ private:
 	TClassName class_name;
 	void AnalyzeSyntax(TClassName* use_class_name,TLexer& source);
 public:
-	const TClassName& GetClassName()
+	TClassName& GetClassName()
 	{
 		return class_name;
 	}

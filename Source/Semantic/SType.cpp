@@ -9,9 +9,22 @@ TSType::TSType(TSClass* use_owner, TType* use_syntax_node) :TSyntaxNode(use_synt
 
 void TSType::Link(TSClass* use_curr_class)
 {
+	classes.emplace_back(&GetSyntax()->GetClassName());
+	classes.back().Link(classes, owner, NULL);
 }
 
-TSClass* TSType_TClassName::Build(std::list<TSType_TClassName>& classes, TSClass* use_owner, TSClass* use_curr_class)
+void TSType::Link()
+{
+	Link(NULL);
+}
+
+bool TSType::IsEqualTo(const TSType& use_right)const
+{
+	assert(GetClass() != NULL&&use_right.GetClass() != NULL);
+	return GetClass() == use_right.GetClass();
+}
+
+TSClass* TSType_TClassName::Link(std::list<TSType_TClassName>& classes, TSClass* use_owner, TSClass* use_curr_class)
 {
 	if(use_curr_class==NULL)
 	{
@@ -38,7 +51,7 @@ TSClass* TSType_TClassName::Build(std::list<TSType_TClassName>& classes, TSClass
 		{
 			template_params_classes.emplace_back();
 			//template_params_classes.back().emplace_back(&t);
-			template_params_classes.back().back().Build(template_params_classes.back(), use_owner, NULL);
+			template_params_classes.back().back().Link(template_params_classes.back(), use_owner, NULL);
 		}
 		
 		TTemplateRealizations* templates = use_owner->GetTemplates();
@@ -71,5 +84,5 @@ TSClass* TSType_TClassName::Build(std::list<TSType_TClassName>& classes, TSClass
 	if(!GetSyntax()->member)
 		return use_curr_class;
 	else 
-		return class_name->Build(classes, use_owner, use_curr_class);
+		return class_name->Link(classes, use_owner, use_curr_class);
 }

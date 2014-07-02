@@ -82,20 +82,6 @@ TClass* TClass::GetNested(TNameId name) {
 	return NULL;
 }
 
-TClass* TClass::GetClass(TNameId use_name) 
-{
-	if (name == use_name)
-		return this;
-	for (const std::unique_ptr<TClass>& nested_class : nested_classes)
-	{
-		if (nested_class->name == use_name)
-			return nested_class.get();
-	}
-	if (owner != NULL)
-		return owner->GetClass(use_name);
-	return NULL;
-}
-
 void TClass::AccessDecl(TLexer& source, bool& readonly,
 		TTypeOfAccess::Enum access) {
 	if (source.Type() == TTokenType::ResWord) {

@@ -5,15 +5,21 @@
 #include <vector>
 #include <memory>
 
+#include "SSyntaxNode.h"
+
 class TSParameter;
 class TSMethod;
 class TSClass;
+class TOverloadedMethod;
 
-class TSOverloadedMethod
+class TSOverloadedMethod :TSyntaxNode<TOverloadedMethod>
 {
-public:
+	friend class TSClass;
+	bool linked_signature,linked_body;
 	std::vector<std::shared_ptr<TSMethod>> methods;
-	TSOverloadedMethod(){}
+	TSClass* owner;
+public:
+	TSOverloadedMethod(TSClass* use_owner, TOverloadedMethod* use_syntax);
 	TNameId GetName()const;
 	TSMethod* FindParams(std::vector<std::shared_ptr<TSParameter>>& params);
 	TSMethod* FindConversion(std::vector<std::shared_ptr<TSParameter>>& params, TSClass* ret_class);
@@ -21,4 +27,7 @@ public:
 	TSMethod* FindParams(TSMethod* use_method);
 	void GetMethods(std::vector<TSMethod*> &result);
 	void CheckForErrors(bool is_conversion = false);
+	void LinkSignature();
+	void LinkBody();
+	void Build();
 };	

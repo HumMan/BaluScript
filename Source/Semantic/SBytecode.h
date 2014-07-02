@@ -1,5 +1,7 @@
 #include "../Syntax/Bytecode.h"
 
+class TFormalParam;
+
 class TBytecodeSemantic :public TBytecode
 {
 

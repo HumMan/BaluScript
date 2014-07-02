@@ -3,13 +3,13 @@
 #include "Statements.h"
 
 void TMethod::ParametersDecl(TLexer& source) {
-	//—читываем все параметры метода и возвращаемое значение
+	//Считываем все параметры метода и возвращаемое значение
 	if (source.TestAndGet(TTokenType::Operator, TOperator::ParamsCall)) {
 	} else if (source.Test(TTokenType::LParenth)) {
 		source.GetToken(TTokenType::LParenth);
 		while (source.Test(TTokenType::Identifier)) {
 			TParameter* t = new TParameter(owner, this);
-			param.push_back(std::unique_ptr<TParameter>(t));
+			parameters.push_back(std::unique_ptr<TParameter>(t));
 			t->AnalyzeSyntax(source);
 			if (source.Test(TTokenType::Comma))
 				source.GetToken();
@@ -18,10 +18,14 @@ void TMethod::ParametersDecl(TLexer& source) {
 		}
 		source.GetToken(TTokenType::RParenth);
 	}
-	if (source.TestAndGet(TTokenType::Colon)) {
-		ret_ref = source.TestAndGet(TTokenType::Ampersand);//TODO проверка ссылки после типа а то не пон¤тно почему ошибка
+	if (source.TestAndGet(TTokenType::Colon))
+	{
+		ret_ref = source.TestAndGet(TTokenType::Ampersand);//TODO проверка ссылки после типа а то не понятно почему ошибка
 		ret.AnalyzeSyntax(source);
+		has_return = true;
 	}
+	else
+		has_return = false;
 }
 
 void TMethod::AnalyzeSyntax(TLexer& source, bool realization) {
@@ -30,7 +34,7 @@ void TMethod::AnalyzeSyntax(TLexer& source, bool realization) {
 	member_type = (TClassMember::Enum) source.Token();
 	if (!IsIn(member_type, TClassMember::Func, TClassMember::Conversion))
 		source.Error(
-				"ќжидалось объ¤вление метода,конструктора,деструктора,оператора или приведени¤ типа!");
+				"Ожидалось объявление метода,конструктора,деструктора,оператора или приведения типа!");
 	source.GetToken();
 	is_extern = source.TestAndGet(TTokenType::ResWord, TResWord::Extern);
 	is_static = source.TestAndGet(TTokenType::ResWord, TResWord::Static);
@@ -43,12 +47,12 @@ void TMethod::AnalyzeSyntax(TLexer& source, bool realization) {
 		break;
 	default:
 		source.Error(
-				"ќжидалось объ¤вление метода,конструктора,деструктора,оператора или приведени¤ типа!");
+				"Ожидалось объявление метода,конструктора,деструктора,оператора или приведения типа!");
 	}
 	//
 	if (!realization) {
 		if (source.NameId() != owner->GetName())
-			Error("ќжидалось им¤ базового класса!");
+			Error("Ожидалось имя базового класса!");
 		source.GetToken();
 		while (source.Test(TTokenType::Dot)) {
 			source.GetToken(TTokenType::Dot);
@@ -105,7 +109,7 @@ void TMethod::AnalyzeSyntax(TLexer& source, bool realization) {
 	}
 	if (is_extern && realization) {
 		if (!source.Test(TTokenType::Semicolon))
-			source.Error("ƒл¤ внешнего метода тело должно отсутствовать!");
+			source.Error("Для внешнего метода тело должно отсутствовать!");
 		source.GetToken(TTokenType::Semicolon);
 	} else if (realization) {
 		one_instruction = !source.Test(TTokenType::LBrace);
@@ -143,10 +147,10 @@ TClassMember::Enum TMethod::GetMemberType()const{
 }
 TParameter* TMethod::GetParam(int use_id)
 {
-	return param[use_id].get();
+	return parameters[use_id].get();
 }
 int TMethod::GetParamsCount(){
-	return param.size();
+	return parameters.size();
 }
 bool TMethod::IsReturnRef()const
 {
@@ -168,84 +172,85 @@ bool TMethod::IsBytecode()
 }
 void TMethod::AddParam(TParameter* use_param)
 {
-	param.push_back(std::unique_ptr<TParameter>(use_param));
+	parameters.push_back(std::unique_ptr<TParameter>(use_param));
 }
 
 void TMethod::CheckForErrors()
 {
-	if (owner->GetOwner() == NULL&&!is_static)
-		Error("Базовый класс может содержать только статические методы!");
-	for (int i = 0; i<param.size(); i++)
-	{
-		if (!param[i]->GetName().IsNull())
-			for (int k = 0; k<i; k++)
-			{
-			if (param[i]->GetName() == param[k]->GetName())
-				param[i]->Error("Параметр с таким именем уже существует!");
-			}
-	}
-	switch (member_type)
-	{
-	case TResWord::Func:
-		assert(!method_name.IsNull());
-		break;
-	case TResWord::Constr:
-		if (is_static)Error("Конструктор должен быть не статичным!");
-		break;
-	case TResWord::Destr:
-		if (is_static)Error("Деструктор должен быть не статичным!");
-		break;
-	case TResWord::Operator:
-		if (!is_static)Error("Оператор должен быть статичным!");
-		break;
-	case TResWord::Conversion:
-		if (!is_static)Error("Оператор приведения типа должен быть статичным!");
-		break;
-	default:assert(false);
-	}
-	{
-		//проверяем правильность указания параметров и возвращаемого значения
-		switch (member_type)
-		{
-		case TClassMember::Func:
-			break;
-		case TClassMember::Constr:
-			if (has_return)
-				Error("Конструктор не должен возвращать значение!");
-			break;
-		case TClassMember::Destr:
-			if (has_return)
-				Error("Деструктор не должен возвращать значение!");
-			if (param.size()>0)
-				Error("Деструктор не имеет параметров!");
-			break;
-		case TClassMember::Operator:
-			if (operator_type == TOperator::Not)//унарные операторы
-			{
-				if (GetParamsCount() != 1)
-					Error("Унарный оператор должен иметь один параметр!");
-			}
-			else if (operator_type == TOperator::UnaryMinus)
-			{
-				if (!IsIn(GetParamsCount(), 1, 2))
-					Error("У унарного оператора ""-"" должнен быть 1 параметр!");
-			}
-			else if (operator_type == TOperator::ParamsCall || operator_type == TOperator::GetArrayElement)
-			{
-				if (GetParamsCount()<2)
-					Error("Оператор вызова параметров должен иметь минимум 2 операнда!");
-			}
-			else //остальные бинарные операторы
-			{
-				if (GetParamsCount() != 2)
-					Error("У бинарного оператора должно быть 2 параметра!");
-			}
-			break;
-		case TClassMember::Conversion:
-			if (GetParamsCount() != 1)
-				Error("Оператор приведения типа должен иметь один параметр!");
-			break;
-		default:assert(false);
-		}
-	}
+	//TODO - всё уже есть в TSMethod
+	//if (owner->GetOwner() == NULL&&!is_static)
+	//	Error("Базовый класс может содержать только статические методы!");
+	//for (int i = 0; i<parameters.size(); i++)
+	//{
+	//	if (!parameters[i]->GetName().IsNull())
+	//		for (int k = 0; k<i; k++)
+	//		{
+	//		if (parameters[i]->GetName() == parameters[k]->GetName())
+	//			parameters[i]->Error("Параметр с таким именем уже существует!");
+	//		}
+	//}
+	//switch (member_type)
+	//{
+	//case TResWord::Func:
+	//	assert(!method_name.IsNull());
+	//	break;
+	//case TResWord::Constr:
+	//	if (is_static)Error("Конструктор должен быть не статичным!");
+	//	break;
+	//case TResWord::Destr:
+	//	if (is_static)Error("Деструктор должен быть не статичным!");
+	//	break;
+	//case TResWord::Operator:
+	//	if (!is_static)Error("Оператор должен быть статичным!");
+	//	break;
+	//case TResWord::Conversion:
+	//	if (!is_static)Error("Оператор приведения типа должен быть статичным!");
+	//	break;
+	//default:assert(false);
+	//}
+	//{
+	//	//проверяем правильность указания параметров и возвращаемого значения
+	//	switch (member_type)
+	//	{
+	//	case TClassMember::Func:
+	//		break;
+	//	case TClassMember::Constr:
+	//		if (has_return)
+	//			Error("Конструктор не должен возвращать значение!");
+	//		break;
+	//	case TClassMember::Destr:
+	//		if (has_return)
+	//			Error("Деструктор не должен возвращать значение!");
+	//		if (parameters.size()>0)
+	//			Error("Деструктор не имеет параметров!");
+	//		break;
+	//	case TClassMember::Operator:
+	//		if (operator_type == TOperator::Not)//унарные операторы
+	//		{
+	//			if (GetParamsCount() != 1)
+	//				Error("Унарный оператор должен иметь один параметр!");
+	//		}
+	//		else if (operator_type == TOperator::UnaryMinus)
+	//		{
+	//			if (!IsIn(GetParamsCount(), 1, 2))
+	//				Error("У унарного оператора ""-"" должнен быть 1 параметр!");
+	//		}
+	//		else if (operator_type == TOperator::ParamsCall || operator_type == TOperator::GetArrayElement)
+	//		{
+	//			if (GetParamsCount()<2)
+	//				Error("Оператор вызова параметров должен иметь минимум 2 операнда!");
+	//		}
+	//		else //остальные бинарные операторы
+	//		{
+	//			if (GetParamsCount() != 2)
+	//				Error("У бинарного оператора должно быть 2 параметра!");
+	//		}
+	//		break;
+	//	case TClassMember::Conversion:
+	//		if (GetParamsCount() != 1)
+	//			Error("Оператор приведения типа должен иметь один параметр!");
+	//		break;
+	//	default:assert(false);
+	//	}
+	//}
 }

@@ -1,85 +1,60 @@
-﻿#include "../Syntax/Statements.h"
+﻿#include "SStatements.h"
 
-#include <assert.h>
+#include "../Syntax/Statements.h"
+#include "SLocalVar.h"
+#include "SMethod.h"
 
-#include "../Syntax/Void.h"
-#include "../Syntax/Class.h"
-#include "../Syntax/Method.h"
-#include "../Syntax/LocalVar.h"
-
-TStatements::TStatements(const TStatements& use_source):TStatement(use_source)
+TSStatements::TSStatements(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TStatements* use_syntax)
+	:TSStatement(TStatementType::Statements,use_owner,use_method,use_parent,use_syntax)
 {
-	curr_local_var_offset=use_source.curr_local_var_offset;
-	last_locals_offset=use_source.last_locals_offset;
-	statement.resize(use_source.statement.size());
-	for(int i=0;i<statement.size();i++)
-		statement[i]=std::shared_ptr<TStatement>(use_source.statement[i]->GetCopy());
-	var_declarations.resize(use_source.var_declarations.size());
-	for(int i=0;i<var_declarations.size();i++)
+
+}
+
+void TSStatements::Link()
+{
+	for (const std::shared_ptr<TStatement>& st : ((TStatements*)GetSyntax())->statements)
 	{
-		var_declarations[i].stmt_id=use_source.var_declarations[i].stmt_id;
-		var_declarations[i].pointer=(TLocalVar*)statement[var_declarations[i].stmt_id].get();
-		assert(statement[var_declarations[i].stmt_id]->GetType()==TStatementType::VarDecl);
+		statements.push_back(std::shared_ptr<TSStatements>(new TSStatements(owner, method, this, (TStatements*)st.get())));
+			//st.Link(GetSyntax().)
 	}
 }
 
-TFormalParam TStatements::Build(TNotOptimizedProgram &program,int& local_var_offset)
+TSStatement* TSStatements::CreateNode(TStatement* use_syntax_node)
 {
-	TOpArray ops_array;
-	curr_local_var_offset=local_var_offset;
-	last_locals_offset=local_var_offset;
-	for(int i=0;i<statement.size();i++)
+	switch (use_syntax_node->GetType())
 	{
-		TFormalParam t=statement[i]->Build(program,curr_local_var_offset);
-		ops_array+=t.GetOps();
-		if(!t.IsVoid())
-			statement[i]->Error("Выражение не должно возвращать значение!");
+	case TStatementType::VarDecl:
+	{
+		TSLocalVar* t = new TSLocalVar(owner, method, this, (TLocalVar*)use_syntax_node);
+		var_declarations.push_back(TVarDecl(statements.size() - 1, t));
+		return t;
+	}break;
+	case TStatementType::For:
+		break;
+	case TStatementType::If:
+		break;
+	case TStatementType::While:
+		break;
+	case TStatementType::Return:
+		break;
+	case TStatementType::Expression:
+		break;
+	case TStatementType::Bytecode:
+		break;
+	case TStatementType::Statements:
+		break;
+	default:
+		assert(false);
 	}
-	BuildCurrLocalsDestructor(ops_array,program,true);
-	return TVoid(ops_array);
 }
 
 
-TOpArray TStatements::BuildLocalsAndParamsDestructor(TNotOptimizedProgram &program,int &deallocate_size)
+TVariable* TSStatements::GetVar(TNameId name, int sender_id)
 {
-	TOpArray ops_array;
-	deallocate_size+=BuildCurrLocalsDestructor(ops_array,program,false);
-	if(parent!=NULL)ops_array+=parent->BuildLocalsAndParamsDestructor(program,deallocate_size);
-	else 
+	for (int i = 0; i < var_declarations.size(); i++)
 	{
-		//if(deallocate_size>0)
-		//	program.Push(TOp(TOpcode::POP_COUNT,deallocate_size),ops_array);
-		ops_array+=method->BuildParametersDestructor(program);
-	}
-	return ops_array;
-}
-
-int TStatements::BuildCurrLocalsDestructor(TOpArray& ops_array,TNotOptimizedProgram &program,bool deallocate_stack)
-{
-	for(int i=0;i<statement.size();i++)
-	{
-		if(statement[i]->GetType()==TStatementType::VarDecl)
-		{
-			TLocalVar* v=((TLocalVar*)(statement[i].get()));
-			if(v->IsStatic()||v->GetClass()->GetDestructor()==NULL)continue;
-			program.Push(TOp(TOpcode::PUSH_LOCAL_REF,v->GetOffset()),ops_array);
-			ops_array+=v->GetClass()->GetDestructor()->BuildCall(program).GetOps();
-		}
-	}
-	int dealloc_size=curr_local_var_offset-last_locals_offset;
-	if(deallocate_stack&&dealloc_size>0)
-		program.Push(TOp(TOpcode::POP_COUNT,dealloc_size),ops_array);
-	return dealloc_size;
-}
-
-
-
-TVariable* TStatements::GetVar(TNameId name,int sender_id)
-{
-	for(int i=0;i<var_declarations.size();i++)
-	{
-		if(var_declarations[i].stmt_id<=sender_id
-			&&var_declarations[i].pointer->GetName()==name)
+		if (var_declarations[i].stmt_id <= sender_id
+			&&var_declarations[i].pointer->GetName() == name)
 			return var_declarations[i].pointer;
 	}
 	//for(int i=0;i<=statement.GetHigh();i++)
@@ -90,7 +65,7 @@ TVariable* TStatements::GetVar(TNameId name,int sender_id)
 	//		return ((TLocalVar*)(statement[i]));
 	//	if(statement[i]==sender)break;
 	//}
-	if(parent!=NULL)return parent->GetVar(name,stmt_id);
-	else if(method!=NULL)return  method->GetVar(name);
+	if (parent != NULL)return parent->GetVar(name, GetSyntax()->stmt_id);
+	else if (method != NULL)return  method->GetVar(name);
 	else return NULL;
 }

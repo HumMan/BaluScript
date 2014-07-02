@@ -1,11 +1,7 @@
-﻿#include "../Syntax/Expression.h"
+﻿#include "SExpression.h"
 
-#include "../syntaxAnalyzer.h"
-#include "../Syntax/Class.h"
-#include "../Syntax/Method.h"
-#include "../Syntax/Statements.h"
 
-TFormalParam TExpression::TBinOp::Build(TNotOptimizedProgram &program,TExpression* parent)
+TFormalParam TSExpression::TBinOp::Build(TNotOptimizedProgram &program,TExpression* parent)
 {
 	std::vector<TFormalParam> param;
 	std::vector<TMethod*> bin_operators;

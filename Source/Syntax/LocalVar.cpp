@@ -44,14 +44,13 @@ void TLocalVar::AnalyzeSyntax(TLexer& source) {
 		}
 		if (source.Test(TTokenType::Comma)) {
 			curr_var = new TLocalVar(owner, method, statements, -1);
-			statements->AddVar(curr_var);
 		}
 	} while (source.TestAndGet(TTokenType::Comma));
 }
 
 TLocalVar::TLocalVar(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id) :
 TStatement(TStatementType::VarDecl, use_owner, use_method, use_parent, use_stmt_id),
-TVariable(TVariableType::LocalVar), type(use_owner), assign_expr(NULL), is_static(false)
+ type(use_owner), assign_expr(NULL), is_static(false)
 {
 }
 

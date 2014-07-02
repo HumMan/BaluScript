@@ -2,6 +2,7 @@
 
 #include "SParameter.h"
 #include "SClassField.h"
+#include "Variable.h"
 
 class TSClass;
 class TSStatements;
@@ -14,12 +15,14 @@ class TSMethod:public TSyntaxNode<TMethod>
 private:
 	TSType ret;
 	TSClass* owner;
-	std::vector<std::shared_ptr<TSParameter>> param;
+	std::vector<std::shared_ptr<TSParameter>> parameters;
 
 	std::shared_ptr<TSStatements> statements;
 
 	TSMethod* pre_event;
 	TSMethod* post_event;
+
+	bool linked_signature, linked_body;
 public:
 	///<summary>Используется для вызова автоматически созданного конструктора для пользовательского/внешнего метода</summary>
 	void SetPreEvent(TSMethod* use_event);
@@ -27,14 +30,20 @@ public:
 	
 	TSMethod* GetPreEvent();
 	TSMethod* GetPostEvent();
-	TSMethod(TSClass* use_owner);
+	TSMethod(TSClass* use_owner,TMethod* use_syntax);
 
 	TSClass* GetOwner()const;
 	TOperator::Enum GetOperatorType();
 	TSClass* GetRetClass();
 	TSParameter* GetParam(int use_id);
+	TVariable* GetVar(TNameId name);
 	int GetParamsCount();
 	bool HasParams(std::vector<std::shared_ptr<TSParameter>> &use_params)const;
 	void CheckForErrors();
+
+	void Build();
+
+	void LinkSignature();
+	void LinkBody();
 };
 

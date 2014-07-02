@@ -1,5 +1,7 @@
 ﻿#include "SClass.h"
 
+#include <assert.h>
+
 #include "SOverloadedMethod.h"
 #include "SType.h"
 
@@ -12,6 +14,49 @@ TSClass::TSClass(TSClass* use_owner, TTemplateRealizations* use_templates, TClas
 	auto_destr = NULL;
 
 	owner = use_owner;
+	linked = false;
+}
+
+TSClass* TSClass::GetOwner()
+{
+	return owner;
+}
+
+void TSClass::Build()
+{
+	for (TClassField& field_syntax : GetSyntax()->fields)
+	{
+		fields.emplace_back(this, &field_syntax);
+	}
+
+	for (TOverloadedMethod& method : GetSyntax()->methods)
+	{
+		methods.emplace_back(this, &method);
+		methods.back().Build();
+	}
+	constructors = std::shared_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, &GetSyntax()->constructors));
+	constructors->Build();
+
+	if (GetSyntax()->destructor)
+	{
+		destructor = std::shared_ptr<TSMethod>(new TSMethod(this, GetSyntax()->destructor.get()));
+		destructor->Build();
+	}
+
+	for (int i = 0; i < TOperator::End; i++)
+	{
+		operators[i] = std::shared_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, &GetSyntax()->operators[i]));
+		operators[i]->Build();
+	}
+
+	conversions = std::shared_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, &GetSyntax()->conversions));
+	conversions->Build();
+
+	for (const std::unique_ptr<TClass>& nested_class : GetSyntax()->nested_classes)
+	{
+		nested_classes.push_back(std::shared_ptr<TSClass>(new TSClass(this, templates, nested_class.get())));
+		nested_classes.back()->Build();
+	}
 }
 
 TTemplateRealizations* TSClass::GetTemplates(){
@@ -71,12 +116,12 @@ void TSClass::CheckForErrors()
 			}
 		}
 	}
-	constructors.CheckForErrors();
-	conversions.CheckForErrors(true);
-	for(int i=0;i<TOperator::End;i++)
-	{
-		operators[i].CheckForErrors();
-	}
+	//constructors.CheckForErrors();
+	//conversions.CheckForErrors(true);
+	//for(int i=0;i<TOperator::End;i++)
+	//{
+	//	operators[i].CheckForErrors();
+	//}
 	//for(int i=0;i<nested_classes.size();i++)
 	//	if(!nested_classes[i]->IsTemplate())
 	//		nested_classes[i]->DeclareMethods();
@@ -141,4 +186,90 @@ void TSClass::Link()
 	//слинковать методы
 
 	//слинковать тела методов - требуется наличие инф. обо всех методах, conversion, операторах класса
+
+	assert(!GetSyntax()->IsTemplate());
+	if (linked)
+		return;
+	linked = true;
+
+
+
+	for (TSOverloadedMethod& method : methods)
+	{
+		method.LinkSignature();
+	}
+	constructors->LinkSignature();
+	if (destructor)
+		destructor->LinkSignature();
+
+	for (int i = 0; i < TOperator::End; i++)
+		operators[i]->LinkSignature();
+	conversions->LinkSignature();
+
+	for (const std::shared_ptr<TSClass>& nested_class : nested_classes)
+		if (!nested_class->GetSyntax()->IsTemplate())
+			nested_class->Link();
+
+	for (TSOverloadedMethod& method : methods)
+	{
+		method.LinkBody();
+	}
+	constructors->LinkBody();
+	if (destructor)
+		destructor->LinkBody();
+
+	for (int i = 0; i < TOperator::End; i++)
+		operators[i]->LinkBody();
+	conversions->LinkBody();
+}
+
+
+bool TSClass::GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name) 
+{
+	assert(linked);
+	for (TSOverloadedMethod& ov_method : methods)
+	{
+		if (ov_method.GetName() == use_method_name)
+		{
+			for (const std::shared_ptr<TSMethod>& method : ov_method.methods)
+				result.push_back(method.get());
+		}
+	}
+	if (owner != NULL)
+		owner->GetMethods(result, use_method_name, true);
+	if (parent != NULL)
+		parent->GetMethods(result, use_method_name);
+	return result.size() > 0;
+}
+
+bool TSClass::GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name, bool is_static) 
+{
+	assert(linked);
+	for (TSOverloadedMethod& ov_method : methods)
+	{
+		if (ov_method.GetName() == use_method_name)
+		{
+			for (const std::shared_ptr<TSMethod>& method : ov_method.methods)
+				if (method->GetSyntax()->IsStatic() == is_static)
+					result.push_back(method.get());
+		}
+	}
+	if (is_static && owner != NULL)
+		owner->GetMethods(result, use_method_name, true);
+	if (parent != NULL)
+		parent->GetMethods(result, use_method_name, is_static);
+	return result.size() > 0;
+}
+
+TSMethod* TSClass::GetConversion(bool source_ref, TSClass* target_type) 
+{
+	assert(linked);
+	for (const std::shared_ptr<TSMethod>& conversion : conversions->methods)
+	{
+		if (conversion->GetRetClass() == target_type
+			&& conversion->GetParam(0)->GetSyntax()->IsRef() == source_ref) {
+			return conversion.get();
+		}
+	}
+	return NULL;
 }
