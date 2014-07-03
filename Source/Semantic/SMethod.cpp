@@ -165,3 +165,16 @@ void TSMethod::CheckForErrors()
 		}
 	}
 }
+
+TVariable* TSMethod::GetVar(TNameId name)
+{
+	for (int i = 0; i<parameters.size(); i++)
+		if (parameters[i]->GetSyntax()->GetName() == name)
+			return (TVariable*)parameters[i].get();
+	return (TVariable*)owner->GetField(name, false);
+}
+
+TSClass* TSMethod::GetOwner()const
+{
+	return owner;
+}

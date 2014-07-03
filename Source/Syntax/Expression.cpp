@@ -248,3 +248,48 @@ void TExpression::BuildPostfix() {
 		}
 	}
 }
+
+void TExpression::TBinOp::Accept(TExpressionTreeVisitor* visitor)
+{
+	visitor->Visit(this);
+}
+void TExpression::TUnaryOp::Accept(TExpressionTreeVisitor* visitor)
+{
+	visitor->Visit(this);
+}
+void TExpression::TCallParamsOp::Accept(TExpressionTreeVisitor* visitor)
+{
+	visitor->Visit(this);
+}
+void TExpression::TCharValue::Accept(TExpressionTreeVisitor* visitor)
+{
+	visitor->Visit(this);
+}
+void TExpression::TFloatValue::Accept(TExpressionTreeVisitor* visitor)
+{
+	visitor->Visit(this);
+}
+void TExpression::TGetMemberOp::Accept(TExpressionTreeVisitor* visitor)
+{
+	visitor->Visit(this);
+}
+void TExpression::TId::Accept(TExpressionTreeVisitor* visitor)
+{
+	visitor->Visit(this);
+}
+void TExpression::TIntValue::Accept(TExpressionTreeVisitor* visitor)
+{
+	visitor->Visit(this);
+}
+void TExpression::TStringValue::Accept(TExpressionTreeVisitor* visitor)
+{
+	visitor->Visit(this);
+}
+void TExpression::TThis::Accept(TExpressionTreeVisitor* visitor)
+{
+	visitor->Visit(this);
+}
+void TExpression::TBoolValue::Accept(TExpressionTreeVisitor* visitor)
+{
+	visitor->Visit(this);
+}

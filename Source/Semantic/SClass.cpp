@@ -180,11 +180,8 @@ TSClassField* TSClass::GetField(TNameId name, bool is_static, bool only_in_this)
 void TSClass::Link()
 {
 	//проверить поля класса - т.к. классы полей не могут содержать поля текущего класса, он учавствует лишь в параметрах методов и локальных переменных
-
 	//определить присутствие конструктора по умолчанию, деструктора, конструктора копии
-
 	//слинковать методы
-
 	//слинковать тела методов - требуется наличие инф. обо всех методах, conversion, операторах класса
 
 	assert(!GetSyntax()->IsTemplate());
@@ -272,4 +269,73 @@ TSMethod* TSClass::GetConversion(bool source_ref, TSClass* target_type)
 		}
 	}
 	return NULL;
+}
+
+
+bool TSClass::GetConstructors(std::vector<TSMethod*> &result) 
+{
+	//assert(methods_declared&&auto_methods_build);
+	for (const std::shared_ptr<TSMethod>& constructor : constructors->methods)
+	{
+		result.push_back(constructor.get());
+	}
+
+	if (!constr_override && auto_def_constr)
+		result.push_back(auto_def_constr.get());
+	return result.size() > 0;
+}
+
+TSMethod* TSClass::GetDefConstr()
+{
+	//assert(methods_declared&&auto_methods_build);
+	if (constr_override)
+	{
+		for (const std::shared_ptr<TSMethod>& constructor : constructors->methods)
+			if (constructor->GetParamsCount() == 0)
+				return constructor.get();
+	}
+	else
+		return auto_def_constr.get();
+	return NULL;
+}
+
+TSMethod* TSClass::GetCopyConstr()
+{
+	//assert(methods_declared);
+	for (const std::shared_ptr<TSMethod>& constructor : constructors->methods)
+	{
+		if (constructor->GetParamsCount() == 1
+			&& constructor->GetParam(0)->GetClass() == this
+			&& constructor->GetParam(0)->GetSyntax()->IsRef() == true) {
+			return constructor.get();
+		}
+	}
+	return NULL;
+}
+
+TSMethod* TSClass::GetDestructor()
+{
+	//assert(methods_declared&&auto_methods_build);
+	return (destructor) ? destructor.get() : auto_destr.get();
+}
+
+bool TSClass::HasConversion(TSClass* target_type)
+{
+	return GetConversion(true, target_type)
+		|| GetConversion(false, target_type);
+}
+
+bool TSClass::IsNestedIn(TSClass* use_parent)
+{
+	if (parent == NULL)
+		return false;
+	if (parent == use_parent)
+		return true;
+	return parent->IsNestedIn(use_parent);
+}
+bool TSClass::GetOperators(std::vector<TSMethod*> &result, TOperator::Enum op)
+{
+	//assert(methods_declared&&auto_methods_build);
+	operators[op]->GetMethods(result);
+	return result.size() > 0;
 }

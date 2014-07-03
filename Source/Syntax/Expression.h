@@ -1,14 +1,16 @@
 ﻿#pragma once
 #include "Statement.h"
-#include "Void.h"
 #include "Type.h"
 
 #include <list>
 
 class TVariable;
 
+class TExpressionTreeVisitor;
+
 class TExpression:public TStatement
 {
+	friend class TSExpression;
 	//TODO доделать обратную польскую нотацию
 	struct TPostfixOp
 	{
@@ -37,18 +39,21 @@ class TExpression:public TStatement
 	std::vector<TPostfixOp> out;
 	std::vector<int> methods;
 	void BuildPostfix();
-	//
+public:
 	class TOperation: public TTokenPos
 	{
 	public:
 		virtual ~TOperation(){}
+		virtual void Accept(TExpressionTreeVisitor* visitor) = 0;
 	};
 	class TBinOp:public TOperation
 	{
+		friend class TSemanticTreeBuilder;
 		TOperation *left,*right;
 		TOperator::Enum op;
 	public:
 		TBinOp(TOperation *use_left,TOperation *use_right,TOperator::Enum use_op):left(use_left),right(use_right),op(use_op){}
+		void Accept(TExpressionTreeVisitor* visitor);
 		~TBinOp()
 		{
 			delete left;
@@ -57,10 +62,12 @@ class TExpression:public TStatement
 	};
 	class TUnaryOp:public TOperation
 	{
+		friend class TSemanticTreeBuilder;
 		TOperation *left;
 		TOperator::Enum op;
 	public:
 		TUnaryOp(TOperation *use_left,TOperator::Enum use_op):left(use_left),op(use_op){}
+		void Accept(TExpressionTreeVisitor* visitor);
 		~TUnaryOp()
 		{
 			delete left;
@@ -68,45 +75,57 @@ class TExpression:public TStatement
 	};
 	class TIntValue:public TOperation
 	{
+		friend class TSemanticTreeBuilder;
 		int val;
 		TType type;
 	public:
 		TIntValue(int use_val, TNameId int_class_name, TClass* use_owner) :val(use_val), type(int_class_name, use_owner){}
+		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TFloatValue:public TOperation
 	{
+		friend class TSemanticTreeBuilder;
 		float val;
 		TType type;
 	public:
 		TFloatValue(float use_val, TNameId float_class_name, TClass* use_owner) :val(use_val), type(float_class_name, use_owner){}
+		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TBoolValue:public TOperation
 	{
+		friend class TSemanticTreeBuilder;
 		bool val;
 		TType type;
 	public:
 		TBoolValue(bool use_val, TNameId bool_class_name, TClass* use_owner) :val(use_val), type(bool_class_name, use_owner){}
+		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TStringValue:public TOperation
 	{
+		friend class TSemanticTreeBuilder;
 		TNameId val;
 		TType type;
 	public:
 		TStringValue(TNameId use_val,TNameId string_class_name,TClass* use_owner):val(use_val),type(string_class_name,use_owner){}
+		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TCharValue:public TOperation
 	{
+		friend class TSemanticTreeBuilder;
 		char val;
 		TType type;
 	public:
 		TCharValue(char use_val, TNameId char_class_name, TClass* use_owner) :val(use_val), type(char_class_name, use_owner){}
+		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TGetMemberOp:public TOperation
 	{
+		friend class TSemanticTreeBuilder;
 		TOperation *left;
 		TNameId name;
 	public:
 		TGetMemberOp(TOperation *use_left,TNameId use_member):left(use_left),name(use_member){}
+		void Accept(TExpressionTreeVisitor* visitor);
 		~TGetMemberOp()
 		{
 			delete left;
@@ -114,11 +133,13 @@ class TExpression:public TStatement
 	};
 	class TCallParamsOp:public TOperation
 	{
+		friend class TSemanticTreeBuilder;
 		TOperation *left;
 		std::vector<TOperation*> param;
 		bool is_bracket;
 	public:
 		TCallParamsOp(){}
+		void Accept(TExpressionTreeVisitor* visitor);
 		TCallParamsOp(TOperation *use_left,bool use_is_bracket):left(use_left),is_bracket(use_is_bracket)
 		{
 		}
@@ -136,11 +157,13 @@ class TExpression:public TStatement
 	public:
 		TNameId name;
 		TId(TNameId use_name) :name(use_name){}
+		void Accept(TExpressionTreeVisitor* visitor);
 	};
 
 	class TThis:public TOperation
 	{
 	public:
+		void Accept(TExpressionTreeVisitor* visitor);
 	};
 
 	TOperation* first_op;
@@ -164,4 +187,24 @@ public:
 		if(first_op!=NULL)
 			delete first_op;
 	}
+	void Accept(TExpressionTreeVisitor* visitor)
+	{
+		first_op->Accept(visitor);
+	}
+};
+
+class TExpressionTreeVisitor
+{
+public:
+	virtual void Visit(TExpression::TBinOp* op) = 0;
+	virtual void Visit(TExpression::TUnaryOp* op) = 0;
+	virtual void Visit(TExpression::TCallParamsOp* op) = 0;
+	virtual void Visit(TExpression::TCharValue* op) = 0;
+	virtual void Visit(TExpression::TFloatValue* op) = 0;
+	virtual void Visit(TExpression::TGetMemberOp* op) = 0;
+	virtual void Visit(TExpression::TId* op) = 0;
+	virtual void Visit(TExpression::TIntValue *op) = 0;
+	virtual void Visit(TExpression::TStringValue *op) = 0;
+	virtual void Visit(TExpression::TThis *op) = 0;
+	virtual void Visit(TExpression::TBoolValue *op) = 0;
 };

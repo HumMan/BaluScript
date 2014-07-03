@@ -100,3 +100,16 @@ TFormalParam TSLocalVar::Build()
 	}
 	return TVoid();
 }
+
+TSLocalVar::TSLocalVar(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TLocalVar* use_syntax) 
+	:TSStatement(TStatementType::VarDecl,use_owner,use_method,use_parent,use_syntax)
+	, TVariable(TVariableType::LocalVar)
+	, type(use_owner,use_syntax->GetVarType())
+{
+
+}
+
+TNameId TSLocalVar::GetName()
+{
+	return GetSyntax()->GetName();
+}

@@ -18,5 +18,8 @@ public:
 	void AnalyzeSyntax(TLexer& source);
 	TNameId GetName();
 	bool IsStatic();
-
+	TType* GetVarType()
+	{
+		return &type;
+	}
 };

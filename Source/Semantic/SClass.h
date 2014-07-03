@@ -54,9 +54,13 @@ public:
 	}
 	bool HasConversion(TSClass* target_type);
 	bool IsNestedIn(TSClass* use_parent);
+	bool GetOperators(std::vector<TSMethod*> &result, TOperator::Enum op);
+	TSMethod* GetBinOp(TOperator::Enum op, TSClass* left, bool left_ref, TSClass* right, bool right_ref);
 	bool GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name);
 	bool GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name, bool is_static);
 	bool GetConstructors(std::vector<TSMethod*> &result);
+	TSMethod* GetDefConstr();
+	TSMethod* GetCopyConstr();
 	TSMethod* GetDestructor();
 	TSMethod* GetConversion(bool source_ref, TSClass* target_type);
 	TSClass* GetNested(TNameId name);

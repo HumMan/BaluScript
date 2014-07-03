@@ -66,9 +66,6 @@
     <ClInclude Include="Source\Syntax\Type.h">
       <Filter>Source Files\Syntax</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\Void.h">
-      <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Op.h">
       <Filter>Source Files\VirtualMachine</Filter>
     </ClInclude>
@@ -226,9 +223,6 @@
     </ClCompile>
     <ClCompile Include="Source\NativeTypes\String.cpp">
       <Filter>Source Files\NativeTypes</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\Void.cpp">
-      <Filter>Source Files\Syntax</Filter>
     </ClCompile>
     <ClCompile Include="Source\VirtualMachine\ArrayClassMethod.cpp">
       <Filter>Source Files\VirtualMachine</Filter>
