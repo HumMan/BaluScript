@@ -125,7 +125,6 @@ TMethod::TMethod(TClass* use_owner, TClassMember::Enum use_member_type)
 	, one_instruction(false)
 	, operator_type(TOperator::End)
 	, member_type(use_member_type)
-	, is_bytecode(0)
 {
 }
 
@@ -164,11 +163,9 @@ bool TMethod::IsExternal(){
 }
 bool TMethod::IsBytecode()
 {
-	if (is_bytecode == 0)
 		return one_instruction
 		&&statements->GetHigh() == 0
 		&& statements->GetStatement(0)->GetType() == TStatementType::Bytecode;
-	else return is_bytecode;
 }
 void TMethod::AddParam(TParameter* use_param)
 {

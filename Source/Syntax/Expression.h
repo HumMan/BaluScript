@@ -191,6 +191,7 @@ public:
 	{
 		first_op->Accept(visitor);
 	}
+	void Accept(TStatementVisitor* visitor);
 };
 
 class TExpressionTreeVisitor

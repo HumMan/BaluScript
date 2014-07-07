@@ -162,12 +162,12 @@ public:
 		return false;
 	}
 	bool Add(int use_hash, TExtKey use_key, TData use_data, TKey* &key, TData* &data)
-		//use_hash - хеш дл¤ доступа к таблице
-		//use_key - ключевое поле дл¤ сравнений в ¤чейке таблицы
+		//use_hash - хеш для доступа к таблице
+		//use_key - ключевое поле для сравнений в ¤чейке таблицы
 		//use_data - данные которые будут добавлены если ключ отсутствует
-		//key - указатель на уже имеющеес¤ ключевое поле
-		//data - указатель на уже имеющиес¤ данные
-		//return: true - данные добавлены; false - данные уже имеютс¤
+		//key - указатель на уже имеющееся ключевое поле
+		//data - указатель на уже имеющиеся данные
+		//return: true - данные добавлены; false - данные уже имеются
 	{
 		assert(use_hash>=0&&use_hash<table_size);
 		TNode* curr=table[use_hash];
@@ -375,7 +375,7 @@ public:
 
 		if(token_id==-1)token_id=curr_token;
 
-		if(_snprintf_s(err_head,err_head_length,"ќшибка (строка %i символ %i): %s\n",tokens[token_id].line,tokens[token_id].col,err)<0)
+		if(_snprintf_s(err_head,err_head_length,"Ошибка (строка %i символ %i): %s\n",tokens[token_id].line,tokens[token_id].col,err)<0)
 			err_head[err_head_length]='\0';
 
 		throw std::string(err_head);
@@ -387,7 +387,7 @@ public:
 	TNameId NameId()
 	{
 		if(!(tokens[curr_token].type==TTokenType::Identifier))
-			Error("ќжидалс¤ идентификатор!");
+			Error("Ожидался идентификатор!");
 #ifdef _DEBUG
 		return TNameId(tokens[curr_token].identifier,ids[tokens[curr_token].identifier]);
 #else
@@ -397,7 +397,7 @@ public:
 	TNameId String()
 	{
 		if(!(tokens[curr_token].type==TTokenType::Value&&tokens[curr_token].token==TValue::String))
-			Error("ќжидалась строкова¤ константа!");
+			Error("Ожидалась строковая константа!");
 #ifdef _DEBUG
 		return TNameId(tokens[curr_token].identifier,ids[tokens[curr_token].identifier]);
 #else
@@ -407,26 +407,26 @@ public:
 	float Float()
 	{
 		if(!(tokens[curr_token].type==TTokenType::Value&&tokens[curr_token].token==TValue::Float))
-			Error("ќжидалось действительное число!");
+			Error("Ожидалось действительное число!");
 		return tokens[curr_token].float_attrib;
 	}
 	int Int()
 	{
 		if(!(tokens[curr_token].type==TTokenType::Value&&tokens[curr_token].token==TValue::Int))
-			Error("ќжидалось целое число!");
+			Error("Ожидалось целое число!");
 		return tokens[curr_token].int_attrib;
 	}
 	bool Bool()
 	{
 		//TODO возможно лишние проверки
 		if(!(tokens[curr_token].type==TTokenType::Value&&tokens[curr_token].token==TValue::Bool))
-			Error("ќжидалась булева константа!");
+			Error("Ожидалась булева константа!");
 		return tokens[curr_token].int_attrib!=0;
 	}
 	char Char()
 	{
 		if(!(tokens[curr_token].type==TTokenType::Value&&tokens[curr_token].token==TValue::Char))
-			Error("ќжидалась символьна¤ константа!");
+			Error("Ожидалась символьная константа!");
 		return tokens[curr_token].int_attrib;
 	}
 	int GetAttrib()//используетс¤ в байткоде чтобы не делать лишних приведений типа
@@ -435,7 +435,7 @@ public:
 		(tokens[curr_token].token==TValue::Bool||
 		tokens[curr_token].token==TValue::Int||
 		tokens[curr_token].token==TValue::Float)))
-			Error("ќжидалось цела¤, булева или действительна¤ константа!");
+			Error("Ожидалось целая, булева или действительная константа!");
 		return tokens[curr_token].int_attrib;
 	}
 	std::string GetNameFromId(TNameId use_id)
@@ -481,23 +481,23 @@ public:
 	void TestToken(int type,int token)
 	{
 		if(type!=tokens[curr_token].type&&token==tokens[curr_token].token)
-			Error("ќжидалс¤ другой токен!");
+			Error("Ожидался другой токен!");
 	}
 	void TestToken(int type)
 	{
-		if(type!=tokens[curr_token].type)Error("ќжидалс¤ другой токен!");
+		if(type!=tokens[curr_token].type)Error("Ожидался другой токен!");
 	}
 	void GetToken(int type,int token)
 	{
 		if(type==tokens[curr_token].type&&token==tokens[curr_token].token)
 			curr_token++;
-		else Error("ќжидалс¤ другой токен!");
+		else Error("Ожидался другой токен!");
 	}
 	void GetToken(int type)
 	{
 		if(type==tokens[curr_token].type)
 			curr_token++;
-		else Error("ќжидалс¤ другой токен!");
+		else Error("Ожидался другой токен!");
 	}
 	void GetToken()
 	{

@@ -1,11 +1,11 @@
-#include "../Syntax/Bytecode.h"
+#include "SStatement.h"
 
 class TFormalParam;
+class TBytecode;
 
-class TBytecodeSemantic :public TBytecode
+class TSBytecode :public TSStatement
 {
-
 public:
-	TBytecodeSemantic(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);
-	TFormalParam Build(TNotOptimizedProgram &program, int& local_var_offset);
+	TSBytecode(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TBytecode* use_syntax);
+	TFormalParam Build();
 };

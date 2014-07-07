@@ -22,4 +22,5 @@ public:
 	{
 		return &type;
 	}
+	void Accept(TStatementVisitor* visitor);
 };

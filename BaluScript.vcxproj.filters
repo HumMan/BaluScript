@@ -48,9 +48,6 @@
     <ClInclude Include="Source\notOptimizedProgram.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\Bytecode.h">
-      <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Syntax\Class.h">
       <Filter>Source Files\Syntax</Filter>
     </ClInclude>
@@ -92,9 +89,6 @@
     </ClInclude>
     <ClInclude Include="Source\Syntax\Accessible.h">
       <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SBytecode.h">
-      <Filter>Source Files\Semantic</Filter>
     </ClInclude>
     <ClInclude Include="Source\Semantic\SClass.h">
       <Filter>Source Files\Semantic</Filter>
@@ -180,6 +174,12 @@
     <ClInclude Include="Source\Semantic\FormalParam.h">
       <Filter>Source Files\Semantic</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Syntax\Bytecode.h">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\SBytecode.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\lexer.cpp">
@@ -196,9 +196,6 @@
     </ClCompile>
     <ClCompile Include="Source\virtualMachine.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\Bytecode.cpp">
-      <Filter>Source Files\Syntax</Filter>
     </ClCompile>
     <ClCompile Include="Source\Syntax\Class.cpp">
       <Filter>Source Files\Syntax</Filter>
@@ -238,9 +235,6 @@
     </ClCompile>
     <ClCompile Include="Source\Syntax\Accessible.cpp">
       <Filter>Source Files\Syntax</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SBytecode.cpp">
-      <Filter>Source Files\Semantic</Filter>
     </ClCompile>
     <ClCompile Include="Source\Semantic\SClass.cpp">
       <Filter>Source Files\Semantic</Filter>
@@ -319,6 +313,12 @@
     </ClCompile>
     <ClCompile Include="Source\Semantic\FormalParam.cpp">
       <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Syntax\Bytecode.cpp">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\SBytecode.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

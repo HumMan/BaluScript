@@ -41,10 +41,6 @@ private:
 	TNameId method_name;
 	TOperator::Enum operator_type;
 	TClassMember::Enum member_type;
-
-
-	int is_bytecode;//0 - not_used; 1 - true; 2 - false
-	//если 0 то определяется через statements
 public:
 
 	TMethod(TClass* use_owner, TClassMember::Enum use_member_type = TClassMember::Func);

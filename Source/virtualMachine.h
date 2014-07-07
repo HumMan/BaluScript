@@ -51,62 +51,6 @@ public:
 	{
 		*(++sp)=v;
 	}
-
-	struct TVec2
-	{
-		union
-		{
-			struct{
-				float x,y;
-			};
-			float v[2];
-		};
-		TVec2(float v):x(v),y(v){}
-		TVec2(float use_x,float use_y):x(use_x),y(use_y){}
-		void operator +=(TVec2 v){
-			x+=v.x;
-			y+=v.y;
-		}
-		void operator -=(TVec2 v){
-			x-=v.x;
-			y-=v.y;
-		}
-		void operator *=(TVec2 v){
-			x*=v.x;
-			y*=v.y;
-		}
-		void operator /=(TVec2 v){
-			x/=v.x;
-			y/=v.y;
-		}
-		TVec2 operator -()const{
-			return TVec2(-x,-y);
-		}
-		float Cross(TVec2 v)const{
-			return x*v.y-y*v.x;
-		}
-		float Distance(TVec2 v)const{
-			return TVec2(x-v.x,y-v.y).Length();
-		}
-		float Dot(TVec2 v)const{
-			return x*v.x+y*v.y;
-		}
-		float Length()const{
-			return sqrt(x*x+y*y);
-		}
-		void Normalize(){
-			(*this)/=sqrt(x*x+y*y);
-		}
-		void Reflect(TVec2 v){
-			float t=(x*v.x+y*v.y)*2.0f;
-			x-=v.x*t;
-			y-=v.y*t;
-		}
-		void Inverse(){
-			x=-x;
-			y=-y;
-		}
-	};
 public:
 	void ArrayElementsDefConstr(int* v, int el_size, int el_count, int el_def_constr, int first_el=0)
 	{
@@ -220,4 +164,6 @@ public:
 		*sp=(memcmp(d,s,op->v1*4)==0);
 	}
 	void Execute(int method_id,int* stack_top,int* this_pointer);
+	void Execute(TOp* op, int* stack_top, int* this_pointer);
+	void ExecuteIntOps(TOp* op);
 };

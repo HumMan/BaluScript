@@ -24,7 +24,7 @@ TFormalParam TSLocalVar::Build()
 			GetSyntax()->Error("Локальная переменная перекрывает член класса!");
 		case TVariableType::Parameter:
 			GetSyntax()->Error("Локальная переменная перекрывает параметр!");
-		case TVariableType::LocalVar:
+		case TVariableType::Local:
 			GetSyntax()->Error("Локальная переменная с таким именем уже существует!");
 		default:assert(false);
 		}
@@ -103,7 +103,7 @@ TFormalParam TSLocalVar::Build()
 
 TSLocalVar::TSLocalVar(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TLocalVar* use_syntax) 
 	:TSStatement(TStatementType::VarDecl,use_owner,use_method,use_parent,use_syntax)
-	, TVariable(TVariableType::LocalVar)
+	, TVariable(TVariableType::Local)
 	, type(use_owner,use_syntax->GetVarType())
 {
 

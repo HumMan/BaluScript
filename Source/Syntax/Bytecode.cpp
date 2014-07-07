@@ -36,8 +36,8 @@ void TBytecode::AnalyzeSyntax(TLexer& source) {
 				source.GetToken(TTokenType::LParenth);
 				source.TestToken(TTokenType::Identifier);
 				//if(params_count<2||params_count>4)
-				//	source.Error("ќшибка в выражении");
-				//TODO разгрести это+ сделать нормальные константные выражени¤+ ссылки на локальные переменные
+				//	source.Error("Ошибка в выражении");
+				//TODO разгрести это+ сделать нормальные константные выражения+ ссылки на локальные переменные
 				_op.f[params_count] = TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID;
 				_op.id[params_count] = source.NameId();
 				source.GetToken();
@@ -57,7 +57,7 @@ void TBytecode::AnalyzeSyntax(TLexer& source) {
 			char buf[256];
 			sprintf_s(
 					buf,
-					"Неправильное количество параметров: для %s надо %i параметра!",
+					"Неправильное количество параметров: для %s нужно %i параметра!",
 					GetBytecodeString((TOpcode::Enum) type), params_count_info);
 			source.Error(buf);
 		}

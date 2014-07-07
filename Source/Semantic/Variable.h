@@ -6,7 +6,8 @@ namespace TVariableType
 	{
 		ClassField,
 		Parameter,
-		LocalVar
+		Local,
+		This
 	};
 }
 

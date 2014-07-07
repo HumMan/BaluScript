@@ -20,5 +20,7 @@ public:
 	TSStatement(TStatementType::Enum use_stmt_type, TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TStatement* use_syntax) :
 		method(use_method), parent(use_parent), owner(use_owner),
 		TSyntaxNode(use_syntax){}
+	
 	virtual ~TSStatement(){}
 };
+

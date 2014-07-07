@@ -3,9 +3,9 @@
 #include "Return.h"
 #include "If.h"
 #include "For.h"
-#include "../Semantic/SBytecode.h"
 #include "LocalVar.h"
 #include "ClassField.h"
+#include "Bytecode.h"
 
 bool ClassName(TLexer& source) {
 	if (!source.TestAndGet(TTokenType::Identifier))
@@ -115,7 +115,7 @@ void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
 			return;
 		}
 		}
-		source.Error("Эжидалс§ return,if,for,bytecode или this!");
+		source.Error("Ожидался return,if,for,bytecode или this!");
 	}
 	default:
 		if (IsVarDecl(source)) {

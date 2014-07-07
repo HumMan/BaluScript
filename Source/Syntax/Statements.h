@@ -20,4 +20,5 @@ public:
 	TStatements(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);
 	void AnalyzeStatement(TLexer& source,bool end_semicolon);
 	void AnalyzeSyntax(TLexer& source);
+	void Accept(TStatementVisitor* visitor);
 };

@@ -27,8 +27,8 @@ public:
 	void Add(TSStatement* use_statement);
 	void AddVar(TSLocalVar* use_var);
 	TSStatement* GetStatement(int i);
-	TSStatement* CreateNode(TStatement* use_syntax_node);
+	//TSStatement* CreateNode(TStatement* use_syntax_node);
 	TVariable* GetVar(TNameId name, int sender_id);
 	TSStatements(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TStatements* use_syntax);
-	void Link();
+	void Build();
 };

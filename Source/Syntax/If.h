@@ -12,4 +12,5 @@ class TIf:public TStatement
 public:
 	TIf(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);
 	void AnalyzeSyntax(TLexer& source);
+	void Accept(TStatementVisitor* visitor);
 };

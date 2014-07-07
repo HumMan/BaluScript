@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include "../VirtualMachine/OpArray.h"
 #include <vector>
 
 class TSClass;

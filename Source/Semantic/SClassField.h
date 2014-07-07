@@ -1,10 +1,11 @@
 ﻿#pragma once
 
 #include "SType.h"
+#include "Variable.h"
 
 class TClassField;
 
-class TSClassField :public TSyntaxNode<TClassField>
+class TSClassField :public TSyntaxNode<TClassField>, public TVariable
 {
 	TSClass* owner;
 	TSType type;

@@ -56,7 +56,7 @@ void TSMethod::LinkBody()
 	if (linked_body)
 		return;
 	linked_body = true;
-	statements->Link();
+	statements->Build();
 }
 
 void TSMethod::Build()

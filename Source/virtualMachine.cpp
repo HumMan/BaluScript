@@ -107,152 +107,162 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 		return;
 	}
 	op=&program->instructions[m->first_op];
-	while(true)
+	while (true)
 	{
-		assert(sp-sp_first<=stack_size);
+		assert(sp - sp_first <= stack_size);
 		//TODO контроль размера стека 
-		switch(op->type)
+		Execute(op,this_pointer,stack_top);
+	}	
+}
+
+void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer)
+{
+	using namespace TOpcode;
+		switch (op->type)
 		{
 		case METHOD_HAS_NOT_RETURN_A_VALUE:
 			assert(false);
 			break;
 
 			//////////////////////////////////////////////////
-			// ветвлени¤
+			// ветвления
 		case LABEL:
 			assert(false);//должны удалиться при оптимизации
 			break;
 		case GOTRUE:
-			if(*(sp--)){
-				op=&program->instructions[op->v1];
-				continue;
+			if (*(sp--)){
+				op = &program->instructions[op->v1];
+				return;
 			}
 			break;
 		case GOFALSE:
-			if(!*(bool*)(sp--)){
-				op=&program->instructions[op->v1];
-				continue;
+			if (!*(bool*)(sp--)){
+				op = &program->instructions[op->v1];
+				return;
 			}
 			break;
 		case GOTO:
-			op=&program->instructions[op->v1];
-			continue;
+			op = &program->instructions[op->v1];
+			return;
 
 			//////////////////////////////////////////////////
 			// помещение в стек значений, ссылок и т.д.
 		case PUSH:
-			*(++sp)=op->v1;break;
+			*(++sp) = op->v1; break;
 		case PUSH_GLOBAL_REF:
-			*(++sp)=(int)&Get(op->v1);break;
+			*(++sp) = (int)&Get(op->v1); break;
 		case GLOBAL_TESTANDSET:
-			if(!Get(op->v2))
+			if (!Get(op->v2))
 			{
-				Get(op->v2)=1;
+				Get(op->v2) = 1;
 				//*(++sp)=(int)&Get(op->v2);
 			}
 			else
 			{
-				op=&program->instructions[op->v1];
-				continue;
+				op = &program->instructions[op->v1];
+				return;
 			}
 			break;
 		case PUSH_LOCAL_REF:
-			*(++sp)=(int)&stack_top[op->v1];break;
+			*(++sp) = (int)&stack_top[op->v1]; break;
 		case PUSH_LOCAL_REF_COPY:
-			*(++sp)=stack_top[op->v1];break;
+			*(++sp) = stack_top[op->v1]; break;
 		case PUSH_MEMBER_REF:
-			*(++sp)=(int)&this_pointer[op->v1];break;
+			*(++sp) = (int)&this_pointer[op->v1]; break;
 		case PUSH_COUNT:
-			sp+=op->v1;break;
+			sp += op->v1; break;
 		case POP_COUNT:
-			sp-=op->v1;break;
+			sp -= op->v1; break;
 		case PUSH_THIS:
-			*(++sp)=(int)this_pointer;break;
+			*(++sp) = (int)this_pointer; break;
 		case PUSH_STRING_CONST:
-			sp+=2;
-			((TString*)(sp-1))->CopyFromConst(program->string_consts[op->v1]);
+			sp += 2;
+			((TString*)(sp - 1))->CopyFromConst(program->string_consts[op->v1]);
 			break;
-		case RVALUE:			
-			s=(int*)*sp;
-			d=sp;
-			sp+=op->v1-1;
-			if(op->v2!=-1){
-				*(void**)(++sp)=NULL;
-				*(void**)(++sp)=s;
-				Execute(op->v2,sp,d);
-			}else 
-				memcpy(d,s,op->v1*4);
+		case RVALUE:
+			s = (int*)*sp;
+			d = sp;
+			sp += op->v1 - 1;
+			if (op->v2 != -1){
+				*(void**)(++sp) = NULL;
+				*(void**)(++sp) = s;
+				Execute(op->v2, sp, d);
+			}
+			else
+				memcpy(d, s, op->v1 * 4);
 			break;
 		case GET_MEMBER:
-			{
-				int struct_size=sp[-2];
-				int member_offset=sp[-1];
-				int member_size=sp[0];
-				int copy_constr=op->v1;
-				int destr=op->v2;
-				//copy_constr
-				s=sp-struct_size-2+member_offset;
-				d=sp+1;
-				sp+=member_size;
-				if(copy_constr!=-1){
-					*(void**)(++sp)=NULL;
-					*(void**)(++sp)=s;
-					Execute(copy_constr,sp,d);
-				}else 
-					memcpy(d,s,member_size*4);
-				//destr
-				if(destr!=-1)
-				{
-					s=sp-struct_size-2;
-					*(void**)(++sp)=NULL;
-					Execute(destr,sp+1,s);
-				}
-				//
-				s=sp-member_size+1;
-				d=sp-struct_size-member_size-2;
-				sp=d+member_size-1;
-				memcpy(d,s,member_size*4);
+		{
+			int struct_size = sp[-2];
+			int member_offset = sp[-1];
+			int member_size = sp[0];
+			int copy_constr = op->v1;
+			int destr = op->v2;
+			//copy_constr
+			s = sp - struct_size - 2 + member_offset;
+			d = sp + 1;
+			sp += member_size;
+			if (copy_constr != -1){
+				*(void**)(++sp) = NULL;
+				*(void**)(++sp) = s;
+				Execute(copy_constr, sp, d);
 			}
+			else
+				memcpy(d, s, member_size * 4);
+			//destr
+			if (destr != -1)
+			{
+				s = sp - struct_size - 2;
+				*(void**)(++sp) = NULL;
+				Execute(destr, sp + 1, s);
+			}
+			//
+			s = sp - member_size + 1;
+			d = sp - struct_size - member_size - 2;
+			sp = d + member_size - 1;
+			memcpy(d, s, member_size * 4);
+		}
 			break;
 		case ASSIGN:
-			if(op->f1){
-				s=(int*)(sp[0]);
-				d=(int*)(sp[-1]);
-			}else{
-				s=&sp[1-op->v1];
-				d=(int*)(sp[-op->v1]);
+			if (op->f1){
+				s = (int*)(sp[0]);
+				d = (int*)(sp[-1]);
 			}
-			memcpy(d,s,op->v1*4);
-			if(op->f1)
-				sp-=2;
+			else{
+				s = &sp[1 - op->v1];
+				d = (int*)(sp[-op->v1]);
+			}
+			memcpy(d, s, op->v1 * 4);
+			if (op->f1)
+				sp -= 2;
 			else
-				sp-=op->v1+1;
+				sp -= op->v1 + 1;
 			break;
 		case EQUAL:
 			Compare(op);
 			break;
 		case NOT_EQUAL:
 			Compare(op);
-			sp[0]=(!sp[0]);
+			sp[0] = (!sp[0]);
 			break;
 		case ADD_OFFSET:
-			*sp+=(unsigned int)op->v1*4;break;
+			*sp += (unsigned int)op->v1 * 4; break;
 		case PUSH_STACK_HIGH_REF:
-			*(++sp)=(int)&sp[-op->v1];
+			*(++sp) = (int)&sp[-op->v1];
 			break;
 		case CALL_METHOD:
-			{
-				TProgram::TMethod* m_call=&program->methods_table[op->v1];
-				Execute(op->v1,(sp+1-m_call->params_size),m_call->is_static?NULL:(int*)sp[-m_call->params_size]);
-			}
+		{
+			TProgram::TMethod* m_call = &program->methods_table[op->v1];
+			Execute(op->v1, (sp + 1 - m_call->params_size), m_call->is_static ? NULL : (int*)sp[-m_call->params_size]);
+		}
 			break;
 		case RETURN:
-			if(op->v1)memcpy(&sp[1-op->v1-op->v2],&sp[1-op->v2],op->v2*4);
-			sp-=op->v1;
-			if(m->post_event!=-1)
+			if (op->v1)memcpy(&sp[1 - op->v1 - op->v2], &sp[1 - op->v2], op->v2 * 4);
+			sp -= op->v1;
+			if (m->post_event != -1)
 			{
-				*(++sp)=(int)this_pointer;
-				Execute(m->post_event,NULL,this_pointer);
+				*(++sp) = (int)this_pointer;
+				Execute(m->post_event, NULL, this_pointer);
 			}
 			//TODO для надежности следует заполнять неиспользуемую память 0xfeefee
 			return;
@@ -261,80 +271,80 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 			//static array
 
 		case R_STATIC_ARR_DEF_CONSTR:
-			((TStaticArr*)this_pointer)->DefConstr(this,op->v1);
+			((TStaticArr*)this_pointer)->DefConstr(this, op->v1);
 			break;
 		case RR_STATIC_ARR_COPY_CONSTR:
-			((TStaticArr*)this_pointer)->RCopyConstr(this,sp);
+			((TStaticArr*)this_pointer)->RCopyConstr(this, sp);
 			break;
 		case R_STATIC_ARR_DESTR:
 			((TStaticArr*)this_pointer)->Destr(this);
 			break;
 		case RV_STATIC_ARR_GET_ELEMENT:
-			{
-				temp=*(sp--);
-				TStaticArr* s_arr=(TStaticArr*)*sp;
-				if(temp>s_arr->methods->el_count-1||temp<-1)throw "Ошибка доступа к элементу массива!";
-				*sp=(int)&s_arr->data[temp*s_arr->methods->el_size];
-				break;
-			}
+		{
+			temp = *(sp--);
+			TStaticArr* s_arr = (TStaticArr*)*sp;
+			if (temp>s_arr->methods->el_count - 1 || temp<-1)throw "Ошибка доступа к элементу массива!";
+			*sp = (int)&s_arr->data[temp*s_arr->methods->el_size];
+			break;
+		}
 		case STATIC_ARR_ASSIGN:
-			s=sp-(unsigned int)(op->f1?0:(op->v1-1));
-			d=s-1;
-			((TStaticArr*)*d)->AssignOp(this,(TStaticArr*)(op->f1?(int*)*s:s));
-			if(!op->f1)((TStaticArr*)s)->Destr(this);
+			s = sp - (unsigned int)(op->f1 ? 0 : (op->v1 - 1));
+			d = s - 1;
+			((TStaticArr*)*d)->AssignOp(this, (TStaticArr*)(op->f1 ? (int*)*s : s));
+			if (!op->f1)((TStaticArr*)s)->Destr(this);
 			break;
 		case STATIC_ARR_EQUAL:
-			s=sp-(unsigned int)(op->f2?0:(op->v1-1));
-			d=s-(unsigned int)(op->f1?1:op->v1);
-			temp=((TStaticArr*)(op->f1?(int*)*d:d))->EqualOp(this,(TStaticArr*)(op->f2?(int*)*s:s));
-			*(++sp)=temp;
-			if(!op->f1)((TStaticArr*)d)->Destr(this);
-			if(!op->f2)((TStaticArr*)s)->Destr(this);
+			s = sp - (unsigned int)(op->f2 ? 0 : (op->v1 - 1));
+			d = s - (unsigned int)(op->f1 ? 1 : op->v1);
+			temp = ((TStaticArr*)(op->f1 ? (int*)*d : d))->EqualOp(this, (TStaticArr*)(op->f2 ? (int*)*s : s));
+			*(++sp) = temp;
+			if (!op->f1)((TStaticArr*)d)->Destr(this);
+			if (!op->f2)((TStaticArr*)s)->Destr(this);
 			break;
 
 			//////////////////////////////////////////////////
 			//dynamic array
 
 		case R_DYN_ARR_DEF_CONSTR:
-			((TDynArr*)this_pointer)->DefConstr(this,op->v1);
+			((TDynArr*)this_pointer)->DefConstr(this, op->v1);
 			break;
 		case RR_DYN_ARR_COPY_CONSTR:
-			((TDynArr*)this_pointer)->CopyConstr(this,(TDynArr*)*sp);
+			((TDynArr*)this_pointer)->CopyConstr(this, (TDynArr*)*sp);
 			break;
 		case R_DYN_ARR_DESTR:
 			((TDynArr*)this_pointer)->Destr(this);
 			break;
 		case RV_DYN_ARR_GET_ELEMENT:
-			{
-				temp=*(sp--);
-				TDynArr* d_arr=(TDynArr*)*sp;
-				if(temp>d_arr->v.GetHigh()||temp<-1)throw "Ошибка доступа к элементу массива!";//TODO вывод инфы где и что
-				*sp=(int)&d_arr->v[temp*d_arr->el_size];
-				break;
-			}
+		{
+			temp = *(sp--);
+			TDynArr* d_arr = (TDynArr*)*sp;
+			if (temp>d_arr->v.GetHigh() || temp<-1)throw "Ошибка доступа к элементу массива!";//TODO вывод инфы где и что
+			*sp = (int)&d_arr->v[temp*d_arr->el_size];
+			break;
+		}
 		case DYN_ARR_ASSIGN:
-			s=sp-(unsigned int)(op->f1?0:(_INTSIZEOF(TDynArr)/4-1));
-			d=s-1;
-			((TDynArr*)*d)->AssignOp(this,(TDynArr*)(op->f1?(int*)*s:s));
-			if(!op->f1)((TDynArr*)s)->Destr(this);
+			s = sp - (unsigned int)(op->f1 ? 0 : (_INTSIZEOF(TDynArr) / 4 - 1));
+			d = s - 1;
+			((TDynArr*)*d)->AssignOp(this, (TDynArr*)(op->f1 ? (int*)*s : s));
+			if (!op->f1)((TDynArr*)s)->Destr(this);
 			break;
 
 		case DYN_ARR_EQUAL:
-			s=sp-(unsigned int)(op->f2?0:(_INTSIZEOF(TDynArr)/4-1));
-			d=s-(unsigned int)(op->f1?1:(_INTSIZEOF(TDynArr)/4));
-			temp=((TDynArr*)(op->f1?(int*)*d:d))->EqualOp(this,(TDynArr*)(op->f2?(int*)*s:s));
-			*(++sp)=temp;
-			if(!op->f1)((TDynArr*)d)->Destr(this);
-			if(!op->f2)((TDynArr*)s)->Destr(this);
+			s = sp - (unsigned int)(op->f2 ? 0 : (_INTSIZEOF(TDynArr) / 4 - 1));
+			d = s - (unsigned int)(op->f1 ? 1 : (_INTSIZEOF(TDynArr) / 4));
+			temp = ((TDynArr*)(op->f1 ? (int*)*d : d))->EqualOp(this, (TDynArr*)(op->f2 ? (int*)*s : s));
+			*(++sp) = temp;
+			if (!op->f1)((TDynArr*)d)->Destr(this);
+			if (!op->f2)((TDynArr*)s)->Destr(this);
 			break;
 
 		case RV_DYN_ARR_SET_HIGH:
-			((TDynArr*)(sp[-1]))->SetHigh(this,sp[0]);
-			sp-=2;
+			((TDynArr*)(sp[-1]))->SetHigh(this, sp[0]);
+			sp -= 2;
 			break;
 
 		case R_DYN_ARR_GET_HIGH:
-			*(sp)=(*(TDynArr**)sp)->v.GetHigh();
+			*(sp) = (*(TDynArr**)sp)->v.GetHigh();
 			break;
 
 			//////////////////////////////////////////////////
@@ -350,24 +360,24 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 			((TString*)this_pointer)->Destr();
 			break;
 		case STRING_ASSIGN:
-			s=sp-(unsigned int)(op->f2?0:(_INTSIZEOF(TString)/4-1));
-			d=s-1;
-			((TString*)(op->f1?(int*)*d:d))->AssignOp((TString*)(op->f2?(int*)*s:s));
-			sp=d-1;
-			if(!op->f2)((TString*)s)->Destr();
+			s = sp - (unsigned int)(op->f2 ? 0 : (_INTSIZEOF(TString) / 4 - 1));
+			d = s - 1;
+			((TString*)(op->f1 ? (int*)*d : d))->AssignOp((TString*)(op->f2 ? (int*)*s : s));
+			sp = d - 1;
+			if (!op->f2)((TString*)s)->Destr();
 			break;
 			//case VV_STRING_PLUS:
 			//	break;
 			//case RV_STRING_PLUS_ASSIGN:
 			//	break;
 		case STRING_EQUAL:
-			s=sp-(unsigned int)(op->f2?0:(_INTSIZEOF(TString)/4-1));//TODO заменить все sizeof()/4 на _INT_SIZE
-			d=s-(unsigned int)(op->f1?1:(_INTSIZEOF(TString)/4));
-			temp=((TString*)(op->f1?(int*)*d:d))->EqualOp((TString*)(op->f2?(int*)*s:s));
-			sp=d;
-			*sp=temp;
-			if(!op->f1)((TString*)d)->Destr();
-			if(!op->f2)((TString*)s)->Destr();
+			s = sp - (unsigned int)(op->f2 ? 0 : (_INTSIZEOF(TString) / 4 - 1));//TODO заменить все sizeof()/4 на _INT_SIZE
+			d = s - (unsigned int)(op->f1 ? 1 : (_INTSIZEOF(TString) / 4));
+			temp = ((TString*)(op->f1 ? (int*)*d : d))->EqualOp((TString*)(op->f2 ? (int*)*s : s));
+			sp = d;
+			*sp = temp;
+			if (!op->f1)((TString*)d)->Destr();
+			if (!op->f2)((TString*)s)->Destr();
 			break;
 		case R_STRING_PRINT:
 			//CharToOem(((TString*)sp[0])->chars,buf);
@@ -378,284 +388,292 @@ void TVirtualMachine::Execute(int method_id,int* stack_top,int* this_pointer)
 		case V_STRING_PRINT:
 			//CharToOem(((TString*)(sp-1))->chars,buf);
 			printf(buf);
-			printf(((TString*)(sp-1))->chars);
-			((TString*)(sp-1))->Destr();
-			sp-=2;
+			printf(((TString*)(sp - 1))->chars);
+			((TString*)(sp - 1))->Destr();
+			sp -= 2;
 			break;
 
-			//////////////////////////////////////////////////
-			//int
-		case INT_PLUS:
-			sp[-1]+=sp[0];
-			sp--;break;
-		case INT_MINUS:
-			sp[-1]-=sp[0];
-			sp--;break;
-		case INT_DIV:
-			sp[-1]/=sp[0];
-			sp--;break;
-		case INT_MUL:
-			sp[-1]*=sp[0];
-			sp--;break;
-		case INT_MOD:
-			sp[-1]%=sp[0];
-			sp--;break;
-
-		case INT_UNARY_MINUS:
-			*sp=-*sp;break;
-		case R_INT_UNARY_MINUS:
-			*sp=-*((int*)*sp);break;
-		case INT_TO_VEC2:
-			sp++;
-			*((TVec2*)(sp-1))=TVec2(float(sp[-1]));
-			break;
-		case INT_PLUS_A:
-			*((int*)sp[-1])+=*sp;
-			sp-=2;break;
-		case INT_MINUS_A:
-			*((int*)sp[-1])-=*sp;
-			sp-=2;break;
-		case INT_MUL_A:
-			*((int*)sp[-1])*=*sp;
-			sp-=2;break;
-		case INT_DIV_A:
-			*((int*)sp[-1])/=*sp;
-			sp-=2;break;
-		case INT_MOD_A:
-			*((int*)sp[-1])%=*sp;
-			sp-=2;break;
-
-		case INT_LESS:
-			sp[-1]=(sp[-1]<*sp);
-			sp--;break;
-		case INT_LESS_EQ:
-			sp[-1]=(sp[-1]<=*sp);
-			sp--;break;
-		case INT_GREATER:
-			sp[-1]=(sp[-1]>*sp);
-			sp--;break;
-		case INT_GREATER_EQ:
-			sp[-1]=(sp[-1]>=*sp);
-			sp--;break;
-
-		case INT_TO_FLOAT:
-			*(float*)sp=float(*sp);break;
-		case R_INT_TO_FLOAT:
-			*(float*)sp=float(*(int*)(*sp));break;
-		case INT_TO_BOOL:
-			*sp=(*sp!=0);break;
-		case R_INT_TO_BOOL:
-			*sp=(*(int*)*sp!=0);break;
-
-		case INT_ABS:
-			*sp=abs(*sp);break;
-		case INT_MAXIMUM:
-			sp[-1]=(sp[-1]<sp[0])?sp[0]:sp[-1];
-			sp--;break;
-		case INT_MINIMUM:
-			sp[-1]=(sp[-1]>sp[0])?sp[0]:sp[-1];
-			sp--;break;
-		case INT_SIGN:
-			*sp=*sp>=0?1:-1;break;
-
+			
 			//////////////////////////////////////////////////
 
 			//////////////////////////////////////////////////
 			//float
 		case FLOAT_PRINT:
-			printf("print: %f\n",*(float*)sp);
-			sp--;break;
+			printf("print: %f\n", *(float*)sp);
+			sp--; break;
 		case FLOAT_PLUS:
-			*(float*)(sp-1)+=*(float*)sp;
-			sp--;break;
+			*(float*)(sp - 1) += *(float*)sp;
+			sp--; break;
 		case FLOAT_MINUS:
-			*(float*)(sp-1)-=*(float*)sp;
-			sp--;break;
+			*(float*)(sp - 1) -= *(float*)sp;
+			sp--; break;
 		case FLOAT_DIV:
-			*(float*)(sp-1)/=*(float*)sp;
-			sp--;break;
+			*(float*)(sp - 1) /= *(float*)sp;
+			sp--; break;
 		case FLOAT_MULT:
-			*(float*)(sp-1)*=*(float*)sp;
-			sp--;break;
+			*(float*)(sp - 1) *= *(float*)sp;
+			sp--; break;
 
 		case FLOAT_UNARY_MINUS:
-			*((float*)sp)=-*((float*)sp);break;
+			*((float*)sp) = -*((float*)sp); break;
 		case R_FLOAT_UNARY_MINUS:
-			*((float*)sp)=-*((float*)*sp);break;
+			*((float*)sp) = -*((float*)*sp); break;
 
 		case FLOAT_PLUS_A:
-			*((float*)sp[-1])+=*((float*)sp);
-			sp-=2;break;
+			*((float*)sp[-1]) += *((float*)sp);
+			sp -= 2; break;
 		case FLOAT_MINUS_A:
-			*((float*)sp[-1])-=*((float*)sp);
-			sp-=2;break;
+			*((float*)sp[-1]) -= *((float*)sp);
+			sp -= 2; break;
 		case FLOAT_MUL_A:
-			*((float*)sp[-1])*=*((float*)sp);
-			sp-=2;break;
+			*((float*)sp[-1]) *= *((float*)sp);
+			sp -= 2; break;
 		case FLOAT_DIV_A:
-			*((float*)sp[-1])/=*((float*)sp);
-			sp-=2;break;
+			*((float*)sp[-1]) /= *((float*)sp);
+			sp -= 2; break;
 
 
 		case FLOAT_LESS:
-			sp[-1]=(*(float*)(sp-1)<*(float*)sp);
-			sp--;break;
+			sp[-1] = (*(float*)(sp - 1)<*(float*)sp);
+			sp--; break;
 		case FLOAT_LESS_EQ:
-			sp[-1]=(*(float*)(sp-1)<=*(float*)sp);
-			sp--;break;
+			sp[-1] = (*(float*)(sp - 1) <= *(float*)sp);
+			sp--; break;
 		case FLOAT_GREATER:
-			sp[-1]=(*(float*)(sp-1)>*(float*)sp);
-			sp--;break;
+			sp[-1] = (*(float*)(sp - 1)>*(float*)sp);
+			sp--; break;
 		case FLOAT_GREATER_EQ:
-			sp[-1]=(*(float*)(sp-1)>=*(float*)sp);
-			sp--;break;
+			sp[-1] = (*(float*)(sp - 1) >= *(float*)sp);
+			sp--; break;
 
 
 		case FLOAT_TO_BOOL:
-			*sp=(*(float*)sp!=0.0f);break;
+			*sp = (*(float*)sp != 0.0f); break;
 		case R_FLOAT_TO_BOOL:
-			*sp=(*(float*)*sp!=0.0f);break;
+			*sp = (*(float*)*sp != 0.0f); break;
 		case FLOAT_TO_INT:
-			*sp=int(*(float*)sp);break;
+			*sp = int(*(float*)sp); break;
 		case FLOAT_TO_VEC2:
 			sp++;
-			*(float*)sp=*(float*)(sp-1);break;
+			*(float*)sp = *(float*)(sp - 1); break;
 
 		case FLOAT_ABS:
-			*(float*)sp=fabs(*(float*)sp);break;
+			*(float*)sp = fabs(*(float*)sp); break;
 		case FLOAT_ASIN:
-			*(float*)sp=asin(*(float*)sp);break;
+			*(float*)sp = asin(*(float*)sp); break;
 		case FLOAT_ACOS:
-			*(float*)sp=acos(*(float*)sp);break;
+			*(float*)sp = acos(*(float*)sp); break;
 		case FLOAT_ATAN:
-			*(float*)sp=atan(*(float*)sp);break;
+			*(float*)sp = atan(*(float*)sp); break;
 		case FLOAT_CEIL:
-			*(float*)sp=ceil(*(float*)sp);break;
+			*(float*)sp = ceil(*(float*)sp); break;
 		case FLOAT_CLAMP:
-			*(float*)(sp-2)=Clamp(*(float*)(sp-2),*(float*)(sp-1),*(float*)(sp));
-			sp-=2;break;
+			*(float*)(sp - 2) = Clamp(*(float*)(sp - 2), *(float*)(sp - 1), *(float*)(sp));
+			sp -= 2; break;
 		case FLOAT_COS:
-			*(float*)sp=cos(*(float*)sp);break;
+			*(float*)sp = cos(*(float*)sp); break;
 		case FLOAT_DEG_TO_RAD:
-			*(float*)sp=(*(float*)sp)*(float(M_PI)/180.0f);break;
+			*(float*)sp = (*(float*)sp)*(float(M_PI) / 180.0f); break;
 		case FLOAT_EXP:
-			*(float*)sp=exp(*(float*)sp);break;
+			*(float*)sp = exp(*(float*)sp); break;
 		case FLOAT_FLOOR:
-			*(float*)sp=floor(*(float*)sp);break;
+			*(float*)sp = floor(*(float*)sp); break;
 		case FLOAT_FRAC:
-			*(float*)sp-=floor(*(float*)sp);break;
+			*(float*)sp -= floor(*(float*)sp); break;
 		case FLOAT_LOG:
-			*(float*)sp=log(*(float*)sp);break;
+			*(float*)sp = log(*(float*)sp); break;
 		case FLOAT_LOG2:
-			*(float*)sp=log(*(float*)sp)/log(2.0f);break;
+			*(float*)sp = log(*(float*)sp) / log(2.0f); break;
 		case FLOAT_LOG10:
-			*(float*)sp=log10(*(float*)sp);break;
+			*(float*)sp = log10(*(float*)sp); break;
 		case FLOAT_MAX:
-			((float*)sp)[-1]=((float*)sp)[-1]<((float*)sp)[0]?((float*)sp)[0]:((float*)sp)[-1];
-			sp--;break;
+			((float*)sp)[-1] = ((float*)sp)[-1]<((float*)sp)[0] ? ((float*)sp)[0] : ((float*)sp)[-1];
+			sp--; break;
 		case FLOAT_MIN:
-			((float*)sp)[-1]=((float*)sp)[-1]>((float*)sp)[0]?((float*)sp)[0]:((float*)sp)[-1];
-			sp--;break;
+			((float*)sp)[-1] = ((float*)sp)[-1]>((float*)sp)[0] ? ((float*)sp)[0] : ((float*)sp)[-1];
+			sp--; break;
 		case FLOAT_POW:
-			((float*)sp)[-1]=pow(((float*)sp)[-1],((float*)sp)[0]);
-			sp--;break;
+			((float*)sp)[-1] = pow(((float*)sp)[-1], ((float*)sp)[0]);
+			sp--; break;
 		case FLOAT_RAD_TO_DEG:
-			*(float*)sp=(*(float*)sp)*(180.0f/float(M_PI));break;
+			*(float*)sp = (*(float*)sp)*(180.0f / float(M_PI)); break;
 		case FLOAT_RAND:
-			*(float*)(++sp)=Randf();break;
+			*(float*)(++sp) = Randf(); break;
 		case FLOAT_SIGN:
-			*(float*)sp=(*(float*)sp)>=0.0f?1.0f:-1.0f;break;
+			*(float*)sp = (*(float*)sp) >= 0.0f ? 1.0f : -1.0f; break;
 		case FLOAT_SIN:
-			*(float*)sp=sin(*(float*)sp);break;
+			*(float*)sp = sin(*(float*)sp); break;
 		case FLOAT_SQRT:
-			*(float*)sp=sqrt(*(float*)sp);break;
+			*(float*)sp = sqrt(*(float*)sp); break;
 		case FLOAT_SQR:
-			*(float*)sp*=*(float*)sp;break;
+			*(float*)sp *= *(float*)sp; break;
 		case FLOAT_TAN:
-			*(float*)sp=tan(*(float*)sp);break;
+			*(float*)sp = tan(*(float*)sp); break;
 		case FLOAT_TRUNC:
-			*(float*)sp=float(int(*(float*)sp));break;
+			*(float*)sp = float(int(*(float*)sp)); break;
 			//////////////////////////////////////////////////
 
 			//////////////////////////////////////////////////
 			//bool
 		case BOOL_AND:
-			sp[-1]=sp[-1]&&sp[0];
-			sp--;break;
+			sp[-1] = sp[-1] && sp[0];
+			sp--; break;
 		case BOOL_OR:
-			sp[-1]=sp[-1]||sp[0];
-			sp--;break;
+			sp[-1] = sp[-1] || sp[0];
+			sp--; break;
 		case BOOL_NOT:
-			sp[0]=!sp[0];break;
+			sp[0] = !sp[0]; break;
 
 			//////////////////////////////////////////////////
 			//vec2
 		case VEC2_PLUS_A:
-			**(TVec2**)(sp-2)+=*(TVec2*)(sp-1);
-			sp-=3;break;
+			**(TVec2**)(sp - 2) += *(TVec2*)(sp - 1);
+			sp -= 3; break;
 		case VEC2_MINUS_A:
-			**(TVec2**)(sp-2)-=*(TVec2*)(sp-1);
-			sp-=3;break;
+			**(TVec2**)(sp - 2) -= *(TVec2*)(sp - 1);
+			sp -= 3; break;
 		case VEC2_MUL_A:
-			**(TVec2**)(sp-2)*=*(TVec2*)(sp-1);
-			sp-=3;break;
+			**(TVec2**)(sp - 2) *= *(TVec2*)(sp - 1);
+			sp -= 3; break;
 		case VEC2_DIV_A:
-			**(TVec2**)(sp-2)/=*(TVec2*)(sp-1);
-			sp-=3;break;
+			**(TVec2**)(sp - 2) /= *(TVec2*)(sp - 1);
+			sp -= 3; break;
 
 		case VEC2_PLUS:
-			*(TVec2*)(sp-3)+=*(TVec2*)(sp-1);
-			sp-=2;break;
+			*(TVec2*)(sp - 3) += *(TVec2*)(sp - 1);
+			sp -= 2; break;
 		case VEC2_MINUS:
-			*(TVec2*)(sp-3)-=*(TVec2*)(sp-1);
-			sp-=2;break;
+			*(TVec2*)(sp - 3) -= *(TVec2*)(sp - 1);
+			sp -= 2; break;
 		case VEC2_MULT:
-			*(TVec2*)(sp-3)*=*(TVec2*)(sp-1);
-			sp-=2;break;
+			*(TVec2*)(sp - 3) *= *(TVec2*)(sp - 1);
+			sp -= 2; break;
 		case VEC2_DIV:
-			*(TVec2*)(sp-3)/=*(TVec2*)(sp-1);
-			sp-=2;break;
+			*(TVec2*)(sp - 3) /= *(TVec2*)(sp - 1);
+			sp -= 2; break;
 
 		case VEC2_UNARY_MINUS:
-			((TVec2*)(sp-1))->Inverse();
+			((TVec2*)(sp - 1))->Inverse();
 			break;
 		case R_VEC2_UNARY_MINUS:
 			sp++;
-			*(TVec2*)(sp-1)=-*((TVec2*)sp[-1]);
+			*(TVec2*)(sp - 1) = -*((TVec2*)sp[-1]);
 			break;
 
 		case RV_VEC2_GET_ELEMENT:
-			if(*sp!=0&&*sp!=1)throw "Ошибка доступа к элементу вектора!";
-			*(sp-1)=(int)((int*)(sp[-1])+*sp);
-			sp--;break;
+			if (*sp != 0 && *sp != 1)throw "Ошибка доступа к элементу вектора!";
+			*(sp - 1) = (int)((int*)(sp[-1]) + *sp);
+			sp--; break;
 
 		case VV_VEC2_GET_ELEMENT:
-			if(*sp!=0&&*sp!=1)throw "Ошибка доступа к элементу вектора!";
-			*(sp-2)=sp[*sp-2];
-			sp-=2;break;
+			if (*sp != 0 && *sp != 1)throw "Ошибка доступа к элементу вектора!";
+			*(sp - 2) = sp[*sp - 2];
+			sp -= 2; break;
 
 		case VEC2_CROSS:
-			*(float*)(sp-3)=((TVec2*)(sp-3))->Cross(*(TVec2*)(sp-1));
-			sp-=3;break;
+			*(TVec2*)(sp - 3) = ((TVec2*)(sp - 3))->Cross(*(TVec2*)(sp - 1));
+			sp -= 3; break;
 		case VEC2_DISTANCE:
-			*(float*)(sp-3)=((TVec2*)(sp-3))->Distance(*(TVec2*)(sp-1));
-			sp-=3;break;
+			*(float*)(sp - 3) = ((TVec2*)(sp - 3))->Distance(*(TVec2*)(sp - 1));
+			sp -= 3; break;
 		case VEC2_DOT:
-			*(float*)(sp-3)=((TVec2*)(sp-3))->Dot(*(TVec2*)(sp-1));
-			sp-=3;break;
+			*(float*)(sp - 3) = ((TVec2*)(sp - 3))->AbsScalarMul(*(TVec2*)(sp - 1));
+			sp -= 3; break;
 		case VEC2_LENGTH:
-			*(float*)(sp-1)=((TVec2*)(sp-1))->Length();
-			sp--;break;
+			*(float*)(sp - 1) = ((TVec2*)(sp - 1))->Length();
+			sp--; break;
 		case VEC2_NORMALIZE:
-			((TVec2*)(sp-1))->Normalize();
+			((TVec2*)(sp - 1))->Normalize();
 			break;
 		case VEC2_REFLECT:
-			((TVec2*)(sp-3))->Reflect(*(TVec2*)(sp-1));
-			sp-=2;break;
+			((TVec2*)(sp - 3))->Reflect(*(TVec2*)(sp - 1));
+			sp -= 2; break;
 
 		default:
 			assert(0);
 		}
 		op++;
 	}
+
+void TVirtualMachine::ExecuteIntOps(TOp* op)
+{
+	using namespace TOpcode;
+	//////////////////////////////////////////////////
+	//int
+	switch (op->type)
+	{
+		case INT_PLUS:
+			sp[-1] += sp[0];
+			sp--; break;
+		case INT_MINUS:
+			sp[-1] -= sp[0];
+			sp--; break;
+		case INT_DIV:
+			sp[-1] /= sp[0];
+			sp--; break;
+		case INT_MUL:
+			sp[-1] *= sp[0];
+			sp--; break;
+		case INT_MOD:
+			sp[-1] %= sp[0];
+			sp--; break;
+
+		case INT_UNARY_MINUS:
+			*sp = -*sp; break;
+		case R_INT_UNARY_MINUS:
+			*sp = -*((int*)*sp); break;
+		case INT_TO_VEC2:
+			sp++;
+			*((TVec2*)(sp - 1)) = TVec2(float(sp[-1]));
+			break;
+		case INT_PLUS_A:
+			*((int*)sp[-1]) += *sp;
+			sp -= 2; break;
+		case INT_MINUS_A:
+			*((int*)sp[-1]) -= *sp;
+			sp -= 2; break;
+		case INT_MUL_A:
+			*((int*)sp[-1]) *= *sp;
+			sp -= 2; break;
+		case INT_DIV_A:
+			*((int*)sp[-1]) /= *sp;
+			sp -= 2; break;
+		case INT_MOD_A:
+			*((int*)sp[-1]) %= *sp;
+			sp -= 2; break;
+
+		case INT_LESS:
+			sp[-1] = (sp[-1]<*sp);
+			sp--; break;
+		case INT_LESS_EQ:
+			sp[-1] = (sp[-1] <= *sp);
+			sp--; break;
+		case INT_GREATER:
+			sp[-1] = (sp[-1]>*sp);
+			sp--; break;
+		case INT_GREATER_EQ:
+			sp[-1] = (sp[-1] >= *sp);
+			sp--; break;
+
+		case INT_TO_FLOAT:
+			*(float*)sp = float(*sp); break;
+		case R_INT_TO_FLOAT:
+			*(float*)sp = float(*(int*)(*sp)); break;
+		case INT_TO_BOOL:
+			*sp = (*sp != 0); break;
+		case R_INT_TO_BOOL:
+			*sp = (*(int*)*sp != 0); break;
+
+		case INT_ABS:
+			*sp = abs(*sp); break;
+		case INT_MAXIMUM:
+			sp[-1] = (sp[-1]<sp[0]) ? sp[0] : sp[-1];
+			sp--; break;
+		case INT_MINIMUM:
+			sp[-1] = (sp[-1]>sp[0]) ? sp[0] : sp[-1];
+			sp--; break;
+		case INT_SIGN:
+			*sp = *sp >= 0 ? 1 : -1; break;
+
+}
 }
