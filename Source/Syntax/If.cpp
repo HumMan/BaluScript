@@ -24,3 +24,8 @@ TIf::TIf(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int us
 	, statements(new TStatements(use_owner, use_method, use_parent, use_stmt_id))
 	, else_statements(new TStatements(use_owner, use_method, use_parent, use_stmt_id))
 {}
+
+void TIf::Accept(TStatementVisitor* visitor)
+{
+	visitor->Visit(this);
+}

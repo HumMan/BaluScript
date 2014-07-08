@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 		char* source;
 		{
 			//TFileData file("C:\\developments\\BaluFramework\\BaluScript\\Output\\mingw\\script1.bscript"/*FindFileData.cFileName*/,"rb");
-			TFileData file("../Data/template_crossref_test.bscript"/*FindFileData.cFileName*/,"rb");
+			TFileData file("../Data/int_test.bscript"/*FindFileData.cFileName*/,"rb");
 			source=file.ReadAll();
 			source[file.GetSize()]='\0';
 		}

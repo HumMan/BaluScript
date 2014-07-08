@@ -25,7 +25,7 @@ public:
 		return (TStatements*)TSyntaxNode::GetSyntax();
 	}
 	void Add(TSStatement* use_statement);
-	void AddVar(TSLocalVar* use_var);
+	void AddVar(TSLocalVar* use_var,int stmt_id);
 	TSStatement* GetStatement(int i);
 	//TSStatement* CreateNode(TStatement* use_syntax_node);
 	TVariable* GetVar(TNameId name, int sender_id);

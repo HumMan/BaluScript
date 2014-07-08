@@ -293,3 +293,8 @@ void TExpression::TBoolValue::Accept(TExpressionTreeVisitor* visitor)
 {
 	visitor->Visit(this);
 }
+
+void TExpression::Accept(TStatementVisitor* visitor)
+{
+	visitor->Visit(this);
+}

@@ -5,6 +5,7 @@
 #include "../semanticAnalyzer.h"
 #include "SStatements.h"
 #include "FormalParam.h"
+#include "SLocalVar.h"
 
 class TSemanticTreeBuilder :public TExpressionTreeVisitor
 {
@@ -398,12 +399,14 @@ public:
 		if (method->GetSyntax()->IsStatic())
 			syntax_node->Error("Ключевое слово 'this' можно использовать только в нестатических методах!");
 		TSExpression::TGetThis* result = new TSExpression::TGetThis();
+		result->owner = owner;
 		return_new_operation = result;
 	}
 	void Visit(TExpression::TIntValue *op)
 	{
-		TSExpression::TInt* result = new TSExpression::TInt();
+		TSExpression::TInt* result = new TSExpression::TInt(owner, &op->type);
 		result->val = op->val;
+		result->type.Link();
 		return_new_operation = result;
 	}
 	void Visit(TExpression::TStringValue *op)
@@ -438,31 +441,86 @@ TVariable* TSExpression::GetVar(TNameId name)
 
 void TSExpression::TMethodCall::Build(const std::vector<TSExpression::TOperation*>& param_expressions, const std::vector<TFormalParam>& params, TSMethod* method)
 {
-	////если необходимо преобразование типа формального параметра то добавляем его
-	//if (formal_par.GetClass() != param_class)
-	//{
-	//	TMethod* conversion = formal_par.GetClass()->GetConversion(formal_par.IsRef(), param_class);
-	//	if (formal_par.IsRef() && !param_ref)
-	//	{
-	//		if (conversion == NULL)
-	//		{
-	//			TMethod* copy_constr = formal_par.GetClass()->GetCopyConstr();
-	//			program.Push(TOp(TOpcode::RVALUE, formal_par.GetClass()->GetSize(), program.AddMethodToTable(copy_constr))
-	//				, formal_par.GetOps());
-	//			formal_par.SetIsRef(false);
-	//			conversion = formal_par.GetClass()->GetConversion(false, param_class);
-	//		}
-	//	}
-	//	assert(conversion != NULL);//ошибка в FindMethod
-	//	std::vector<TFormalParam> conv_method_params;
-	//	conv_method_params.push_back(formal_par);
-	//	formal_par = formal_par.GetOps() + conversion->BuildCall(program, conv_method_params);
-	//}
-	////если в стеке находится ссылка, а в качестве параметра требуется значение, то добавляем преобразование
-	//else if (formal_par.IsRef() && !param_ref)
-	//{
-	//	TMethod* copy_constr = formal_par.GetClass()->GetCopyConstr();
-	//	program.Push(TOp(TOpcode::RVALUE, formal_par.GetClass()->GetSize(), program.AddMethodToTable(copy_constr))
-	//		, formal_par.GetOps());
-	//}
+	assert(param_expressions.size() == params.size());
+	invoke = method;
+	for (int i = 0; i < params.size(); i++)
+	{
+		TSClass* param_class = method->GetParam(i)->GetClass();
+		bool param_ref = method->GetParam(i)->GetSyntax()->IsRef();
+
+		const TFormalParam& formal_par = params[i];
+
+		//если необходимо преобразование типа формального параметра то добавляем его
+		if (formal_par.GetClass() != param_class)
+		{
+			TSMethod* conversion = formal_par.GetClass()->GetConversion(formal_par.IsRef(), param_class);
+			if (formal_par.IsRef() && !param_ref)
+			{
+				if (conversion == NULL)
+				{
+					TSMethod* copy_constr = formal_par.GetClass()->GetCopyConstr();
+					//program.Push(TOp(TOpcode::RVALUE, formal_par.GetClass()->GetSize(), program.AddMethodToTable(copy_constr))
+					//	, formal_par.GetOps());
+					//formal_par.SetIsRef(false);
+					conversion = formal_par.GetClass()->GetConversion(false, param_class);
+				}
+			}
+			assert(conversion != NULL);//ошибка в FindMethod
+			std::vector<TFormalParam> conv_method_params;
+			conv_method_params.push_back(formal_par);
+			//formal_par = formal_par.GetOps() + conversion->BuildCall(program, conv_method_params);
+		}
+		//если в стеке находится ссылка, а в качестве параметра требуется значение, то добавляем преобразование
+		else if (formal_par.IsRef() && !param_ref)
+		{
+			TSMethod* copy_constr = formal_par.GetClass()->GetCopyConstr();
+			//program.Push(TOp(TOpcode::RVALUE, formal_par.GetClass()->GetSize(), program.AddMethodToTable(copy_constr))
+			//	, formal_par.GetOps());
+		}
+	}
+}
+
+TSExpression::TInt::TInt(TSClass* owner, TType* syntax_node)
+	:type(owner,syntax_node)
+{
+
+}
+
+TFormalParam TSExpression::TMethodCall::GetFormalParameter()
+{
+	return TFormalParam(invoke->GetRetClass(), invoke->GetSyntax()->IsReturnRef());
+}
+
+TFormalParam TSExpression::TInt::GetFormalParameter()
+{
+	return TFormalParam(type.GetClass(),false);
+}
+TFormalParam TSExpression::TGetMethods::GetFormalParameter()
+{
+	return result;
+}
+
+TFormalParam TSExpression::TGetClassField::GetFormalParameter()
+{
+	return TFormalParam(field->GetClass(),left_result.IsRef());
+}
+
+TFormalParam TSExpression::TGetParameter::GetFormalParameter()
+{
+	return TFormalParam(parameter->GetClass(), true);
+}
+
+TFormalParam TSExpression::TGetLocal::GetFormalParameter()
+{
+	return TFormalParam(variable->GetClass(), true);
+}
+
+TFormalParam TSExpression::TGetThis::GetFormalParameter()
+{
+	return TFormalParam(owner, true);
+}
+
+TFormalParam TSExpression::TGetClass::GetFormalParameter()
+{
+	return TFormalParam(get_class);
 }

@@ -36,14 +36,15 @@ public:
 		std::list<TFormalParamWithConversions> input;
 		TSMethod* invoke;
 	public:
-		TMethodCall();
 		void Build(const std::vector<TOperation*>& param_expressions, const std::vector<TFormalParam>& params, TSMethod* method);
 		TFormalParam GetFormalParameter();
 	};
 	class TInt : public TOperation
 	{
 	public:
+		TInt(TSClass* owner, TType* syntax_node);
 		int val;
+		TSType type;
 		TFormalParam GetFormalParameter();
 	};
 
@@ -61,27 +62,24 @@ public:
 		TOperation* left;
 		TFormalParam left_result;
 		TSClassField* field;
-		TGetClassField();
 		TFormalParam GetFormalParameter();
 	};
 	class TGetParameter :public TOperation
 	{
 	public:
 		TSParameter* parameter;
-		TGetParameter();
 		TFormalParam GetFormalParameter();
 	};
 	class TGetLocal :public TOperation
 	{
 	public:
 		TSLocalVar* variable;
-		TGetLocal();
 		TFormalParam GetFormalParameter();
 	};
 	class TGetThis :public TOperation
 	{
 	public:
-		TGetThis();
+		TSClass* owner;
 		TFormalParam GetFormalParameter();
 	};
 	class TGetClass :public TOperation
@@ -89,7 +87,6 @@ public:
 	public:
 		TGetClass* left;
 		TSClass* get_class;
-		TGetClass();
 		TFormalParam GetFormalParameter();
 	};
 public:

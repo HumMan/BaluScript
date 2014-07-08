@@ -20,3 +20,8 @@ TWhile::TWhile(TClass* use_owner, TMethod* use_method, TStatements* use_parent, 
 	, compare(new TExpression(use_owner, use_method, use_parent, use_stmt_id))
 	, statements(new TStatements(use_owner, use_method, use_parent, use_stmt_id))
 {}
+
+void TWhile::Accept(TStatementVisitor* visitor)
+{
+	visitor->Visit(this);
+}

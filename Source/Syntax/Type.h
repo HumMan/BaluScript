@@ -20,14 +20,19 @@ struct TType:public TTokenPos
 		TClassName(){}
 		TClassName(const TClassName& use_copy)
 		{
+			Assign(use_copy);
+		}
+		void Assign(const TClassName& use_copy)
+		{
 			name = use_copy.name;
 			template_params = use_copy.template_params;
 			dimensions = use_copy.dimensions;
-			member = std::unique_ptr<TClassName>(new TClassName(*use_copy.member.get()));
+			if (use_copy.member)
+				member = std::unique_ptr<TClassName>(new TClassName(*use_copy.member.get()));
 		}
 		void operator=(const TClassName& right)
 		{
-			TClassName::TClassName(right);
+			Assign(right);
 		}
 	};
 private:

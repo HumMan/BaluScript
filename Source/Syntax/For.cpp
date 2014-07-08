@@ -20,3 +20,8 @@ TFor::TFor(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int 
 	, statements(new TStatements(use_owner, use_method, use_parent, use_stmt_id))
 {
 }
+
+void TFor::Accept(TStatementVisitor* visitor)
+{
+	visitor->Visit(this);
+}

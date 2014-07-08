@@ -14,6 +14,11 @@ struct TSType_TClassName :TSyntaxNode<TType::TClassName>
 	TSClass* class_of_type;
 	TSClass* template_class;
 	std::vector<std::list<TSType_TClassName>> template_params_classes;
+	TSType_TClassName() :TSyntaxNode(NULL)
+	{
+		class_of_type = NULL;
+		template_class = NULL;
+	}
 	TSType_TClassName(TType::TClassName* use_syntax) :TSyntaxNode(use_syntax)
 	{
 	}

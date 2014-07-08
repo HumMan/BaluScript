@@ -78,3 +78,8 @@ void TBytecode::AnalyzeSyntax(TLexer& source) {
 	}
 	source.GetToken(TTokenType::RBrace);
 }
+
+void TBytecode::Accept(TStatementVisitor* visitor)
+{
+	visitor->Visit(this);
+}

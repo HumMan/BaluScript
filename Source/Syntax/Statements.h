@@ -14,6 +14,7 @@ class TStatements:public TStatement
 	std::vector<std::shared_ptr<TStatement>> statements;
 public:
 	void Add(TStatement* use_statement);
+	void AddVar(TLocalVar* use_var);
 	TStatement* GetStatement(int i);
 	TStatements(const TStatements& use_source);
 	int GetHigh();

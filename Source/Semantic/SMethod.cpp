@@ -56,7 +56,10 @@ void TSMethod::LinkBody()
 	if (linked_body)
 		return;
 	linked_body = true;
+	statements = std::shared_ptr<TSStatements>(new TSStatements(owner, this, NULL, GetSyntax()->statements.get()));
 	statements->Build();
+	//if (!GetSyntax()->IsBytecode())
+	//	statements->Build();
 }
 
 void TSMethod::Build()

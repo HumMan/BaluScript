@@ -7,6 +7,7 @@
 #include "../semanticAnalyzer.h"
 #include "FormalParam.h"
 #include "SExpression.h"
+#include "../Syntax/Expression.h"
 
 TFormalParam TSLocalVar::Build()
 {
@@ -35,17 +36,25 @@ TFormalParam TSLocalVar::Build()
 	{
 	}
 
-	
+	parent->AddVar(this,GetSyntax()->stmt_id);
 
 	for (std::shared_ptr<TExpression> param_syntax : GetSyntax()->params)
 	{
-		params.push_back(std::shared_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->assign_expr.get())));
+		params.push_back(std::shared_ptr<TSExpression>(new TSExpression(owner, method, parent, param_syntax.get())));
 		params.back()->Build();
+	}
+
+	if (GetSyntax()->assign_expr)
+	{
+		assign_expr = std::shared_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->assign_expr.get()));
 	}
 
 	int conv_need=0;
 	std::vector<TSMethod*> constructors;
 	std::vector<TFormalParam> params_result;
+
+	type.Link();
+
 	type.GetClass()->GetConstructors(constructors);
 	TSMethod* constructor=FindMethod(GetSyntax(),constructors,params_result,conv_need);
 	if(constructor==NULL&&params_result.size()>0)
@@ -112,4 +121,9 @@ TSLocalVar::TSLocalVar(TSClass* use_owner, TSMethod* use_method, TSStatements* u
 TNameId TSLocalVar::GetName()
 {
 	return GetSyntax()->GetName();
+}
+
+TSClass* TSLocalVar::GetClass()
+{
+	return type.GetClass();
 }

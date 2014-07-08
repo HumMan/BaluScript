@@ -6,6 +6,7 @@
 #include <baluLib.h>
 #include "VirtualMachine/Op.h"
 #include "VirtualMachine/ArrayClassMethod.h"
+#include "VirtualMachine/Program.h"
 
 using namespace std;
 
@@ -164,6 +165,6 @@ public:
 		*sp=(memcmp(d,s,op->v1*4)==0);
 	}
 	void Execute(int method_id,int* stack_top,int* this_pointer);
-	void Execute(TOp* op, int* stack_top, int* this_pointer);
-	void ExecuteIntOps(TOp* op);
+	void Execute(TOp* op, int* stack_top, int* this_pointer, TProgram::TMethod* m);
+	static void ExecuteIntOps(TOp* op, int* sp);
 };

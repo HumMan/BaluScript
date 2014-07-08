@@ -2,8 +2,8 @@ class TGame
 {
 	class sealed int
 	{
-	private:
-		dword unnamed;
+	//private:
+		//dword unnamed;
 	public:
 		constr(int v) bytecode{};
 		//constr(float v) bytecode{ASM_FLOAT_TO_INT;};
@@ -24,17 +24,17 @@ class TGame
 		operator static -(int  l):int bytecode{ASM_INT_UNARY_MINUS;};
 		operator static -(int& l):int bytecode{ASM_R_INT_UNARY_MINUS;};
 
-		operator static < (int l,int r):bool bytecode{ASM_INT_LESS;};
-		operator static <=(int l,int r):bool bytecode{ASM_INT_LESS_EQ;};
-		operator static ==(int l,int r):bool bytecode{ASM_EQUAL 0,0,1;};
-		operator static !=(int l,int r):bool bytecode{ASM_NOT_EQUAL 0,0,1;};
-		operator static > (int l,int r):bool bytecode{ASM_INT_GREATER;};
-		operator static >=(int l,int r):bool bytecode{ASM_INT_GREATER_EQ;};
+		//operator static < (int l,int r):bool bytecode{ASM_INT_LESS;};
+		//operator static <=(int l,int r):bool bytecode{ASM_INT_LESS_EQ;};
+		//operator static ==(int l,int r):bool bytecode{ASM_EQUAL 0,0,1;};
+		//operator static !=(int l,int r):bool bytecode{ASM_NOT_EQUAL 0,0,1;};
+		//operator static > (int l,int r):bool bytecode{ASM_INT_GREATER;};
+		//operator static >=(int l,int r):bool bytecode{ASM_INT_GREATER_EQ;};
 
-		conversion static (int& v):float bytecode{ASM_R_INT_TO_FLOAT;};
-		conversion static (int  v):float bytecode{ASM_INT_TO_FLOAT;};
-		conversion static (int& v):bool  bytecode{ASM_R_INT_TO_BOOL;};
-		conversion static (int  v):bool  bytecode{ASM_INT_TO_BOOL;};
+		//conversion static (int& v):float bytecode{ASM_R_INT_TO_FLOAT;};
+		//conversion static (int  v):float bytecode{ASM_INT_TO_FLOAT;};
+		//conversion static (int& v):bool  bytecode{ASM_R_INT_TO_BOOL;};
+		//conversion static (int  v):bool  bytecode{ASM_INT_TO_BOOL;};
 	}
 	func static Abs(int v		):int bytecode{ASM_INT_ABS;};
 	func static Max(int v0,int v1):int bytecode{ASM_INT_MAXIMUM;};
@@ -48,5 +48,6 @@ class TGame
 		c = 4;
 		a = (b + c)*b;
 		int d(a),e=5;
+		d = a+b*c/e+(-e);
 	}
 }

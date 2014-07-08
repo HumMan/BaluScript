@@ -48,7 +48,7 @@ public:
 	void Visit(TBytecode* op)
 	{
 		TSBytecode* new_node = new TSBytecode(owner, method, parent, op);
-		new_node->Build();
+		//new_node->Build();
 		return_new_operation = new_node;
 	}
 	void Visit(TWhile* op)
@@ -66,6 +66,10 @@ TSStatements::TSStatements(TSClass* use_owner, TSMethod* use_method, TSStatement
 	:TSStatement(TStatementType::Statements,use_owner,use_method,use_parent,use_syntax)
 {
 
+}
+void TSStatements::AddVar(TSLocalVar* var, int stmt_id)
+{
+	var_declarations.push_back(TVarDecl(stmt_id, var));
 }
 
 void TSStatements::Build()

@@ -6,3 +6,8 @@ void TReturn::AnalyzeSyntax(TLexer& source) {
 	if (!source.Test(TTokenType::Semicolon))
 		result.AnalyzeSyntax(source);
 }
+
+void TReturn::Accept(TStatementVisitor* visitor)
+{
+	visitor->Visit(this);
+}
