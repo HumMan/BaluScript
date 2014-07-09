@@ -33,3 +33,27 @@ class TVoid :public TFormalParam
 public:
 	TVoid() :TFormalParam(NULL, false){}
 };
+
+struct TFormalParamWithConversions
+{
+	TFormalParam result;
+	TSMethod* copy_constr;//используется если необходимо преобразование из lvalue в rvalue
+	TSMethod* conversion;//используется если необходимо преобразование параметра
+	TFormalParamWithConversions();
+	void BuildConvert(TFormalParam from_result, TSClass* param_class, bool param_ref);
+	void RunConversion(std::vector<TStackValue> &stack);
+};
+
+class TStackValue
+{
+	void* internal_buf;
+	bool is_ref;
+	TSClass* type;
+	int actual_size;
+public:
+	TSClass* GetClass();
+	bool IsRef();
+	TStackValue();
+	TStackValue(bool is_ref, TSClass* type);
+	~TStackValue();
+};

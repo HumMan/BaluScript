@@ -12,6 +12,7 @@ class TStatements;
 
 class TBytecode :public TStatement
 {
+	friend class TSBytecode;
 protected:
 	struct TBytecodeOp
 	{

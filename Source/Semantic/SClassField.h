@@ -5,7 +5,7 @@
 
 class TClassField;
 
-class TSClassField :public TSyntaxNode<TClassField>, public TVariable
+class TSClassField :public TSyntaxNode<TClassField>, public TVariable, public TNodeWithOffset
 {
 	TSClass* owner;
 	TSType type;

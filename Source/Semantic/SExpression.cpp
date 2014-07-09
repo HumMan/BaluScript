@@ -419,7 +419,10 @@ public:
 	}
 	void Visit(TExpression::TFloatValue* op)
 	{
-
+		TSExpression::TFloat* result = new TSExpression::TFloat(owner, &op->type);
+		result->val = op->val;
+		result->type.Link();
+		return_new_operation = result;
 	}
 	void Visit(TExpression::TBoolValue* op)
 	{
@@ -445,52 +448,47 @@ void TSExpression::TMethodCall::Build(const std::vector<TSExpression::TOperation
 	invoke = method;
 	for (int i = 0; i < params.size(); i++)
 	{
-		TSClass* param_class = method->GetParam(i)->GetClass();
-		bool param_ref = method->GetParam(i)->GetSyntax()->IsRef();
-
-		const TFormalParam& formal_par = params[i];
-
-		//если необходимо преобразование типа формального параметра то добавляем его
-		if (formal_par.GetClass() != param_class)
-		{
-			TSMethod* conversion = formal_par.GetClass()->GetConversion(formal_par.IsRef(), param_class);
-			if (formal_par.IsRef() && !param_ref)
-			{
-				if (conversion == NULL)
-				{
-					TSMethod* copy_constr = formal_par.GetClass()->GetCopyConstr();
-					//program.Push(TOp(TOpcode::RVALUE, formal_par.GetClass()->GetSize(), program.AddMethodToTable(copy_constr))
-					//	, formal_par.GetOps());
-					//formal_par.SetIsRef(false);
-					conversion = formal_par.GetClass()->GetConversion(false, param_class);
-				}
-			}
-			assert(conversion != NULL);//ошибка в FindMethod
-			std::vector<TFormalParam> conv_method_params;
-			conv_method_params.push_back(formal_par);
-			//formal_par = formal_par.GetOps() + conversion->BuildCall(program, conv_method_params);
-		}
-		//если в стеке находится ссылка, а в качестве параметра требуется значение, то добавляем преобразование
-		else if (formal_par.IsRef() && !param_ref)
-		{
-			TSMethod* copy_constr = formal_par.GetClass()->GetCopyConstr();
-			//program.Push(TOp(TOpcode::RVALUE, formal_par.GetClass()->GetSize(), program.AddMethodToTable(copy_constr))
-			//	, formal_par.GetOps());
-		}
+		input.emplace_back();
+		input.back().BuildConvert(params[i], method->GetParam(i)->GetClass(), method->GetParam(i)->GetSyntax()->IsRef());
 	}
 }
 
 TSExpression::TInt::TInt(TSClass* owner, TType* syntax_node)
 	:type(owner,syntax_node)
 {
-
 }
-
+void TSExpression::TInt::Run(int* &sp)
+{
+	sp++;
+	*sp = val;
+}
+TSExpression::TFloat::TFloat(TSClass* owner, TType* syntax_node)
+	:type(owner, syntax_node)
+{
+}
+void TSExpression::TFloat::Run(int* &sp)
+{
+	sp++;
+	*(float*)sp = val;
+}
+TFormalParam TSExpression::TFloat::GetFormalParameter()
+{
+	return TFormalParam(type.GetClass(), false);
+}
 TFormalParam TSExpression::TMethodCall::GetFormalParameter()
 {
 	return TFormalParam(invoke->GetRetClass(), invoke->GetSyntax()->IsReturnRef());
 }
-
+void TSExpression::TMethodCall::Run(int* &sp)
+{
+	sp += invoke->GetRuturnSize();
+	for (TSExpression::TMethodCall::TOperationWithConversions& par : input)
+	{
+		par.expression->Run(sp);
+		par.conversions.RunConversion(sp);
+	}
+	invoke->Run(sp);
+}
 TFormalParam TSExpression::TInt::GetFormalParameter()
 {
 	return TFormalParam(type.GetClass(),false);
@@ -499,28 +497,52 @@ TFormalParam TSExpression::TGetMethods::GetFormalParameter()
 {
 	return result;
 }
-
+void TSExpression::TGetMethods::Run(int* &sp)
+{
+	//nothing to do
+}
 TFormalParam TSExpression::TGetClassField::GetFormalParameter()
 {
 	return TFormalParam(field->GetClass(),left_result.IsRef());
 }
+void TSExpression::TGetClassField::Run(int* &sp)
+{
 
+}
 TFormalParam TSExpression::TGetParameter::GetFormalParameter()
 {
 	return TFormalParam(parameter->GetClass(), true);
 }
-
+void TSExpression::TGetParameter::Run(int* &sp)
+{
+	//sp_base - parameter offset
+}
 TFormalParam TSExpression::TGetLocal::GetFormalParameter()
 {
 	return TFormalParam(variable->GetClass(), true);
 }
+void TSExpression::TGetLocal::Run(int* &sp)
+{
 
+}
+TFormalParam TSExpression::TGetClass::GetFormalParameter()
+{
+	return TFormalParam(get_class);
+}
+void TSExpression::TGetClass::Run(int* &sp)
+{
+	//nothing to do
+}
 TFormalParam TSExpression::TGetThis::GetFormalParameter()
 {
 	return TFormalParam(owner, true);
 }
-
-TFormalParam TSExpression::TGetClass::GetFormalParameter()
+void TSExpression::TGetThis::Run(int* &sp)
 {
-	return TFormalParam(get_class);
+
+}
+
+void TSExpression::Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value, int method_base)
+{
+	first_op->Run(sp);
 }

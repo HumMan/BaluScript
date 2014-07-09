@@ -2,8 +2,8 @@ class TGame
 {
 	class sealed int
 	{
-	//private:
-		//dword unnamed;
+	private:
+		dword unnamed;
 	public:
 		constr(int v) bytecode{};
 		//constr(float v) bytecode{ASM_FLOAT_TO_INT;};
@@ -40,6 +40,24 @@ class TGame
 	func static Max(int v0,int v1):int bytecode{ASM_INT_MAXIMUM;};
 	func static Min(int v0,int v1):int bytecode{ASM_INT_MINIMUM;};
 	func static Sign(int v		):int bytecode{ASM_INT_SIGN;};
+	
+	class Test
+	{
+		int vss;
+	public:
+		int v,v1,v2;
+	}
+	
+	class Test2
+	{
+	public:
+		Test v;
+	}
+	class Test3
+	{
+	public:
+		Test2 v;
+	}
 	
 	func static Main
 	{

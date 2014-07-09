@@ -31,4 +31,5 @@ public:
 	TVariable* GetVar(TNameId name, int sender_id);
 	TSStatements(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TStatements* use_syntax);
 	void Build();
+	void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value);
 };

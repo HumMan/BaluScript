@@ -30,4 +30,5 @@ public:
 	void LinkSignature();
 	void LinkBody();
 	void Build();
+	void CalculateParametersOffsets();
 };	

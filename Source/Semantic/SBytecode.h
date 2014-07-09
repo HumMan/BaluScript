@@ -12,4 +12,5 @@ public:
 	{
 		return (TBytecode*)TSyntaxNode::GetSyntax();
 	}
+	void Run(int* &sp, bool& result_returned, int* return_value);
 };

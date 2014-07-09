@@ -5,6 +5,7 @@
 
 class TReturn:public TStatement
 {
+	friend class TSReturn;
 	TExpression result;
 	void operator=(const TReturn& use_source);
 public:

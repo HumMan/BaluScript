@@ -4,6 +4,7 @@
 
 #include "SStatements.h"
 #include "SOverloadedMethod.h"
+#include "FormalParam.h"
 
 TSMethod::TSMethod(TSClass* use_owner, TMethod* use_syntax)
 	:TSyntaxNode(use_syntax), ret(use_owner, use_syntax->GetRetType()),
@@ -28,7 +29,10 @@ void TSMethod::LinkSignature()
 
 TSClass* TSMethod::GetRetClass()
 {
-	return ret.GetClass();
+	if (GetSyntax()->has_return)
+		return ret.GetClass();
+	else
+		return NULL;
 }
 
 TSParameter* TSMethod::GetParam(int id)
@@ -62,6 +66,48 @@ void TSMethod::LinkBody()
 	//	statements->Build();
 }
 
+void TSMethod::CalculateParametersOffsets()
+{
+	parameters_size = 0;
+	for (int i = 0; i<parameters.size(); i++)
+	{
+		parameters[i]->SetOffset(parameters_size);
+		parameters[i]->CalculateSize();
+		parameters_size += parameters[i]->GetSize();
+	}
+	if (GetRetClass() != NULL)
+	{
+		if (GetSyntax()->IsReturnRef())
+			ret_size = 1;
+		else
+			ret_size = ret.GetClass()->GetSize();
+	}
+	else
+		ret_size = 0;
+}
+
+void TSMethod::Run(std::vector<TStackValue> &stack)
+{
+	bool result_returned = false;
+	statements->Run(sp,result_returned,&sp[-GetParametersSize()-GetRuturnSize()]);
+
+	//int locals_size=0;
+	//result_result.GetOps()+=BuildLocalsAndParamsDestructor(program,locals_size);
+	//if(method->GetMemberType()==TClassMember::Destr)
+	//{
+	//	TMethod* auto_destr=owner->GetAutoDestructor();
+	//	if(auto_destr!=NULL)
+	//	{
+	//		program.Push(TOp(TOpcode::PUSH_THIS),result_result.GetOps());
+	//		result_result.GetOps()+=auto_destr->BuildCall(program).GetOps();
+	//	}
+	//}
+	//program.Push(TOp(TOpcode::RETURN,
+	//	method->GetParamsSize()+locals_size+!method->IsStatic(),method->GetRetSize()),result_result.GetOps());
+	//method->SetHasReturn(true);
+	//return TVoid();
+}
+
 void TSMethod::Build()
 {
 	for (const std::unique_ptr<TParameter>& v : GetSyntax()->parameters)
@@ -69,7 +115,6 @@ void TSMethod::Build()
 		parameters.push_back(std::shared_ptr<TSParameter>(new TSParameter(owner, this, v.get(), &v->type)));
 	}
 }
-
 
 void TSMethod::CheckForErrors()
 {

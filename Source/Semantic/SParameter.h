@@ -4,11 +4,12 @@
 #include "SClass.h"
 #include "SSyntaxNode.h"
 #include "SType.h"
+#include "Variable.h"
 
 class TSMethod;
 
-///<summary> ласс описывает параметр объ€влени€ метода</summary>
-class TSParameter :public TSyntaxNode<TParameter>
+///<summary> ласс описывает параметр сигнатуры метода</summary>
+class TSParameter :public TSyntaxNode<TParameter>, public TVariable,public TNodeWithOffset,public TNodeWithSize
 {
 	TSType type;
 	TSClass* owner;
@@ -18,4 +19,5 @@ public:
 	void Link();
 	TSClass* GetClass();
 	bool IsEqualTo(const TSParameter& right)const;
+	void CalculateSize();
 };

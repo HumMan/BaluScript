@@ -1,35 +1,41 @@
-﻿#include "../Syntax/Return.h"
+﻿#include "SReturn.h"
 
-#include "../Syntax/Void.h"
-#include "../Syntax/Method.h"
-#include "../syntaxAnalyzer.h"
-#include "../Syntax/Statements.h"
+#include "FormalParam.h"
+#include "SMethod.h"
+#include "SExpression.h"
+#include "../Syntax/LocalVar.h"
+#include "../semanticAnalyzer.h"
+#include "../Syntax/Return.h"
 
-TFormalParam TReturn::Build(TNotOptimizedProgram &program,int& local_var_offset)
+void TSReturn::Build()
 {
-	TFormalParam result_result=result.Build(program,local_var_offset);
+	result = std::shared_ptr<TSExpression>(new TSExpression(owner, method, parent, &GetSyntax()->result));
+	result->Build();
+	TFormalParam result_result = result->GetFormalParam();
 	if(method->GetRetClass()!=NULL)
 	{
 		int conv_needed;
 		if(result_result.IsVoid())
-			Error("После оператора return должно следовать какое-то выражение!");
-		if(!IsEqualClasses(result_result,method->GetRetClass(),method->IsReturnRef(),conv_needed))
-			Error("Выражение невозможно преобразовать в тип возвращаемого значения!");
-		method->BuildFormalParamConversion(program,result_result,method->GetRetClass(),method->IsReturnRef());	
-	}else if(result_result.GetClass()!=NULL) Error("Метод не должен ничего возвращать!");
-	int locals_size=0;
-	result_result.GetOps()+=BuildLocalsAndParamsDestructor(program,locals_size);
-	if(method->GetMemberType()==TClassMember::Destr)
-	{
-		TMethod* auto_destr=owner->GetAutoDestructor();
-		if(auto_destr!=NULL)
-		{
-			program.Push(TOp(TOpcode::PUSH_THIS),result_result.GetOps());
-			result_result.GetOps()+=auto_destr->BuildCall(program).GetOps();
-		}
-	}
-	program.Push(TOp(TOpcode::RETURN,
-		method->GetParamsSize()+locals_size+!method->IsStatic(),method->GetRetSize()),result_result.GetOps());
-	method->SetHasReturn(true);
-	return TVoid(result_result.GetOps());
+			GetSyntax()->Error("После оператора return должно следовать какое-то выражение!");
+		if(!IsEqualClasses(result_result,method->GetRetClass(),method->GetSyntax()->IsReturnRef(),conv_needed))
+			GetSyntax()->Error("Выражение невозможно преобразовать в тип возвращаемого значения!");
+		conversions = std::shared_ptr<TFormalParamWithConversions>(new TFormalParamWithConversions());
+		conversions->BuildConvert(result_result, method->GetRetClass(), method->GetSyntax()->IsReturnRef())
+	}else 
+		if(result_result.GetClass()!=NULL)
+			GetSyntax()->Error("Метод не должен ничего возвращать!");
+
+}
+
+TSReturn::TSReturn(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TReturn* use_syntax)
+	:TSStatement(TStatementType::Return, use_owner, use_method, use_parent, (TStatement*)use_syntax)
+{}
+
+void TSReturn::Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value, int method_base)
+{
+	result->Run(stack, result_returned, return_value, method_base);
+	result_returned = true;
+	conversions->RunConversion(stack);
+	int ret_size = method->GetRuturnSize();
+	//copy ret value
 }

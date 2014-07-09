@@ -9,7 +9,7 @@
 class TTemplateRealizations;
 class TSClassField;
 
-class TSClass:public TSyntaxNode<TClass>
+class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize
 {	
 	///<summary>Если класс является реализацией одного из шаблонов, то содержит указатели на классы, заданные в параметрах шаблона</summary>
 	std::vector<TSClass*> template_params;
@@ -41,11 +41,15 @@ class TSClass:public TSyntaxNode<TClass>
 
 	bool linked;
 public:
+	void CreateInternalClasses();//TODO только для главного класса
 	TSClass(TSClass* use_owner, TTemplateRealizations* use_templates,TClass* use_syntax_node);
 	TSClass* GetClass(TNameId use_name);
 	void CheckForErrors();
 	TSClass* GetOwner();
-	TSClass* GetParent();
+	TSClass* GetParent()
+	{
+		return parent;
+	}
 	TSClassField* GetField(TNameId name, bool only_in_this);
 	TSClassField* GetField(TNameId name, bool is_static, bool only_in_this);
 	const std::vector<TSClass*>& GetTemplateParams()
@@ -65,7 +69,9 @@ public:
 	TSMethod* GetConversion(bool source_ref, TSClass* target_type);
 	TSClass* GetNested(TNameId name);
 	TTemplateRealizations* GetTemplates();
-	///<summary>Постоение семанитческого дерева по синтаксическому(для всех кроме тел методов)</summary>
+	///<summary>Постоение семанитческого дерева по синтаксическому(для всех кроме тел методов) без какого либо анализа типов</summary>
 	void Build();
 	void Link();
+	void CalculateSizes(std::vector<TSClass*> &owners);
+	void CalculateMethodsSizes();
 };

@@ -179,10 +179,13 @@ TSClassField* TSClass::GetField(TNameId name, bool is_static, bool only_in_this)
 
 void TSClass::Link()
 {
-	//проверить поля класса - т.к. классы полей не могут содержать поля текущего класса, он учавствует лишь в параметрах методов и локальных переменных
+	
 	//определить присутствие конструктора по умолчанию, деструктора, конструктора копии
-	//слинковать методы
-	//слинковать тела методов - требуется наличие инф. обо всех методах, conversion, операторах класса
+	
+	for (TSClassField& field : fields)
+	{
+		field.Link();
+	}
 
 	assert(!GetSyntax()->IsTemplate());
 	if (linked)
@@ -190,7 +193,7 @@ void TSClass::Link()
 	linked = true;
 
 
-
+	//слинковать сигнатуры методов
 	for (TSOverloadedMethod& method : methods)
 	{
 		method.LinkSignature();
@@ -207,16 +210,21 @@ void TSClass::Link()
 		if (!nested_class->GetSyntax()->IsTemplate())
 			nested_class->Link();
 
+	CheckForErrors();
+
+	//слинковать тела методов - требуется наличие инф. обо всех методах, conversion, операторах класса
 	for (TSOverloadedMethod& method : methods)
 	{
 		method.LinkBody();
 	}
-	constructors->LinkBody();
+	if (constructors)
+		constructors->LinkBody();
 	if (destructor)
 		destructor->LinkBody();
 
 	for (int i = 0; i < TOperator::End; i++)
-		operators[i]->LinkBody();
+		if (operators[i])
+			operators[i]->LinkBody();
 	conversions->LinkBody();
 }
 
@@ -338,4 +346,88 @@ bool TSClass::GetOperators(std::vector<TSMethod*> &result, TOperator::Enum op)
 	//assert(methods_declared&&auto_methods_build);
 	operators[op]->GetMethods(result);
 	return result.size() > 0;
+}
+
+void TSClass::CreateInternalClasses() 
+{
+	TClass* t_syntax = new TClass(GetSyntax());
+	t_syntax->name = GetSyntax()->source->GetIdFromName("dword");
+	TSClass* t = new TSClass(this, templates,t_syntax);
+	t->SetSize(1);
+	t->linked = true;
+	nested_classes.push_back(std::unique_ptr<TSClass>(t));
+}
+
+void TSClass::CalculateSizes(std::vector<TSClass*> &owners) 
+{
+	if (IsSizeInitialized())
+		return;
+	int class_size = 0;
+	if (std::find(owners.begin(), owners.end(), this) != owners.end())
+	{
+		//Error(" ласс не может содержать поле с собственным типом(кроме дин. массивов)!");//TODO см. initautomethods дл¤ дин массивов
+		GetSyntax()->Error("Класс не может содержать поле собственного типа!");
+	}
+	else {
+		owners.push_back(this);
+		if (parent!=NULL) 
+		{
+			TSClass* parent_class = parent;
+			parent_class->CalculateSizes(owners);
+			class_size = parent_class->GetSize();
+			
+			do {
+				//TODO в методы по умолчанию
+				/*
+				//добавл¤ем приведение в родительские классы
+				TMethod* temp = new TMethod(this, TClassMember::Conversion);
+				temp->SetAs(TOpArray(), parent_class, true, true, 1);
+
+				TParameter* t = new TParameter(this, temp);
+				t->SetAs(true, this);
+				temp->AddParam(t);
+				temp->CalcParamSize();
+				AddConversion(temp);*/
+
+				parent_class = parent_class->GetParent();
+			} while (parent_class != NULL);
+		}
+		for (TSClassField& field : fields)
+		{
+			field.GetClass()->CalculateSizes(owners);
+			if (!field.GetSyntax()->IsStatic())
+			{
+				field.SetOffset(class_size);
+				class_size += field.GetClass()->GetSize();
+			}
+		}
+	}
+	owners.pop_back();
+	SetSize(class_size);
+
+	for (const std::shared_ptr<TSClass>& nested_class : nested_classes)
+		if (!nested_class->GetSyntax()->IsTemplate())
+			nested_class->CalculateSizes(owners);
+}
+
+void TSClass::CalculateMethodsSizes()
+{
+	for (TSOverloadedMethod& method : methods)
+	{
+		method.CalculateParametersOffsets();
+	}
+	if (constructors)
+		constructors->CalculateParametersOffsets();
+	if (destructor)
+		destructor->CalculateParametersOffsets();
+
+	for (int i = 0; i < TOperator::End; i++)
+		if (operators[i])
+			operators[i]->CalculateParametersOffsets();
+	if (conversions)
+		conversions->CalculateParametersOffsets();
+
+	for (const std::shared_ptr<TSClass>& nested_class : nested_classes)
+		if (!nested_class->GetSyntax()->IsTemplate())
+			nested_class->CalculateMethodsSizes();
 }

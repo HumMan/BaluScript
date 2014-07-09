@@ -8,7 +8,7 @@ class TSExpression;
 class TLocalVar;
 class TFormalParam;
 
-class TSLocalVar :public TSStatement,public TVariable
+class TSLocalVar :public TSStatement, public TVariable, public TNodeWithOffset
 {
 	TSType type;
 	std::shared_ptr<TSExpression> assign_expr;
@@ -23,4 +23,6 @@ public:
 	TSClass* GetClass();
 	bool IsStatic();
 	TFormalParam Build();
+	void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value);
+	void Destruct();
 };

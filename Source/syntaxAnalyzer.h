@@ -5,21 +5,21 @@
 #include <vector>
 
 class TClass;
-class TClassField;
-class TMethod;
+class TSClassField;
 class TFormalParam;
-
-
+class TSClass;
+class TSMethod;
 
 class TSyntaxAnalyzer
 {
 public:
 	TLexer lexer;
 	TClass* base_class;
+	TSClass* sem_base_class;
 public:
 	TSyntaxAnalyzer():base_class(NULL){}
 	~TSyntaxAnalyzer();
 	void Compile(char* use_source,TTime& time);
-	int GetMethod(char* use_method);
-	TClassField* GetStaticField(char* use_var);
+	TSMethod* GetMethod(char* use_method);
+	TSClassField* GetStaticField(char* use_var);
 };

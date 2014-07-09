@@ -12,6 +12,8 @@
 
 //#include <tchar.h>
 
+#include "../Source/Semantic/SMethod.h"
+
 int main(int argc, char* argv[])
 {
 	setlocale(LC_ALL,"windows");
@@ -27,7 +29,7 @@ int main(int argc, char* argv[])
 		char* source;
 		{
 			//TFileData file("C:\\developments\\BaluFramework\\BaluScript\\Output\\mingw\\script1.bscript"/*FindFileData.cFileName*/,"rb");
-			TFileData file("../Data/int_test.bscript"/*FindFileData.cFileName*/,"rb");
+			TFileData file("../Data/base_types_test.bscript"/*FindFileData.cFileName*/,"rb");
 			source=file.ReadAll();
 			source[file.GetSize()]='\0';
 		}
@@ -49,13 +51,15 @@ int main(int argc, char* argv[])
 			TTime time;
 			time.Start();
 			unsigned long long t0=time.GetTime();
-			int main_func=-1;
+			//int main_func=-1;
 
 			TSyntaxAnalyzer syntax;
 			try
 			{
 				syntax.Compile(source,time);
-
+				TSMethod* main_func = syntax.GetMethod("func static TGame.Main");
+				int sp[200];
+				main_func->Run(&sp[-1]);
 		/*		if(print_info)
 					printf("ok (%.3f ms)\n",time.TimeDiff(time.GetTime(),t0)*1000);
 				t0=time.GetTime();

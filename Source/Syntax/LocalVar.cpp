@@ -26,15 +26,17 @@ void TLocalVar::AnalyzeSyntax(TLexer& source) {
 		source.SetCurrentToken(identifier_token);
 		if (is_next_assign) 
 		{
-			source.GetToken(TTokenType::Identifier);
-			source.TestAndGet(TTokenType::Operator,TOperator::Assign);
+			//source.GetToken(TTokenType::Identifier);
+			//source.TestAndGet(TTokenType::Operator,TOperator::Assign);
 			curr_var->assign_expr = std::shared_ptr<TExpression>(new TExpression(owner, method, parent,
 					curr_var->stmt_id));
 			curr_var->assign_expr->AnalyzeSyntax(source);
 		} else {
 			source.GetToken();
-			if (source.TestAndGet(TTokenType::LParenth)) {
-				while (!source.Test(TTokenType::LParenth)) {
+			if (source.TestAndGet(TTokenType::LParenth)) 
+			{
+				while (!source.Test(TTokenType::LParenth)) 
+				{
 					TExpression* expr = new TExpression(owner, method, parent,
 							curr_var->stmt_id);
 					expr->AnalyzeSyntax(source);
@@ -48,6 +50,13 @@ void TLocalVar::AnalyzeSyntax(TLexer& source) {
 		if ((source.Test(TTokenType::Comma) || source.Test(TTokenType::Semicolon)) && (curr_var != this))
 		{
 			statements->AddVar(curr_var);
+			if (curr_var->assign_expr)
+				curr_var->assign_expr->SetStmtId(curr_var->stmt_id);
+			if (curr_var->params.size() > 0)
+			{
+				for (const std::shared_ptr<TExpression>& v : curr_var->params)
+					v->SetStmtId(curr_var->stmt_id);
+			}
 		}
 		if (source.Test(TTokenType::Comma))
 		{

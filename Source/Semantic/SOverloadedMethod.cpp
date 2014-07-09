@@ -29,6 +29,11 @@ TNameId TSOverloadedMethod::GetName()const
 {
 	return GetSyntax()->GetName();
 }
+void TSOverloadedMethod::CalculateParametersOffsets()
+{
+	for (const std::shared_ptr<TSMethod>& i : methods)
+		i->CalculateParametersOffsets();
+}
 
 bool TSOverloadedMethod::ParamsExists(TSMethod* use_method)
 {

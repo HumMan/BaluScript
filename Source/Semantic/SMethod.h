@@ -8,6 +8,7 @@ class TSClass;
 class TSStatements;
 class TMethod;
 class TSParameter;
+class TStackValue;
 
 class TSMethod:public TSyntaxNode<TMethod>
 {
@@ -16,6 +17,8 @@ private:
 	TSType ret;
 	TSClass* owner;
 	std::vector<std::shared_ptr<TSParameter>> parameters;
+	int ret_size;
+	int parameters_size;
 
 	std::shared_ptr<TSStatements> statements;
 
@@ -32,8 +35,16 @@ public:
 	TSMethod* GetPostEvent();
 	TSMethod(TSClass* use_owner,TMethod* use_syntax);
 
+	int GetParametersSize()
+	{
+		return parameters_size;
+	}
+	int GetRuturnSize()
+	{
+		return ret_size;
+	}
+
 	TSClass* GetOwner()const;
-	TOperator::Enum GetOperatorType();
 	TSClass* GetRetClass();
 	TSParameter* GetParam(int use_id);
 	TVariable* GetVar(TNameId name);
@@ -45,5 +56,9 @@ public:
 
 	void LinkSignature();
 	void LinkBody();
+
+	void CalculateParametersOffsets();
+
+	void Run(std::vector<TStackValue> &stack);
 };
 

@@ -6,6 +6,7 @@
 #include "FormalParam.h"
 #include "SExpression.h"
 #include "SBytecode.h"
+#include "SReturn.h"
 
 class TSStatementBuilder :public TStatementVisitor
 {
@@ -38,6 +39,9 @@ public:
 	}
 	void Visit(TReturn* op)
 	{
+		TSReturn* new_node = new TSReturn(owner, method, parent, op);
+		new_node->Build();
+		return_new_operation = new_node;
 	}
 	void Visit(TStatements* op)
 	{
@@ -101,4 +105,22 @@ TVariable* TSStatements::GetVar(TNameId name, int sender_id)
 	if (parent != NULL)return parent->GetVar(name, GetSyntax()->stmt_id);
 	else if (method != NULL)return  method->GetVar(name);
 	else return NULL;
+}
+
+void TSStatements::Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value)
+{
+	int sp_base = stack.size();
+
+	for (const std::shared_ptr<TSStatement>& statement : statements)
+	{
+		statement->Run(stack, result_returned, return_value,sp_base);
+		if (result_returned)
+			break;
+	}
+	for (TSStatements::TVarDecl& var_decl : var_declarations)
+	{
+		var_decl.pointer->Destruct();
+	}
+
+	stack.resize(sp_base);
 }
