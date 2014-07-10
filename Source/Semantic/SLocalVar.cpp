@@ -129,9 +129,13 @@ TSClass* TSLocalVar::GetClass()
 	return type.GetClass();
 }
 
-void TSLocalVar::Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value)
+void TSLocalVar::Run(std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
+	local_variables.push_back(TStackValue(false, type.GetClass()));
+	assert(GetOffset() == local_variables.size() - 1);//иначе ошибка Build локальных переменных
 
+	if (assign_expr)
+		assign_expr->Run(formal_params, result_returned, result, object, local_variables);
 }
 
 void TSLocalVar::Destruct()

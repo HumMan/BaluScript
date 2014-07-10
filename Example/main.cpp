@@ -13,6 +13,7 @@
 //#include <tchar.h>
 
 #include "../Source/Semantic/SMethod.h"
+#include "../Source/Semantic/FormalParam.h"
 
 int main(int argc, char* argv[])
 {
@@ -59,7 +60,9 @@ int main(int argc, char* argv[])
 				syntax.Compile(source,time);
 				TSMethod* main_func = syntax.GetMethod("func static TGame.Main");
 				int sp[200];
-				main_func->Run(&sp[-1]);
+				std::vector<TStackValue> params;
+				TStackValue result, object;
+				main_func->Run(params,result,object);
 		/*		if(print_info)
 					printf("ok (%.3f ms)\n",time.TimeDiff(time.GetTime(),t0)*1000);
 				t0=time.GetTime();

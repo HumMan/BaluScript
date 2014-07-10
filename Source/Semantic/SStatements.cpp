@@ -74,6 +74,19 @@ TSStatements::TSStatements(TSClass* use_owner, TSMethod* use_method, TSStatement
 void TSStatements::AddVar(TSLocalVar* var, int stmt_id)
 {
 	var_declarations.push_back(TVarDecl(stmt_id, var));
+	var_declarations.back().pointer->SetOffset(GetLastVariableOffset());//на единицу не увеличиваем, т.к. переменная уже добавлена
+}
+
+int TSStatements::GetLastVariableOffset()
+{
+	if (parent != NULL)
+	{
+		return parent->GetLastVariableOffset() + var_declarations.size();
+	}
+	else
+	{
+		return var_declarations.size() - 1;
+	}
 }
 
 void TSStatements::Build()
@@ -107,20 +120,17 @@ TVariable* TSStatements::GetVar(TNameId name, int sender_id)
 	else return NULL;
 }
 
-void TSStatements::Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value)
+void TSStatements::Run(std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
-	int sp_base = stack.size();
-
 	for (const std::shared_ptr<TSStatement>& statement : statements)
 	{
-		statement->Run(stack, result_returned, return_value,sp_base);
+		statement->Run(formal_params, result_returned, result, object, local_variables);
 		if (result_returned)
 			break;
 	}
 	for (TSStatements::TVarDecl& var_decl : var_declarations)
 	{
 		var_decl.pointer->Destruct();
+		local_variables.pop_back();
 	}
-
-	stack.resize(sp_base);
 }

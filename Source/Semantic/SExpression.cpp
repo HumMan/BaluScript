@@ -187,6 +187,7 @@ public:
 		
 		TSExpression::TMethodCall* method_call = new TSExpression::TMethodCall();
 		method_call->Build(param_expressions, params_result, invoke);
+		method_call->left = left;
 		return_new_operation = method_call;
 	}
 	
@@ -448,7 +449,7 @@ void TSExpression::TMethodCall::Build(const std::vector<TSExpression::TOperation
 	invoke = method;
 	for (int i = 0; i < params.size(); i++)
 	{
-		input.emplace_back();
+		input.emplace_back(param_expressions[i]);
 		input.back().BuildConvert(params[i], method->GetParam(i)->GetClass(), method->GetParam(i)->GetSyntax()->IsRef());
 	}
 }
@@ -457,19 +458,19 @@ TSExpression::TInt::TInt(TSClass* owner, TType* syntax_node)
 	:type(owner,syntax_node)
 {
 }
-void TSExpression::TInt::Run(int* &sp)
+void TSExpression::TInt::Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
-	sp++;
-	*sp = val;
+	result = TStackValue(false, type.GetClass());
+	*(int*)result.get() = val;
 }
 TSExpression::TFloat::TFloat(TSClass* owner, TType* syntax_node)
 	:type(owner, syntax_node)
 {
 }
-void TSExpression::TFloat::Run(int* &sp)
+void TSExpression::TFloat::Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
-	sp++;
-	*(float*)sp = val;
+	result = TStackValue(false, type.GetClass());
+	*(float*)result.get() = val;
 }
 TFormalParam TSExpression::TFloat::GetFormalParameter()
 {
@@ -479,15 +480,21 @@ TFormalParam TSExpression::TMethodCall::GetFormalParameter()
 {
 	return TFormalParam(invoke->GetRetClass(), invoke->GetSyntax()->IsReturnRef());
 }
-void TSExpression::TMethodCall::Run(int* &sp)
+void TSExpression::TMethodCall::Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
-	sp += invoke->GetRuturnSize();
+	std::vector<TStackValue> method_call_formal_params;
 	for (TSExpression::TMethodCall::TOperationWithConversions& par : input)
 	{
-		par.expression->Run(sp);
-		par.conversions.RunConversion(sp);
+		TStackValue exp_result;
+		par.expression->Run(formal_params, exp_result,object,local_variables);
+
+		par.conversions.RunConversion(exp_result);
+		method_call_formal_params.push_back(exp_result);
 	}
-	invoke->Run(sp);
+	TStackValue left_result;
+	if (left!=NULL)
+		left->Run(formal_params, left_result, object, local_variables);
+	invoke->Run(method_call_formal_params, result, left_result);
 }
 TFormalParam TSExpression::TInt::GetFormalParameter()
 {
@@ -497,7 +504,7 @@ TFormalParam TSExpression::TGetMethods::GetFormalParameter()
 {
 	return result;
 }
-void TSExpression::TGetMethods::Run(int* &sp)
+void TSExpression::TGetMethods::Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
 	//nothing to do
 }
@@ -505,31 +512,48 @@ TFormalParam TSExpression::TGetClassField::GetFormalParameter()
 {
 	return TFormalParam(field->GetClass(),left_result.IsRef());
 }
-void TSExpression::TGetClassField::Run(int* &sp)
+void TSExpression::TGetClassField::Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
+	if (left != NULL)
+	{
+		TStackValue exp_result;
+		left->Run(formal_params, exp_result, object, local_variables);
+		result = TStackValue(true, field->GetClass());
+		result.SetAsReference(((int*)exp_result.get()) + field->GetOffset());
+	}
+	else
+	{
+		result = TStackValue(true, field->GetClass());
+		result.SetAsReference(((int*)&object)+field->GetOffset());
+	}
 
 }
 TFormalParam TSExpression::TGetParameter::GetFormalParameter()
 {
 	return TFormalParam(parameter->GetClass(), true);
 }
-void TSExpression::TGetParameter::Run(int* &sp)
+void TSExpression::TGetParameter::Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
 	//sp_base - parameter offset
+	void* param = formal_params[parameter->GetOffset()].get();
+	result = TStackValue(true, parameter->GetClass());
+	result.SetAsReference(param);
 }
 TFormalParam TSExpression::TGetLocal::GetFormalParameter()
 {
 	return TFormalParam(variable->GetClass(), true);
 }
-void TSExpression::TGetLocal::Run(int* &sp)
+void TSExpression::TGetLocal::Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
-
+	void* variable_value = local_variables[variable->GetOffset()].get();
+	result = TStackValue(true, variable->GetClass());
+	result.SetAsReference(variable_value);
 }
 TFormalParam TSExpression::TGetClass::GetFormalParameter()
 {
 	return TFormalParam(get_class);
 }
-void TSExpression::TGetClass::Run(int* &sp)
+void TSExpression::TGetClass::Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
 	//nothing to do
 }
@@ -537,12 +561,15 @@ TFormalParam TSExpression::TGetThis::GetFormalParameter()
 {
 	return TFormalParam(owner, true);
 }
-void TSExpression::TGetThis::Run(int* &sp)
+void TSExpression::TGetThis::Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
-
+	result = TStackValue(true, owner);
+	result.SetAsReference(object.get());
 }
 
-void TSExpression::Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value, int method_base)
+void TSExpression::Run(std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
-	first_op->Run(sp);
+	TStackValue exp_result;
+	first_op->Run(formal_params, exp_result,object, local_variables);
+	result = exp_result;
 }

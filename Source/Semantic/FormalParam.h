@@ -4,6 +4,7 @@
 
 class TSClass;
 class TSMethod;
+class TStackValue;
 
 class TFormalParam
 {
@@ -38,10 +39,11 @@ struct TFormalParamWithConversions
 {
 	TFormalParam result;
 	TSMethod* copy_constr;//используется если необходимо преобразование из lvalue в rvalue
+	bool ref_to_rvalue;
 	TSMethod* conversion;//используется если необходимо преобразование параметра
 	TFormalParamWithConversions();
 	void BuildConvert(TFormalParam from_result, TSClass* param_class, bool param_ref);
-	void RunConversion(std::vector<TStackValue> &stack);
+	void RunConversion(TStackValue &value);
 };
 
 class TStackValue
@@ -51,9 +53,16 @@ class TStackValue
 	TSClass* type;
 	int actual_size;
 public:
-	TSClass* GetClass();
-	bool IsRef();
+	TSClass* GetClass()const;
+	bool IsRef()const;
 	TStackValue();
+	TStackValue(const TStackValue& copy_from);
 	TStackValue(bool is_ref, TSClass* type);
+	void operator=(const TStackValue& right);
+	void SetAsReference(void* use_ref);
+	void* get()
+	{
+		return internal_buf;
+	}
 	~TStackValue();
 };

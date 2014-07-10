@@ -20,5 +20,5 @@ public:
 	TSClass* GetClass();
 	bool IsStatic();
 	void Build();
-	void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value, int method_base);
+	void Run(std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 };

@@ -26,10 +26,12 @@ public:
 	}
 	void Add(TSStatement* use_statement);
 	void AddVar(TSLocalVar* use_var,int stmt_id);
+	int GetLastVariableOffset();
 	TSStatement* GetStatement(int i);
 	//TSStatement* CreateNode(TStatement* use_syntax_node);
 	TVariable* GetVar(TNameId name, int sender_id);
 	TSStatements(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TStatements* use_syntax);
 	void Build();
-	void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value);
+	//void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value);
+	void Run(std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 };

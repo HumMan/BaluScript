@@ -39,7 +39,7 @@ public:
 	{
 		return parameters_size;
 	}
-	int GetRuturnSize()
+	int GetReturnSize()
 	{
 		return ret_size;
 	}
@@ -59,6 +59,6 @@ public:
 
 	void CalculateParametersOffsets();
 
-	void Run(std::vector<TStackValue> &stack);
+	void Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
 };
 

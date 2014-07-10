@@ -226,23 +226,6 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 		memcpy(d, s, member_size * 4);
 	}
 		break;
-	case ASSIGN:
-	{
-		int *s, *d;
-		if (op->f1){
-			s = (int*)(sp[0]);
-			d = (int*)(sp[-1]);
-		}
-		else{
-			s = &sp[1 - op->v1];
-			d = (int*)(sp[-op->v1]);
-		}
-		memcpy(d, s, op->v1 * 4);
-		if (op->f1)
-			sp -= 2;
-		else
-			sp -= op->v1 + 1;
-	}break;
 	case EQUAL:
 		Compare(op);
 		break;
@@ -409,10 +392,126 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 		break;
 
 
-		//////////////////////////////////////////////////
+
 
 		//////////////////////////////////////////////////
-		//float
+		//bool
+	case BOOL_AND:
+		sp[-1] = sp[-1] && sp[0];
+		sp--; break;
+	case BOOL_OR:
+		sp[-1] = sp[-1] || sp[0];
+		sp--; break;
+	case BOOL_NOT:
+		sp[0] = !sp[0]; break;
+
+		//////////////////////////////////////////////////
+		//vec2
+	case VEC2_PLUS_A:
+		**(TVec2**)(sp - 2) += *(TVec2*)(sp - 1);
+		sp -= 3; break;
+	case VEC2_MINUS_A:
+		**(TVec2**)(sp - 2) -= *(TVec2*)(sp - 1);
+		sp -= 3; break;
+	case VEC2_MUL_A:
+		**(TVec2**)(sp - 2) *= *(TVec2*)(sp - 1);
+		sp -= 3; break;
+	case VEC2_DIV_A:
+		**(TVec2**)(sp - 2) /= *(TVec2*)(sp - 1);
+		sp -= 3; break;
+
+	case VEC2_PLUS:
+		*(TVec2*)(sp - 3) += *(TVec2*)(sp - 1);
+		sp -= 2; break;
+	case VEC2_MINUS:
+		*(TVec2*)(sp - 3) -= *(TVec2*)(sp - 1);
+		sp -= 2; break;
+	case VEC2_MULT:
+		*(TVec2*)(sp - 3) *= *(TVec2*)(sp - 1);
+		sp -= 2; break;
+	case VEC2_DIV:
+		*(TVec2*)(sp - 3) /= *(TVec2*)(sp - 1);
+		sp -= 2; break;
+
+	case VEC2_UNARY_MINUS:
+		((TVec2*)(sp - 1))->Inverse();
+		break;
+	case R_VEC2_UNARY_MINUS:
+		sp++;
+		*(TVec2*)(sp - 1) = -*((TVec2*)sp[-1]);
+		break;
+
+	case RV_VEC2_GET_ELEMENT:
+		if (*sp != 0 && *sp != 1)throw "Ошибка доступа к элементу вектора!";
+		*(sp - 1) = (int)((int*)(sp[-1]) + *sp);
+		sp--; break;
+
+	case VV_VEC2_GET_ELEMENT:
+		if (*sp != 0 && *sp != 1)throw "Ошибка доступа к элементу вектора!";
+		*(sp - 2) = sp[*sp - 2];
+		sp -= 2; break;
+
+	case VEC2_CROSS:
+		*(TVec2*)(sp - 3) = ((TVec2*)(sp - 3))->Cross(*(TVec2*)(sp - 1));
+		sp -= 3; break;
+	case VEC2_DISTANCE:
+		*(float*)(sp - 3) = ((TVec2*)(sp - 3))->Distance(*(TVec2*)(sp - 1));
+		sp -= 3; break;
+	case VEC2_DOT:
+		*(float*)(sp - 3) = ((TVec2*)(sp - 3))->AbsScalarMul(*(TVec2*)(sp - 1));
+		sp -= 3; break;
+	case VEC2_LENGTH:
+		*(float*)(sp - 1) = ((TVec2*)(sp - 1))->Length();
+		sp--; break;
+	case VEC2_NORMALIZE:
+		((TVec2*)(sp - 1))->Normalize();
+		break;
+	case VEC2_REFLECT:
+		((TVec2*)(sp - 3))->Reflect(*(TVec2*)(sp - 1));
+		sp -= 2; break;
+
+	default:
+		assert(0);
+	}
+	op++;
+}
+void TVirtualMachine::ExecuteBaseOps(TOp* op, int* sp)
+{
+	using namespace TOpcode;
+	//////////////////////////////////////////////////
+	//int
+	switch (op->type)
+	{
+	case ASSIGN:
+	{
+		int *s, *d;
+		if (op->f1){
+			s = (int*)(sp[0]);
+			d = (int*)(sp[-1]);
+		}
+		else{
+			s = &sp[1 - op->v1];
+			d = (int*)(sp[-op->v1]);
+		}
+		memcpy(d, s, op->v1 * 4);
+		if (op->f1)
+			sp -= 2;
+		else
+			sp -= op->v1 + 1;
+	}break;
+	}
+}
+void TVirtualMachine::ExecuteFloatOps(TOp* op, int* sp)
+{
+	using namespace TOpcode;
+	//////////////////////////////////////////////////
+	//int
+	switch (op->type)
+	{
+	//////////////////////////////////////////////////
+
+	//////////////////////////////////////////////////
+	//float
 	case FLOAT_PRINT:
 		printf("print: %f\n", *(float*)sp);
 		sp--; break;
@@ -527,87 +626,7 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 	case FLOAT_TRUNC:
 		*(float*)sp = float(int(*(float*)sp)); break;
 		//////////////////////////////////////////////////
-
-		//////////////////////////////////////////////////
-		//bool
-	case BOOL_AND:
-		sp[-1] = sp[-1] && sp[0];
-		sp--; break;
-	case BOOL_OR:
-		sp[-1] = sp[-1] || sp[0];
-		sp--; break;
-	case BOOL_NOT:
-		sp[0] = !sp[0]; break;
-
-		//////////////////////////////////////////////////
-		//vec2
-	case VEC2_PLUS_A:
-		**(TVec2**)(sp - 2) += *(TVec2*)(sp - 1);
-		sp -= 3; break;
-	case VEC2_MINUS_A:
-		**(TVec2**)(sp - 2) -= *(TVec2*)(sp - 1);
-		sp -= 3; break;
-	case VEC2_MUL_A:
-		**(TVec2**)(sp - 2) *= *(TVec2*)(sp - 1);
-		sp -= 3; break;
-	case VEC2_DIV_A:
-		**(TVec2**)(sp - 2) /= *(TVec2*)(sp - 1);
-		sp -= 3; break;
-
-	case VEC2_PLUS:
-		*(TVec2*)(sp - 3) += *(TVec2*)(sp - 1);
-		sp -= 2; break;
-	case VEC2_MINUS:
-		*(TVec2*)(sp - 3) -= *(TVec2*)(sp - 1);
-		sp -= 2; break;
-	case VEC2_MULT:
-		*(TVec2*)(sp - 3) *= *(TVec2*)(sp - 1);
-		sp -= 2; break;
-	case VEC2_DIV:
-		*(TVec2*)(sp - 3) /= *(TVec2*)(sp - 1);
-		sp -= 2; break;
-
-	case VEC2_UNARY_MINUS:
-		((TVec2*)(sp - 1))->Inverse();
-		break;
-	case R_VEC2_UNARY_MINUS:
-		sp++;
-		*(TVec2*)(sp - 1) = -*((TVec2*)sp[-1]);
-		break;
-
-	case RV_VEC2_GET_ELEMENT:
-		if (*sp != 0 && *sp != 1)throw "Ошибка доступа к элементу вектора!";
-		*(sp - 1) = (int)((int*)(sp[-1]) + *sp);
-		sp--; break;
-
-	case VV_VEC2_GET_ELEMENT:
-		if (*sp != 0 && *sp != 1)throw "Ошибка доступа к элементу вектора!";
-		*(sp - 2) = sp[*sp - 2];
-		sp -= 2; break;
-
-	case VEC2_CROSS:
-		*(TVec2*)(sp - 3) = ((TVec2*)(sp - 3))->Cross(*(TVec2*)(sp - 1));
-		sp -= 3; break;
-	case VEC2_DISTANCE:
-		*(float*)(sp - 3) = ((TVec2*)(sp - 3))->Distance(*(TVec2*)(sp - 1));
-		sp -= 3; break;
-	case VEC2_DOT:
-		*(float*)(sp - 3) = ((TVec2*)(sp - 3))->AbsScalarMul(*(TVec2*)(sp - 1));
-		sp -= 3; break;
-	case VEC2_LENGTH:
-		*(float*)(sp - 1) = ((TVec2*)(sp - 1))->Length();
-		sp--; break;
-	case VEC2_NORMALIZE:
-		((TVec2*)(sp - 1))->Normalize();
-		break;
-	case VEC2_REFLECT:
-		((TVec2*)(sp - 3))->Reflect(*(TVec2*)(sp - 1));
-		sp -= 2; break;
-
-	default:
-		assert(0);
-	}
-	op++;
+}
 }
 
 void TVirtualMachine::ExecuteIntOps(TOp* op, int* sp)

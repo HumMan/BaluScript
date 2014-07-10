@@ -71,7 +71,8 @@ void TSMethod::CalculateParametersOffsets()
 	parameters_size = 0;
 	for (int i = 0; i<parameters.size(); i++)
 	{
-		parameters[i]->SetOffset(parameters_size);
+		//parameters[i]->SetOffset(parameters_size);
+		parameters[i]->SetOffset(i);
 		parameters[i]->CalculateSize();
 		parameters_size += parameters[i]->GetSize();
 	}
@@ -86,10 +87,28 @@ void TSMethod::CalculateParametersOffsets()
 		ret_size = 0;
 }
 
-void TSMethod::Run(std::vector<TStackValue> &stack)
+void TSMethod::Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
 {
 	bool result_returned = false;
-	statements->Run(sp,result_returned,&sp[-GetParametersSize()-GetRuturnSize()]);
+	TStackValue returned_result;
+
+	std::vector<TStackValue> local_variables;
+
+	statements->Run(formal_params, result_returned, returned_result, object, local_variables);
+
+	result = returned_result;
+
+	for (int i = 0; i < formal_params.size(); i++)
+	{
+		if (!formal_params[i].IsRef() && formal_params[i].GetClass()->GetDestructor()!=NULL)
+		{
+			TStackValue destructor_result;
+			formal_params[i].GetClass()->GetDestructor()->Run(formal_params, destructor_result, formal_params[i]);
+		}
+	}
+	result = returned_result;
+
+	//statements->Run(sp,result_returned,&sp[-GetParametersSize()->GetRuturnSize()]);
 
 	//int locals_size=0;
 	//result_result.GetOps()+=BuildLocalsAndParamsDestructor(program,locals_size);

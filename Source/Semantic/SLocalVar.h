@@ -23,6 +23,6 @@ public:
 	TSClass* GetClass();
 	bool IsStatic();
 	TFormalParam Build();
-	void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value);
+	void Run(std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	void Destruct();
 };

@@ -12,5 +12,5 @@ public:
 	{
 		return (TBytecode*)TSyntaxNode::GetSyntax();
 	}
-	void Run(int* &sp, bool& result_returned, int* return_value);
+	void Run(std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 };

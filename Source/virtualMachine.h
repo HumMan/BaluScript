@@ -167,4 +167,6 @@ public:
 	void Execute(int method_id,int* stack_top,int* this_pointer);
 	void Execute(TOp* op, int* stack_top, int* this_pointer, TProgram::TMethod* m);
 	static void ExecuteIntOps(TOp* op, int* sp);
+	static void ExecuteFloatOps(TOp* op, int* sp);
+	static void ExecuteBaseOps(TOp* op, int* sp);
 };

@@ -23,7 +23,7 @@ public:
 		///<summary>Получить тип возвращаемого подвыражением значения</summary>
 		virtual TFormalParam GetFormalParameter() = 0;
 		virtual ~TOperation(){}
-		virtual void Run(int* &sp) = 0;
+		virtual void Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables) = 0;
 	};
 	class TMethodCall : public TOperation
 	{
@@ -40,12 +40,18 @@ public:
 				conversions.BuildConvert(from_result, param_class, param_ref);
 			}
 		};
+		
 		std::list<TOperationWithConversions> input;
 		TSMethod* invoke;
 	public:
+		TOperation* left;
+		TMethodCall()
+		{
+			left = NULL;
+		}
 		void Build(const std::vector<TOperation*>& param_expressions, const std::vector<TFormalParam>& params, TSMethod* method);
 		TFormalParam GetFormalParameter();
-		void Run(int* &sp);
+		void Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
 	class TInt : public TOperation
 	{
@@ -54,7 +60,7 @@ public:
 		int val;
 		TSType type;
 		TFormalParam GetFormalParameter();
-		void Run(int* &sp);
+		void Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
 	class TFloat : public TOperation
 	{
@@ -63,7 +69,7 @@ public:
 		float val;
 		TSType type;
 		TFormalParam GetFormalParameter();
-		void Run(int* &sp);
+		void Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
 	class TGetMethods :public TOperation
 	{
@@ -72,7 +78,7 @@ public:
 		TFormalParam left_result;
 		TFormalParam result;
 		TFormalParam GetFormalParameter();
-		void Run(int* &sp);
+		void Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
 	class TGetClassField :public TOperation
 	{
@@ -81,28 +87,28 @@ public:
 		TFormalParam left_result;
 		TSClassField* field;
 		TFormalParam GetFormalParameter();
-		void Run(int* &sp);
+		void Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
 	class TGetParameter :public TOperation
 	{
 	public:
 		TSParameter* parameter;
 		TFormalParam GetFormalParameter();
-		void Run(int* &sp);
+		void Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
 	class TGetLocal :public TOperation
 	{
 	public:
 		TSLocalVar* variable;
 		TFormalParam GetFormalParameter();
-		void Run(int* &sp);
+		void Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
 	class TGetThis :public TOperation
 	{
 	public:
 		TSClass* owner;
 		TFormalParam GetFormalParameter();
-		void Run(int* &sp);
+		void Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
 	class TGetClass : public TOperation
 	{
@@ -110,7 +116,7 @@ public:
 		TGetClass* left;
 		TSClass* get_class;
 		TFormalParam GetFormalParameter();
-		void Run(int* &sp);
+		void Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
 public:
 	TSExpression(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TExpression* syntax_node)
@@ -125,5 +131,6 @@ public:
 	{
 		return first_op->GetFormalParameter();
 	}
-	void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value, int method_base);
+	//void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value, int method_base);
+	void Run(std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 };
