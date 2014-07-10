@@ -18,7 +18,7 @@ struct TSType_TClassName :TSyntaxNode<TType::TClassName>
 	TSType_TClassName(TType::TClassName* use_syntax) :TSyntaxNode(use_syntax)
 	{
 	}
-	TSClass* Link(std::list<TSType_TClassName>& classes, TSClass* use_owner, TSClass* use_curr_class);
+	TSClass* Link(TSClass* use_owner, TSClass* use_curr_class);
 };
 
 struct TSType:public TSyntaxNode<TType>

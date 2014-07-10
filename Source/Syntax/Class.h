@@ -20,7 +20,7 @@ class TClass:public TTokenPos
 protected:
 	bool is_template;
 
-	std::list<TNameId> template_params;
+	std::vector<TNameId> template_params;
 
 	std::list<TClassField> fields;
 	std::list<TOverloadedMethod> methods;

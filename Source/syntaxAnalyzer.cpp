@@ -23,9 +23,9 @@ void TSyntaxAnalyzer::Compile(char* use_source, TTime& time)
 
 	base_class->AnalyzeSyntax(lexer);
 
-	TTemplateRealizations templates;
+	templates = new TTemplateRealizations();
 
-	sem_base_class = new TSClass(NULL,&templates,base_class);
+	sem_base_class = new TSClass(NULL,templates,base_class);
 
 	sem_base_class->Build();
 	sem_base_class->CreateInternalClasses();

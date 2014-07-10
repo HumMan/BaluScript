@@ -12,7 +12,7 @@ void TSType::Link(TSClass* use_curr_class)
 	for (TType::TClassName& v : GetSyntax()->GetClassNames())
 	{
 		classes.emplace_back(&v);
-		classes.back().Link(classes, owner, NULL);
+		use_curr_class = classes.back().Link(owner, use_curr_class);
 	}
 }
 
@@ -27,7 +27,7 @@ bool TSType::IsEqualTo(const TSType& use_right)const
 	return GetClass() == use_right.GetClass();
 }
 
-TSClass* TSType_TClassName::Link(std::list<TSType_TClassName>& classes, TSClass* use_owner, TSClass* use_curr_class)
+TSClass* TSType_TClassName::Link(TSClass* use_owner, TSClass* use_curr_class)
 {
 	if(use_curr_class==NULL)
 	{
@@ -54,11 +54,6 @@ TSClass* TSType_TClassName::Link(std::list<TSType_TClassName>& classes, TSClass*
 		{
 			template_params_classes.emplace_back(use_owner,&t);
 			template_params_classes.back().Link();
-			//template_params_classes.back().emplace_back(&t);
-
-			//std::list<TSType_TClassName>* last_t = &template_params_classes.back();
-			//TSType_TClassName* t = &last_t->back();
-			//t->Link(template_params_classes.back(), use_owner, NULL);
 		}
 		
 		TTemplateRealizations* templates = use_owner->GetTemplates();
@@ -78,15 +73,23 @@ TSClass* TSType_TClassName::Link(std::list<TSType_TClassName>& classes, TSClass*
 		{
 			//TODO !!!!!!!!!!  шаблонный класс не имеет доступа к своему шаблону
 			//при указании имени класса без шаблонныйх параметров - то же самое что с параметрами текущего класса
-			realization=new TSClass(*use_curr_class);
+			realization = new TSClass(use_curr_class->GetOwner(), templates, use_curr_class->GetSyntax());
 			template_realizations->push_back(std::shared_ptr<TSClass>(realization));
+			realization->template_class = use_curr_class;
+			for (TSType& t_par : template_params_classes)
+			{
+				realization->template_params.push_back(t_par.GetClass());
+			}
+			realization->Build();		
+			realization->Link();
+			std::vector<TSClass*> owners;
+			realization->CalculateSizes(owners);
+			realization->CalculateMethodsSizes();
 		}
 		use_curr_class=realization;
 	}
 
-	//classes.emplace_back(GetSyntax()->member);
-	TSType_TClassName* class_name = &classes.back();
-	class_name->class_of_type = use_curr_class;
+	class_of_type = use_curr_class;
 
 	return use_curr_class;
 }

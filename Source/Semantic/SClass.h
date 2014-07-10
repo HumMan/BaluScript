@@ -11,10 +11,8 @@ class TSClassField;
 
 class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize
 {	
-	///<summary>≈сли класс €вл€етс€ реализацией одного из шаблонов, то содержит указатели на классы, заданные в параметрах шаблона</summary>
-	std::vector<TSClass*> template_params;
-	///<summary>≈сли класс €вл€етс€ реализацией одного из шаблонов, то содержит указатель на шаблонный класс по которому была сгенерирована данна€ реализаци€</summary>
-	TSClass* template_class;
+	
+	
 	TTemplateRealizations* templates;
 
 	std::list<TSClassField> fields;
@@ -41,6 +39,11 @@ class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize
 
 	bool linked;
 public:
+	///<summary>≈сли класс €вл€етс€ реализацией одного из шаблонов, то содержит указатели на классы, заданные в параметрах шаблона</summary>
+	std::vector<TSClass*> template_params;
+	///<summary>≈сли класс €вл€етс€ реализацией одного из шаблонов, то содержит указатель на шаблонный класс по которому была сгенерирована данна€ реализаци€</summary>
+	TSClass* template_class;
+
 	void CreateInternalClasses();//TODO только дл€ главного класса
 	TSClass(TSClass* use_owner, TTemplateRealizations* use_templates,TClass* use_syntax_node);
 	TSClass* GetClass(TNameId use_name);

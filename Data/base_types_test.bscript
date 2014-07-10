@@ -147,6 +147,10 @@ class TGame
 	class TestClass<T>
 	{
 		T field_val;
+		func SetValue(int new_val)
+		{
+			field_val = new_val;
+		}
 		func some_method(int new_val)
 		{
 			field_val = new_val;
@@ -155,12 +159,10 @@ class TGame
 	
 	func static Main
 	{
-		int a;
 		TestClass<int> c;
-		a = c.field_val;
-		c.field_val = 5;
+		c.SetValue(34);
 		Print(c.field_val);
-		c.some_method(15);
+		c.SetValue(2);
 		Print(c.field_val);
 	}
 }

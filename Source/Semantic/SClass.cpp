@@ -138,11 +138,13 @@ TSClass* TSClass::GetClass(TNameId use_name)
 	}
 
 	//assert(!is_template);
-	if (!GetSyntax()->IsTemplate())
+	if (template_class!=NULL)
 	{
-		for (TSClass* template_param : template_params)
-			if (template_param->GetSyntax()->GetName() == use_name)
-				return template_param;
+		//for (TSClass* template_param : template_params)
+		for (int i = 0; i < template_params.size();i++)
+			if (template_class->GetSyntax()->template_params[i] == use_name)
+			//if (template_param->GetSyntax()->GetName() == use_name)
+				return template_params[i];
 	}
 	if (owner != NULL)
 		return owner->GetClass(use_name);
@@ -187,7 +189,6 @@ void TSClass::Link()
 		field.Link();
 	}
 
-	assert(!GetSyntax()->IsTemplate());
 	if (linked)
 		return;
 	linked = true;
