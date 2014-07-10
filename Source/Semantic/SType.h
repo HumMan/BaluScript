@@ -8,17 +8,13 @@
 #include "SSyntaxNode.h"
 
 class TSClass;
+class TSType;
 
 struct TSType_TClassName :TSyntaxNode<TType::TClassName>
 {
 	TSClass* class_of_type;
 	TSClass* template_class;
-	std::vector<std::list<TSType_TClassName>> template_params_classes;
-	TSType_TClassName() :TSyntaxNode(NULL)
-	{
-		class_of_type = NULL;
-		template_class = NULL;
-	}
+	std::list<TSType> template_params_classes;
 	TSType_TClassName(TType::TClassName* use_syntax) :TSyntaxNode(use_syntax)
 	{
 	}
@@ -30,7 +26,6 @@ struct TSType:public TSyntaxNode<TType>
 private:
 	TSClass* owner;
 	std::list<TSType_TClassName> classes;
-	//TSClass* Build(TSClass* use_curr_class,TType::TClassName* use_class_name);
 	void Link(TSClass* use_curr_class);
 public:
 	bool IsEqualTo(const TSType& use_right)const;

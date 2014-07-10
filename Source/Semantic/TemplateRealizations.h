@@ -3,7 +3,7 @@
 #include "SClass.h"
 
 class TSClass;
-class TSType_TClassName;
+class TSType;
 
 class TTemplateRealizations
 {
@@ -18,5 +18,5 @@ public:
 	///<summary>—писок всех шаблонов и их реализаций</summary>
 	std::vector<std::shared_ptr<TTemplateRealization>> templates;
 	std::vector<std::shared_ptr<TSClass>>* FindTemplateRealizations(TSClass* use_template);
-	TSClass* FindTemplateRealization(TSClass* use_template, const std::vector<std::list<TSType_TClassName>>& params_to_find);
+	TSClass* FindTemplateRealization(TSClass* use_template, const std::list<TSType>& params_to_find);
 };

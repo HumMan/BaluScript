@@ -9,8 +9,11 @@ TSType::TSType(TSClass* use_owner, TType* use_syntax_node) :TSyntaxNode(use_synt
 
 void TSType::Link(TSClass* use_curr_class)
 {
-	classes.emplace_back(&GetSyntax()->GetClassName());
-	classes.back().Link(classes, owner, NULL);
+	for (TType::TClassName& v : GetSyntax()->GetClassNames())
+	{
+		classes.emplace_back(&v);
+		classes.back().Link(classes, owner, NULL);
+	}
 }
 
 void TSType::Link()
@@ -47,11 +50,15 @@ TSClass* TSType_TClassName::Link(std::list<TSType_TClassName>& classes, TSClass*
 			use_owner->GetSyntax()->Error("Класс не является шаблонным!");
 		if(template_params->size()!=use_curr_class->GetSyntax()->GetTemplateParamsCount())
 			use_owner->GetSyntax()->Error("Шаблон имеет другое количество параметров!");
-		for (const TType::TClassName& t: *template_params)
+		for (TType& t: *template_params)
 		{
-			template_params_classes.emplace_back();
+			template_params_classes.emplace_back(use_owner,&t);
+			template_params_classes.back().Link();
 			//template_params_classes.back().emplace_back(&t);
-			template_params_classes.back().back().Link(template_params_classes.back(), use_owner, NULL);
+
+			//std::list<TSType_TClassName>* last_t = &template_params_classes.back();
+			//TSType_TClassName* t = &last_t->back();
+			//t->Link(template_params_classes.back(), use_owner, NULL);
 		}
 		
 		TTemplateRealizations* templates = use_owner->GetTemplates();
@@ -81,8 +88,5 @@ TSClass* TSType_TClassName::Link(std::list<TSType_TClassName>& classes, TSClass*
 	TSType_TClassName* class_name = &classes.back();
 	class_name->class_of_type = use_curr_class;
 
-	if(!GetSyntax()->member)
-		return use_curr_class;
-	else 
-		return class_name->Link(classes, use_owner, use_curr_class);
+	return use_curr_class;
 }

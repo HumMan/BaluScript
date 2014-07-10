@@ -143,58 +143,24 @@ class TGame
 		result = a+b;
 		return result;
 	}
-	func static Main2
+	
+	class TestClass<T>
 	{
+		T field_val;
+		func some_method(int new_val)
 		{
-			int a,b;
-			a=3;
-			b=a+4;
-			Print(b);
-			Print(SomeFunc(a,b));
-		}
-		{
-			int a;
-			a=5;
-			Print(a);
-		}
-		{
-			int a;
-			a=5+6;
-			Print(a);
-		}
-		{
-			int a,b,c;
-			a=5+6+1+2+3;
-			Print(a);
-			Print(Sqrt(16));
-			Print(Sin(90*3.1415926/180));
-			b=54+a;
-			Print(b);
-			c=23+b-a;
-			Print(c);
+			field_val = new_val;
 		}
 	}
+	
 	func static Main
 	{
-		{
-			Print(SomeFunc(5,6));
-			bool sss ;
-			sss = Sin(1);
-			int z;
-			int a,b,c(z);
-			b = 2;
-			c = 4;
-			a = (b + c)*b;
-			Print(a);
-			int d=a,e=5;
-			Print(d);
-			Print(e);
-			d = a+b*c/e+(-e);
-			Print(d);
-			float v0,v1,v2=a;
-			v0=Sin(d+Cos(Trunc(v2)));
-			float bdd = false;
-			Print(v0);
-		}
+		int a;
+		TestClass<int> c;
+		a = c.field_val;
+		c.field_val = 5;
+		Print(c.field_val);
+		c.some_method(15);
+		Print(c.field_val);
 	}
 }

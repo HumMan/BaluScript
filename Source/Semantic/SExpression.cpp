@@ -330,6 +330,7 @@ public:
 				TSExpression::TGetClassField* result = new TSExpression::TGetClassField();
 				result->left = NULL;
 				result->field = (TSClassField*)var;
+				result->left_result = TFormalParam(result->field->GetClass(), true);
 				return_new_operation = result;
 				return;
 			}break;
@@ -506,7 +507,8 @@ TFormalParam TSExpression::TGetMethods::GetFormalParameter()
 }
 void TSExpression::TGetMethods::Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
-	//nothing to do
+	if (left!=NULL)
+		left->Run(formal_params, result, object, local_variables);
 }
 TFormalParam TSExpression::TGetClassField::GetFormalParameter()
 {
@@ -524,7 +526,7 @@ void TSExpression::TGetClassField::Run(std::vector<TStackValue> &formal_params, 
 	else
 	{
 		result = TStackValue(true, field->GetClass());
-		result.SetAsReference(((int*)&object)+field->GetOffset());
+		result.SetAsReference(((int*)object.get())+field->GetOffset());
 	}
 
 }

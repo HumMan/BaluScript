@@ -9,7 +9,7 @@ std::vector<std::shared_ptr<TSClass>>* TTemplateRealizations::FindTemplateRealiz
 			return &templates[i]->realizations;
 	return NULL;//assert(true);//шаблон должен присутствовать
 }
-TSClass* TTemplateRealizations::FindTemplateRealization(TSClass* use_template, const std::vector<std::list<TSType_TClassName>>& params_to_find)
+TSClass* TTemplateRealizations::FindTemplateRealization(TSClass* use_template, const std::list<TSType>& params_to_find)
 {
 	std::vector<std::shared_ptr<TSClass>>* arr = FindTemplateRealizations(use_template);
 	for (const std::shared_ptr<TSClass>& realization : *arr)
@@ -20,13 +20,15 @@ TSClass* TTemplateRealizations::FindTemplateRealization(TSClass* use_template, c
 			continue;
 		}
 		bool found = true;
+		auto it = params_to_find.begin();
 		for (int i = 0; i < r_params.size(); i++)
 		{
-			if (r_params[i] != params_to_find[i].back().class_of_type)
+			if (r_params[i] != it->GetClass())
 			{
 				found = false;
 				break;
 			}
+			it++;
 		}
 		if (found)
 			return realization.get();
