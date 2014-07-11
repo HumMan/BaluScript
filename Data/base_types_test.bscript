@@ -122,9 +122,11 @@ class TGame
 	class Test1<T>
 	{
 		T f;
-		func SetValue(Test2<T> v)
+		func SetValue(Test2<T> v,Test1<T> vvd)
 		{
 			Test2<Test1<Test2<float>>> df;
+			Test1<int> ddd;
+			TTmm<int,float> dsfsf;
 		}
 	}
 	class Test2<T>
@@ -133,21 +135,24 @@ class TGame
 		func SetValue(Test1<T> v)
 		{
 			Test2<Test1<Test2<float>>> df;
+			Test1<int> ddd;
+			TTmm<int,float> dsfsf;
 		}
 	}
 	
 	class TTmm<T,K>
 	{
 		T f1;
-		K f1;
+		K f21;
 		func SetValue(T a,K b,TTmm<K,T> dsf)
 		{
-			Test2<Test1<Test2<float>d> df;
+			Test2<Test1<Test2<float>>> df;
 		}
 	}
 	
 	func static Main
 	{
 		Test1<int> ddd;
+		TTmm<int,float> dsfsf;
 	}
 }
