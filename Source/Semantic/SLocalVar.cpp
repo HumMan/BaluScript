@@ -37,7 +37,8 @@ TFormalParam TSLocalVar::Build()
 	{
 	}
 
-	type.Link();
+	type.LinkSignature();
+	type.LinkBody();
 
 	parent->AddVar(this, GetSyntax()->stmt_id);
 

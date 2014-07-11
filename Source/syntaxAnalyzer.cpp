@@ -23,13 +23,13 @@ void TSyntaxAnalyzer::Compile(char* use_source, TTime& time)
 
 	base_class->AnalyzeSyntax(lexer);
 
-	templates = new TTemplateRealizations();
 
-	sem_base_class = new TSClass(NULL,templates,base_class);
+	sem_base_class = new TSClass(NULL,base_class);
 
 	sem_base_class->Build();
 	sem_base_class->CreateInternalClasses();
-	sem_base_class->Link();
+	sem_base_class->LinkSignature();
+	sem_base_class->LinkBody();
 	std::vector<TSClass*> owners;
 	sem_base_class->CalculateSizes(owners);
 	sem_base_class->CalculateMethodsSizes();//

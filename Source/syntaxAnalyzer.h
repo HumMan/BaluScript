@@ -17,7 +17,6 @@ public:
 	TLexer lexer;
 	TClass* base_class;
 	TSClass* sem_base_class;
-	TTemplateRealizations* templates;
 public:
 	TSyntaxAnalyzer():base_class(NULL){}
 	~TSyntaxAnalyzer();

@@ -7,18 +7,34 @@ TSType::TSType(TSClass* use_owner, TType* use_syntax_node) :TSyntaxNode(use_synt
 	owner = use_owner;
 }
 
-void TSType::Link(TSClass* use_curr_class)
+void TSType::LinkSignature(TSClass* use_curr_class)
 {
 	for (TType::TClassName& v : GetSyntax()->GetClassNames())
 	{
 		classes.emplace_back(&v);
-		use_curr_class = classes.back().Link(owner, use_curr_class);
+		use_curr_class = classes.back().LinkSignature(owner, use_curr_class);
 	}
 }
 
-void TSType::Link()
+void TSType::LinkSignature()
+{ 
+	if (!IsSignatureLinked())
+		SetSignatureLinked();
+	else
+		return;
+	LinkSignature(NULL);
+}
+
+void TSType::LinkBody()
 {
-	Link(NULL);
+	if (!IsBodyLinked())
+		SetBodyLinked();
+	else
+		return;
+	for (TSType_TClassName& v : classes)
+	{
+		v.LinkBody();
+	}
 }
 
 bool TSType::IsEqualTo(const TSType& use_right)const
@@ -27,8 +43,13 @@ bool TSType::IsEqualTo(const TSType& use_right)const
 	return GetClass() == use_right.GetClass();
 }
 
-TSClass* TSType_TClassName::Link(TSClass* use_owner, TSClass* use_curr_class)
+TSClass* TSType_TClassName::LinkSignature(TSClass* use_owner, TSClass* use_curr_class)
 {
+	if (!IsSignatureLinked())
+		SetSignatureLinked();
+	else
+		return NULL;
+
 	if(use_curr_class==NULL)
 	{
 		use_curr_class = use_owner->GetClass(GetSyntax()->name);
@@ -53,38 +74,30 @@ TSClass* TSType_TClassName::Link(TSClass* use_owner, TSClass* use_curr_class)
 		for (TType& t: *template_params)
 		{
 			template_params_classes.emplace_back(use_owner,&t);
-			template_params_classes.back().Link();
+			template_params_classes.back().LinkSignature();
 		}
 		
-		TTemplateRealizations* templates = use_owner->GetTemplates();
-		std::vector<std::shared_ptr<TSClass>>* template_realizations = templates->FindTemplateRealizations(use_curr_class);
-
-		TSClass* realization = NULL;
-		if (template_realizations == NULL)
-		{
-			
-			TTemplateRealizations::TTemplateRealization* t = new TTemplateRealizations::TTemplateRealization();
-			templates->templates.push_back(std::shared_ptr<TTemplateRealizations::TTemplateRealization>(t));
-			t->template_pointer = use_curr_class;
-			template_realizations = &t->realizations;
-		}
-		realization = templates->FindTemplateRealization(use_curr_class, template_params_classes);
+		TSClass* realization = use_curr_class->FindTemplateRealization(template_params_classes);
 		if(realization==NULL)
 		{
 			//TODO !!!!!!!!!!  шаблонный класс не имеет доступа к своему шаблону
 			//при указании имени класса без шаблонныйх параметров - то же самое что с параметрами текущего класса
-			realization = new TSClass(use_curr_class->GetOwner(), templates, use_curr_class->GetSyntax());
-			template_realizations->push_back(std::shared_ptr<TSClass>(realization));
-			realization->template_class = use_curr_class;
-			for (TSType& t_par : template_params_classes)
+			realization = new TSClass(use_curr_class->GetOwner(), use_curr_class->GetSyntax(), TNodeWithTemplates::Realization);
+			use_curr_class->AddTemplateRealization(realization);
+			realization->SetTemplateClass(use_curr_class);
 			{
-				realization->template_params.push_back(t_par.GetClass());
+				std::vector<TSClass*> template_params;
+				for (TSType& t_par : template_params_classes)
+				{
+					template_params.push_back(t_par.GetClass());
+				}
+				realization->SetTemplateParams(template_params);
 			}
 			realization->Build();		
-			realization->Link();
-			std::vector<TSClass*> owners;
-			realization->CalculateSizes(owners);
-			realization->CalculateMethodsSizes();
+			realization->LinkSignature();
+			//std::vector<TSClass*> owners;
+			//realization->CalculateSizes(owners);
+			//realization->CalculateMethodsSizes();
 		}
 		use_curr_class=realization;
 	}
@@ -93,3 +106,22 @@ TSClass* TSType_TClassName::Link(TSClass* use_owner, TSClass* use_curr_class)
 
 	return use_curr_class;
 }
+
+
+void TSType_TClassName::LinkBody()
+{
+	if (!IsBodyLinked())
+		SetBodyLinked();
+	else
+		return;
+
+	for (TSType& t_par : template_params_classes)
+	{
+		t_par.LinkBody();
+	}
+
+	std::vector<TSClass*> owners;
+	//class_of_type->CalculateSizes(owners);
+	//class_of_type->CalculateMethodsSizes();
+}
+

@@ -9,12 +9,8 @@
 class TTemplateRealizations;
 class TSClassField;
 
-class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize
+class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize,public TNodeSignatureLinked,public TNodeBodyLinked,public TNodeWithTemplates
 {	
-	
-	
-	TTemplateRealizations* templates;
-
 	std::list<TSClassField> fields;
 	std::list<TSOverloadedMethod> methods;
 	std::shared_ptr<TSOverloadedMethod> constructors;
@@ -36,16 +32,10 @@ class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize
 	bool is_sealed;
 	///<summary> ласс в пределах которого объ€влен данный класс</summary>
 	TSClass* owner;
-
-	bool linked;
 public:
-	///<summary>≈сли класс €вл€етс€ реализацией одного из шаблонов, то содержит указатели на классы, заданные в параметрах шаблона</summary>
-	std::vector<TSClass*> template_params;
-	///<summary>≈сли класс €вл€етс€ реализацией одного из шаблонов, то содержит указатель на шаблонный класс по которому была сгенерирована данна€ реализаци€</summary>
-	TSClass* template_class;
 
 	void CreateInternalClasses();//TODO только дл€ главного класса
-	TSClass(TSClass* use_owner, TTemplateRealizations* use_templates,TClass* use_syntax_node);
+	TSClass(TSClass* use_owner, TClass* use_syntax_node, TNodeWithTemplates::Type type = TNodeWithTemplates::Unknown);
 	TSClass* GetClass(TNameId use_name);
 	void CheckForErrors();
 	TSClass* GetOwner();
@@ -55,10 +45,6 @@ public:
 	}
 	TSClassField* GetField(TNameId name, bool only_in_this);
 	TSClassField* GetField(TNameId name, bool is_static, bool only_in_this);
-	const std::vector<TSClass*>& GetTemplateParams()
-	{
-		return template_params;
-	}
 	bool HasConversion(TSClass* target_type);
 	bool IsNestedIn(TSClass* use_parent);
 	bool GetOperators(std::vector<TSMethod*> &result, TOperator::Enum op);
@@ -74,7 +60,8 @@ public:
 	TTemplateRealizations* GetTemplates();
 	///<summary>ѕостоение семанитческого дерева по синтаксическому(дл€ всех кроме тел методов) без какого либо анализа типов</summary>
 	void Build();
-	void Link();
+	void LinkSignature();
+	void LinkBody();
 	void CalculateSizes(std::vector<TSClass*> &owners);
 	void CalculateMethodsSizes();
 };

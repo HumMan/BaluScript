@@ -1,18 +1,12 @@
 ﻿#include "TemplateRealizations.h"
 
 #include "SType.h"
+#include "SClass.h"
 
-std::vector<std::shared_ptr<TSClass>>* TTemplateRealizations::FindTemplateRealizations(TSClass* use_template)
+TSClass* TNodeWithTemplates::FindTemplateRealization(const std::list<TSType>& params_to_find)
 {
-	for (int i = 0; i < templates.size(); i++)
-		if (templates[i]->template_pointer == use_template)
-			return &templates[i]->realizations;
-	return NULL;//assert(true);//шаблон должен присутствовать
-}
-TSClass* TTemplateRealizations::FindTemplateRealization(TSClass* use_template, const std::list<TSType>& params_to_find)
-{
-	std::vector<std::shared_ptr<TSClass>>* arr = FindTemplateRealizations(use_template);
-	for (const std::shared_ptr<TSClass>& realization : *arr)
+	assert(type == Template);
+	for (TSClass* realization : realizations)
 	{
 		const std::vector<TSClass*>& r_params = realization->GetTemplateParams();
 		if (r_params.size() != params_to_find.size())
@@ -31,7 +25,7 @@ TSClass* TTemplateRealizations::FindTemplateRealization(TSClass* use_template, c
 			it++;
 		}
 		if (found)
-			return realization.get();
+			return realization;
 	}
 	return NULL;
 }

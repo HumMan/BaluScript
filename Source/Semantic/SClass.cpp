@@ -5,16 +5,23 @@
 #include "SOverloadedMethod.h"
 #include "SType.h"
 
-TSClass::TSClass(TSClass* use_owner, TTemplateRealizations* use_templates, TClass* use_syntax_node) :TSyntaxNode(use_syntax_node)
+TSClass::TSClass(TSClass* use_owner, TClass* use_syntax_node, TNodeWithTemplates::Type type) :TSyntaxNode(use_syntax_node)
 {
-	templates = use_templates;
+	if (type == TNodeWithTemplates::Unknown)
+	{
+		if (use_syntax_node->IsTemplate())
+			SetType(TNodeWithTemplates::Template);
+		else
+			SetType(TNodeWithTemplates::Class);
+	}
+	else
+		SetType(type);
 	is_sealed = false;
 
 	auto_def_constr = NULL;
 	auto_destr = NULL;
 
 	owner = use_owner;
-	linked = false;
 }
 
 TSClass* TSClass::GetOwner()
@@ -54,13 +61,9 @@ void TSClass::Build()
 
 	for (const std::unique_ptr<TClass>& nested_class : GetSyntax()->nested_classes)
 	{
-		nested_classes.push_back(std::shared_ptr<TSClass>(new TSClass(this, templates, nested_class.get())));
+		nested_classes.push_back(std::shared_ptr<TSClass>(new TSClass(this, nested_class.get())));
 		nested_classes.back()->Build();
 	}
-}
-
-TTemplateRealizations* TSClass::GetTemplates(){
-	return templates;
 }
 
 TSClass* TSClass::GetNested(TNameId name) {
@@ -129,23 +132,26 @@ void TSClass::CheckForErrors()
 
 TSClass* TSClass::GetClass(TNameId use_name)
 {
-	if (GetSyntax()->GetName() == use_name)
-		return this;
-	for (const std::shared_ptr<TSClass>& nested_class : nested_classes)
+	//мы должны возвращать шаблонный класс, а не его реализацию
+	if (GetType() == TNodeWithTemplates::Class || GetType() == TNodeWithTemplates::Template)
 	{
-		if (nested_class->GetSyntax()->GetName() == use_name)
-			return nested_class.get();
+		if (GetSyntax()->GetName() == use_name)
+			return this;
+		for (const std::shared_ptr<TSClass>& nested_class : nested_classes)
+		{
+			if (nested_class->GetSyntax()->GetName() == use_name)
+				return nested_class.get();
+		}
 	}
-
-	//assert(!is_template);
-	if (template_class!=NULL)
+	
+	if (GetType() == TNodeWithTemplates::Realization)
 	{
-		//for (TSClass* template_param : template_params)
-		for (int i = 0; i < template_params.size();i++)
-			if (template_class->GetSyntax()->template_params[i] == use_name)
-			//if (template_param->GetSyntax()->GetName() == use_name)
+		std::vector<TSClass*> template_params = GetTemplateParams();
+		for (int i = 0; i < template_params.size(); i++)
+			if (GetTemplateClass()->GetSyntax()->template_params[i] == use_name)
 				return template_params[i];
 	}
+
 	if (owner != NULL)
 		return owner->GetClass(use_name);
 	return NULL;
@@ -179,20 +185,19 @@ TSClassField* TSClass::GetField(TNameId name, bool is_static, bool only_in_this)
 	return NULL;
 }
 
-void TSClass::Link()
+void TSClass::LinkSignature()
 {
-	
+	if (!IsSignatureLinked())
+		SetSignatureLinked();
+	else
+		return;
+
 	//определить присутствие конструктора по умолчанию, деструктора, конструктора копии
 	
 	for (TSClassField& field : fields)
 	{
-		field.Link();
+		field.LinkSignature();
 	}
-
-	if (linked)
-		return;
-	linked = true;
-
 
 	//слинковать сигнатуры методов
 	for (TSOverloadedMethod& method : methods)
@@ -209,9 +214,22 @@ void TSClass::Link()
 
 	for (const std::shared_ptr<TSClass>& nested_class : nested_classes)
 		if (!nested_class->GetSyntax()->IsTemplate())
-			nested_class->Link();
+			nested_class->LinkSignature();
+}
+
+void TSClass::LinkBody()
+{
+	if (!IsBodyLinked())
+		SetBodyLinked();
+	else
+		return;
 
 	CheckForErrors();
+
+	for (TSClassField& field : fields)
+	{
+		field.LinkBody();
+	}
 
 	//слинковать тела методов - требуется наличие инф. обо всех методах, conversion, операторах класса
 	for (TSOverloadedMethod& method : methods)
@@ -227,12 +245,16 @@ void TSClass::Link()
 		if (operators[i])
 			operators[i]->LinkBody();
 	conversions->LinkBody();
+
+	for (const std::shared_ptr<TSClass>& nested_class : nested_classes)
+		if (!nested_class->GetSyntax()->IsTemplate())
+			nested_class->LinkBody();
 }
 
 
 bool TSClass::GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name) 
 {
-	assert(linked);
+	assert(IsSignatureLinked());
 	for (TSOverloadedMethod& ov_method : methods)
 	{
 		if (ov_method.GetName() == use_method_name)
@@ -250,7 +272,7 @@ bool TSClass::GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name
 
 bool TSClass::GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name, bool is_static) 
 {
-	assert(linked);
+	assert(IsSignatureLinked());
 	for (TSOverloadedMethod& ov_method : methods)
 	{
 		if (ov_method.GetName() == use_method_name)
@@ -269,7 +291,7 @@ bool TSClass::GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name
 
 TSMethod* TSClass::GetConversion(bool source_ref, TSClass* target_type) 
 {
-	assert(linked);
+	assert(IsSignatureLinked());
 	for (const std::shared_ptr<TSMethod>& conversion : conversions->methods)
 	{
 		if (conversion->GetRetClass() == target_type
@@ -353,9 +375,10 @@ void TSClass::CreateInternalClasses()
 {
 	TClass* t_syntax = new TClass(GetSyntax());
 	t_syntax->name = GetSyntax()->source->GetIdFromName("dword");
-	TSClass* t = new TSClass(this, templates,t_syntax);
+	TSClass* t = new TSClass(this,t_syntax);
 	t->SetSize(1);
-	t->linked = true;
+	t->SetSignatureLinked();
+	t->SetBodyLinked();
 	nested_classes.push_back(std::unique_ptr<TSClass>(t));
 }
 

@@ -16,7 +16,8 @@ class TSParameter :public TSyntaxNode<TParameter>, public TVariable,public TNode
 	TSMethod* method;
 public:
 	TSParameter(TSClass* use_owner, TSMethod* use_method, TParameter* use_syntax_node, TType* use_type_syntax_node);
-	void Link();
+	void LinkBody();
+	void LinkSignature();
 	TSClass* GetClass();
 	bool IsEqualTo(const TSParameter& right)const;
 	void CalculateSize();

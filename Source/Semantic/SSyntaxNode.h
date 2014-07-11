@@ -48,3 +48,42 @@ public:
 		return size_initialized;
 	}
 };
+
+
+class TNodeSignatureLinked
+{
+	bool signature_linked;
+public:
+	TNodeSignatureLinked()
+	{
+		signature_linked = false;
+	}
+	void SetSignatureLinked()
+	{
+		assert(!signature_linked);
+		signature_linked = true;
+	}
+	bool IsSignatureLinked()
+	{
+		return signature_linked;
+	}
+};
+
+class TNodeBodyLinked
+{
+	bool body_linked;
+public:
+	TNodeBodyLinked()
+	{
+		body_linked = false;
+	}
+	void SetBodyLinked()
+	{
+		assert(!body_linked);
+		body_linked = true;
+	}
+	bool IsBodyLinked()
+	{
+		return body_linked;
+	}
+};

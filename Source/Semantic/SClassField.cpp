@@ -21,8 +21,15 @@ TSClass* TSClassField::GetOwner()const
 	return owner;
 }
 
-void TSClassField::Link()
+void TSClassField::LinkSignature()
 {
 
-	type.Link();
+	type.LinkSignature();
 }
+
+void TSClassField::LinkBody()
+{
+
+	type.LinkBody();
+}
+

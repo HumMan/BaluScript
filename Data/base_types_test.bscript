@@ -119,50 +119,35 @@ class TGame
 		conversion static (bool  v):int bytecode{};
 	}
 	
-	class Test
+	class Test1<T>
 	{
-		int vss;
-	public:
-		int v,v1,v2;
-	}
-	
-	class Test2
-	{
-	public:
-		Test v;
-	}
-	class Test3
-	{
-	public:
-		Test2 v;
-	}
-	
-	func static SomeFunc(int a,int b):int
-	{
-		int result;
-		result = a+b;
-		return result;
-	}
-	
-	class TestClass<T>
-	{
-		T field_val;
-		func SetValue(int new_val)
+		T f;
+		func SetValue(Test2<T> v)
 		{
-			field_val = new_val;
+			Test2<Test1<Test2<float>>> df;
 		}
-		func some_method(int new_val)
+	}
+	class Test2<T>
+	{
+		T f;
+		func SetValue(Test1<T> v)
 		{
-			field_val = new_val;
+			Test2<Test1<Test2<float>>> df;
+		}
+	}
+	
+	class TTmm<T,K>
+	{
+		T f1;
+		K f1;
+		func SetValue(T a,K b,TTmm<K,T> dsf)
+		{
+			Test2<Test1<Test2<float>d> df;
 		}
 	}
 	
 	func static Main
 	{
-		TestClass<int> c;
-		c.SetValue(34);
-		Print(c.field_val);
-		c.SetValue(2);
-		Print(c.field_val);
+		Test1<int> ddd;
 	}
 }

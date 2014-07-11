@@ -19,10 +19,10 @@ void TSMethod::LinkSignature()
 		return;
 	linked_signature = true;
 	if(GetSyntax()->has_return)
-		ret.Link();
+		ret.LinkSignature();
 	for (const std::shared_ptr<TSParameter>& v : parameters)
 	{
-		v->Link();
+		v->LinkSignature();
 	}
 	
 }
@@ -64,6 +64,13 @@ void TSMethod::LinkBody()
 	statements->Build();
 	//if (!GetSyntax()->IsBytecode())
 	//	statements->Build();
+
+	if (GetSyntax()->has_return)
+		ret.LinkBody();
+	for (const std::shared_ptr<TSParameter>& v : parameters)
+	{
+		v->LinkBody();
+	}
 }
 
 void TSMethod::CalculateParametersOffsets()

@@ -7,11 +7,14 @@ TSParameter::TSParameter(TSClass* use_owner, TSMethod* use_method, TParameter* u
 {
 }
 
-void TSParameter::Link()
+void TSParameter::LinkBody()
 {
-	type.Link();
+	type.LinkBody();
 }
-
+void TSParameter::LinkSignature()
+{
+	type.LinkSignature();
+}
 TSClass* TSParameter::GetClass()
 {
 	return type.GetClass();

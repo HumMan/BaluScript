@@ -408,7 +408,8 @@ public:
 	{
 		TSExpression::TInt* result = new TSExpression::TInt(owner, &op->type);
 		result->val = op->val;
-		result->type.Link();
+		result->type.LinkSignature();
+		result->type.LinkBody();
 		return_new_operation = result;
 	}
 	void Visit(TExpression::TStringValue *op)
@@ -423,7 +424,8 @@ public:
 	{
 		TSExpression::TFloat* result = new TSExpression::TFloat(owner, &op->type);
 		result->val = op->val;
-		result->type.Link();
+		result->type.LinkSignature();
+		result->type.LinkBody();
 		return_new_operation = result;
 	}
 	void Visit(TExpression::TBoolValue* op)
