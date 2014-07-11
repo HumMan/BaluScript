@@ -121,6 +121,7 @@ void TSType_TClassName::LinkBody()
 	}
 
 	std::vector<TSClass*> owners;
+	class_of_type->LinkBody();
 	//class_of_type->CalculateSizes(owners);
 	//class_of_type->CalculateMethodsSizes();
 }

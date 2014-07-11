@@ -35,6 +35,11 @@ public:
 		template_params_set = false;
 		template_class = NULL;
 	}
+	std::vector<TSClass*> GetRealizations()
+	{
+		assert(type == Template);
+		return realizations;
+	}
 	TSClass* GetTemplateClass()
 	{
 		assert(type == Realization);

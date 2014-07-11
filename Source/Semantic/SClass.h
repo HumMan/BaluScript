@@ -57,7 +57,6 @@ public:
 	TSMethod* GetDestructor();
 	TSMethod* GetConversion(bool source_ref, TSClass* target_type);
 	TSClass* GetNested(TNameId name);
-	TTemplateRealizations* GetTemplates();
 	///<summary>Постоение семанитческого дерева по синтаксическому(для всех кроме тел методов) без какого либо анализа типов</summary>
 	void Build();
 	void LinkSignature();
