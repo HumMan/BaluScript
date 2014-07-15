@@ -7,6 +7,7 @@ class TFor;
 
 class TWhile:public TStatement
 {
+	friend class TSWhile;
 	std::unique_ptr<TExpression> compare;
 	std::unique_ptr<TStatements> statements;
 	void operator=(const TFor& use_source);

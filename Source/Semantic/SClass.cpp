@@ -23,7 +23,7 @@ TSClass::TSClass(TSClass* use_owner, TClass* use_syntax_node, TNodeWithTemplates
 
 	auto_def_constr = NULL;
 	auto_destr = NULL;
-
+	parent = NULL;
 	owner = use_owner;
 }
 

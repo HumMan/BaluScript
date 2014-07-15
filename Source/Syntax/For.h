@@ -8,6 +8,7 @@ class TExpression;
 
 class TFor :public TStatement
 {
+	friend class TSFor;
 	std::unique_ptr<TExpression> compare;
 	std::unique_ptr<TStatements> increment;
 	std::unique_ptr<TStatements> statements;

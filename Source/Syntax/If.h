@@ -7,6 +7,7 @@ class TStatements;
 
 class TIf:public TStatement
 {
+	friend class TSIf;
 	std::unique_ptr<TExpression> bool_expr;
 	std::unique_ptr<TStatements> statements, else_statements;
 public:

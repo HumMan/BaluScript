@@ -7,6 +7,9 @@
 #include "SExpression.h"
 #include "SBytecode.h"
 #include "SReturn.h"
+#include "SWhile.h"
+#include "SIf.h"
+#include "SFor.h"
 
 class TSStatementBuilder :public TStatementVisitor
 {
@@ -57,12 +60,21 @@ public:
 	}
 	void Visit(TWhile* op)
 	{
+		TSWhile* new_node = new TSWhile(owner, method, parent, op);
+		new_node->Build();
+		return_new_operation = new_node;
 	}
 	void Visit(TFor* op)
 	{
+		TSFor* new_node = new TSFor(owner, method, parent, op);
+		new_node->Build();
+		return_new_operation = new_node;
 	}
 	void Visit(TIf* op)
 	{
+		TSIf* new_node = new TSIf(owner, method, parent, op);
+		new_node->Build();
+		return_new_operation = new_node;
 	}
 };
 

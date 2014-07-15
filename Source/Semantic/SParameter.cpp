@@ -1,5 +1,7 @@
 ﻿#include "SParameter.h"
 
+#include "../Syntax/Statements.h"
+
 TSParameter::TSParameter(TSClass* use_owner, TSMethod* use_method, TParameter* use_syntax_node, TType* use_type_syntax_node) 
 	: TSyntaxNode(use_syntax_node)
 	, TVariable(TVariableType::Parameter)

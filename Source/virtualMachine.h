@@ -153,7 +153,7 @@ public:
 		Execute(method_id,sp+1,this_pointer);
 	}
 	char buf[10000];
-	void Compare(TOp* op)
+	static void Compare(TOp* op, int* &sp)
 	{
 		int *s,*d;
 		if(op->f2)s=&sp[0];
@@ -166,7 +166,9 @@ public:
 	}
 	void Execute(int method_id,int* stack_top,int* this_pointer);
 	void Execute(TOp* op, int* stack_top, int* this_pointer, TProgram::TMethod* m);
-	static void ExecuteIntOps(TOp* op, int* sp);
-	static void ExecuteFloatOps(TOp* op, int* sp);
-	static void ExecuteBaseOps(TOp* op, int* sp);
+	static bool ExecuteIntOps(TOp* op, int* sp);
+	static bool ExecuteFloatOps(TOp* op, int* sp);
+	static bool ExecuteBoolOps(TOp* op, int* sp);
+	static bool ExecuteVec2Ops(TOp* op, int* sp);
+	static bool ExecuteBaseOps(TOp* op, int* sp);
 };

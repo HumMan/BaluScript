@@ -111,7 +111,7 @@ void TVirtualMachine::Execute(int method_id, int* stack_top, int* this_pointer)
 	{
 		assert(sp - sp_first <= stack_size);
 		//TODO контроль размера стека 
-		Execute(op, this_pointer, stack_top,m);
+		Execute(op, this_pointer, stack_top, m);
 	}
 }
 
@@ -226,13 +226,7 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 		memcpy(d, s, member_size * 4);
 	}
 		break;
-	case EQUAL:
-		Compare(op);
-		break;
-	case NOT_EQUAL:
-		Compare(op);
-		sp[0] = (!sp[0]);
-		break;
+
 	case ADD_OFFSET:
 		*sp += (unsigned int)op->v1 * 4; break;
 	case PUSH_STACK_HIGH_REF:
@@ -293,8 +287,8 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 		if (!op->f1)((TStaticArr*)d)->Destr(this);
 		if (!op->f2)((TStaticArr*)s)->Destr(this);
 	}break;
-		//////////////////////////////////////////////////
-		//dynamic array
+	//////////////////////////////////////////////////
+	//dynamic array
 
 	case R_DYN_ARR_DEF_CONSTR:
 		((TDynArr*)this_pointer)->DefConstr(this, op->v1);
@@ -362,10 +356,10 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 		sp = d - 1;
 		if (!op->f2)((TString*)s)->Destr();
 	}break;
-		//case VV_STRING_PLUS:
-		//	break;
-		//case RV_STRING_PLUS_ASSIGN:
-		//	break;
+	//case VV_STRING_PLUS:
+	//	break;
+	//case RV_STRING_PLUS_ASSIGN:
+	//	break;
 	case STRING_EQUAL:
 	{
 		int *s, *d;
@@ -394,17 +388,48 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 
 
 
-		//////////////////////////////////////////////////
-		//bool
-	case BOOL_AND:
-		sp[-1] = sp[-1] && sp[0];
-		sp--; break;
-	case BOOL_OR:
-		sp[-1] = sp[-1] || sp[0];
-		sp--; break;
-	case BOOL_NOT:
-		sp[0] = !sp[0]; break;
-
+		
+	default:
+		assert(0);
+	}
+	op++;
+}
+bool TVirtualMachine::ExecuteBaseOps(TOp* op, int* sp)
+{
+	using namespace TOpcode;
+	//////////////////////////////////////////////////
+	//int
+	switch (op->type)
+	{
+	case ASSIGN:
+	{
+		int *s, *d;
+		if (op->f1){
+			s = (int*)(sp[0]);
+			d = (int*)(sp[-1]);
+		}
+		else{
+			s = &sp[1 - op->v1];
+			d = (int*)(sp[-op->v1]);
+		}
+		memcpy(d, s, op->v1 * 4);
+		if (op->f1)
+			sp -= 2;
+		else
+			sp -= op->v1 + 1;
+	}break;
+	default:
+		return false;
+	}
+	return true;
+}
+bool TVirtualMachine::ExecuteVec2Ops(TOp* op, int* sp)
+{
+	using namespace TOpcode;
+	//////////////////////////////////////////////////
+	//int
+	switch (op->type)
+	{
 		//////////////////////////////////////////////////
 		//vec2
 	case VEC2_PLUS_A:
@@ -469,49 +494,51 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 	case VEC2_REFLECT:
 		((TVec2*)(sp - 3))->Reflect(*(TVec2*)(sp - 1));
 		sp -= 2; break;
-
 	default:
-		assert(0);
+		return false;
 	}
-	op++;
+	return true;
 }
-void TVirtualMachine::ExecuteBaseOps(TOp* op, int* sp)
+bool TVirtualMachine::ExecuteBoolOps(TOp* op, int* sp)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
 	//int
 	switch (op->type)
 	{
-	case ASSIGN:
-	{
-		int *s, *d;
-		if (op->f1){
-			s = (int*)(sp[0]);
-			d = (int*)(sp[-1]);
-		}
-		else{
-			s = &sp[1 - op->v1];
-			d = (int*)(sp[-op->v1]);
-		}
-		memcpy(d, s, op->v1 * 4);
-		if (op->f1)
-			sp -= 2;
-		else
-			sp -= op->v1 + 1;
-	}break;
+		//////////////////////////////////////////////////
+		//bool
+	case BOOL_AND:
+		sp[-1] = sp[-1] && sp[0];
+		sp--; break;
+	case BOOL_OR:
+		sp[-1] = sp[-1] || sp[0];
+		sp--; break;
+	case BOOL_NOT:
+		sp[0] = !sp[0]; break;
+	case EQUAL:
+		Compare(op,sp);
+		break;
+	case NOT_EQUAL:
+		Compare(op,sp);
+		sp[0] = (!sp[0]);
+		break;
+	default:
+		return false;
 	}
+	return true;
 }
-void TVirtualMachine::ExecuteFloatOps(TOp* op, int* sp)
+bool TVirtualMachine::ExecuteFloatOps(TOp* op, int* sp)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
 	//int
 	switch (op->type)
 	{
-	//////////////////////////////////////////////////
+		//////////////////////////////////////////////////
 
-	//////////////////////////////////////////////////
-	//float
+		//////////////////////////////////////////////////
+		//float
 	case FLOAT_PRINT:
 		printf("print: %f\n", *(float*)sp);
 		sp--; break;
@@ -626,10 +653,13 @@ void TVirtualMachine::ExecuteFloatOps(TOp* op, int* sp)
 	case FLOAT_TRUNC:
 		*(float*)sp = float(int(*(float*)sp)); break;
 		//////////////////////////////////////////////////
-}
+	default:
+		return false;
+	}
+	return true;
 }
 
-void TVirtualMachine::ExecuteIntOps(TOp* op, int* sp)
+bool TVirtualMachine::ExecuteIntOps(TOp* op, int* sp)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
@@ -707,7 +737,9 @@ void TVirtualMachine::ExecuteIntOps(TOp* op, int* sp)
 		sp[-1] = (sp[-1] > sp[0]) ? sp[0] : sp[-1];
 		sp--; break;
 	case INT_SIGN:
-		*sp = *sp >= 0 ? 1 : -1; break;
-
+		*sp = *sp > 0 ? 1 : (*sp == 0 ? 0:-1); break;
+	default:
+		return false;
 	}
+	return true;
 }

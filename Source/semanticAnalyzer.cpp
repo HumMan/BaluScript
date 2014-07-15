@@ -4,6 +4,7 @@
 #include "Semantic/FormalParam.h"
 #include "Semantic/SClassField.h"
 #include "Syntax/ClassField.h"
+#include "Syntax/Statements.h"
 #include "Semantic/SClass.h"
 
 bool IsEqualClasses(TFormalParam formal_par,TSClass* param_class,bool param_ref,int& need_conv)

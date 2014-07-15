@@ -1,26 +1,41 @@
-﻿#include "../Syntax/While.h"
+﻿#include "SWhile.h"
+#include "SExpression.h"
+#include "SStatements.h"
 
-#include "../Syntax/Void.h"
+#include "../Syntax/Expression.h"
+#include "../Syntax/Statements.h"
+#include "../Syntax/While.h"
 
-TFormalParam TWhile::Build(TNotOptimizedProgram &program,int& local_var_offset)
+TSWhile::TSWhile(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TWhile* use_syntax)
+	:TSStatement(TStatementType::For, use_owner, use_method, use_parent, (TStatement*)use_syntax)
 {
-	/*TFormalParam bool_result=bool_expr.Build(ops_array,program,local_var_offset);
-	int conv_needed;
-	if(!IsEqualClasses(bool_result,owner->GetClassCmp("bool"),false,conv_needed))
-	Error("Выражение невозможно преобразовать в логический тип!");
-	method->BuildFormalParamConversion(program,bool_result,owner->GetClassCmp("bool"),false);	
-	last_op=bool_result.LastOp();
-	int end_if=program.GetUniqueLabel();
-	program.Push(TOp(TOpcode::GOFALSE,end_if),ops_array);
-	statements.Build(ops_array,program,local_var_offset);
-	if(else_statements.GetHigh()>=0)
+
+}
+
+void TSWhile::Build()
+{
+	compare = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->compare.get()));
+	compare->Build();
+	TFormalParam compare_result = compare->GetFormalParam();
+	TestBoolExpr(compare_result, compare_conversion);
+
+	statements = std::unique_ptr<TSStatements>(new TSStatements(owner, method, parent, GetSyntax()->statements.get()));
+	statements->Build();
+}
+
+void TSWhile::Run(std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
+{
+	TStackValue compare_result;
+	while (true)
 	{
-	int end_else=program.GetUniqueLabel();
-	program.Push(TOp(TOpcode::GOTO,end_else),ops_array);
-	program.Push(TOp(TOpcode::LABEL,end_if),ops_array);
-	else_statements.Build(ops_array,program,local_var_offset);
-	program.Push(TOp(TOpcode::LABEL,end_else),ops_array);
-	}else
-	program.Push(TOp(TOpcode::LABEL,end_if),ops_array);*/
-	return TVoid();
+		compare->Run(formal_params, result_returned, compare_result, object, local_variables);
+		compare_conversion->RunConversion(compare_result);
+		if ((bool*)compare_result.get())
+		{
+			statements->Run(formal_params, result_returned, result, object, local_variables);
+			if (result_returned)
+				break;
+		}
+		else break;
+	}
 }

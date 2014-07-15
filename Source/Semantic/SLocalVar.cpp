@@ -49,12 +49,6 @@ TFormalParam TSLocalVar::Build()
 		params.back()->Build();
 	}
 
-	if (GetSyntax()->assign_expr)
-	{
-		assign_expr = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->assign_expr.get()));
-		assign_expr->Build();
-	}
-
 	int conv_need = 0;
 	std::vector<TSMethod*> constructors;
 	std::vector<TFormalParam> params_result;

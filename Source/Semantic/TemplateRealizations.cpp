@@ -2,6 +2,7 @@
 
 #include "SType.h"
 #include "SClass.h"
+#include "../Syntax/Statements.h"
 
 TSClass* TNodeWithTemplates::FindTemplateRealization(const std::list<TSType>& params_to_find)
 {

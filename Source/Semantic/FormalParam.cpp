@@ -3,6 +3,7 @@
 #include "SClass.h"
 #include "SMethod.h"
 #include "SStatements.h"
+#include "../Syntax/Statements.h"
 
 void TFormalParam::Init(){
 	class_pointer = NULL;

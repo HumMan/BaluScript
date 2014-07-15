@@ -3,6 +3,7 @@
 #include "../Syntax/Bytecode.h"
 #include "FormalParam.h"
 #include "SMethod.h"
+#include "../Syntax/Statements.h"
 
 TSBytecode::TSBytecode(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TBytecode* use_syntax)
 	:TSStatement(TStatementType::Bytecode,use_owner,use_method,use_parent,(TStatement*)use_syntax)
@@ -39,9 +40,18 @@ void TSBytecode::Run(std::vector<TStackValue> &formal_params, bool& result_retur
 	{
 		void* sp = stack;
 		PackToStack(formal_params, sp);
-		TVirtualMachine::ExecuteIntOps(&op.op, (int*)sp);
-		TVirtualMachine::ExecuteFloatOps(&op.op, (int*)sp);
-		TVirtualMachine::ExecuteBaseOps(&op.op, (int*)sp);
+		if (
+			TVirtualMachine::ExecuteIntOps(&op.op, (int*)sp) ||
+			TVirtualMachine::ExecuteFloatOps(&op.op, (int*)sp) ||
+			TVirtualMachine::ExecuteBoolOps(&op.op, (int*)sp) ||
+			TVirtualMachine::ExecuteBaseOps(&op.op, (int*)sp))
+		{
+
+		}
+		else
+		{
+			throw;//GetSyntax()->Error("Неизвестная команда!");
+		}
 	}
 	if (method->GetRetClass() != NULL)
 	{

@@ -1,6 +1,7 @@
 ﻿#include "SType.h"
 
 #include "SClass.h"
+#include "../Syntax/Statements.h"
 
 TSType::TSType(TSClass* use_owner, TType* use_syntax_node) :TSyntaxNode(use_syntax_node)
 {

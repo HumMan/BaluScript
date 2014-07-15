@@ -1,28 +1,42 @@
-﻿#include "../Syntax/If.h"
+﻿#include "SIf.h"
+#include "SExpression.h"
+#include "SStatements.h"
+#include "../Syntax/If.h"
 
-#include "../Syntax/Void.h"
-#include "../Syntax/Expression.h"
-#include "../Syntax/Statements.h"
-#include "../Syntax/ClassField.h"
-
-TFormalParam TIf::Build(TNotOptimizedProgram &program,int& local_var_offset)
+TSIf::TSIf(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TIf* use_syntax)
+	:TSStatement(TStatementType::For, use_owner, use_method, use_parent, (TStatement*)use_syntax)
 {
-	TOpArray ops_array;
-	TFormalParam bool_result=bool_expr->Build(program,local_var_offset);
 
-	int end_if=program.GetUniqueLabel();
-	TestBoolExpr(program,bool_result,end_if);
-	ops_array+=bool_result.GetOps();
+}
 
-	ops_array+=statements->Build(program,local_var_offset).GetOps();
-	if(else_statements->GetHigh()>=0)
-	{
-		int end_else=program.GetUniqueLabel();
-		program.Push(TOp(TOpcode::GOTO,end_else),ops_array);
-		program.Push(TOp(TOpcode::LABEL,end_if),ops_array);
-		ops_array+=else_statements->Build(program,local_var_offset).GetOps();
-		program.Push(TOp(TOpcode::LABEL,end_else),ops_array);
-	}else
-		program.Push(TOp(TOpcode::LABEL,end_if),ops_array);
-	return TVoid(ops_array);
+void TSIf::Build()
+{
+	bool_expr = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->bool_expr.get()));
+	bool_expr->Build();
+	TFormalParam compare_result = bool_expr->GetFormalParam();
+	TestBoolExpr(compare_result, bool_expr_conversion);
+
+	statements = std::unique_ptr<TSStatements>(new TSStatements(owner, method, parent, GetSyntax()->statements.get()));
+	statements->Build();
+	else_statements = std::unique_ptr<TSStatements>(new TSStatements(owner, method, parent, GetSyntax()->else_statements.get()));
+	else_statements->Build();
+}
+
+void TSIf::Run(std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
+{
+	TStackValue compare_result;
+
+		bool_expr->Run(formal_params, result_returned, compare_result, object, local_variables);
+		bool_expr_conversion->RunConversion(compare_result);
+		if ((bool*)compare_result.get())
+		{
+			statements->Run(formal_params, result_returned, result, object, local_variables);
+			if (result_returned)
+				return;
+		}else
+		{
+			else_statements->Run(formal_params, result_returned, result, object, local_variables);
+			if (result_returned)
+				return;
+		}
 }

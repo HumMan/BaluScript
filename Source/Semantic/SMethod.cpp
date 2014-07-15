@@ -5,6 +5,7 @@
 #include "SStatements.h"
 #include "SOverloadedMethod.h"
 #include "FormalParam.h"
+#include "../Syntax/Statements.h"
 
 TSMethod::TSMethod(TSClass* use_owner, TMethod* use_syntax)
 	:TSyntaxNode(use_syntax), ret(use_owner, use_syntax->GetRetType()),

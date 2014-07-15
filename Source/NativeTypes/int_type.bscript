@@ -1,0 +1,142 @@
+class Script
+{	
+	class sealed int
+	{
+	private:
+		dword unnamed;
+	public:
+		constr(int v) bytecode{};
+		constr(float v) bytecode{ASM_FLOAT_TO_INT;};
+		
+		operator static = (int& l,int r)bytecode{ASM_ASSIGN 0,1;};
+		operator static +=(int& l,int r)bytecode{ASM_INT_PLUS_A;};
+		operator static -=(int& l,int r)bytecode{ASM_INT_MINUS_A;};
+		operator static *=(int& l,int r)bytecode{ASM_INT_MUL_A;};
+		operator static /=(int& l,int r)bytecode{ASM_INT_DIV_A;};
+		operator static %=(int& l,int r)bytecode{ASM_INT_MOD_A;};
+
+		operator static +(int l,int r):int bytecode{ASM_INT_PLUS;};
+		operator static -(int l,int r):int bytecode{ASM_INT_MINUS;};
+		operator static *(int l,int r):int bytecode{ASM_INT_MUL;};
+		operator static /(int l,int r):int bytecode{ASM_INT_DIV;};
+		operator static %(int l,int r):int bytecode{ASM_INT_MOD;};
+
+		operator static -(int  l):int bytecode{ASM_INT_UNARY_MINUS;};
+		operator static -(int& l):int bytecode{ASM_R_INT_UNARY_MINUS;};
+
+		operator static < (int l,int r):bool bytecode{ASM_INT_LESS;};
+		operator static <=(int l,int r):bool bytecode{ASM_INT_LESS_EQ;};
+		operator static ==(int l,int r):bool bytecode{ASM_EQUAL 0,0,1;};
+		operator static !=(int l,int r):bool bytecode{ASM_NOT_EQUAL 0,0,1;};
+		operator static > (int l,int r):bool bytecode{ASM_INT_GREATER;};
+		operator static >=(int l,int r):bool bytecode{ASM_INT_GREATER_EQ;};
+
+		conversion static (int& v):float bytecode{ASM_R_INT_TO_FLOAT;};
+		conversion static (int  v):float bytecode{ASM_INT_TO_FLOAT;};
+		conversion static (int& v):bool  bytecode{ASM_R_INT_TO_BOOL;};
+		conversion static (int  v):bool  bytecode{ASM_INT_TO_BOOL;};
+	}
+	func static Abs(int v		):int bytecode{ASM_INT_ABS;};
+	func static Max(int v0,int v1):int bytecode{ASM_INT_MAXIMUM;};
+	func static Min(int v0,int v1):int bytecode{ASM_INT_MINIMUM;};
+	func static Sign(int v		):int bytecode{ASM_INT_SIGN;};
+
+	class sealed float
+	{
+	private:
+		dword unnamed;
+	public:
+		constr(float v) bytecode{};
+		
+		operator static = (float& l,float r)bytecode{ASM_ASSIGN 0,1;};
+		operator static +=(float& l,float r)bytecode{ASM_FLOAT_PLUS_A;};
+		operator static -=(float& l,float r)bytecode{ASM_FLOAT_MINUS_A;};
+		operator static *=(float& l,float r)bytecode{ASM_FLOAT_MUL_A;};
+		operator static /=(float& l,float r)bytecode{ASM_FLOAT_DIV_A;};
+
+		operator static +(float l,float r):float bytecode{ASM_FLOAT_PLUS;};
+		operator static -(float l,float r):float bytecode{ASM_FLOAT_MINUS;};
+		operator static *(float l,float r):float bytecode{ASM_FLOAT_MULT;};
+		operator static /(float l,float r):float bytecode{ASM_FLOAT_DIV;};
+
+		operator static -(float  l):float bytecode{ASM_FLOAT_UNARY_MINUS;};
+		operator static -(float& l):float bytecode{ASM_R_FLOAT_UNARY_MINUS;};
+
+		operator static < (float l,float r):bool bytecode{ASM_FLOAT_LESS;};
+		operator static <=(float l,float r):bool bytecode{ASM_FLOAT_LESS_EQ;};
+		operator static ==(float l,float r):bool bytecode{ASM_EQUAL 0,0,1;};
+		operator static !=(float l,float r):bool bytecode{ASM_NOT_EQUAL 0,0,1;};
+		operator static > (float l,float r):bool bytecode{ASM_FLOAT_GREATER;};
+		operator static >=(float l,float r):bool bytecode{ASM_FLOAT_GREATER_EQ;};
+
+		conversion static (float& v):bool  bytecode{ASM_R_FLOAT_TO_BOOL;};
+		conversion static (float  v):bool  bytecode{ASM_FLOAT_TO_BOOL;};
+	}
+	func static Abs		(float v):float bytecode{ASM_FLOAT_ABS;};
+	func static Asin	(float v):float bytecode{ASM_FLOAT_ASIN;};
+	func static Acos	(float v):float bytecode{ASM_FLOAT_ACOS;};
+	func static Atan	(float v):float bytecode{ASM_FLOAT_ATAN;};
+	func static Ceil	(float v):float bytecode{ASM_FLOAT_CEIL;};
+	func static Clamp	(float min,float max,float v):float bytecode{ASM_FLOAT_CLAMP;};
+	func static Cos		(float v):float bytecode{ASM_FLOAT_COS;};
+	func static DegToRad(float v):float bytecode{ASM_FLOAT_DEG_TO_RAD;};
+	func static Exp		(float v):float bytecode{ASM_FLOAT_EXP;};
+	func static Floor	(float v):float bytecode{ASM_FLOAT_FLOOR;};
+	func static Frac	(float v):float bytecode{ASM_FLOAT_FRAC;};
+	func static Log		(float v):float bytecode{ASM_FLOAT_LOG;};
+	func static Log2	(float v):float bytecode{ASM_FLOAT_LOG2;};
+	func static Log10	(float v):float bytecode{ASM_FLOAT_LOG10;};
+	func static Max		(float v0,float v1):float bytecode{ASM_FLOAT_MAX;};
+	func static Min		(float v0,float v1):float bytecode{ASM_FLOAT_MIN;};
+	func static Pow		(float v,float pow):float bytecode{ASM_FLOAT_POW;};
+	func static RadToDeg(float v):float bytecode{ASM_FLOAT_RAD_TO_DEG;};
+	func static Randf():float bytecode{ASM_FLOAT_RAND;};
+	func static Sign	(float v):float bytecode{ASM_FLOAT_SIGN;};
+	func static Sin		(float v):float bytecode{ASM_FLOAT_SIN;};
+	func static Sqrt	(float v):float bytecode{ASM_FLOAT_SQRT;};
+	func static Sqr		(float v):float bytecode{ASM_FLOAT_SQR;};
+	func static Tan		(float v):float bytecode{ASM_FLOAT_TAN;};
+	func static Trunc	(float v):float bytecode{ASM_FLOAT_TRUNC;};
+
+	func static Print	(float v) bytecode{ASM_FLOAT_PRINT;};
+
+	class sealed bool
+	{
+	private:
+		dword unnamed;
+	public:
+		constr(bool v) bytecode{};
+		operator static = (bool& l,bool r)bytecode{ASM_ASSIGN 0,1;};
+
+		operator static ==(bool l,bool r):bool bytecode{ASM_EQUAL 0,0,1;};
+		operator static !=(bool l,bool r):bool bytecode{ASM_NOT_EQUAL 0,0,1;};
+		operator static &&(bool l,bool r):bool bytecode{ASM_BOOL_AND;};
+		operator static ||(bool l,bool r):bool bytecode{ASM_BOOL_OR;};
+		operator static ! (bool l):bool bytecode{ASM_BOOL_NOT;};
+
+		conversion static (bool& v):float bytecode{ASM_R_INT_TO_FLOAT;};
+		conversion static (bool  v):float bytecode{ASM_INT_TO_FLOAT;};
+		conversion static (bool  v):int bytecode{};
+	}
+	class sealed vec2
+	{
+	public:
+		float x,y;
+		constr(int v) bytecode{ASM_INT_TO_VEC2;};
+		constr(float v) bytecode{ASM_FLOAT_TO_VEC2;};
+		
+		operator static = (vec2& l,vec2 r)bytecode{ASM_ASSIGN 0,1;};
+		operator static +=(vec2& l,vec2 r)bytecode{ASM_VEC2_PLUS_A;};
+		operator static -=(vec2& l,vec2 r)bytecode{ASM_VEC2_MINUS_A;};
+		operator static *=(vec2& l,vec2 r)bytecode{ASM_VEC2_MUL_A;};
+		operator static /=(vec2& l,vec2 r)bytecode{ASM_VEC2_DIV_A;};
+
+		operator static +(vec2 l,vec2 r):vec2 bytecode{ASM_VEC2_PLUS;};
+		operator static -(vec2 l,vec2 r):vec2 bytecode{ASM_VEC2_MINUS;};
+		operator static *(vec2 l,vec2 r):vec2 bytecode{ASM_VEC2_MULT;};
+		operator static /(vec2 l,vec2 r):vec2 bytecode{ASM_VEC2_DIV;};
+
+		operator static -(vec2  l):vec2 bytecode{ASM_VEC2_UNARY_MINUS;};
+		operator static -(vec2& l):vec2 bytecode{ASM_R_VEC2_UNARY_MINUS;};
+	}
+}
