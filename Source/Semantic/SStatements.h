@@ -16,7 +16,7 @@ class TSStatements :public TSStatement
 		TVarDecl(){}
 		TVarDecl(int use_stmt_id, TSLocalVar* use_pointer) :stmt_id(use_stmt_id), pointer(use_pointer){}
 	};
-	std::vector<std::shared_ptr<TSStatement>> statements;
+	std::vector<std::unique_ptr<TSStatement>> statements;
 	std::vector<TVarDecl> var_declarations;
 	void operator=(const TStatements& use_source);
 public:

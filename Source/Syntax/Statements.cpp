@@ -152,13 +152,13 @@ void TStatements::Accept(TStatementVisitor* visitor)
 
 void TStatements::Add(TStatement* use_statement)
 {
-	statements.push_back(std::shared_ptr<TStatement>(use_statement));
+	statements.push_back(std::unique_ptr<TStatement>(use_statement));
 	use_statement->SetStmtId(statements.size() + 1);//TODO не нужно
 }
 
 void TStatements::AddVar(TLocalVar* use_var) 
 {
-	statements.push_back(std::shared_ptr<TStatement>(use_var));
+	statements.push_back(std::unique_ptr<TStatement>(use_var));
 	use_var->SetStmtId(statements.size() - 1);
 }
 

@@ -14,6 +14,7 @@
 
 #include "../Source/Semantic/SMethod.h"
 #include "../Source/Semantic/FormalParam.h"
+#include "../Source/Syntax/Statements.h"
 
 int main(int argc, char* argv[])
 {

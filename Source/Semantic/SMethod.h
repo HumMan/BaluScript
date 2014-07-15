@@ -16,11 +16,11 @@ class TSMethod:public TSyntaxNode<TMethod>
 private:
 	TSType ret;
 	TSClass* owner;
-	std::vector<std::shared_ptr<TSParameter>> parameters;
+	std::vector<std::unique_ptr<TSParameter>> parameters;
 	int ret_size;
 	int parameters_size;
 
-	std::shared_ptr<TSStatements> statements;
+	std::unique_ptr<TSStatements> statements;
 
 	TSMethod* pre_event;
 	TSMethod* post_event;
@@ -49,7 +49,7 @@ public:
 	TSParameter* GetParam(int use_id);
 	TVariable* GetVar(TNameId name);
 	int GetParamsCount();
-	bool HasParams(std::vector<std::shared_ptr<TSParameter>> &use_params)const;
+	bool HasParams(std::vector<std::unique_ptr<TSParameter>> &use_params)const;
 	void CheckForErrors();
 
 	void Build();

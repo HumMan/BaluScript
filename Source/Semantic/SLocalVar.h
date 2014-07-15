@@ -11,8 +11,8 @@ class TFormalParam;
 class TSLocalVar :public TSStatement, public TVariable, public TNodeWithOffset
 {
 	TSType type;
-	std::shared_ptr<TSExpression> assign_expr;
-	std::vector<std::shared_ptr<TSExpression>> params;
+	std::unique_ptr<TSExpression> assign_expr;
+	std::vector<std::unique_ptr<TSExpression>> params;
 public:
 	TLocalVar* GetSyntax()
 	{

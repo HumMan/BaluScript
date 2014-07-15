@@ -1,24 +1,19 @@
-﻿#include "../Syntax/For.h"
+﻿#include "SFor.h"
+#include "SExpression.h"
+#include "SStatements.h"
 
-#include "../Syntax/Void.h"
-#include "../Syntax/Expression.h"
-#include "../Syntax/Statements.h"
-#include "../Syntax/ClassField.h"
-
-TFormalParam TFor::Build(TNotOptimizedProgram &program,int& local_var_offset)
+TSFor::TSFor(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TFor* use_syntax)
+	:TSStatement(TStatementType::For, use_owner, use_method, use_parent, (TStatement*)use_syntax)
 {
-	TOpArray ops_array;
-	int start_loop=program.GetUniqueLabel();
-	program.Push(TOp(TOpcode::LABEL,start_loop),ops_array);
-	TFormalParam compare_result=compare->Build(program,local_var_offset);
 
-	int end_loop=program.GetUniqueLabel();
-	TestBoolExpr(program,compare_result,end_loop);
-	ops_array+=compare_result.GetOps();
+}
 
-	ops_array+=statements->Build(program,local_var_offset).GetOps();
-	ops_array+=increment->Build(program,local_var_offset).GetOps();
-	program.Push(TOp(TOpcode::GOTO,start_loop),ops_array);
-	program.Push(TOp(TOpcode::LABEL,end_loop),ops_array);
-	return TVoid(ops_array);
+void TSFor::Build()
+{
+
+}
+
+void TSFor::Run(std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
+{
+
 }

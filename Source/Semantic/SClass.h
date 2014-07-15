@@ -13,19 +13,19 @@ class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize,public TNodeSigna
 {	
 	std::list<TSClassField> fields;
 	std::list<TSOverloadedMethod> methods;
-	std::shared_ptr<TSOverloadedMethod> constructors;
+	std::unique_ptr<TSOverloadedMethod> constructors;
 	///<summary>Пользовательский деструктор (автоматический деструктор, если существует, будет добавлен как PostEvent)</summary>
-	std::shared_ptr<TSMethod> destructor;
-	std::shared_ptr<TSOverloadedMethod> operators[TOperator::End];
-	std::shared_ptr<TSOverloadedMethod> conversions;
+	std::unique_ptr<TSMethod> destructor;
+	std::unique_ptr<TSOverloadedMethod> operators[TOperator::End];
+	std::unique_ptr<TSOverloadedMethod> conversions;
 
-	std::vector<std::shared_ptr<TSClass>> nested_classes;
+	std::vector<std::unique_ptr<TSClass>> nested_classes;
 
-	std::shared_ptr<TSMethod> auto_def_constr;
+	std::unique_ptr<TSMethod> auto_def_constr;
 	///<summary>Имеется пользовательский конструктор по умолчанию</summary>
 	bool constr_override;
 	///<summary>Автоматически созданный деструктор</summary>
-	std::shared_ptr<TSMethod> auto_destr;
+	std::unique_ptr<TSMethod> auto_destr;
 	///<summary>Тип от которого унаследован данный класс</summary>
 	TSClass* parent;
 	///<summary>От данного класса запрещено наследование</summary>

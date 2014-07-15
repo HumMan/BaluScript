@@ -20,7 +20,7 @@ void TSMethod::LinkSignature()
 	linked_signature = true;
 	if(GetSyntax()->has_return)
 		ret.LinkSignature();
-	for (const std::shared_ptr<TSParameter>& v : parameters)
+	for (const std::unique_ptr<TSParameter>& v : parameters)
 	{
 		v->LinkSignature();
 	}
@@ -45,7 +45,7 @@ int TSMethod::GetParamsCount()
 	return parameters.size();
 }
 
-bool TSMethod::HasParams(std::vector<std::shared_ptr<TSParameter>> &use_params)const
+bool TSMethod::HasParams(std::vector<std::unique_ptr<TSParameter>> &use_params)const
 {
 	if (use_params.size() != parameters.size())
 		return false;
@@ -60,14 +60,14 @@ void TSMethod::LinkBody()
 	if (linked_body)
 		return;
 	linked_body = true;
-	statements = std::shared_ptr<TSStatements>(new TSStatements(owner, this, NULL, GetSyntax()->statements.get()));
+	statements = std::unique_ptr<TSStatements>(new TSStatements(owner, this, NULL, GetSyntax()->statements.get()));
 	statements->Build();
 	//if (!GetSyntax()->IsBytecode())
 	//	statements->Build();
 
 	if (GetSyntax()->has_return)
 		ret.LinkBody();
-	for (const std::shared_ptr<TSParameter>& v : parameters)
+	for (const std::unique_ptr<TSParameter>& v : parameters)
 	{
 		v->LinkBody();
 	}
@@ -138,7 +138,7 @@ void TSMethod::Build()
 {
 	for (const std::unique_ptr<TParameter>& v : GetSyntax()->parameters)
 	{
-		parameters.push_back(std::shared_ptr<TSParameter>(new TSParameter(owner, this, v.get(), &v->type)));
+		parameters.push_back(std::unique_ptr<TSParameter>(new TSParameter(owner, this, v.get(), &v->type)));
 	}
 }
 

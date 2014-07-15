@@ -5,6 +5,7 @@
 #include "Syntax/Statements.h"
 
 #include "Semantic/SClass.h"
+#include "Semantic/SStatements.h"
 
 TSyntaxAnalyzer::~TSyntaxAnalyzer()
 {
@@ -32,7 +33,7 @@ void TSyntaxAnalyzer::Compile(char* use_source, TTime& time)
 	sem_base_class->LinkBody();
 	std::vector<TSClass*> owners;
 	sem_base_class->CalculateSizes(owners);
-	sem_base_class->CalculateMethodsSizes();//
+	sem_base_class->CalculateMethodsSizes();
 
 	printf("Syntax analyzing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
 }

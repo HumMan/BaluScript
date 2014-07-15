@@ -3,13 +3,15 @@
 #include "FormalParam.h"
 #include "SMethod.h"
 #include "SExpression.h"
+
 #include "../Syntax/LocalVar.h"
 #include "../semanticAnalyzer.h"
 #include "../Syntax/Return.h"
+#include "../Syntax/Statements.h"
 
 void TSReturn::Build()
 {
-	result = std::shared_ptr<TSExpression>(new TSExpression(owner, method, parent, &GetSyntax()->result));
+	result = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, &GetSyntax()->result));
 	result->Build();
 	TFormalParam result_result = result->GetFormalParam();
 	if(method->GetRetClass()!=NULL)
@@ -19,7 +21,7 @@ void TSReturn::Build()
 			GetSyntax()->Error("После оператора return должно следовать какое-то выражение!");
 		if(!IsEqualClasses(result_result,method->GetRetClass(),method->GetSyntax()->IsReturnRef(),conv_needed))
 			GetSyntax()->Error("Выражение невозможно преобразовать в тип возвращаемого значения!");
-		conversions = std::shared_ptr<TFormalParamWithConversions>(new TFormalParamWithConversions());
+		conversions = std::unique_ptr<TFormalParamWithConversions>(new TFormalParamWithConversions());
 		conversions->BuildConvert(result_result, method->GetRetClass(), method->GetSyntax()->IsReturnRef());
 	}
 	else 

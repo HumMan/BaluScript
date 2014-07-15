@@ -11,7 +11,7 @@ class TVariable;
 class TStatements:public TStatement
 {
 	friend class TSStatements;
-	std::vector<std::shared_ptr<TStatement>> statements;
+	std::vector<std::unique_ptr<TStatement>> statements;
 public:
 	void Add(TStatement* use_statement);
 	void AddVar(TLocalVar* use_var);

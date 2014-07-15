@@ -4,6 +4,9 @@
 
 #include "SOverloadedMethod.h"
 #include "SType.h"
+#include "SStatements.h"
+
+#include "../Syntax/Statements.h"
 
 TSClass::TSClass(TSClass* use_owner, TClass* use_syntax_node, TNodeWithTemplates::Type type) :TSyntaxNode(use_syntax_node)
 {
@@ -41,33 +44,33 @@ void TSClass::Build()
 		methods.emplace_back(this, &method);
 		methods.back().Build();
 	}
-	constructors = std::shared_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, &GetSyntax()->constructors));
+	constructors = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, &GetSyntax()->constructors));
 	constructors->Build();
 
 	if (GetSyntax()->destructor)
 	{
-		destructor = std::shared_ptr<TSMethod>(new TSMethod(this, GetSyntax()->destructor.get()));
+		destructor = std::unique_ptr<TSMethod>(new TSMethod(this, GetSyntax()->destructor.get()));
 		destructor->Build();
 	}
 
 	for (int i = 0; i < TOperator::End; i++)
 	{
-		operators[i] = std::shared_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, &GetSyntax()->operators[i]));
+		operators[i] = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, &GetSyntax()->operators[i]));
 		operators[i]->Build();
 	}
 
-	conversions = std::shared_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, &GetSyntax()->conversions));
+	conversions = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, &GetSyntax()->conversions));
 	conversions->Build();
 
 	for (const std::unique_ptr<TClass>& nested_class : GetSyntax()->nested_classes)
 	{
-		nested_classes.push_back(std::shared_ptr<TSClass>(new TSClass(this, nested_class.get())));
+		nested_classes.push_back(std::unique_ptr<TSClass>(new TSClass(this, nested_class.get())));
 		nested_classes.back()->Build();
 	}
 }
 
 TSClass* TSClass::GetNested(TNameId name) {
-	for (const std::shared_ptr<TSClass>& nested_class : nested_classes)
+	for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
 		if (nested_class->GetSyntax()->GetName() == name)
 			return nested_class.get();
 	return NULL;
@@ -137,7 +140,7 @@ TSClass* TSClass::GetClass(TNameId use_name)
 	{
 		if (GetSyntax()->GetName() == use_name)
 			return this;
-		for (const std::shared_ptr<TSClass>& nested_class : nested_classes)
+		for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
 		{
 			if (nested_class->GetSyntax()->GetName() == use_name)
 				return nested_class.get();
@@ -212,7 +215,7 @@ void TSClass::LinkSignature()
 		operators[i]->LinkSignature();
 	conversions->LinkSignature();
 
-	for (const std::shared_ptr<TSClass>& nested_class : nested_classes)
+	for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
 		if (!nested_class->GetSyntax()->IsTemplate())
 			nested_class->LinkSignature();
 }
@@ -246,7 +249,7 @@ void TSClass::LinkBody()
 			operators[i]->LinkBody();
 	conversions->LinkBody();
 
-	for (const std::shared_ptr<TSClass>& nested_class : nested_classes)
+	for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
 		if (!nested_class->GetSyntax()->IsTemplate())
 			nested_class->LinkBody();
 }
@@ -259,7 +262,7 @@ bool TSClass::GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name
 	{
 		if (ov_method.GetName() == use_method_name)
 		{
-			for (const std::shared_ptr<TSMethod>& method : ov_method.methods)
+			for (const std::unique_ptr<TSMethod>& method : ov_method.methods)
 				result.push_back(method.get());
 		}
 	}
@@ -277,7 +280,7 @@ bool TSClass::GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name
 	{
 		if (ov_method.GetName() == use_method_name)
 		{
-			for (const std::shared_ptr<TSMethod>& method : ov_method.methods)
+			for (const std::unique_ptr<TSMethod>& method : ov_method.methods)
 				if (method->GetSyntax()->IsStatic() == is_static)
 					result.push_back(method.get());
 		}
@@ -292,7 +295,7 @@ bool TSClass::GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name
 TSMethod* TSClass::GetConversion(bool source_ref, TSClass* target_type) 
 {
 	assert(IsSignatureLinked());
-	for (const std::shared_ptr<TSMethod>& conversion : conversions->methods)
+	for (const std::unique_ptr<TSMethod>& conversion : conversions->methods)
 	{
 		if (conversion->GetRetClass() == target_type
 			&& conversion->GetParam(0)->GetSyntax()->IsRef() == source_ref) {
@@ -306,7 +309,7 @@ TSMethod* TSClass::GetConversion(bool source_ref, TSClass* target_type)
 bool TSClass::GetConstructors(std::vector<TSMethod*> &result) 
 {
 	//assert(methods_declared&&auto_methods_build);
-	for (const std::shared_ptr<TSMethod>& constructor : constructors->methods)
+	for (const std::unique_ptr<TSMethod>& constructor : constructors->methods)
 	{
 		result.push_back(constructor.get());
 	}
@@ -321,7 +324,7 @@ TSMethod* TSClass::GetDefConstr()
 	//assert(methods_declared&&auto_methods_build);
 	if (constr_override)
 	{
-		for (const std::shared_ptr<TSMethod>& constructor : constructors->methods)
+		for (const std::unique_ptr<TSMethod>& constructor : constructors->methods)
 			if (constructor->GetParamsCount() == 0)
 				return constructor.get();
 	}
@@ -333,7 +336,7 @@ TSMethod* TSClass::GetDefConstr()
 TSMethod* TSClass::GetCopyConstr()
 {
 	//assert(methods_declared);
-	for (const std::shared_ptr<TSMethod>& constructor : constructors->methods)
+	for (const std::unique_ptr<TSMethod>& constructor : constructors->methods)
 	{
 		if (constructor->GetParamsCount() == 1
 			&& constructor->GetParam(0)->GetClass() == this
@@ -431,7 +434,7 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 		owners.pop_back();
 		SetSize(class_size);
 
-		for (const std::shared_ptr<TSClass>& nested_class : nested_classes)
+		for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
 			nested_class->CalculateSizes(owners);
 	}
 	if (GetType() == TNodeWithTemplates::Template)
@@ -459,7 +462,7 @@ void TSClass::CalculateMethodsSizes()
 	if (conversions)
 		conversions->CalculateParametersOffsets();
 
-	for (const std::shared_ptr<TSClass>& nested_class : nested_classes)
+	for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
 		nested_class->CalculateMethodsSizes();
 
 	if (GetType() == TNodeWithTemplates::Template)

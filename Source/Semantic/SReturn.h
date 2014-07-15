@@ -8,8 +8,8 @@ class TFormalParamWithConversions;
 
 class TSReturn :public TSStatement
 {
-	std::shared_ptr<TSExpression> result;
-	std::shared_ptr<TFormalParamWithConversions> conversions;
+	std::unique_ptr<TSExpression> result;
+	std::unique_ptr<TFormalParamWithConversions> conversions;
 public:
 	TSReturn(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TReturn* use_syntax);
 	TReturn* GetSyntax()

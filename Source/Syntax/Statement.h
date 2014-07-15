@@ -37,6 +37,9 @@ public:
 	TStatement(TStatementType::Enum use_stmt_type, TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);
 	TStatementType::Enum GetType();
 	virtual void Accept(TStatementVisitor* visitor) = 0;
+	virtual ~TStatement()
+	{
+	}
 };
 
 class TExpression;

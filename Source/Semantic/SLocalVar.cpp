@@ -8,6 +8,7 @@
 #include "FormalParam.h"
 #include "SExpression.h"
 #include "../Syntax/Expression.h"
+#include "../Syntax/Statements.h"
 
 TFormalParam TSLocalVar::Build()
 {
@@ -42,15 +43,15 @@ TFormalParam TSLocalVar::Build()
 
 	parent->AddVar(this, GetSyntax()->stmt_id);
 
-	for (std::shared_ptr<TExpression> param_syntax : GetSyntax()->params)
+	for (const std::unique_ptr<TExpression>& param_syntax : GetSyntax()->params)
 	{
-		params.push_back(std::shared_ptr<TSExpression>(new TSExpression(owner, method, parent, param_syntax.get())));
+		params.push_back(std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, param_syntax.get())));
 		params.back()->Build();
 	}
 
 	if (GetSyntax()->assign_expr)
 	{
-		assign_expr = std::shared_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->assign_expr.get()));
+		assign_expr = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->assign_expr.get()));
 		assign_expr->Build();
 	}
 
@@ -107,7 +108,7 @@ TFormalParam TSLocalVar::Build()
 
 	if (GetSyntax()->assign_expr != NULL)
 	{
-		assign_expr = std::shared_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->assign_expr.get()));
+		assign_expr = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->assign_expr.get()));
 		assign_expr->Build();
 		//assign_expr->Build(program, local_var_offset).GetOps();
 	}

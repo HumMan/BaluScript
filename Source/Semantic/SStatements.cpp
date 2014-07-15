@@ -91,11 +91,11 @@ int TSStatements::GetLastVariableOffset()
 
 void TSStatements::Build()
 {
-	for (const std::shared_ptr<TStatement>& st : ((TStatements*)GetSyntax())->statements)
+	for (const std::unique_ptr<TStatement>& st : ((TStatements*)GetSyntax())->statements)
 	{
 		TSStatementBuilder b(owner, method,this);
 		st->Accept(&b);
-		statements.push_back(std::shared_ptr<TSStatement>(b.GetResult()));
+		statements.push_back(std::unique_ptr<TSStatement>(b.GetResult()));
 	}
 }
 
@@ -122,7 +122,7 @@ TVariable* TSStatements::GetVar(TNameId name, int sender_id)
 
 void TSStatements::Run(std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
-	for (const std::shared_ptr<TSStatement>& statement : statements)
+	for (const std::unique_ptr<TSStatement>& statement : statements)
 	{
 		statement->Run(formal_params, result_returned, result, object, local_variables);
 		if (result_returned)

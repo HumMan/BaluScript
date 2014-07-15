@@ -28,7 +28,7 @@ void TLocalVar::AnalyzeSyntax(TLexer& source) {
 		{
 			//source.GetToken(TTokenType::Identifier);
 			//source.TestAndGet(TTokenType::Operator,TOperator::Assign);
-			curr_var->assign_expr = std::shared_ptr<TExpression>(new TExpression(owner, method, parent,
+			curr_var->assign_expr = std::unique_ptr<TExpression>(new TExpression(owner, method, parent,
 					curr_var->stmt_id));
 			curr_var->assign_expr->AnalyzeSyntax(source);
 		} else {
@@ -40,7 +40,7 @@ void TLocalVar::AnalyzeSyntax(TLexer& source) {
 					TExpression* expr = new TExpression(owner, method, parent,
 							curr_var->stmt_id);
 					expr->AnalyzeSyntax(source);
-					curr_var->params.push_back(std::shared_ptr<TExpression>(expr));
+					curr_var->params.push_back(std::unique_ptr<TExpression>(expr));
 					if (!source.TestAndGet(TTokenType::Comma))
 						break;
 				}
@@ -54,7 +54,7 @@ void TLocalVar::AnalyzeSyntax(TLexer& source) {
 				curr_var->assign_expr->SetStmtId(curr_var->stmt_id);
 			if (curr_var->params.size() > 0)
 			{
-				for (const std::shared_ptr<TExpression>& v : curr_var->params)
+				for (const std::unique_ptr<TExpression>& v : curr_var->params)
 					v->SetStmtId(curr_var->stmt_id);
 			}
 		}
@@ -67,7 +67,7 @@ void TLocalVar::AnalyzeSyntax(TLexer& source) {
 
 TLocalVar::TLocalVar(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id) :
 TStatement(TStatementType::VarDecl, use_owner, use_method, use_parent, use_stmt_id),
- type(use_owner), assign_expr(NULL), is_static(false)
+ type(use_owner), is_static(false)
 {
 }
 
