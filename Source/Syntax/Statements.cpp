@@ -3,6 +3,7 @@
 #include "Return.h"
 #include "If.h"
 #include "For.h"
+#include "While.h"
 #include "LocalVar.h"
 #include "ClassField.h"
 #include "Bytecode.h"
@@ -96,6 +97,12 @@ void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
 			t->AnalyzeSyntax(source);
 			return;
 		}
+		case TResWord::While: {
+			TWhile* t = new TWhile(owner, method, this, statements.size());
+			Add(t);
+			t->AnalyzeSyntax(source);
+			return;
+		}
 		case TResWord::This: {
 			TExpression* t = new TExpression(owner, method, this,
 					statements.size());
@@ -153,7 +160,7 @@ void TStatements::Accept(TStatementVisitor* visitor)
 void TStatements::Add(TStatement* use_statement)
 {
 	statements.push_back(std::unique_ptr<TStatement>(use_statement));
-	use_statement->SetStmtId(statements.size() + 1);//TODO не нужно
+	use_statement->SetStmtId(statements.size() - 1);//TODO не нужно
 }
 
 void TStatements::AddVar(TLocalVar* use_var) 

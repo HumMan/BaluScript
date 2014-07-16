@@ -16,7 +16,7 @@ void TSWhile::Build()
 {
 	compare = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->compare.get()));
 	compare->Build();
-	TFormalParam compare_result = compare->GetFormalParam();
+	TFormalParam compare_result = compare->GetFormalParameter();
 	TestBoolExpr(compare_result, compare_conversion);
 
 	statements = std::unique_ptr<TSStatements>(new TSStatements(owner, method, parent, GetSyntax()->statements.get()));
@@ -30,7 +30,7 @@ void TSWhile::Run(std::vector<TStackValue> &formal_params, bool& result_returned
 	{
 		compare->Run(formal_params, result_returned, compare_result, object, local_variables);
 		compare_conversion->RunConversion(compare_result);
-		if ((bool*)compare_result.get())
+		if (*(bool*)compare_result.get())
 		{
 			statements->Run(formal_params, result_returned, result, object, local_variables);
 			if (result_returned)

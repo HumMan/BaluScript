@@ -166,9 +166,9 @@ public:
 	}
 	void Execute(int method_id,int* stack_top,int* this_pointer);
 	void Execute(TOp* op, int* stack_top, int* this_pointer, TProgram::TMethod* m);
-	static bool ExecuteIntOps(TOp* op, int* sp);
-	static bool ExecuteFloatOps(TOp* op, int* sp);
-	static bool ExecuteBoolOps(TOp* op, int* sp);
-	static bool ExecuteVec2Ops(TOp* op, int* sp);
-	static bool ExecuteBaseOps(TOp* op, int* sp);
+	static bool ExecuteIntOps(TOp* op, int*& sp,int* object);
+	static bool ExecuteFloatOps(TOp* op, int*& sp, int* object);
+	static bool ExecuteBoolOps(TOp* op, int*& sp, int* object);
+	static bool ExecuteVec2Ops(TOp* op, int*& sp, int* object);
+	static bool ExecuteBaseOps(TOp* op, int*& sp, int* object);
 };

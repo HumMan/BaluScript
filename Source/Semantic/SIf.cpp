@@ -13,7 +13,7 @@ void TSIf::Build()
 {
 	bool_expr = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->bool_expr.get()));
 	bool_expr->Build();
-	TFormalParam compare_result = bool_expr->GetFormalParam();
+	TFormalParam compare_result = bool_expr->GetFormalParameter();
 	TestBoolExpr(compare_result, bool_expr_conversion);
 
 	statements = std::unique_ptr<TSStatements>(new TSStatements(owner, method, parent, GetSyntax()->statements.get()));
@@ -28,7 +28,7 @@ void TSIf::Run(std::vector<TStackValue> &formal_params, bool& result_returned, T
 
 		bool_expr->Run(formal_params, result_returned, compare_result, object, local_variables);
 		bool_expr_conversion->RunConversion(compare_result);
-		if ((bool*)compare_result.get())
+		if (*(bool*)compare_result.get())
 		{
 			statements->Run(formal_params, result_returned, result, object, local_variables);
 			if (result_returned)

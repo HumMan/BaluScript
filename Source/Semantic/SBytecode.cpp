@@ -11,7 +11,7 @@ TSBytecode::TSBytecode(TSClass* use_owner, TSMethod* use_method, TSStatements* u
 
 }
 
-void PackToStack(std::vector<TStackValue> &formal_params, void* &sp)
+void PackToStack(std::vector<TStackValue> &formal_params, int* &sp)
 {
 	int i = 0;
 	for (TStackValue& v : formal_params)
@@ -35,16 +35,17 @@ void PackToStack(std::vector<TStackValue> &formal_params, void* &sp)
 void TSBytecode::Run(std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
 	int stack[255];
-	
+	int* sp = stack;
+	PackToStack(formal_params, sp);
+
 	for (TBytecode::TBytecodeOp& op : GetSyntax()->code)
 	{
-		void* sp = stack;
-		PackToStack(formal_params, sp);
+		
 		if (
-			TVirtualMachine::ExecuteIntOps(&op.op, (int*)sp) ||
-			TVirtualMachine::ExecuteFloatOps(&op.op, (int*)sp) ||
-			TVirtualMachine::ExecuteBoolOps(&op.op, (int*)sp) ||
-			TVirtualMachine::ExecuteBaseOps(&op.op, (int*)sp))
+			TVirtualMachine::ExecuteIntOps(&op.op, sp, (int*)object.get()) ||
+			TVirtualMachine::ExecuteFloatOps(&op.op, sp, (int*)object.get()) ||
+			TVirtualMachine::ExecuteBoolOps(&op.op, sp, (int*)object.get()) ||
+			TVirtualMachine::ExecuteBaseOps(&op.op, sp, (int*)object.get()))
 		{
 
 		}

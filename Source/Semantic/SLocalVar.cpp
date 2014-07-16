@@ -33,6 +33,7 @@ TFormalParam TSLocalVar::Build()
 	}
 	if (GetSyntax()->is_static)
 	{
+		assert(false);
 	}
 	else
 	{
@@ -43,15 +44,18 @@ TFormalParam TSLocalVar::Build()
 
 	parent->AddVar(this, GetSyntax()->stmt_id);
 
+	std::vector<TFormalParam> params_result;
+
 	for (const std::unique_ptr<TExpression>& param_syntax : GetSyntax()->params)
 	{
-		params.push_back(std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, param_syntax.get())));
-		params.back()->Build();
+		auto t = new TSExpression(owner, method, parent, param_syntax.get());
+		t->Build();
+		params.push_back(std::unique_ptr<TSExpression>(t));
+		params_result.push_back(params.back()->GetFormalParameter());
 	}
 
 	int conv_need = 0;
 	std::vector<TSMethod*> constructors;
-	std::vector<TFormalParam> params_result;
 
 	type.GetClass()->GetConstructors(constructors);
 	TSMethod* constructor = FindMethod(GetSyntax(), constructors, params_result, conv_need);
@@ -60,51 +64,59 @@ TFormalParam TSLocalVar::Build()
 
 	//bool need_testandget=GetSyntax()->is_static&&(params_result.size()>0||assign_expr!=NULL);
 
-	if ((constructor == NULL || !constructor->GetSyntax()->IsBytecode()) && !GetSyntax()->is_static)
+	if (constructor == NULL)
 		//program.Push(TOp(TOpcode::PUSH_COUNT,type.GetClass()->GetSize()),before_params);
-
+	{
 		if (GetSyntax()->is_static)
 		{
-		if (constructor != NULL)
-		{
-			ValidateAccess(GetSyntax(), owner, constructor);
-			//if(need_testandget)
-			//{
-			//	program.Push(TOp(TOpcode::PUSH_GLOBAL_REF,offset),before_params);
-			//	after_params+=constructor->BuildCall(program,params_result).GetOps();
-			//	/*if(constructor->GetType()==MT_INTERNAL)
-			//	program.Push(TOp(TOpcode::ASSIGN,(char)false,type.GetClass()->GetSize()),ops_array);*/
-			//}else
-			//{
-			//	program.Push(TOp(TOpcode::PUSH_GLOBAL_REF,offset),program.static_vars_init);
-			//	program.static_vars_init+=constructor->BuildCall(program,params_result).GetOps();
-			//	/*if(constructor->GetType()==MT_INTERNAL)
-			//	program.Push(TOp(TOpcode::ASSIGN,(char)false,type.GetClass()->GetSize()),program.static_vars_constr_last_op);*/
-			//}
-		}
-		TSMethod* destructor = type.GetClass()->GetDestructor();
-		if (destructor != NULL)
-		{
-			ValidateAccess(GetSyntax(), owner, destructor);
-			//program.Push(TOp(TOpcode::PUSH_GLOBAL_REF,offset),program.static_vars_destroy);
-			//program.static_vars_destroy+=destructor->BuildCall(program,params_result).GetOps();
-		}
-		}
-		else if (constructor != NULL)
-		{
-			if (!constructor->GetSyntax()->IsBytecode())
+			assert(false);
+			if (constructor != NULL)
 			{
-				//program.Push(TOp(TOpcode::PUSH_STACK_HIGH_REF,type.GetClass()->GetSize()),before_params);
+				assert(false);
+				ValidateAccess(GetSyntax(), owner, constructor);
+				//if(need_testandget)
+				//{
+				//	program.Push(TOp(TOpcode::PUSH_GLOBAL_REF,offset),before_params);
+				//	after_params+=constructor->BuildCall(program,params_result).GetOps();
+				//	/*if(constructor->GetType()==MT_INTERNAL)
+				//	program.Push(TOp(TOpcode::ASSIGN,(char)false,type.GetClass()->GetSize()),ops_array);*/
+				//}else
+				//{
+				//	program.Push(TOp(TOpcode::PUSH_GLOBAL_REF,offset),program.static_vars_init);
+				//	program.static_vars_init+=constructor->BuildCall(program,params_result).GetOps();
+				//	/*if(constructor->GetType()==MT_INTERNAL)
+				//	program.Push(TOp(TOpcode::ASSIGN,(char)false,type.GetClass()->GetSize()),program.static_vars_constr_last_op);*/
+				//}
 			}
-			ValidateAccess(GetSyntax(), owner, constructor);
-			//after_params+=constructor->BuildCall(program,params_result).GetOps();
+			TSMethod* destructor = type.GetClass()->GetDestructor();
+			if (destructor != NULL)
+			{
+				ValidateAccess(GetSyntax(), owner, destructor);
+				//program.Push(TOp(TOpcode::PUSH_GLOBAL_REF,offset),program.static_vars_destroy);
+				//program.static_vars_destroy+=destructor->BuildCall(program,params_result).GetOps();
+			}
 		}
+	}
+	else if (constructor != NULL)
+	{
+			std::vector<TOperation*> param_expressions;
+			for (const std::unique_ptr<TOperation>& v : params)
+			{
+				param_expressions.push_back(v.get());
+			}
+			constructor_call = std::unique_ptr<TSExpression_TMethodCall>(new TSExpression_TMethodCall());
+			
+			TSExpression::TGetLocal* get_local_id = new TSExpression::TGetLocal();
+			get_local_id->variable = this;
+			constructor_call->left = get_local_id;
+			constructor_call->Build(param_expressions, params_result, constructor);
+		ValidateAccess(GetSyntax(), owner, constructor);
+	}
 
 	if (GetSyntax()->assign_expr != NULL)
 	{
 		assign_expr = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->assign_expr.get()));
 		assign_expr->Build();
-		//assign_expr->Build(program, local_var_offset).GetOps();
 	}
 	return TVoid();
 }
@@ -134,6 +146,13 @@ void TSLocalVar::Run(std::vector<TStackValue> &formal_params, bool& result_retur
 
 	if (assign_expr)
 		assign_expr->Run(formal_params, result_returned, result, object, local_variables);
+
+	else if (constructor_call)
+	{
+		TStackValue constr_result;
+		//constructor_call->Run(formal_params, constr_result, local_variables[GetOffset()], local_variables);
+		constructor_call->Run(formal_params, constr_result, object, local_variables);
+	}
 }
 
 void TSLocalVar::Destruct()

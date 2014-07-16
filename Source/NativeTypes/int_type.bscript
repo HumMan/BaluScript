@@ -5,8 +5,8 @@ class Script
 	private:
 		dword unnamed;
 	public:
-		constr(int v) bytecode{};
-		constr(float v) bytecode{ASM_FLOAT_TO_INT;};
+		constr(int v) bytecode{ASM_INT_CONSTR;};
+		constr(float v) bytecode{ASM_FLOAT_TO_INT;ASM_INT_CONSTR;};
 		
 		operator static = (int& l,int r)bytecode{ASM_ASSIGN 0,1;};
 		operator static +=(int& l,int r)bytecode{ASM_INT_PLUS_A;};
@@ -46,7 +46,7 @@ class Script
 	private:
 		dword unnamed;
 	public:
-		constr(float v) bytecode{};
+		constr(float v) bytecode{ASM_FLOAT_CONSTR;};
 		
 		operator static = (float& l,float r)bytecode{ASM_ASSIGN 0,1;};
 		operator static +=(float& l,float r)bytecode{ASM_FLOAT_PLUS_A;};
@@ -88,6 +88,7 @@ class Script
 	func static Log10	(float v):float bytecode{ASM_FLOAT_LOG10;};
 	func static Max		(float v0,float v1):float bytecode{ASM_FLOAT_MAX;};
 	func static Min		(float v0,float v1):float bytecode{ASM_FLOAT_MIN;};
+	func static Pi		:float bytecode{ASM_FLOAT_PI;};
 	func static Pow		(float v,float pow):float bytecode{ASM_FLOAT_POW;};
 	func static RadToDeg(float v):float bytecode{ASM_FLOAT_RAD_TO_DEG;};
 	func static Randf():float bytecode{ASM_FLOAT_RAND;};
@@ -105,7 +106,7 @@ class Script
 	private:
 		dword unnamed;
 	public:
-		constr(bool v) bytecode{};
+		constr(bool v) bytecode{ASM_BOOL_CONSTR;};
 		operator static = (bool& l,bool r)bytecode{ASM_ASSIGN 0,1;};
 
 		operator static ==(bool l,bool r):bool bytecode{ASM_EQUAL 0,0,1;};

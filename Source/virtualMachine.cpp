@@ -394,7 +394,7 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 	}
 	op++;
 }
-bool TVirtualMachine::ExecuteBaseOps(TOp* op, int* sp)
+bool TVirtualMachine::ExecuteBaseOps(TOp* op, int*& sp, int* object)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
@@ -423,7 +423,7 @@ bool TVirtualMachine::ExecuteBaseOps(TOp* op, int* sp)
 	}
 	return true;
 }
-bool TVirtualMachine::ExecuteVec2Ops(TOp* op, int* sp)
+bool TVirtualMachine::ExecuteVec2Ops(TOp* op, int*& sp, int* object)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
@@ -499,13 +499,16 @@ bool TVirtualMachine::ExecuteVec2Ops(TOp* op, int* sp)
 	}
 	return true;
 }
-bool TVirtualMachine::ExecuteBoolOps(TOp* op, int* sp)
+bool TVirtualMachine::ExecuteBoolOps(TOp* op, int*& sp, int* object)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
 	//int
 	switch (op->type)
 	{
+	case BOOL_CONSTR:
+		*object = sp[0];
+		sp--; break;
 		//////////////////////////////////////////////////
 		//bool
 	case BOOL_AND:
@@ -528,7 +531,7 @@ bool TVirtualMachine::ExecuteBoolOps(TOp* op, int* sp)
 	}
 	return true;
 }
-bool TVirtualMachine::ExecuteFloatOps(TOp* op, int* sp)
+bool TVirtualMachine::ExecuteFloatOps(TOp* op, int*& sp,int* object)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
@@ -536,7 +539,9 @@ bool TVirtualMachine::ExecuteFloatOps(TOp* op, int* sp)
 	switch (op->type)
 	{
 		//////////////////////////////////////////////////
-
+	case FLOAT_CONSTR:
+		*object = sp[0];
+		sp--; break;
 		//////////////////////////////////////////////////
 		//float
 	case FLOAT_PRINT:
@@ -633,6 +638,9 @@ bool TVirtualMachine::ExecuteFloatOps(TOp* op, int* sp)
 	case FLOAT_MIN:
 		((float*)sp)[-1] = ((float*)sp)[-1] > ((float*)sp)[0] ? ((float*)sp)[0] : ((float*)sp)[-1];
 		sp--; break;
+	case FLOAT_PI:
+		((float*)sp)[0] = float(M_PI);
+		sp--; break;
 	case FLOAT_POW:
 		((float*)sp)[-1] = pow(((float*)sp)[-1], ((float*)sp)[0]);
 		sp--; break;
@@ -641,7 +649,7 @@ bool TVirtualMachine::ExecuteFloatOps(TOp* op, int* sp)
 	case FLOAT_RAND:
 		*(float*)(++sp) = Randf(); break;
 	case FLOAT_SIGN:
-		*(float*)sp = (*(float*)sp) >= 0.0f ? 1.0f : -1.0f; break;
+		*(float*)sp = (*(float*)sp) > 0.0f ? 1.0f : ((*(float*)sp) == 0.0f ?0.0f: -1.0f); break;
 	case FLOAT_SIN:
 		*(float*)sp = sin(*(float*)sp); break;
 	case FLOAT_SQRT:
@@ -659,13 +667,16 @@ bool TVirtualMachine::ExecuteFloatOps(TOp* op, int* sp)
 	return true;
 }
 
-bool TVirtualMachine::ExecuteIntOps(TOp* op, int* sp)
+bool TVirtualMachine::ExecuteIntOps(TOp* op, int*& sp, int* object)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
 	//int
 	switch (op->type)
 	{
+	case INT_CONSTR:
+		*object = sp[0];
+		sp--; break;
 	case INT_PLUS:
 		sp[-1] += sp[0];
 		sp--; break;

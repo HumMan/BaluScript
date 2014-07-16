@@ -12,47 +12,50 @@ class TSClassField;
 class TSParameter;
 class TSLocalVar;
 
-class TSExpression :public TSStatement
+class TOperation : public TTokenPos
 {
-	class TOperation;
+public:
+	///<summary>Получить тип возвращаемого подвыражением значения</summary>
+	virtual TFormalParam GetFormalParameter() = 0;
+	virtual ~TOperation(){}
+	virtual void Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables) = 0;
+};
+
+class TSExpression_TMethodCall : public TOperation
+{
+	struct TOperationWithConversions
+	{
+		TOperation* expression;//выражение являющееся параметром
+		TFormalParamWithConversions conversions;
+		TOperationWithConversions(TOperation* expression)
+		{
+			this->expression = expression;
+		}
+		void BuildConvert(TFormalParam from_result, TSClass* param_class, bool param_ref)
+		{
+			conversions.BuildConvert(from_result, param_class, param_ref);
+		}
+	};
+
+	std::list<TOperationWithConversions> input;
+	TSMethod* invoke;
+public:
+	TOperation* left;
+	TSExpression_TMethodCall()
+	{
+		left = NULL;
+	}
+	void Build(const std::vector<TOperation*>& param_expressions, const std::vector<TFormalParam>& params, TSMethod* method);
+	TFormalParam GetFormalParameter();
+	void Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
+};
+
+class TSExpression :public TSStatement,public TOperation
+{
 	TOperation* first_op;
 public:
-	class TOperation : public TTokenPos
-	{
-	public:
-		///<summary>Получить тип возвращаемого подвыражением значения</summary>
-		virtual TFormalParam GetFormalParameter() = 0;
-		virtual ~TOperation(){}
-		virtual void Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables) = 0;
-	};
-	class TMethodCall : public TOperation
-	{
-		struct TOperationWithConversions
-		{
-			TOperation* expression;//выражение являющееся параметром
-			TFormalParamWithConversions conversions;
-			TOperationWithConversions(TOperation* expression)
-			{
-				this->expression = expression;
-			}
-			void BuildConvert(TFormalParam from_result, TSClass* param_class, bool param_ref)
-			{
-				conversions.BuildConvert(from_result, param_class, param_ref);
-			}
-		};
-		
-		std::list<TOperationWithConversions> input;
-		TSMethod* invoke;
-	public:
-		TOperation* left;
-		TMethodCall()
-		{
-			left = NULL;
-		}
-		void Build(const std::vector<TOperation*>& param_expressions, const std::vector<TFormalParam>& params, TSMethod* method);
-		TFormalParam GetFormalParameter();
-		void Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
-	};
+	
+	
 	class TInt : public TOperation
 	{
 	public:
@@ -67,6 +70,15 @@ public:
 	public:
 		TFloat(TSClass* owner, TType* syntax_node);
 		float val;
+		TSType type;
+		TFormalParam GetFormalParameter();
+		void Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
+	};
+	class TBool : public TOperation
+	{
+	public:
+		TBool(TSClass* owner, TType* syntax_node);
+		bool val;
 		TSType type;
 		TFormalParam GetFormalParameter();
 		void Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
@@ -127,10 +139,11 @@ public:
 	{
 		return (TExpression*)TSStatement::GetSyntax();
 	}
-	TFormalParam GetFormalParam()
+	TFormalParam GetFormalParameter()
 	{
 		return first_op->GetFormalParameter();
 	}
 	//void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value, int method_base);
 	void Run(std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
+	void Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 };

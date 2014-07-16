@@ -13,7 +13,7 @@ void TSReturn::Build()
 {
 	result = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, &GetSyntax()->result));
 	result->Build();
-	TFormalParam result_result = result->GetFormalParam();
+	TFormalParam result_result = result->GetFormalParameter();
 	if(method->GetRetClass()!=NULL)
 	{
 		int conv_needed;
