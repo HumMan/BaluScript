@@ -10,7 +10,7 @@
 #include "../Syntax/Expression.h"
 #include "../Syntax/Statements.h"
 
-TFormalParam TSLocalVar::Build()
+TFormalParam TSLocalVar::Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {
 	std::vector<TSMethod*> methods;
 	if (owner->GetMethods(methods, GetSyntax()->name))
@@ -39,8 +39,8 @@ TFormalParam TSLocalVar::Build()
 	{
 	}
 
-	type.LinkSignature();
-	type.LinkBody();
+	type.LinkSignature(static_fields, static_variables);
+	type.LinkBody(static_fields, static_variables);
 
 	parent->AddVar(this, GetSyntax()->stmt_id);
 
@@ -49,7 +49,7 @@ TFormalParam TSLocalVar::Build()
 	for (const std::unique_ptr<TExpression>& param_syntax : GetSyntax()->params)
 	{
 		auto t = new TSExpression(owner, method, parent, param_syntax.get());
-		t->Build();
+		t->Build(static_fields, static_variables);
 		params.push_back(std::unique_ptr<TSExpression>(t));
 		params_result.push_back(params.back()->GetFormalParameter());
 	}
@@ -116,7 +116,7 @@ TFormalParam TSLocalVar::Build()
 	if (GetSyntax()->assign_expr != NULL)
 	{
 		assign_expr = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->assign_expr.get()));
-		assign_expr->Build();
+		assign_expr->Build(static_fields, static_variables);
 	}
 	return TVoid();
 }
@@ -139,19 +139,19 @@ TSClass* TSLocalVar::GetClass()
 	return type.GetClass();
 }
 
-void TSLocalVar::Run(std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
+void TSLocalVar::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
 	local_variables.push_back(TStackValue(false, type.GetClass()));
 	assert(GetOffset() == local_variables.size() - 1);//иначе ошибка Build локальных переменных
 
 	if (assign_expr)
-		assign_expr->Run(formal_params, result_returned, result, object, local_variables);
+		assign_expr->Run(static_fields, formal_params, result_returned, result, object, local_variables);
 
 	else if (constructor_call)
 	{
 		TStackValue constr_result;
 		//constructor_call->Run(formal_params, constr_result, local_variables[GetOffset()], local_variables);
-		constructor_call->Run(formal_params, constr_result, object, local_variables);
+		constructor_call->Run(static_fields, formal_params, constr_result, object, local_variables);
 	}
 }
 

@@ -5,6 +5,8 @@ class TSClass;
 class TSMethod;
 class TFormalParam;
 class TFormalParamWithConversions;
+class TSClassField;
+class TSLocalVar;
 
 class TSReturn :public TSStatement
 {
@@ -19,6 +21,6 @@ public:
 	TNameId GetName();
 	TSClass* GetClass();
 	bool IsStatic();
-	void Build();
-	void Run(std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
+	void Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
+	void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 };

@@ -5,6 +5,8 @@ class TSClass;
 class TSMethod;
 class TSStatements;
 class TSExpression;
+class TSClassField;
+class TSLocalVar;
 
 class TSIf :public TSStatement
 {
@@ -13,10 +15,10 @@ class TSIf :public TSStatement
 	std::unique_ptr<TSStatements> statements, else_statements;
 public:
 	TSIf(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TIf* use_syntax);
-	void Build();
+	void Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
 	TIf* GetSyntax()
 	{
 		return (TIf*)TSyntaxNode::GetSyntax();
 	}
-	void Run(std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
+	void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 };

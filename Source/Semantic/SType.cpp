@@ -8,25 +8,25 @@ TSType::TSType(TSClass* use_owner, TType* use_syntax_node) :TSyntaxNode(use_synt
 	owner = use_owner;
 }
 
-void TSType::LinkSignature(TSClass* use_curr_class)
+void TSType::LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables, TSClass* use_curr_class)
 {
 	for (TType::TClassName& v : GetSyntax()->GetClassNames())
 	{
 		classes.emplace_back(&v);
-		use_curr_class = classes.back().LinkSignature(owner, use_curr_class);
+		use_curr_class = classes.back().LinkSignature(static_fields,static_variables, owner, use_curr_class);
 	}
 }
 
-void TSType::LinkSignature()
+void TSType::LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 { 
 	if (!IsSignatureLinked())
 		SetSignatureLinked();
 	else
 		return;
-	LinkSignature(NULL);
+	LinkSignature(static_fields, static_variables, NULL);
 }
 
-void TSType::LinkBody()
+void TSType::LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {
 	if (!IsBodyLinked())
 		SetBodyLinked();
@@ -34,7 +34,7 @@ void TSType::LinkBody()
 		return;
 	for (TSType_TClassName& v : classes)
 	{
-		v.LinkBody();
+		v.LinkBody(static_fields, static_variables);
 	}
 }
 
@@ -44,7 +44,7 @@ bool TSType::IsEqualTo(const TSType& use_right)const
 	return GetClass() == use_right.GetClass();
 }
 
-TSClass* TSType_TClassName::LinkSignature(TSClass* use_owner, TSClass* use_curr_class)
+TSClass* TSType_TClassName::LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables,TSClass* use_owner, TSClass* use_curr_class)
 {
 	if (!IsSignatureLinked())
 		SetSignatureLinked();
@@ -75,7 +75,7 @@ TSClass* TSType_TClassName::LinkSignature(TSClass* use_owner, TSClass* use_curr_
 		for (TType& t: *template_params)
 		{
 			template_params_classes.emplace_back(use_owner,&t);
-			template_params_classes.back().LinkSignature();
+			template_params_classes.back().LinkSignature(static_fields, static_variables);
 		}
 		
 		TSClass* realization = use_curr_class->FindTemplateRealization(template_params_classes);
@@ -94,8 +94,8 @@ TSClass* TSType_TClassName::LinkSignature(TSClass* use_owner, TSClass* use_curr_
 				}
 				realization->SetTemplateParams(template_params);
 			}
-			realization->Build();		
-			realization->LinkSignature();
+			realization->Build();
+			realization->LinkSignature(static_fields, static_variables);
 			//std::vector<TSClass*> owners;
 			//realization->CalculateSizes(owners);
 			//realization->CalculateMethodsSizes();
@@ -109,7 +109,7 @@ TSClass* TSType_TClassName::LinkSignature(TSClass* use_owner, TSClass* use_curr_
 }
 
 
-void TSType_TClassName::LinkBody()
+void TSType_TClassName::LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {
 	if (!IsBodyLinked())
 		SetBodyLinked();
@@ -118,11 +118,11 @@ void TSType_TClassName::LinkBody()
 
 	for (TSType& t_par : template_params_classes)
 	{
-		t_par.LinkBody();
+		t_par.LinkBody(static_fields, static_variables);
 	}
 
 	std::vector<TSClass*> owners;
-	class_of_type->LinkBody();
+	class_of_type->LinkBody(static_fields, static_variables);
 	//class_of_type->CalculateSizes(owners);
 	//class_of_type->CalculateMethodsSizes();
 }

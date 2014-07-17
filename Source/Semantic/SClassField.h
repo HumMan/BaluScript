@@ -4,6 +4,7 @@
 #include "Variable.h"
 
 class TClassField;
+class TSLocalVar;
 
 class TSClassField :public TSyntaxNode<TClassField>, public TVariable, public TNodeWithOffset
 {
@@ -14,6 +15,6 @@ public:
 	TSClassField(TSClass* use_owner, TClassField* use_syntax);
 	TSClass* GetClass()const;
 	TSClass* GetOwner()const;
-	void LinkSignature();
-	void LinkBody();
+	void LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
+	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
 };

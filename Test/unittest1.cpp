@@ -17,8 +17,10 @@ namespace Test
 
 			TSMethod* ms = new TSMethod(syntax->sem_base_class, m);
 			ms->Build();
-			ms->LinkSignature();
-			ms->LinkBody();
+			std::vector<TSClassField*> static_fields;
+			std::vector<TSLocalVar*> static_variables;
+			ms->LinkSignature(&static_fields,&static_variables);
+			ms->LinkBody(&static_fields, &static_variables);
 			ms->CalculateParametersOffsets();
 			return ms;
 		}
@@ -39,8 +41,10 @@ namespace Test
 
 			TSClass* scl = new TSClass(syntax->sem_base_class, cl);
 			scl->Build();
-			scl->LinkSignature();
-			scl->LinkBody();
+			std::vector<TSClassField*> static_fields;
+			std::vector<TSLocalVar*> static_variables;
+			scl->LinkSignature(&static_fields, &static_variables);
+			scl->LinkBody(&static_fields, &static_variables);
 			std::vector<TSClass*> owners;
 			scl->CalculateSizes(owners);
 			scl->CheckForErrors();
@@ -61,7 +65,9 @@ namespace Test
 		TSMethod* ms = CreateMethod(code);
 		std::vector<TStackValue> params;
 		TStackValue result, object;
-		ms->Run(params, result, object);
+		std::vector<TStaticValue> static_fields;
+		std::vector<TStaticValue> static_variables;
+		ms->Run(static_fields, params, result, object);
 		return result;
 	}
 	TStackValue RunClassWithCode(char* code)
@@ -69,7 +75,9 @@ namespace Test
 		TSMethod* ms = CreateClass(code);
 		std::vector<TStackValue> params;
 		TStackValue result, object;
-		ms->Run(params, result, object);
+		std::vector<TStaticValue> static_fields;
+		std::vector<TStaticValue> static_variables;
+		ms->Run(static_fields, params, result, object);
 		return result;
 	}
 	TEST_MODULE_INITIALIZE(BaseTypesTestsInitialize)

@@ -9,13 +9,13 @@ TSParameter::TSParameter(TSClass* use_owner, TSMethod* use_method, TParameter* u
 {
 }
 
-void TSParameter::LinkBody()
+void TSParameter::LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {
-	type.LinkBody();
+	type.LinkBody(static_fields, static_variables);
 }
-void TSParameter::LinkSignature()
+void TSParameter::LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {
-	type.LinkSignature();
+	type.LinkSignature(static_fields, static_variables);
 }
 TSClass* TSParameter::GetClass()
 {

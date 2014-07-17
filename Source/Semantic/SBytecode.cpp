@@ -11,6 +11,27 @@ TSBytecode::TSBytecode(TSClass* use_owner, TSMethod* use_method, TSStatements* u
 
 }
 
+void TSBytecode::Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+{
+	for (int i = 0; i<GetSyntax()->code.size(); i++)
+	{
+		if (GetSyntax()->code[i].f[0] == TBytecode::TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID)
+		{
+			TSClass* temp = owner->GetClass(GetSyntax()->code[i].id[0]);
+			if (temp == NULL)GetSyntax()->Error("Неизвестный идентификатор!");
+			//GetSyntax()->code[i].op.v1 = program.CreateArrayElementClassId(temp);
+			array_element_classes.push_back(temp);
+		}//TODO сделать нормально без повторений
+		if (GetSyntax()->code[i].f[1] == TBytecode::TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID)
+		{
+			TSClass* temp = owner->GetClass(GetSyntax()->code[i].id[1]);
+			if (temp == NULL)GetSyntax()->Error("Неизвестный идентификатор!");
+			//code[i].op.v2 = program.CreateArrayElementClassId(temp);
+			array_element_classes.push_back(temp);
+		}//TODO сделать нормально без повторений
+	}
+}
+
 void PackToStack(std::vector<TStackValue> &formal_params, int* &sp)
 {
 	int i = 0;
@@ -32,7 +53,7 @@ void PackToStack(std::vector<TStackValue> &formal_params, int* &sp)
 	}
 }
 
-void TSBytecode::Run(std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
+void TSBytecode::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
 	int stack[255];
 	int* sp = stack;

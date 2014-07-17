@@ -62,8 +62,10 @@ int main(int argc, char* argv[])
 				TSMethod* main_func = syntax.GetMethod("func static TGame.Main");
 				int sp[200];
 				std::vector<TStackValue> params;
+				std::vector<TStaticValue> static_fields;
+				std::vector<TStaticValue> static_variables;
 				TStackValue result, object;
-				main_func->Run(params,result,object);
+				main_func->Run(static_fields, params, result, object);
 		/*		if(print_info)
 					printf("ok (%.3f ms)\n",time.TimeDiff(time.GetTime(),t0)*1000);
 				t0=time.GetTime();

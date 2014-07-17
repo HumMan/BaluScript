@@ -21,15 +21,15 @@ TSClass* TSClassField::GetOwner()const
 	return owner;
 }
 
-void TSClassField::LinkSignature()
+void TSClassField::LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {
 
-	type.LinkSignature();
+	type.LinkSignature(static_fields, static_variables);
 }
 
-void TSClassField::LinkBody()
+void TSClassField::LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {
 
-	type.LinkBody();
+	type.LinkBody(static_fields, static_variables);
 }
 

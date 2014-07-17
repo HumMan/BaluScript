@@ -9,6 +9,8 @@ class TSStatements;
 class TMethod;
 class TSParameter;
 class TStackValue;
+class TSLocalVar;
+class TStaticValue;
 
 class TSMethod:public TSyntaxNode<TMethod>
 {
@@ -54,11 +56,11 @@ public:
 
 	void Build();
 
-	void LinkSignature();
-	void LinkBody();
+	void LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
+	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
 
 	void CalculateParametersOffsets();
 
-	void Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
+	void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
 };
 

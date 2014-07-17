@@ -126,8 +126,8 @@ class Script
 		constr(int v) bytecode{ASM_INT_TO_VEC2;};
 		constr(float v) bytecode{ASM_FLOAT_TO_VEC2;};
 		
-		operator static = (vec2& l,vec2 r)bytecode{ASM_ASSIGN 0,1;};
-		operator static +=(vec2& l,vec2 r)bytecode{ASM_VEC2_PLUS_A;};
+ 		operator static = (vec2& l,vec2 r)bytecode{ASM_ASSIGN 0,2;};
+ 		operator static +=(vec2& l,vec2 r)bytecode{ASM_VEC2_PLUS_A;};
 		operator static -=(vec2& l,vec2 r)bytecode{ASM_VEC2_MINUS_A;};
 		operator static *=(vec2& l,vec2 r)bytecode{ASM_VEC2_MUL_A;};
 		operator static /=(vec2& l,vec2 r)bytecode{ASM_VEC2_DIV_A;};
@@ -139,5 +139,58 @@ class Script
 
 		operator static -(vec2  l):vec2 bytecode{ASM_VEC2_UNARY_MINUS;};
 		operator static -(vec2& l):vec2 bytecode{ASM_R_VEC2_UNARY_MINUS;};
+		operator static [](vec2& v,int id):float bytecode{ASM_RV_VEC2_GET_ELEMENT;};
+		operator static [](vec2 v,int id):float bytecode{ASM_VV_VEC2_GET_ELEMENT;};
+	}
+	func static Cross	(vec2 v0,vec2 v1):float bytecode{ASM_VEC2_CROSS;};
+	func static Distance(vec2 v0,vec2 v1):float bytecode{ASM_VEC2_DISTANCE;};
+	func static Dot		(vec2 v0,vec2 v1):float bytecode{ASM_VEC2_DOT;};
+	func static Length	(vec2 v0):float bytecode{ASM_VEC2_LENGTH;};
+	func static Normalize(vec2 v0):float bytecode{ASM_VEC2_NORMALIZE;};
+	func static Reflect	 (vec2 v0,vec2 v1):float bytecode{ASM_VEC2_REFLECT;};
+	
+	class TDynArray<T>
+	{
+		TDynArrayInternalFields unnamed;
+		constr
+		{
+			bytecode{ASM_R_DYN_ARR_DEF_CONSTR CreateArrayElementClassId(T);};
+		}
+		constr(TDynArray& use_source)
+		{
+			bytecode{ASM_RR_DYN_ARR_COPY_CONSTR;};
+		}
+		destr
+		{
+			bytecode{ASM_R_DYN_ARR_DESTR;};
+		}
+		operator static [](TDynArray& v,int id):&T
+			bytecode{ASM_RV_DYN_ARR_GET_ELEMENT;};
+		operator static =(TDynArray& left,TDynArray& right)
+		{
+			bytecode{ASM_DYN_ARR_ASSIGN 1;};
+		}
+		operator static =(TDynArray& left,TDynArray right)
+		{
+			bytecode{ASM_DYN_ARR_ASSIGN 0;};
+		}
+		operator static ==(TDynArray& left,TDynArray& right):bool
+		{
+			bytecode{ASM_DYN_ARR_EQUAL 1,1;};
+		}
+		operator static ==(TDynArray& left,TDynArray right):bool
+		{
+			bytecode{ASM_DYN_ARR_EQUAL 1,0;};
+		}
+		operator static ==(TDynArray left,TDynArray& right):bool
+		{
+			bytecode{ASM_DYN_ARR_EQUAL 0,1;};
+		}
+		operator static ==(TDynArray left,TDynArray right):bool
+		{
+			bytecode{ASM_DYN_ARR_EQUAL 0,0;};
+		}
+		func SetHigh(int high)	bytecode{ASM_RV_DYN_ARR_SET_HIGH;};
+		func GetHigh:int		bytecode{ASM_R_DYN_ARR_GET_HIGH;};
 	}
 }

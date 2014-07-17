@@ -6,6 +6,7 @@
 class TSLocalVar;
 class TSClass;
 class TSMethod;
+class TSClassField;
 
 class TSStatements :public TSStatement
 {
@@ -31,7 +32,7 @@ public:
 	//TSStatement* CreateNode(TStatement* use_syntax_node);
 	TVariable* GetVar(TNameId name, int sender_id);
 	TSStatements(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TStatements* use_syntax);
-	void Build();
+	void Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
 	//void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value);
-	void Run(std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
+	void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 };

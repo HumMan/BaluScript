@@ -9,6 +9,8 @@
 
 class TSClass;
 class TSType;
+class TSClassField;
+class TSLocalVar;
 
 struct TSType_TClassName :TSyntaxNode<TType::TClassName>,TNodeSignatureLinked,TNodeBodyLinked
 {
@@ -18,8 +20,8 @@ struct TSType_TClassName :TSyntaxNode<TType::TClassName>,TNodeSignatureLinked,TN
 	{
 		class_of_type = NULL;
 	}
-	TSClass* LinkSignature(TSClass* use_owner, TSClass* use_curr_class);
-	void LinkBody();
+	TSClass* LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables, TSClass* use_owner, TSClass* use_curr_class);
+	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
 };
 
 struct TSType :public TSyntaxNode<TType>, public TNodeSignatureLinked, public TNodeBodyLinked
@@ -27,12 +29,12 @@ struct TSType :public TSyntaxNode<TType>, public TNodeSignatureLinked, public TN
 private:
 	TSClass* owner;
 	std::list<TSType_TClassName> classes;
-	void LinkSignature(TSClass* use_curr_class);
+	void LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables, TSClass* use_curr_class);
 public:
 	bool IsEqualTo(const TSType& use_right)const;
 	TSType(TSClass* use_owner,TType* use_syntax_node);
-	void LinkSignature();
-	void LinkBody();
+	void LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
+	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
 	TSClass* GetClass()const
 	{
 		return classes.back().class_of_type;

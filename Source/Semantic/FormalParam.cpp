@@ -51,7 +51,7 @@ bool TFormalParam::IsVoid()const{
 	return class_pointer == NULL && (!IsMethods()) && type == NULL;//TODO в дальнейшем methods_pointer не должен считаться void
 }
 
-void TFormalParamWithConversions::RunConversion(TStackValue &value)
+void TFormalParamWithConversions::RunConversion(std::vector<TStaticValue> &static_fields, TStackValue &value)
 {
 	if (ref_to_rvalue)
 	{
@@ -61,7 +61,7 @@ void TFormalParamWithConversions::RunConversion(TStackValue &value)
 			constr_params.push_back(value);
 			TStackValue constr_result;
 			TStackValue constructed_object(false, value.GetClass());
-			copy_constr->Run(constr_params, constr_result, constructed_object);
+			copy_constr->Run(static_fields, constr_params, constr_result, constructed_object);
 			value = constructed_object;
 		}
 		else
@@ -76,7 +76,7 @@ void TFormalParamWithConversions::RunConversion(TStackValue &value)
 		std::vector<TStackValue> conv_params;
 		conv_params.push_back(value);
 		TStackValue result;
-		conversion->Run(conv_params, result, value);
+		conversion->Run(static_fields, conv_params, result, value);
 		value = result;
 	}
 }
@@ -155,6 +155,12 @@ void TStackValue::SetAsReference(void* use_ref)
 	assert(is_ref);
 	internal_buf = use_ref;
 }
+
+void* TStackValue::get()
+{
+	return internal_buf;
+}
+
 TStackValue::TStackValue(bool is_ref, TSClass* type)
 {
 	this->is_ref = is_ref;
@@ -205,4 +211,20 @@ TStackValue::~TStackValue()
 		delete internal_buf;
 		internal_buf = NULL;
 	}
+}
+
+TStaticValue::TStaticValue()
+{
+	is_initialized = false;
+}
+
+void TStaticValue::Initialize()
+{
+	assert(!is_initialized);
+}
+
+void* TStaticValue::get()
+{
+	assert(is_initialized);
+	return TStackValue::get();
 }

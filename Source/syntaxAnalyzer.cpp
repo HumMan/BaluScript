@@ -27,10 +27,12 @@ void TSyntaxAnalyzer::Compile(char* use_source, TTime& time)
 
 	sem_base_class = new TSClass(NULL,base_class);
 
+	
 	sem_base_class->Build();
+
 	sem_base_class->CreateInternalClasses();
-	sem_base_class->LinkSignature();
-	sem_base_class->LinkBody();
+	sem_base_class->LinkSignature(&static_fields, &static_variables);
+	sem_base_class->LinkBody(&static_fields, &static_variables);
 	std::vector<TSClass*> owners;
 	sem_base_class->CalculateSizes(owners);
 	sem_base_class->CalculateMethodsSizes();
@@ -46,7 +48,7 @@ TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 	method_decl_syntax->AnalyzeSyntax(lexer, false);
 	TSMethod* method_decl = new TSMethod(sem_base_class, method_decl_syntax);
 	method_decl->Build();
-	method_decl->LinkBody();
+	//method_decl->LinkBody(&static_fields, &static_variables);
 	std::vector<TSMethod*> methods;
 	TSMethod* method = NULL;
 	switch (method_decl->GetSyntax()->GetMemberType())

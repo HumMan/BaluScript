@@ -35,6 +35,8 @@ public:
 	TVoid() :TFormalParam(NULL, false){}
 };
 
+class TStaticValue;
+
 struct TFormalParamWithConversions
 {
 	TFormalParam result;
@@ -43,7 +45,7 @@ struct TFormalParamWithConversions
 	TSMethod* conversion;//используется если необходимо преобразование параметра
 	TFormalParamWithConversions();
 	void BuildConvert(TFormalParam from_result, TSClass* param_class, bool param_ref);
-	void RunConversion(TStackValue &value);
+	void RunConversion(std::vector<TStaticValue> &static_fields,TStackValue &value);
 };
 
 class TStackValue
@@ -60,9 +62,15 @@ public:
 	TStackValue(bool is_ref, TSClass* type);
 	void operator=(const TStackValue& right);
 	void SetAsReference(void* use_ref);
-	void* get()
-	{
-		return internal_buf;
-	}
+	void* get();
 	~TStackValue();
+};
+
+class TStaticValue : public TStackValue
+{
+	bool is_initialized;
+public:
+	TStaticValue();
+	void Initialize();
+	void* get();
 };

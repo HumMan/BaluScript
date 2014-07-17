@@ -11,6 +11,8 @@ class TSParameter;
 class TSMethod;
 class TSClass;
 class TOverloadedMethod;
+class TSClassField;
+class TSLocalVar;
 
 class TSOverloadedMethod :TSyntaxNode<TOverloadedMethod>
 {
@@ -27,8 +29,8 @@ public:
 	TSMethod* FindParams(TSMethod* use_method);
 	void GetMethods(std::vector<TSMethod*> &result);
 	void CheckForErrors(bool is_conversion = false);
-	void LinkSignature();
-	void LinkBody();
+	void LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
+	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
 	void Build();
 	void CalculateParametersOffsets();
 };	

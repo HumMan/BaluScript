@@ -21,8 +21,8 @@ TSClass::TSClass(TSClass* use_owner, TClass* use_syntax_node, TNodeWithTemplates
 		SetType(type);
 	is_sealed = false;
 
-	auto_def_constr = NULL;
-	auto_destr = NULL;
+	//auto_def_constr = NULL;
+	//auto_destr = NULL;
 	parent = NULL;
 	owner = use_owner;
 }
@@ -37,6 +37,7 @@ void TSClass::Build()
 	for (TClassField& field_syntax : GetSyntax()->fields)
 	{
 		fields.emplace_back(this, &field_syntax);
+		
 	}
 
 	for (TOverloadedMethod& method : GetSyntax()->methods)
@@ -188,7 +189,7 @@ TSClassField* TSClass::GetField(TNameId name, bool is_static, bool only_in_this)
 	return NULL;
 }
 
-void TSClass::LinkSignature()
+void TSClass::LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {
 	if (!IsSignatureLinked())
 		SetSignatureLinked();
@@ -199,28 +200,30 @@ void TSClass::LinkSignature()
 	
 	for (TSClassField& field : fields)
 	{
-		field.LinkSignature();
+		field.LinkSignature(static_fields, static_variables);
+		if (field.GetSyntax()->IsStatic())
+			static_fields->push_back(&fields.back());
 	}
 
 	//слинковать сигнатуры методов
 	for (TSOverloadedMethod& method : methods)
 	{
-		method.LinkSignature();
+		method.LinkSignature(static_fields, static_variables);
 	}
-	constructors->LinkSignature();
+	constructors->LinkSignature(static_fields, static_variables);
 	if (destructor)
-		destructor->LinkSignature();
+		destructor->LinkSignature(static_fields, static_variables);
 
 	for (int i = 0; i < TOperator::End; i++)
-		operators[i]->LinkSignature();
-	conversions->LinkSignature();
+		operators[i]->LinkSignature(static_fields, static_variables);
+	conversions->LinkSignature(static_fields, static_variables);
 
 	for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
 		if (!nested_class->GetSyntax()->IsTemplate())
-			nested_class->LinkSignature();
+			nested_class->LinkSignature(static_fields, static_variables);
 }
 
-void TSClass::LinkBody()
+void TSClass::LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {
 	if (!IsBodyLinked())
 		SetBodyLinked();
@@ -231,27 +234,27 @@ void TSClass::LinkBody()
 
 	for (TSClassField& field : fields)
 	{
-		field.LinkBody();
+		field.LinkBody(static_fields, static_variables);
 	}
 
 	//слинковать тела методов - требуется наличие инф. обо всех методах, conversion, операторах класса
 	for (TSOverloadedMethod& method : methods)
 	{
-		method.LinkBody();
+		method.LinkBody(static_fields, static_variables);
 	}
 	if (constructors)
-		constructors->LinkBody();
+		constructors->LinkBody(static_fields, static_variables);
 	if (destructor)
-		destructor->LinkBody();
+		destructor->LinkBody(static_fields, static_variables);
 
 	for (int i = 0; i < TOperator::End; i++)
 		if (operators[i])
-			operators[i]->LinkBody();
-	conversions->LinkBody();
+			operators[i]->LinkBody(static_fields, static_variables);
+	conversions->LinkBody(static_fields, static_variables);
 
 	for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
 		if (!nested_class->GetSyntax()->IsTemplate())
-			nested_class->LinkBody();
+			nested_class->LinkBody(static_fields, static_variables);
 }
 
 
@@ -314,22 +317,22 @@ bool TSClass::GetConstructors(std::vector<TSMethod*> &result)
 		result.push_back(constructor.get());
 	}
 
-	if (!constr_override && auto_def_constr)
-		result.push_back(auto_def_constr.get());
+	//if (!constr_override && auto_def_constr)
+	//	result.push_back(auto_def_constr.get());
 	return result.size() > 0;
 }
 
 TSMethod* TSClass::GetDefConstr()
 {
 	//assert(methods_declared&&auto_methods_build);
-	if (constr_override)
+	//if (constr_override)
 	{
 		for (const std::unique_ptr<TSMethod>& constructor : constructors->methods)
 			if (constructor->GetParamsCount() == 0)
 				return constructor.get();
 	}
-	else
-		return auto_def_constr.get();
+	//else
+	//	return auto_def_constr.get();
 	return NULL;
 }
 
@@ -350,7 +353,8 @@ TSMethod* TSClass::GetCopyConstr()
 TSMethod* TSClass::GetDestructor()
 {
 	//assert(methods_declared&&auto_methods_build);
-	return (destructor) ? destructor.get() : auto_destr.get();
+	//return (destructor) ? destructor.get() : auto_destr.get();
+	return destructor.get();
 }
 
 bool TSClass::HasConversion(TSClass* target_type)

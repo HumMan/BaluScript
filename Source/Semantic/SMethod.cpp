@@ -14,16 +14,16 @@ TSMethod::TSMethod(TSClass* use_owner, TMethod* use_syntax)
 	owner = use_owner;
 }
 
-void TSMethod::LinkSignature()
+void TSMethod::LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {
 	if (linked_signature)
 		return;
 	linked_signature = true;
 	if(GetSyntax()->has_return)
-		ret.LinkSignature();
+		ret.LinkSignature(static_fields, static_variables);
 	for (const std::unique_ptr<TSParameter>& v : parameters)
 	{
-		v->LinkSignature();
+		v->LinkSignature(static_fields, static_variables);
 	}
 	
 }
@@ -56,21 +56,21 @@ bool TSMethod::HasParams(std::vector<std::unique_ptr<TSParameter>> &use_params)c
 	return true;
 }
 
-void TSMethod::LinkBody()
+void TSMethod::LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {
 	if (linked_body)
 		return;
 	linked_body = true;
 	statements = std::unique_ptr<TSStatements>(new TSStatements(owner, this, NULL, GetSyntax()->statements.get()));
-	statements->Build();
+	statements->Build(static_fields, static_variables);
 	//if (!GetSyntax()->IsBytecode())
 	//	statements->Build();
 
 	if (GetSyntax()->has_return)
-		ret.LinkBody();
+		ret.LinkBody(static_fields, static_variables);
 	for (const std::unique_ptr<TSParameter>& v : parameters)
 	{
-		v->LinkBody();
+		v->LinkBody(static_fields, static_variables);
 	}
 }
 
@@ -95,14 +95,14 @@ void TSMethod::CalculateParametersOffsets()
 		ret_size = 0;
 }
 
-void TSMethod::Run(std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+void TSMethod::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
 {
 	bool result_returned = false;
 	TStackValue returned_result;
 
 	std::vector<TStackValue> local_variables;
 
-	statements->Run(formal_params, result_returned, returned_result, object, local_variables);
+	statements->Run(static_fields, formal_params, result_returned, returned_result, object, local_variables);
 
 	result = returned_result;
 
@@ -111,7 +111,7 @@ void TSMethod::Run(std::vector<TStackValue> &formal_params, TStackValue& result,
 		if (!formal_params[i].IsRef() && formal_params[i].GetClass()->GetDestructor()!=NULL)
 		{
 			TStackValue destructor_result;
-			formal_params[i].GetClass()->GetDestructor()->Run(formal_params, destructor_result, formal_params[i]);
+			formal_params[i].GetClass()->GetDestructor()->Run(static_fields, formal_params, destructor_result, formal_params[i]);
 		}
 	}
 	result = returned_result;

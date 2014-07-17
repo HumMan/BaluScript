@@ -8,6 +8,7 @@
 
 class TTemplateRealizations;
 class TSClassField;
+class TSLocalVar;
 
 class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize,public TNodeSignatureLinked,public TNodeBodyLinked,public TNodeWithTemplates
 {	
@@ -21,11 +22,11 @@ class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize,public TNodeSigna
 
 	std::vector<std::unique_ptr<TSClass>> nested_classes;
 
-	std::unique_ptr<TSMethod> auto_def_constr;
-	///<summary>»меетс€ пользовательский конструктор по умолчанию</summary>
-	bool constr_override;
+	//std::unique_ptr<TSMethod> auto_def_constr;
+	//std::unique_ptr<TSMethod> auto_copy_constr;
+	//std::unique_ptr<TSMethod> auto_assign_operator;
 	///<summary>јвтоматически созданный деструктор</summary>
-	std::unique_ptr<TSMethod> auto_destr;
+	//std::unique_ptr<TSMethod> auto_destr;
 	///<summary>“ип от которого унаследован данный класс</summary>
 	TSClass* parent;
 	///<summary>ќт данного класса запрещено наследование</summary>
@@ -59,8 +60,10 @@ public:
 	TSClass* GetNested(TNameId name);
 	///<summary>ѕостоение семанитческого дерева по синтаксическому(дл€ всех кроме тел методов) без какого либо анализа типов</summary>
 	void Build();
-	void LinkSignature();
-	void LinkBody();
+	///<param name = 'static_fields'>—писок статических полей класса - необходим дл€ их дальнейшей инициализации</param>
+	///<param name = 'static_fields'>—писок статических локальных переменных</param>
+	void LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
+	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
 	void CalculateSizes(std::vector<TSClass*> &owners);
 	void CalculateMethodsSizes();
 };
