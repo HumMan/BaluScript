@@ -1,4 +1,9 @@
 
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
+
 #include "baluScript.h"
 //#include <boost/filesystem.hpp>
 
@@ -19,6 +24,7 @@
 int main(int argc, char* argv[])
 {
 	setlocale(LC_ALL,"windows");
+
 	//hFind=FindFirstFile("*.bscript", &FindFileData);
 	//for(int i=1;i<10;i++)hFind == INVALID_HANDLE_VALUE
 	//if(hFind != INVALID_HANDLE_VALUE)
@@ -109,5 +115,6 @@ int main(int argc, char* argv[])
 	//FindClose(hFind);
 
 	printf("All done");
+	_CrtDumpMemoryLeaks();
 	return 0;
 }
