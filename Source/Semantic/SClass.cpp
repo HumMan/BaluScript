@@ -201,7 +201,7 @@ void TSClass::LinkSignature(std::vector<TSClassField*>* static_fields, std::vect
 	{
 		field.LinkSignature(static_fields, static_variables);
 		if (field.GetSyntax()->IsStatic())
-			static_fields->push_back(&fields.back());
+			static_fields->push_back(&field);
 	}
 
 	//слинковать сигнатуры методов

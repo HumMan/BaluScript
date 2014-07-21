@@ -89,7 +89,7 @@ namespace Test
 		ms->Run(static_objects, params, result, object);
 		return result;
 	}
-	TStackValue RunClassWithCode(TSClass* scl,char* method_name)
+	TStackValue RunClassMethod(TSClass* scl,char* method_name)
 	{
 		std::vector<TSMethod*> methods;
 		scl->GetMethods(methods, syntax->lexer.GetIdFromName(method_name));
@@ -223,7 +223,7 @@ namespace Test
 				"{"
 					"SubClass s;s.Init();return s.b;"
 				"}}");
-			Assert::AreEqual((int)2, *(int*)RunClassWithCode(cl,"Test").get());
+			Assert::AreEqual((int)2, *(int*)RunClassMethod(cl, "Test").get());
 
 			TSClass* cl2 = CreateClass(
 				"class TestClass {"
@@ -237,7 +237,7 @@ namespace Test
 				"{"
 				"SubClass s;s.Init();return s.b;"
 				"}}");
-			Assert::AreEqual((int)4, *(int*)RunClassWithCode(cl2, "Test").get());
+			Assert::AreEqual((int)4, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 	};
 	TEST_CLASS(FloatTesting)
@@ -383,7 +383,7 @@ namespace Test
 				"{\n"
 				"return SubClass2.test_static.b;\n"
 				"}}");
-			Assert::AreEqual((int)5, *(int*)RunClassWithCode(cl2, "Test").get());
+			Assert::AreEqual((int)5, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 		TEST_METHOD(BasicClassField)
 		{
@@ -408,8 +408,8 @@ namespace Test
 				"SubClass2.test_static.a+=1;"
 				"return SubClass2.test_static.a;\n"
 				"}}");
-			Assert::AreEqual((int)4, *(int*)RunClassWithCode(cl2, "Test").get());
-			Assert::AreEqual((int)5, *(int*)RunClassWithCode(cl2, "Test2").get());
+			Assert::AreEqual((int)4, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((int)5, *(int*)RunClassMethod(cl2, "Test2").get());
 		}
 		TEST_METHOD(BasicLocalVariable)
 		{
@@ -422,7 +422,7 @@ namespace Test
 	TEST_CLASS(ConstrCopyDestrTesting)
 	{
 	public:
-		TEST_METHOD(FieldConstructorTest)
+		TEST_METHOD(ClassConstructorTest)
 		{
 			TSClass* cl2 = CreateClass(
 				"class TestClass {"
@@ -441,10 +441,10 @@ namespace Test
 				"{"
 				"SubClass2 s;return s.a.c;"
 				"}}");
-			Assert::AreEqual((int)5, *(int*)RunClassWithCode(cl2,"Test").get());
-			Assert::AreEqual((int)9, *(int*)RunClassWithCode(cl2, "Test2").get());
+			Assert::AreEqual((int)5, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((int)9, *(int*)RunClassMethod(cl2, "Test2").get());
 		}
-		TEST_METHOD(FieldCopyConstructorTest)
+		TEST_METHOD(ClassCopyConstructorTest)
 		{
 			TSClass* cl2 = CreateClass(
 				"class TestClass {"
@@ -461,7 +461,46 @@ namespace Test
 				"SubClass2 s0;"
 				"SubClass2 s1(s0); return s1.a.c;"
 				"}}");
-			Assert::AreEqual((int)10, *(int*)RunClassWithCode(cl2, "Test3").get());
+			Assert::AreEqual((int)10, *(int*)RunClassMethod(cl2, "Test3").get());
+		}
+		TEST_METHOD(ClassDestructorTest)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+					"class TestClass {\n"
+					"int static destr_count;\n"
+					"int static constr_count;\n"
+					"int static copy_constr_count;\n"
+					"class SubClass {\n"
+					"int a,b,c;\n"
+					"constr{constr_count+=1;a=3;b=5;c=9;}\n"
+					"constr(SubClass& copy_from){copy_constr_count+=1;a=copy_from.a+1;b=copy_from.b+1;c=copy_from.c+1;}\n"
+					"destr{destr_count+=1;}\n"
+					"}\n"
+					"func static Test:int\n"
+					"{\n"
+					"constr_count=0;\n"
+					"copy_constr_count=0;\n"
+					"destr_count=0;\n"
+					"SubClass s0;\n"
+					"SubClass s1(s0); return s1.a;\n"
+					"}\n"
+					"func static GetDestrCount:int\n"
+					"{\n"
+					"return destr_count;\n"
+					"}\n"
+					"func static GetConstrCount:int\n"
+					"{\n"
+					"return constr_count;\n"
+					"}\n"
+					"func static GetCopyConstrCount:int\n"
+					"{\n"
+					"return copy_constr_count;\n"
+					"}}"));
+			Assert::AreEqual((int)4, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((int)2, *(int*)RunClassMethod(cl2, "GetDestrCount").get());
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "GetConstrCount").get());
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "GetCopyConstrCount").get());
 		}
 	};
 }

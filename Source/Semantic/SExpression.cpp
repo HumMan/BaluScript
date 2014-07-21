@@ -330,7 +330,7 @@ public:
 			case TVariableType::ClassField:
 			{
 				ValidateAccess(syntax_node, owner, (TSClassField*)var);
-				if (!((TClassField*)var)->IsStatic() && method->GetSyntax()->IsStatic())
+				if ((!(static_cast<TSClassField*>(var))->GetSyntax()->IsStatic()) && method->GetSyntax()->IsStatic())
 					syntax_node->Error("К нестатическому полю класса нельзя обращаться из статического метода!");
 				TSExpression::TGetClassField* result = new TSExpression::TGetClassField();
 				result->left = NULL;
