@@ -15,11 +15,17 @@ class TSParameter :public TSyntaxNode<TParameter>, public TVariable,public TNode
 	TSType type;
 	TSClass* owner;
 	TSMethod* method;
+	bool is_ref;
 public:
 	TSParameter(TSClass* use_owner, TSMethod* use_method, TParameter* use_syntax_node, TType* use_type_syntax_node);
+	TSParameter(TSClass* use_owner, TSMethod* use_method, TSClass* use_class, bool use_is_ref);
 	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
 	void LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
 	TSClass* GetClass();
 	bool IsEqualTo(const TSParameter& right)const;
 	void CalculateSize();
+	bool IsRef()const
+	{
+		return is_ref;
+	}
 };

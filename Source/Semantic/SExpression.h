@@ -52,7 +52,7 @@ public:
 
 class TSExpression :public TSStatement,public TOperation
 {
-	TOperation* first_op;
+	std::unique_ptr<TOperation> first_op;
 public:
 	
 	
@@ -86,7 +86,7 @@ public:
 	class TGetMethods :public TOperation
 	{
 	public:
-		TOperation* left;
+		std::unique_ptr<TOperation> left;
 		TFormalParam left_result;
 		TFormalParam result;
 		TFormalParam GetFormalParameter();
@@ -95,7 +95,7 @@ public:
 	class TGetClassField :public TOperation
 	{
 	public:
-		TOperation* left;
+		std::unique_ptr<TOperation>  left;
 		TFormalParam left_result;
 		TSClassField* field;
 		TFormalParam GetFormalParameter();
@@ -104,7 +104,7 @@ public:
 	class TGetParameter :public TOperation
 	{
 	public:
-		TSParameter* parameter;
+		std::unique_ptr<TSParameter> parameter;
 		TFormalParam GetFormalParameter();
 		void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
@@ -125,7 +125,7 @@ public:
 	class TGetClass : public TOperation
 	{
 	public:
-		TGetClass* left;
+		std::unique_ptr<TGetClass> left;
 		TSClass* get_class;
 		TFormalParam GetFormalParameter();
 		void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);

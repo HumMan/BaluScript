@@ -12,7 +12,31 @@ class TStackValue;
 class TSLocalVar;
 class TStaticValue;
 
-class TSMethod:public TSyntaxNode<TMethod>
+class TSpecialClassMethod
+{
+public:
+	enum Type
+	{
+		NotSpecial,
+		AutoDefConstr,
+		AutoCopyConstr,
+		AutoDestructor,
+		AutoAssignOperator
+	};
+private:
+	Type type;
+public:
+	TSpecialClassMethod(Type use_type)
+	{
+		type = use_type;
+	}
+	Type GetType()
+	{
+		return type;
+	}
+};
+
+class TSMethod :public TSyntaxNode<TMethod>, public TSpecialClassMethod, public TNodeSignatureLinked, public TNodeBodyLinked
 {
 	friend class TSOverloadedMethod;
 private:
@@ -24,17 +48,19 @@ private:
 
 	std::unique_ptr<TSStatements> statements;
 
-	TSMethod* pre_event;
-	TSMethod* post_event;
-
-	bool linked_signature, linked_body;
+	//TSMethod* pre_event;
+	//TSMethod* post_event;
 public:
 	///<summary>Используется для вызова автоматически созданного конструктора для пользовательского/внешнего метода</summary>
-	void SetPreEvent(TSMethod* use_event);
-	void SetPostEvent(TSMethod* use_event);
+	//void SetPreEvent(TSMethod* use_event);
+	//void SetPostEvent(TSMethod* use_event);
 	
-	TSMethod* GetPreEvent();
-	TSMethod* GetPostEvent();
+	//TSMethod* GetPreEvent();
+	//TSMethod* GetPostEvent();
+
+	TSMethod(TSClass* use_owner, TSpecialClassMethod::Type special_method_type);
+	void AddParameter(TSParameter* use_par);
+
 	TSMethod(TSClass* use_owner,TMethod* use_syntax);
 
 	int GetParametersSize()

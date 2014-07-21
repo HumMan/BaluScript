@@ -8,6 +8,13 @@ TSType::TSType(TSClass* use_owner, TType* use_syntax_node) :TSyntaxNode(use_synt
 	owner = use_owner;
 }
 
+TSType::TSType(TSClass* use_owner, TSClass* use_class) : TSyntaxNode(NULL)
+{
+	owner = use_owner;
+	classes.emplace_back(use_class);
+	classes.back().class_of_type = use_class;
+}
+
 void TSType::LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables, TSClass* use_curr_class)
 {
 	for (TType::TClassName& v : GetSyntax()->GetClassNames())

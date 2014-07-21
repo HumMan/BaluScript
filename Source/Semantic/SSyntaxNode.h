@@ -87,3 +87,22 @@ public:
 		return body_linked;
 	}
 };
+
+class TNodeWithAutoMethods
+{
+	bool auto_methods_initialized;
+public:
+	TNodeWithAutoMethods()
+	{
+		auto_methods_initialized = false;
+	}
+	void SetAutoMethodsInitialized()
+	{
+		assert(!auto_methods_initialized);
+		auto_methods_initialized = true;
+	}
+	bool IsAutoMethodsInitialized()
+	{
+		return auto_methods_initialized;
+	}
+};

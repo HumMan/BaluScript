@@ -9,8 +9,10 @@
 class TTemplateRealizations;
 class TSClassField;
 class TSLocalVar;
+class TStaticValue;
+class TStackValue;
 
-class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize,public TNodeSignatureLinked,public TNodeBodyLinked,public TNodeWithTemplates
+class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize,public TNodeSignatureLinked,public TNodeBodyLinked,public TNodeWithTemplates, public TNodeWithAutoMethods
 {	
 	std::list<TSClassField> fields;
 	std::list<TSOverloadedMethod> methods;
@@ -22,11 +24,12 @@ class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize,public TNodeSigna
 
 	std::vector<std::unique_ptr<TSClass>> nested_classes;
 
-	//std::unique_ptr<TSMethod> auto_def_constr;
-	//std::unique_ptr<TSMethod> auto_copy_constr;
+	std::unique_ptr<TSMethod> auto_def_constr;
+	std::unique_ptr<TSMethod> auto_copy_constr;
+	///<summary>Автоматически созданный оператор присваивания</summary>
 	//std::unique_ptr<TSMethod> auto_assign_operator;
 	///<summary>Автоматически созданный деструктор</summary>
-	//std::unique_ptr<TSMethod> auto_destr;
+	std::unique_ptr<TSMethod> auto_destr;
 	///<summary>Тип от которого унаследован данный класс</summary>
 	TSClass* parent;
 	///<summary>От данного класса запрещено наследование</summary>
@@ -49,7 +52,7 @@ public:
 	bool HasConversion(TSClass* target_type);
 	bool IsNestedIn(TSClass* use_parent);
 	bool GetOperators(std::vector<TSMethod*> &result, TOperator::Enum op);
-	TSMethod* GetBinOp(TOperator::Enum op, TSClass* left, bool left_ref, TSClass* right, bool right_ref);
+	//TSMethod* GetBinOp(TOperator::Enum op, TSClass* left, bool left_ref, TSClass* right, bool right_ref);
 	bool GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name);
 	bool GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name, bool is_static);
 	bool GetConstructors(std::vector<TSMethod*> &result);
@@ -66,4 +69,9 @@ public:
 	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
 	void CalculateSizes(std::vector<TSClass*> &owners);
 	void CalculateMethodsSizes();
+	void InitAutoMethods();
+
+	void RunAutoDefConstr(std::vector<TStaticValue> &static_fields, TStackValue& object);
+	void RunAutoDestr(std::vector<TStaticValue> &static_fields, TStackValue& object);
+	void RunAutoCopyConstr(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object);
 };

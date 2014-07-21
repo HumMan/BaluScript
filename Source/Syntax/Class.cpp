@@ -29,6 +29,7 @@ TClass::TClass(TClass* use_owner) :parent(this)
 	is_template = false;
 	is_sealed = false;
 	owner = use_owner;
+	constr_override = false;
 }
 
 void TClass::AddMethod(TMethod* use_method, TNameId name) {

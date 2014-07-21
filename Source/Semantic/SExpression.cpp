@@ -224,7 +224,7 @@ public:
 				if (static_member != NULL)
 				{
 					TSExpression::TGetClassField* result = new TSExpression::TGetClassField();
-					result->left = left;
+					result->left.reset(left);
 					result->field = (TSClassField*)static_member;
 					return_new_operation = result;
 					return;
@@ -235,7 +235,7 @@ public:
 					if (left_result.GetType()->GetMethods(methods, operation_node->name, true))
 					{
 						TSExpression::TGetMethods* result = new TSExpression::TGetMethods();
-						result->left = left;
+						result->left.reset(left);
 						result->left_result = left_result;
 						result->result = TFormalParam(methods, method->GetSyntax()->IsStatic());
 						return_new_operation = result;
@@ -247,7 +247,7 @@ public:
 						if (nested != NULL)
 						{
 							TSExpression::TGetClass* result = new TSExpression::TGetClass();
-							result->left = (TSExpression::TGetClass*)left;
+							result->left.reset((TSExpression::TGetClass*)left);
 							assert(result->left != NULL);
 							result->get_class = nested;
 							return_new_operation = result;
@@ -270,7 +270,7 @@ public:
 				ValidateAccess(syntax_node, owner, member);
 
 				TSExpression::TGetClassField* result = new TSExpression::TGetClassField();
-				result->left = left;
+				result->left.reset(left);
 				result->left_result = left_result;
 				result->field = member;
 				return_new_operation = result;
@@ -308,7 +308,7 @@ public:
 				if (left_result.GetClass()->GetMethods(methods, operation_node->name, false))
 				{
 					TSExpression::TGetMethods* result = new TSExpression::TGetMethods();
-					result->left = left;
+					result->left.reset(left);
 					result->left_result = left_result;
 					result->result = TFormalParam(methods, false);
 					return_new_operation = result;
@@ -341,14 +341,14 @@ public:
 			case TVariableType::Local:
 			{
 				TSExpression::TGetLocal* result = new TSExpression::TGetLocal();
-				result->variable = (TSLocalVar*)var;
+				result->variable=(TSLocalVar*)var;
 				return_new_operation = result;
 				return;
 			}break;
 			case TVariableType::Parameter:
 			{
 				TSExpression::TGetParameter* result = new TSExpression::TGetParameter();
-				result->parameter = (TSParameter*)var;
+				result->parameter.reset((TSParameter*)var);
 				return_new_operation = result;
 				return;
 			}break;
@@ -446,7 +446,7 @@ void TSExpression::Build(std::vector<TSClassField*>* static_fields, std::vector<
 {
 	TSemanticTreeBuilder b(static_fields, static_variables, GetSyntax(),owner,method,this);
 	GetSyntax()->Accept(&b);
-	first_op = b.GetResult();
+	first_op.reset(b.GetResult());
 }
 
 TVariable* TSExpression::GetVar(TNameId name)
@@ -461,7 +461,7 @@ void TSExpression_TMethodCall::Build(const std::vector<TOperation*>& param_expre
 	for (int i = 0; i < params.size(); i++)
 	{
 		input.emplace_back(param_expressions[i]);
-		input.back().BuildConvert(params[i], method->GetParam(i)->GetClass(), method->GetParam(i)->GetSyntax()->IsRef());
+		input.back().BuildConvert(params[i], method->GetParam(i)->GetClass(), method->GetParam(i)->IsRef());
 	}
 }
 

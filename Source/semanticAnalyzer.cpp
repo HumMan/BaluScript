@@ -44,7 +44,7 @@ TSMethod* FindMethod(TTokenPos* source, std::vector<TSMethod*> &methods_to_call,
 		conv=0;
 		for(k=0;k<formal_params.size();k++){
 			TSParameter* p=methods_to_call[i]->GetParam(k);
-			if (!IsEqualClasses(formal_params[k], p->GetClass(), p->GetSyntax()->IsRef(), conv))goto end_search;
+			if (!IsEqualClasses(formal_params[k], p->GetClass(), p->IsRef(), conv))goto end_search;
 			else temp_conv+=conv;
 		}
 		if(temp_conv<conv_needed||conv_needed==-1)
@@ -72,6 +72,7 @@ void ValidateAccess(TTokenPos* field_pos, TSClass* source, TSClassField* target)
 
 void ValidateAccess(TTokenPos* field_pos, TSClass* source, TSMethod* target)
 {
+	if (target->GetType() != TSpecialClassMethod::NotSpecial)return;
 	if (target->GetSyntax()->GetAccess() == TTypeOfAccess::Public)return;
 	if (source == target->GetOwner())return;
 	if (target->GetSyntax()->GetAccess() == TTypeOfAccess::Protected&&!source->IsNestedIn(target->GetOwner()))

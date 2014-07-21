@@ -20,6 +20,12 @@ struct TSType_TClassName :TSyntaxNode<TType::TClassName>,TNodeSignatureLinked,TN
 	{
 		class_of_type = NULL;
 	}
+	TSType_TClassName(TSClass* use_class) :TSyntaxNode(NULL)
+	{
+		class_of_type = use_class;
+		SetSignatureLinked();
+		SetBodyLinked();
+	}
 	TSClass* LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables, TSClass* use_owner, TSClass* use_curr_class);
 	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
 };
@@ -33,6 +39,8 @@ private:
 public:
 	bool IsEqualTo(const TSType& use_right)const;
 	TSType(TSClass* use_owner,TType* use_syntax_node);
+	///<summary>Используется при создании автоматических методов</summary>
+	TSType(TSClass* use_owner, TSClass* use_class);
 	void LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
 	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
 	TSClass* GetClass()const
