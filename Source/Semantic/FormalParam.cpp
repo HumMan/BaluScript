@@ -218,9 +218,21 @@ TStaticValue::TStaticValue()
 	is_initialized = false;
 }
 
+TStaticValue::TStaticValue(bool is_ref, TSClass* type)
+	:TStackValue(is_ref,type)
+{
+	is_initialized = false;
+}
+
 void TStaticValue::Initialize()
 {
 	assert(!is_initialized);
+	is_initialized = true;
+}
+
+bool TStaticValue::IsInitialized()
+{
+	return is_initialized;
 }
 
 void* TStaticValue::get()

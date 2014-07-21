@@ -103,6 +103,7 @@ TSClass* TSType_TClassName::LinkSignature(std::vector<TSClassField*>* static_fie
 			}
 			realization->Build();
 			realization->LinkSignature(static_fields, static_variables);
+			realization->InitAutoMethods();
 			//std::vector<TSClass*> owners;
 			//realization->CalculateSizes(owners);
 			//realization->CalculateMethodsSizes();

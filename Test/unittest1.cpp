@@ -7,6 +7,9 @@ namespace Test
 {
 	TSyntaxAnalyzer* syntax;
 	TTime* time;
+
+	std::vector<TStaticValue> static_objects;
+
 	TSMethod* CreateMethod(char* code)
 	{
 		try
@@ -17,11 +20,17 @@ namespace Test
 
 			TSMethod* ms = new TSMethod(syntax->sem_base_class, m);
 			ms->Build();
+			
 			std::vector<TSClassField*> static_fields;
 			std::vector<TSLocalVar*> static_variables;
+
 			ms->LinkSignature(&static_fields,&static_variables);
 			ms->LinkBody(&static_fields, &static_variables);
 			ms->CalculateParametersOffsets();
+
+			InitializeStaticClassFields(static_fields, static_objects);
+			InitializeStaticVariables(static_variables, static_objects);
+
 			return ms;
 		}
 		catch (std::string s)
@@ -41,8 +50,10 @@ namespace Test
 
 			TSClass* scl = new TSClass(syntax->sem_base_class, cl);
 			scl->Build();
+
 			std::vector<TSClassField*> static_fields;
 			std::vector<TSLocalVar*> static_variables;
+
 			scl->LinkSignature(&static_fields, &static_variables);
 			scl->InitAutoMethods();
 			scl->LinkBody(&static_fields, &static_variables);
@@ -50,6 +61,10 @@ namespace Test
 			scl->CalculateSizes(owners);
 			scl->CheckForErrors();
 			scl->CalculateMethodsSizes();
+
+			InitializeStaticClassFields(static_fields, static_objects);
+			InitializeStaticVariables(static_variables, static_objects);
+
 			return scl;
 		}
 		catch (std::string s)
@@ -64,9 +79,14 @@ namespace Test
 		TSMethod* ms = CreateMethod(code);
 		std::vector<TStackValue> params;
 		TStackValue result, object;
-		std::vector<TStaticValue> static_fields;
-		std::vector<TStaticValue> static_variables;
-		ms->Run(static_fields, params, result, object);
+		ms->Run(static_objects, params, result, object);
+		return result;
+	}
+	TStackValue RunMethod(TSMethod* ms)
+	{
+		std::vector<TStackValue> params;
+		TStackValue result, object;
+		ms->Run(static_objects, params, result, object);
 		return result;
 	}
 	TStackValue RunClassWithCode(TSClass* scl,char* method_name)
@@ -77,9 +97,7 @@ namespace Test
 
 		std::vector<TStackValue> params;
 		TStackValue result, object;
-		std::vector<TStaticValue> static_fields;
-		std::vector<TStaticValue> static_variables;
-		ms->Run(static_fields, params, result, object);
+		ms->Run(static_objects, params, result, object);
 		return result;
 	}
 	TEST_MODULE_INITIALIZE(BaseTypesTestsInitialize)
@@ -345,6 +363,60 @@ namespace Test
 		{
 			Assert::AreEqual(13, *(int*)RunCode("func static Test:int{int s=3;for(int i=0;i<5;i+=1)s+=i;return s;}").get());
 			Assert::AreEqual(389, *(int*)RunCode("func static Test:int{for(int i=0;i<500;i+=1){if(i==389)return i;}return 1;}").get());
+		}
+	};
+	TEST_CLASS(StaticVariablesTesting)
+	{
+	public:
+		TEST_METHOD(BasicClassFieldInit)
+		{
+			TSClass* cl2 = CreateClass(
+				"class TestClass {\n"
+				"class SubClass {\n"
+				"int a,b,c;\n"
+				"constr{a=3;b=5;c=9;}\n"
+				"}\n"
+				"class SubClass2 {\n"
+				"SubClass static test_static;\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"return SubClass2.test_static.b;\n"
+				"}}");
+			Assert::AreEqual((int)5, *(int*)RunClassWithCode(cl2, "Test").get());
+		}
+		TEST_METHOD(BasicClassField)
+		{
+			TSClass* cl2 = CreateClass(
+				"class TestClass {\n"
+				"class SubClass {\n"
+				"int a,b,c;\n"
+				"constr{a=3;b=5;c=9;}\n"
+				"}\n"
+				"class SubClass2 {\n"
+				"SubClass tested_field,a,b;\n"
+				"SubClass static test_static;\n"
+				"constr{test_static.a+=1;test_static.c+=2;}\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"SubClass2.test_static.a+=1;"
+				"return SubClass2.test_static.a;\n"
+				"}\n"
+				"func static Test2:int\n"
+				"{\n"
+				"SubClass2.test_static.a+=1;"
+				"return SubClass2.test_static.a;\n"
+				"}}");
+			Assert::AreEqual((int)4, *(int*)RunClassWithCode(cl2, "Test").get());
+			Assert::AreEqual((int)5, *(int*)RunClassWithCode(cl2, "Test2").get());
+		}
+		TEST_METHOD(BasicLocalVariable)
+		{
+			TSMethod* ms = CreateMethod("func static Test:int{int static i=5+4-8;i+=1;return i;}");
+			Assert::AreEqual(2, *(int*)RunMethod(ms).get());
+			Assert::AreEqual(3, *(int*)RunMethod(ms).get());
+			Assert::AreEqual(4, *(int*)RunMethod(ms).get());
 		}
 	};
 	TEST_CLASS(ConstrCopyDestrTesting)

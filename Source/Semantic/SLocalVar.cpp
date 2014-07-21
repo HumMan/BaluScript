@@ -33,10 +33,7 @@ TFormalParam TSLocalVar::Build(std::vector<TSClassField*>* static_fields, std::v
 	}
 	if (GetSyntax()->is_static)
 	{
-		assert(false);
-	}
-	else
-	{
+		static_variables->push_back(this);
 	}
 
 	type.LinkSignature(static_fields, static_variables);
@@ -64,52 +61,27 @@ TFormalParam TSLocalVar::Build(std::vector<TSClassField*>* static_fields, std::v
 
 	//bool need_testandget=GetSyntax()->is_static&&(params_result.size()>0||assign_expr!=NULL);
 
-	if (constructor == NULL)
-		//program.Push(TOp(TOpcode::PUSH_COUNT,type.GetClass()->GetSize()),before_params);
+	TSMethod* destructor = type.GetClass()->GetDestructor();
+	if (destructor != NULL)
 	{
-		if (GetSyntax()->is_static)
-		{
-			assert(false);
-			if (constructor != NULL)
-			{
-				assert(false);
-				ValidateAccess(GetSyntax(), owner, constructor);
-				//if(need_testandget)
-				//{
-				//	program.Push(TOp(TOpcode::PUSH_GLOBAL_REF,offset),before_params);
-				//	after_params+=constructor->BuildCall(program,params_result).GetOps();
-				//	/*if(constructor->GetType()==MT_INTERNAL)
-				//	program.Push(TOp(TOpcode::ASSIGN,(char)false,type.GetClass()->GetSize()),ops_array);*/
-				//}else
-				//{
-				//	program.Push(TOp(TOpcode::PUSH_GLOBAL_REF,offset),program.static_vars_init);
-				//	program.static_vars_init+=constructor->BuildCall(program,params_result).GetOps();
-				//	/*if(constructor->GetType()==MT_INTERNAL)
-				//	program.Push(TOp(TOpcode::ASSIGN,(char)false,type.GetClass()->GetSize()),program.static_vars_constr_last_op);*/
-				//}
-			}
-			TSMethod* destructor = type.GetClass()->GetDestructor();
-			if (destructor != NULL)
-			{
-				ValidateAccess(GetSyntax(), owner, destructor);
-				//program.Push(TOp(TOpcode::PUSH_GLOBAL_REF,offset),program.static_vars_destroy);
-				//program.static_vars_destroy+=destructor->BuildCall(program,params_result).GetOps();
-			}
-		}
+		ValidateAccess(GetSyntax(), owner, destructor);
+		//program.Push(TOp(TOpcode::PUSH_GLOBAL_REF,offset),program.static_vars_destroy);
+		//program.static_vars_destroy+=destructor->BuildCall(program,params_result).GetOps();
 	}
-	else if (constructor != NULL)
+
+	if (constructor != NULL)
 	{
-			std::vector<TOperation*> param_expressions;
-			for (const std::unique_ptr<TOperation>& v : params)
-			{
-				param_expressions.push_back(v.get());
-			}
-			constructor_call = std::unique_ptr<TSExpression_TMethodCall>(new TSExpression_TMethodCall());
-			
-			TSExpression::TGetLocal* get_local_id = new TSExpression::TGetLocal();
-			get_local_id->variable = this;
-			constructor_call->left = get_local_id;
-			constructor_call->Build(param_expressions, params_result, constructor);
+		std::vector<TOperation*> param_expressions;
+		for (const std::unique_ptr<TOperation>& v : params)
+		{
+			param_expressions.push_back(v.get());
+		}
+		constructor_call = std::unique_ptr<TSExpression_TMethodCall>(new TSExpression_TMethodCall());
+
+		TSExpression::TGetLocal* get_local_id = new TSExpression::TGetLocal();
+		get_local_id->variable = this;
+		constructor_call->left = get_local_id;
+		constructor_call->Build(param_expressions, params_result, constructor);
 		ValidateAccess(GetSyntax(), owner, constructor);
 	}
 
@@ -139,23 +111,71 @@ TSClass* TSLocalVar::GetClass()
 	return type.GetClass();
 }
 
+bool TSLocalVar::IsStatic()
+{
+	return GetSyntax()->IsStatic();
+}
+
 void TSLocalVar::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
-	local_variables.push_back(TStackValue(false, type.GetClass()));
-	assert(GetOffset() == local_variables.size() - 1);//иначе ошибка Build локальных переменных
+	if (!IsStatic())
+		local_variables.push_back(TStackValue(false, type.GetClass()));
 
-	if (assign_expr)
-		assign_expr->Run(static_fields, formal_params, result_returned, result, object, local_variables);
+	if (!IsStatic())
+		assert(GetOffset() == local_variables.size() - 1);//иначе ошибка Build локальных переменных
 
-	else if (constructor_call)
+	if (IsStatic() && static_fields[GetOffset()].IsInitialized())
+	{
+		return;
+	}
+
+	if (constructor_call)
 	{
 		TStackValue constr_result;
 		//constructor_call->Run(formal_params, constr_result, local_variables[GetOffset()], local_variables);
 		constructor_call->Run(static_fields, formal_params, constr_result, object, local_variables);
+		if (IsStatic())
+		{
+			static_fields[GetOffset()].Initialize();
+		}
+	} 
+	//вызываем конструктор по умолчанию
+	else
+	{
+		TSMethod* def_constr = GetClass()->GetDefConstr();
+		if (def_constr != NULL)
+		{
+			std::vector<TStackValue> constr_formal_params;
+			TStackValue without_result, var_object(true,GetClass());
+			if (IsStatic())
+				var_object.SetAsReference(static_fields[GetOffset()].get());
+			else
+				var_object.SetAsReference(local_variables.back().get());
+
+			def_constr->Run(static_fields, constr_formal_params, without_result, var_object);	
+		}
+		if (IsStatic())
+		{
+			static_fields[GetOffset()].Initialize();
+		}
+		if (assign_expr)
+			assign_expr->Run(static_fields, formal_params, result_returned, result, object, local_variables);
 	}
 }
 
-void TSLocalVar::Destruct()
+void TSLocalVar::Destruct(std::vector<TStaticValue> &static_fields, std::vector<TStackValue>& local_variables)
 {
+	if (!IsStatic())
+	{
+		TSMethod* destr = GetClass()->GetDestructor();
+		if (destr != NULL)
+		{
+			std::vector<TStackValue> without_params;
+			TStackValue without_result, var_object(true, GetClass());
 
+			var_object.SetAsReference(local_variables.back().get());
+
+			destr->Run(static_fields, without_params, without_result, var_object);
+		}
+	}
 }

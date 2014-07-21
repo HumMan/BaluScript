@@ -27,5 +27,5 @@ public:
 	bool IsStatic();
 	TFormalParam Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
 	void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
-	void Destruct();
+	void Destruct(std::vector<TStaticValue> &static_fields, std::vector<TStackValue>& local_variables);
 };

@@ -14,3 +14,6 @@ bool IsEqualClasses(TFormalParam formal_par, TSClass* param_class, bool param_re
 //возвращать не количество необходимых преобразований, а их массив TFormalParamWithConversions
 //TSMethod* FindMethod(TTokenPos* source, std::vector<TSMethod*> &methods_to_call, const std::vector<TFormalParam> &formal_params) //int& conv_needed);
 TSMethod* FindMethod(TTokenPos* source, std::vector<TSMethod*> &methods_to_call, const std::vector<TFormalParam> &formal_params,int& conv_needed);
+
+void InitializeStaticClassFields(std::vector<TSClassField*> static_fields, std::vector<TStaticValue> &static_objects);
+void InitializeStaticVariables(std::vector<TSLocalVar*> static_variables, std::vector<TStaticValue> &static_objects);

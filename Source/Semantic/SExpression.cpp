@@ -225,6 +225,7 @@ public:
 				{
 					TSExpression::TGetClassField* result = new TSExpression::TGetClassField();
 					result->left.reset(left);
+					result->left_result = left_result;
 					result->field = (TSClassField*)static_member;
 					return_new_operation = result;
 					return;
@@ -537,23 +538,34 @@ void TSExpression::TGetMethods::Run(std::vector<TStaticValue> &static_fields, st
 }
 TFormalParam TSExpression::TGetClassField::GetFormalParameter()
 {
-	return TFormalParam(field->GetClass(),left_result.IsRef());
+	//при получении статической переменной возвращается ссылка
+	if (left_result.IsType())
+		return TFormalParam(field->GetClass(), true);
+	else
+		return TFormalParam(field->GetClass(),left_result.IsRef());
 }
 void TSExpression::TGetClassField::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
-	if (left != NULL)
-	{
-		TStackValue exp_result;
-		left->Run(static_fields, formal_params, exp_result, object, local_variables);
+	if (field->GetSyntax()->IsStatic())
+	{ 
 		result = TStackValue(true, field->GetClass());
-		result.SetAsReference(((int*)exp_result.get()) + field->GetOffset());
+		result.SetAsReference(static_fields[field->GetOffset()].get());
 	}
 	else
 	{
-		result = TStackValue(true, field->GetClass());
-		result.SetAsReference(((int*)object.get())+field->GetOffset());
+		if (left != NULL)
+		{
+			TStackValue exp_result;
+			left->Run(static_fields, formal_params, exp_result, object, local_variables);
+			result = TStackValue(true, field->GetClass());
+			result.SetAsReference(((int*)exp_result.get()) + field->GetOffset());
+		}
+		else
+		{
+			result = TStackValue(true, field->GetClass());
+			result.SetAsReference(((int*)object.get()) + field->GetOffset());
+		}
 	}
-
 }
 TFormalParam TSExpression::TGetParameter::GetFormalParameter()
 {
@@ -572,7 +584,15 @@ TFormalParam TSExpression::TGetLocal::GetFormalParameter()
 }
 void TSExpression::TGetLocal::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
-	void* variable_value = local_variables[variable->GetOffset()].get();
+	void* variable_value = NULL;
+	if (variable->IsStatic())
+	{
+		variable_value = static_fields[variable->GetOffset()].get();
+	}
+	else
+	{
+		variable_value=local_variables[variable->GetOffset()].get();
+	}
 	result = TStackValue(true, variable->GetClass());
 	result.SetAsReference(variable_value);
 }

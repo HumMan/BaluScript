@@ -21,3 +21,4 @@
 #include "../Source/Semantic/SMethod.h"
 #include "../Source/Semantic/FormalParam.h"
 #include "../Source/Syntax/Statements.h"
+#include "../Source/semanticAnalyzer.h"

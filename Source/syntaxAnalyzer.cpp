@@ -32,9 +32,8 @@ void TSyntaxAnalyzer::Compile(char* use_source, TTime& time)
 
 	sem_base_class->CreateInternalClasses();
 	sem_base_class->LinkSignature(&static_fields, &static_variables);
-	sem_base_class->LinkBody(&static_fields, &static_variables);
-	
 	sem_base_class->InitAutoMethods();
+	sem_base_class->LinkBody(&static_fields, &static_variables);
 
 	std::vector<TSClass*> owners;
 	sem_base_class->CalculateSizes(owners);

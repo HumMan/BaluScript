@@ -71,6 +71,8 @@ class TStaticValue : public TStackValue
 	bool is_initialized;
 public:
 	TStaticValue();
+	TStaticValue(bool is_ref, TSClass* type);
 	void Initialize();
+	bool IsInitialized();
 	void* get();
 };

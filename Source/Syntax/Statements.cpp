@@ -50,7 +50,8 @@ bool IsVarDecl(TLexer& source) {
 	int t = source.GetCurrentToken();
 	bool result = ClassName(source);
 	result = result && ArrayDimensions(source);
-	result = result && source.Test(TTokenType::Identifier);//после типа объ¤вл¤емой переменной следует им¤(имена) переменных
+	source.TestAndGet(TTokenType::ResWord, TResWord::Static);
+	result = result && source.Test(TTokenType::Identifier);//после типа объявляемой переменной следует имя(имена) переменных
 	source.SetCurrentToken(t);
 	return result;
 }

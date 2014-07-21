@@ -90,7 +90,9 @@ TSStatements::TSStatements(TSClass* use_owner, TSMethod* use_method, TSStatement
 void TSStatements::AddVar(TSLocalVar* var, int stmt_id)
 {
 	var_declarations.push_back(TVarDecl(stmt_id, var));
-	var_declarations.back().pointer->SetOffset(GetLastVariableOffset());//на единицу не увеличиваем, т.к. переменная уже добавлена
+	//для статических локальных переменных смещение будет задано при инициализации всех статических переменных
+	if (!var->IsStatic())
+		var_declarations.back().pointer->SetOffset(GetLastVariableOffset());//на единицу не увеличиваем, т.к. переменная уже добавлена
 }
 
 int TSStatements::GetLastVariableOffset()
@@ -146,7 +148,8 @@ void TSStatements::Run(std::vector<TStaticValue> &static_fields, std::vector<TSt
 	}
 	for (TSStatements::TVarDecl& var_decl : var_declarations)
 	{
-		var_decl.pointer->Destruct();
-		local_variables.pop_back();
+		var_decl.pointer->Destruct(static_fields,local_variables);
+		if(!var_decl.pointer->IsStatic())
+			local_variables.pop_back();
 	}
 }

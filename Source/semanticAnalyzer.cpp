@@ -6,6 +6,7 @@
 #include "Syntax/ClassField.h"
 #include "Syntax/Statements.h"
 #include "Semantic/SClass.h"
+#include "Semantic/SLocalVar.h"
 
 bool IsEqualClasses(TFormalParam formal_par,TSClass* param_class,bool param_ref,int& need_conv)
 //============== На выходе =========================================
@@ -81,3 +82,30 @@ void ValidateAccess(TTokenPos* field_pos, TSClass* source, TSMethod* target)
 		field_pos->Error("Данный метод доступен только из класса в котором он объявлен (private)!");
 }
 
+
+void InitializeStaticClassFields(std::vector<TSClassField*> static_fields, std::vector<TStaticValue> &static_objects)
+{
+	for (TSClassField* v : static_fields)
+	{
+		v->SetOffset(static_objects.size());
+		static_objects.emplace_back(false,v->GetClass());
+		TSMethod* def_constr = v->GetClass()->GetDefConstr();
+		static_objects[v->GetOffset()].Initialize();
+		if (def_constr != NULL)
+		{
+			std::vector<TStackValue> constr_formal_params;
+			TStackValue without_result, var_object(true, v->GetClass());
+			var_object.SetAsReference(static_objects[v->GetOffset()].get());
+			def_constr->Run(static_objects, constr_formal_params, without_result, var_object);
+		}
+		
+	}
+}
+void InitializeStaticVariables(std::vector<TSLocalVar*> static_variables, std::vector<TStaticValue> &static_objects)
+{
+	for (TSLocalVar* v : static_variables)
+	{
+		v->SetOffset(static_objects.size());
+		static_objects.emplace_back(false, v->GetClass());
+	}
+}
