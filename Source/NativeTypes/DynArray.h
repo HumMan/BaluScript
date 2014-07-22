@@ -24,11 +24,12 @@
 class TStaticValue;
 class TStackValue;
 class TSyntaxAnalyzer;
+class TSClass;
 
 struct TDynArr
 {
 	std::vector<int> v;
-
+	TSClass* el_class;
 	static void constructor(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
 	static void destructor(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
 	static void copy_constr(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);

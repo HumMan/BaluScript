@@ -50,6 +50,10 @@ public:
 		assert(type == Realization);
 		return template_params;
 	}
+	TSClass* GetTemplateParam(int i)
+	{
+		return template_params[i];
+	}
 	void SetType(Type use_type)
 	{
 		assert(type == Unknown);

@@ -511,17 +511,18 @@ namespace Test
 			Assert::AreEqual(0, *(int*)RunCode("func static Test:int{TDynArray<int> s;return s.size();}").get());
 			Assert::AreEqual(2, *(int*)RunCode("func static Test:int{TDynArray<int> s;s.resize(2);return s.size();}").get());
 		}
-		TEST_METHOD(ComplexInitializationTest)
+		TEST_METHOD(ArrayOfArrayInitializationTest)
 		{
-			Assert::AreEqual(0, *(int*)RunCode(
+			Assert::AreEqual(23+54+2+34, *(int*)RunCode(
 				"func static Test:int"
 				"{"
 				"	TDynArray<TDynArray<int>> s;"
 				"	s.resize(3);"
-				"	s[0].resize(1);"
-				"	s[1].resize(1);"
-				"	s[2].resize(1);"
-				"	return s[1].size();"
+				"	s[0].resize(23);"
+				"	s[1].resize(54);"
+				"	s[2].resize(2);"
+				"	s.resize(34);"
+				"	return s[0].size()+s[1].size()+s[2].size()+s.size();"
 				"}"
 				).get());
 		}
