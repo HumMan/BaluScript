@@ -11,6 +11,10 @@ TSMethod::TSMethod(TSClass* use_owner, TMethod* use_syntax)
 	:TSyntaxNode(use_syntax), ret(use_owner, use_syntax->GetRetType()), TSpecialClassMethod(TSpecialClassMethod::NotSpecial)
 {
 	owner = use_owner;
+	is_external = false;
+	external_func = NULL;
+	has_return = use_syntax->has_return;
+	ret_ref = use_syntax->IsReturnRef();
 }
 
 TSMethod::TSMethod(TSClass* use_owner, TSpecialClassMethod::Type special_method_type)
@@ -19,6 +23,14 @@ TSMethod::TSMethod(TSClass* use_owner, TSpecialClassMethod::Type special_method_
 	owner = use_owner;
 	SetBodyLinked();
 	SetSignatureLinked();
+	is_external = false;
+	has_return=false;
+	ret_ref=false;
+}
+
+void TSMethod::CopyExternalMethodBindingsFrom(TSMethod* source)
+{
+	external_func = source->external_func;
 }
 
 void TSMethod::AddParameter(TSParameter* use_par)
@@ -43,7 +55,7 @@ void TSMethod::LinkSignature(std::vector<TSClassField*>* static_fields, std::vec
 
 TSClass* TSMethod::GetRetClass()
 {
-	if (GetSyntax()->has_return)
+	if (has_return)
 		return ret.GetClass();
 	else
 		return NULL;
@@ -71,6 +83,8 @@ bool TSMethod::HasParams(std::vector<std::unique_ptr<TSParameter>> &use_params)c
 
 void TSMethod::LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {
+	if (is_external)
+		return;
 	if (IsBodyLinked())
 		return;
 	SetBodyLinked();
@@ -110,45 +124,47 @@ void TSMethod::CalculateParametersOffsets()
 
 void TSMethod::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
 {
-	if (GetType() == TSpecialClassMethod::NotSpecial)
+	if (is_external)
 	{
-		bool result_returned = false;
-		TStackValue returned_result;
-
-		std::vector<TStackValue> local_variables;
-
-		statements->Run(static_fields, formal_params, result_returned, returned_result, object, local_variables);
-
-		result = returned_result;
-
-		for (int i = 0; i < formal_params.size(); i++)
-		{
-			if (!formal_params[i].IsRef() && formal_params[i].GetClass()->GetDestructor() != NULL)
-			{
-				TStackValue destructor_result;
-				formal_params[i].GetClass()->GetDestructor()->Run(static_fields, formal_params, destructor_result, formal_params[i]);
-			}
-		}
-		result = returned_result;
+		assert(GetType() == TSpecialClassMethod::NotSpecial);
+		external_func(static_fields, formal_params, result, object);
 	}
 	else
+
 	{
-		switch (GetType())
+		if (GetType() == TSpecialClassMethod::NotSpecial)
 		{
-		case TSpecialClassMethod::AutoDefConstr:
+			bool result_returned = false;
+			TStackValue returned_result;
+
+			std::vector<TStackValue> local_variables;
+
+			statements->Run(static_fields, formal_params, result_returned, returned_result, object, local_variables);
+
+			result = returned_result;
+
+
+			result = returned_result;
+		}
+		else
 		{
-			owner->RunAutoDefConstr(static_fields, object);
-		}break;
-		case TSpecialClassMethod::AutoCopyConstr:
-		{
-			owner->RunAutoCopyConstr(static_fields,formal_params, object);
-		}break;
-		case TSpecialClassMethod::AutoDestructor:
-		{
-			owner->RunAutoDestr(static_fields, object);
-		}break;
-		default:
-			assert(false);
+			switch (GetType())
+			{
+			case TSpecialClassMethod::AutoDefConstr:
+			{
+				owner->RunAutoDefConstr(static_fields, object);
+			}break;
+			case TSpecialClassMethod::AutoCopyConstr:
+			{
+				owner->RunAutoCopyConstr(static_fields, formal_params, object);
+			}break;
+			case TSpecialClassMethod::AutoDestructor:
+			{
+				owner->RunAutoDestr(static_fields, object);
+			}break;
+			default:
+				assert(false);
+			}
 		}
 	}
 	//statements->Run(sp,result_returned,&sp[-GetParametersSize()->GetRuturnSize()]);
@@ -176,6 +192,7 @@ void TSMethod::Build()
 	{
 		parameters.push_back(std::unique_ptr<TSParameter>(new TSParameter(owner, this, v.get(), &v->type)));
 	}
+	is_external = GetSyntax()->is_extern;
 }
 
 void TSMethod::CheckForErrors()

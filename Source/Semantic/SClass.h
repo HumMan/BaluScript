@@ -36,8 +36,10 @@ class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize,public TNodeSigna
 	bool is_sealed;
 	///<summary> ласс в пределах которого объ€влен данный класс</summary>
 	TSClass* owner;
-public:
 
+public:
+	void AddClass(TSClass* use_class);
+	void CopyExternalMethodBindingsFrom(TSClass* source);
 	void CreateInternalClasses();//TODO только дл€ главного класса
 	TSClass(TSClass* use_owner, TClass* use_syntax_node, TNodeWithTemplates::Type type = TNodeWithTemplates::Unknown);
 	TSClass* GetClass(TNameId use_name);
@@ -56,6 +58,7 @@ public:
 	bool GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name);
 	bool GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name, bool is_static);
 	bool GetConstructors(std::vector<TSMethod*> &result);
+	bool GetUserConstructors(std::vector<TSMethod*> &result);
 	TSMethod* GetDefConstr();
 	TSMethod* GetCopyConstr();
 	TSMethod* GetDestructor();

@@ -176,7 +176,12 @@ public:
 		}
 		else
 		{
+			//т.к. все операторы статические - первым параметром передаем ссылку на объект
+			param_expressions.insert(param_expressions.begin(), left);
 			params_result.insert(params_result.begin(), left_result);
+			
+			left = NULL;
+
 			std::vector<TSMethod*> operators;
 			left_result.GetClass()->GetOperators(operators, operation_node->is_bracket ? (TOperator::GetArrayElement) : (TOperator::ParamsCall));
 			TSMethod* method = FindMethod(syntax_node, operators, params_result, conv_need);
@@ -509,6 +514,8 @@ TFormalParam TSExpression_TMethodCall::GetFormalParameter()
 }
 void TSExpression_TMethodCall::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
+	//соглашение о вызовах - вызывающий инициализирует параметры, резервирует место для возвращаемого значения, вызывает деструкторы параметров
+
 	std::vector<TStackValue> method_call_formal_params;
 	for (TSExpression_TMethodCall::TOperationWithConversions& par : input)
 	{
@@ -521,7 +528,20 @@ void TSExpression_TMethodCall::Run(std::vector<TStaticValue> &static_fields, std
 	TStackValue left_result;
 	if (left!=NULL)
 		left->Run(static_fields, formal_params, left_result, object, local_variables);
+
+	if (invoke->GetRetClass() != NULL)
+		result = TStackValue(invoke->GetSyntax()->IsReturnRef(), invoke->GetRetClass());
+
 	invoke->Run(static_fields, method_call_formal_params, result, left_result);
+
+	for (int i = 0; i < formal_params.size(); i++)
+	{
+		if (!formal_params[i].IsRef() && formal_params[i].GetClass()->GetDestructor() != NULL)
+		{
+			TStackValue destructor_result;
+			formal_params[i].GetClass()->GetDestructor()->Run(static_fields, formal_params, destructor_result, formal_params[i]);
+		}
+	}
 }
 TFormalParam TSExpression::TInt::GetFormalParameter()
 {

@@ -80,6 +80,7 @@
     <ClInclude Include="Source\lexer.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Source\memleaks.h" />
     <ClInclude Include="Source\NativeTypes\DynArray.h" />
     <ClInclude Include="Source\NativeTypes\StaticArray.h" />
     <ClInclude Include="Source\NativeTypes\String.h" />

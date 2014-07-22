@@ -503,4 +503,32 @@ namespace Test
 			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "GetCopyConstrCount").get());
 		}
 	};
+	TEST_CLASS(DynArrayTesting)
+	{
+	public:
+		TEST_METHOD(InitializationTest)
+		{
+			Assert::AreEqual(0, *(int*)RunCode("func static Test:int{TDynArray<int> s;return s.size();}").get());
+			Assert::AreEqual(2, *(int*)RunCode("func static Test:int{TDynArray<int> s;s.resize(2);return s.size();}").get());
+		}
+		TEST_METHOD(ComplexInitializationTest)
+		{
+			Assert::AreEqual(0, *(int*)RunCode(
+				"func static Test:int"
+				"{"
+				"	TDynArray<TDynArray<int>> s;"
+				"	s.resize(3);"
+				"	s[0].resize(1);"
+				"	s[1].resize(1);"
+				"	s[2].resize(1);"
+				"	return s[1].size();"
+				"}"
+				).get());
+		}
+		TEST_METHOD(GetElementTest)
+		{
+			Assert::AreEqual(23, *(int*)RunCode("func static Test:int{TDynArray<int> s;s.resize(1);s[0]=23;return s[0];}").get());
+			Assert::AreEqual(49573, *(int*)RunCode("func static Test:int{TDynArray<int> s;s.resize(1000);s[999]=49573;s.resize(1001);return s[999];}").get());
+		}
+	};
 }

@@ -33,4 +33,6 @@ public:
 	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
 	void Build();
 	void CalculateParametersOffsets();
+
+	void CopyExternalMethodBindingsFrom(TSOverloadedMethod* source);
 };	

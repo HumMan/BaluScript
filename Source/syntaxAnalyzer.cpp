@@ -7,6 +7,8 @@
 #include "Semantic/SClass.h"
 #include "Semantic/SStatements.h"
 
+#include "NativeTypes\DynArray.h"
+
 TSyntaxAnalyzer::~TSyntaxAnalyzer()
 {
 	if (base_class != NULL)
@@ -27,8 +29,9 @@ void TSyntaxAnalyzer::Compile(char* use_source, TTime& time)
 
 	sem_base_class = new TSClass(NULL,base_class);
 
-	
 	sem_base_class->Build();
+
+	TDynArr::DeclareExternalClass(this);
 
 	sem_base_class->CreateInternalClasses();
 	sem_base_class->LinkSignature(&static_fields, &static_variables);

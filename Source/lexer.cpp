@@ -246,7 +246,9 @@ void TLexer::ParseSource(char* use_source)
 						prev==TTokenType::LBrace||
 						prev==TTokenType::LBracket)
 						tokens.push_back(TToken(TTokenType::Operator, TOperator::UnaryMinus));
-					else
+						//else if (c == '>')
+						//tokens.push_back(TToken(TTokenType::Operator, TOperator::GetByReference));
+						else
 						tokens.push_back(TToken(TTokenType::Operator, TOperator::Minus));
 				}
 				break;

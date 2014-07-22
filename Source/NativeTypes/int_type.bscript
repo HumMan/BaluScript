@@ -148,49 +148,4 @@ class Script
 	func static Length	(vec2 v0):float bytecode{ASM_VEC2_LENGTH;};
 	func static Normalize(vec2 v0):float bytecode{ASM_VEC2_NORMALIZE;};
 	func static Reflect	 (vec2 v0,vec2 v1):float bytecode{ASM_VEC2_REFLECT;};
-	
-	class TDynArray<T>
-	{
-		TDynArrayInternalFields unnamed;
-		constr
-		{
-			bytecode{ASM_R_DYN_ARR_DEF_CONSTR CreateArrayElementClassId(T);};
-		}
-		constr(TDynArray& use_source)
-		{
-			bytecode{ASM_RR_DYN_ARR_COPY_CONSTR;};
-		}
-		destr
-		{
-			bytecode{ASM_R_DYN_ARR_DESTR;};
-		}
-		operator static [](TDynArray& v,int id):&T
-			bytecode{ASM_RV_DYN_ARR_GET_ELEMENT;};
-		operator static =(TDynArray& left,TDynArray& right)
-		{
-			bytecode{ASM_DYN_ARR_ASSIGN 1;};
-		}
-		operator static =(TDynArray& left,TDynArray right)
-		{
-			bytecode{ASM_DYN_ARR_ASSIGN 0;};
-		}
-		operator static ==(TDynArray& left,TDynArray& right):bool
-		{
-			bytecode{ASM_DYN_ARR_EQUAL 1,1;};
-		}
-		operator static ==(TDynArray& left,TDynArray right):bool
-		{
-			bytecode{ASM_DYN_ARR_EQUAL 1,0;};
-		}
-		operator static ==(TDynArray left,TDynArray& right):bool
-		{
-			bytecode{ASM_DYN_ARR_EQUAL 0,1;};
-		}
-		operator static ==(TDynArray left,TDynArray right):bool
-		{
-			bytecode{ASM_DYN_ARR_EQUAL 0,0;};
-		}
-		func SetHigh(int high)	bytecode{ASM_RV_DYN_ARR_SET_HIGH;};
-		func GetHigh:int		bytecode{ASM_R_DYN_ARR_GET_HIGH;};
-	}
 }

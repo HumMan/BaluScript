@@ -37,6 +37,12 @@ void TSOverloadedMethod::CalculateParametersOffsets()
 		i->CalculateParametersOffsets();
 }
 
+void TSOverloadedMethod::CopyExternalMethodBindingsFrom(TSOverloadedMethod* source)
+{
+	for (int i = 0; i < source->methods.size(); i++)
+		methods[i]->CopyExternalMethodBindingsFrom(source->methods[i].get());
+}
+
 bool TSOverloadedMethod::ParamsExists(TSMethod* use_method)
 {
 	return FindParams(use_method->parameters) != NULL;

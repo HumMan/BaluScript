@@ -28,6 +28,7 @@ TClass::TClass(TClass* use_owner) :parent(this)
 {
 	is_template = false;
 	is_sealed = false;
+	is_external = false;
 	owner = use_owner;
 	constr_override = false;
 }
@@ -120,6 +121,7 @@ void TClass::AnalyzeSyntax(TLexer& source) {
 
 	source.GetToken(TTokenType::ResWord, TResWord::Class);
 	is_sealed = source.TestAndGet(TTokenType::ResWord, TResWord::Sealed);
+	is_external = source.TestAndGet(TTokenType::ResWord, TResWord::Extern);
 	source.TestToken(TTokenType::Identifier);
 	name = source.NameId();
 	source.GetToken();

@@ -36,11 +36,15 @@ public:
 	}
 };
 
+typedef void(*TExternalSMethod)(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
+
 class TSMethod :public TSyntaxNode<TMethod>, public TSpecialClassMethod, public TNodeSignatureLinked, public TNodeBodyLinked
 {
 	friend class TSOverloadedMethod;
 private:
 	TSType ret;
+	bool has_return;
+	bool ret_ref;
 	TSClass* owner;
 	std::vector<std::unique_ptr<TSParameter>> parameters;
 	int ret_size;
@@ -50,6 +54,9 @@ private:
 
 	//TSMethod* pre_event;
 	//TSMethod* post_event;
+
+	bool is_external;
+	TExternalSMethod external_func;
 public:
 	///<summary>Используется для вызова автоматически созданного конструктора для пользовательского/внешнего метода</summary>
 	//void SetPreEvent(TSMethod* use_event);
@@ -58,6 +65,11 @@ public:
 	//TSMethod* GetPreEvent();
 	//TSMethod* GetPostEvent();
 
+	void SetAsExternal(TExternalSMethod method)
+	{
+		external_func = method;
+	}
+	void CopyExternalMethodBindingsFrom(TSMethod* source);
 	TSMethod(TSClass* use_owner, TSpecialClassMethod::Type special_method_type);
 	void AddParameter(TSParameter* use_par);
 

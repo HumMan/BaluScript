@@ -290,50 +290,50 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 	//////////////////////////////////////////////////
 	//dynamic array
 
-	case R_DYN_ARR_DEF_CONSTR:
-		((TDynArr*)this_pointer)->DefConstr(this, op->v1);
-		break;
-	case RR_DYN_ARR_COPY_CONSTR:
-		((TDynArr*)this_pointer)->CopyConstr(this, (TDynArr*)*sp);
-		break;
-	case R_DYN_ARR_DESTR:
-		((TDynArr*)this_pointer)->Destr(this);
-		break;
-	case RV_DYN_ARR_GET_ELEMENT:
-	{
-		int temp = *(sp--);
-		TDynArr* d_arr = (TDynArr*)*sp;
-		if (temp > d_arr->v.GetHigh() || temp < -1)throw "Ошибка доступа к элементу массива!";//TODO вывод инфы где и что
-		*sp = (int)&d_arr->v[temp*d_arr->el_size];
-		break;
-	}
-	case DYN_ARR_ASSIGN:
-	{
-		int *s, *d;
-		s = sp - (unsigned int)(op->f1 ? 0 : (_INTSIZEOF(TDynArr) / 4 - 1));
-		d = s - 1;
-		((TDynArr*)*d)->AssignOp(this, (TDynArr*)(op->f1 ? (int*)*s : s));
-		if (!op->f1)((TDynArr*)s)->Destr(this);
-	}break;
+	//case R_DYN_ARR_DEF_CONSTR:
+	//	((TDynArr*)this_pointer)->DefConstr(this, op->v1);
+	//	break;
+	//case RR_DYN_ARR_COPY_CONSTR:
+	//	((TDynArr*)this_pointer)->CopyConstr(this, (TDynArr*)*sp);
+	//	break;
+	//case R_DYN_ARR_DESTR:
+	//	((TDynArr*)this_pointer)->Destr(this);
+	//	break;
+	//case RV_DYN_ARR_GET_ELEMENT:
+	//{
+	//	int temp = *(sp--);
+	//	TDynArr* d_arr = (TDynArr*)*sp;
+	//	if (temp > d_arr->v.GetHigh() || temp < -1)throw "Ошибка доступа к элементу массива!";//TODO вывод инфы где и что
+	//	*sp = (int)&d_arr->v[temp*d_arr->el_size];
+	//	break;
+	//}
+	//case DYN_ARR_ASSIGN:
+	//{
+	//	int *s, *d;
+	//	s = sp - (unsigned int)(op->f1 ? 0 : (_INTSIZEOF(TDynArr) / 4 - 1));
+	//	d = s - 1;
+	//	((TDynArr*)*d)->AssignOp(this, (TDynArr*)(op->f1 ? (int*)*s : s));
+	//	if (!op->f1)((TDynArr*)s)->Destr(this);
+	//}break;
 
-	case DYN_ARR_EQUAL:
-	{
-		int *s, *d;
-		s = sp - (unsigned int)(op->f2 ? 0 : (_INTSIZEOF(TDynArr) / 4 - 1));
-		d = s - (unsigned int)(op->f1 ? 1 : (_INTSIZEOF(TDynArr) / 4));
-		int temp = ((TDynArr*)(op->f1 ? (int*)*d : d))->EqualOp(this, (TDynArr*)(op->f2 ? (int*)*s : s));
-		*(++sp) = temp;
-		if (!op->f1)((TDynArr*)d)->Destr(this);
-		if (!op->f2)((TDynArr*)s)->Destr(this);
-	}break;
-	case RV_DYN_ARR_SET_HIGH:
-		((TDynArr*)(sp[-1]))->SetHigh(this, sp[0]);
-		sp -= 2;
-		break;
+	//case DYN_ARR_EQUAL:
+	//{
+	//	int *s, *d;
+	//	s = sp - (unsigned int)(op->f2 ? 0 : (_INTSIZEOF(TDynArr) / 4 - 1));
+	//	d = s - (unsigned int)(op->f1 ? 1 : (_INTSIZEOF(TDynArr) / 4));
+	//	int temp = ((TDynArr*)(op->f1 ? (int*)*d : d))->EqualOp(this, (TDynArr*)(op->f2 ? (int*)*s : s));
+	//	*(++sp) = temp;
+	//	if (!op->f1)((TDynArr*)d)->Destr(this);
+	//	if (!op->f2)((TDynArr*)s)->Destr(this);
+	//}break;
+	//case RV_DYN_ARR_SET_HIGH:
+	//	((TDynArr*)(sp[-1]))->SetHigh(this, sp[0]);
+	//	sp -= 2;
+	//	break;
 
-	case R_DYN_ARR_GET_HIGH:
-		*(sp) = (*(TDynArr**)sp)->v.GetHigh();
-		break;
+	//case R_DYN_ARR_GET_HIGH:
+	//	*(sp) = (*(TDynArr**)sp)->v.GetHigh();
+	//	break;
 
 		//////////////////////////////////////////////////
 		//string

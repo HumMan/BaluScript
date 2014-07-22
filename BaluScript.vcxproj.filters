@@ -180,6 +180,9 @@
     <ClInclude Include="Source\Semantic\SBytecode.h">
       <Filter>Source Files\Semantic\Statements</Filter>
     </ClInclude>
+    <ClInclude Include="Source\memleaks.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\lexer.cpp">

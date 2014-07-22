@@ -42,6 +42,7 @@ protected:
 	bool is_sealed;
 	///<summary>Класс в пределах которого объявлен данный класс</summary>
 	TClass* owner;
+	bool is_external;
 public:
 	TClass(TClass* use_owner);
 
@@ -51,6 +52,10 @@ public:
 	void AccessDecl(TLexer& source,bool& readonly, TTypeOfAccess::Enum access);
 
 	bool IsTemplate();
+	bool IsExternal()
+	{
+		return is_external;
+	}
 	
 	void SetIsTemplate(bool use_is_template);
 	

@@ -259,7 +259,7 @@ void TSClass::LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TS
 
 bool TSClass::GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name)
 {
-	assert(IsSignatureLinked());
+	//assert(IsSignatureLinked());
 	for (TSOverloadedMethod& ov_method : methods)
 	{
 		if (ov_method.GetName() == use_method_name)
@@ -277,7 +277,7 @@ bool TSClass::GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name
 
 bool TSClass::GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name, bool is_static)
 {
-	assert(IsSignatureLinked());
+	//assert(IsSignatureLinked());
 	for (TSOverloadedMethod& ov_method : methods)
 	{
 		if (ov_method.GetName() == use_method_name)
@@ -307,6 +307,15 @@ TSMethod* TSClass::GetConversion(bool source_ref, TSClass* target_type)
 	return NULL;
 }
 
+bool TSClass::GetUserConstructors(std::vector<TSMethod*> &result)
+{
+	//assert(methods_declared&&auto_methods_build);
+	for (const std::unique_ptr<TSMethod>& constructor : constructors->methods)
+	{
+		result.push_back(constructor.get());
+	}
+	return result.size() > 0;
+}
 
 bool TSClass::GetConstructors(std::vector<TSMethod*> &result)
 {
@@ -388,6 +397,33 @@ bool TSClass::GetOperators(std::vector<TSMethod*> &result, TOperator::Enum op)
 	//assert(methods_declared&&auto_methods_build);
 	operators[op]->GetMethods(result);
 	return result.size() > 0;
+}
+
+void TSClass::AddClass(TSClass* use_class)
+{
+	nested_classes.push_back(std::unique_ptr<TSClass>(use_class));
+}
+
+void TSClass::CopyExternalMethodBindingsFrom(TSClass* source)
+{
+	//слинковать сигнатуры методов
+	auto i = methods.begin();
+	auto k = source->methods.begin();
+	while( i != methods.end())
+	{
+		i->CopyExternalMethodBindingsFrom(&(*k));
+		i++;
+		k++;
+	}
+	constructors->CopyExternalMethodBindingsFrom(source->constructors.get());
+	if (destructor)
+		destructor->CopyExternalMethodBindingsFrom(source->destructor.get());
+
+	for (int i = 0; i < TOperator::End; i++)
+		operators[i]->CopyExternalMethodBindingsFrom(source->operators[i].get());
+	conversions->CopyExternalMethodBindingsFrom(source->conversions.get());
+
+	assert(nested_classes.size() == 0); //внешние классы с вложенными классами не допускаются
 }
 
 void TSClass::CreateInternalClasses()

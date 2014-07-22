@@ -70,45 +70,63 @@ TSClass* TSType_TClassName::LinkSignature(std::vector<TSClassField*>* static_fie
 			use_owner->GetSyntax()->Error("Вложенного класса с таким именем не существует!");
 	}
 
-	auto template_params = &GetSyntax()->template_params;
-
-	if (template_params->size() != 0)
+	if (use_curr_class->GetType()==TNodeWithTemplates::Template)
 	{
-		
-		if(!use_curr_class->GetSyntax()->IsTemplate())
-			use_owner->GetSyntax()->Error("Класс не является шаблонным!");
-		if(template_params->size()!=use_curr_class->GetSyntax()->GetTemplateParamsCount())
-			use_owner->GetSyntax()->Error("Шаблон имеет другое количество параметров!");
-		for (TType& t: *template_params)
+		auto template_params = &GetSyntax()->template_params;
+
+		if (template_params->size() != 0)
 		{
-			template_params_classes.emplace_back(use_owner,&t);
-			template_params_classes.back().LinkSignature(static_fields, static_variables);
-		}
-		
-		TSClass* realization = use_curr_class->FindTemplateRealization(template_params_classes);
-		if(realization==NULL)
-		{
-			//TODO !!!!!!!!!!  шаблонный класс не имеет доступа к своему шаблону
-			//при указании имени класса без шаблонныйх параметров - то же самое что с параметрами текущего класса
-			realization = new TSClass(use_curr_class->GetOwner(), use_curr_class->GetSyntax(), TNodeWithTemplates::Realization);
-			use_curr_class->AddTemplateRealization(realization);
-			realization->SetTemplateClass(use_curr_class);
+
+			if (!use_curr_class->GetSyntax()->IsTemplate())
+				use_owner->GetSyntax()->Error("Класс не является шаблонным!");
+			if (template_params->size() != use_curr_class->GetSyntax()->GetTemplateParamsCount())
+				use_owner->GetSyntax()->Error("Шаблон имеет другое количество параметров!");
+			for (TType& t : *template_params)
 			{
-				std::vector<TSClass*> template_params;
-				for (TSType& t_par : template_params_classes)
-				{
-					template_params.push_back(t_par.GetClass());
-				}
-				realization->SetTemplateParams(template_params);
+				template_params_classes.emplace_back(use_owner, &t);
+				template_params_classes.back().LinkSignature(static_fields, static_variables);
 			}
-			realization->Build();
-			realization->LinkSignature(static_fields, static_variables);
-			realization->InitAutoMethods();
-			//std::vector<TSClass*> owners;
-			//realization->CalculateSizes(owners);
-			//realization->CalculateMethodsSizes();
+
+			TSClass* realization = use_curr_class->FindTemplateRealization(template_params_classes);
+			if (realization == NULL)
+			{
+				//TODO !!!!!!!!!!  шаблонный класс не имеет доступа к своему шаблону
+				//при указании имени класса без шаблонныйх параметров - то же самое что с параметрами текущего класса
+				realization = new TSClass(use_curr_class->GetOwner(), use_curr_class->GetSyntax(), TNodeWithTemplates::Realization);
+				use_curr_class->AddTemplateRealization(realization);
+				realization->SetTemplateClass(use_curr_class);
+				{
+					std::vector<TSClass*> template_params;
+					for (TSType& t_par : template_params_classes)
+					{
+						template_params.push_back(t_par.GetClass());
+					}
+					realization->SetTemplateParams(template_params);
+				}
+				realization->Build();
+				realization->LinkSignature(static_fields, static_variables);
+				if (use_curr_class->GetSyntax()->IsExternal())
+				{
+					realization->CopyExternalMethodBindingsFrom(use_curr_class);
+					realization->SetSize(use_curr_class->GetSize());
+				}
+				else
+				{
+					realization->InitAutoMethods();
+				}
+				//std::vector<TSClass*> owners;
+				//realization->CalculateSizes(owners);
+				//realization->CalculateMethodsSizes();
+			}
+			use_curr_class = realization;
 		}
-		use_curr_class=realization;
+		//иначе указано название шаблона, что соотвествует текущей реализации
+		else
+		{
+			if (use_owner->GetType() != TNodeWithTemplates::Realization || use_owner->GetTemplateClass() != use_curr_class)
+				use_owner->GetSyntax()->Error("Использование шаблона без параметров допускается только в самом шаблоне как типа текущей реализации!");
+			use_curr_class = use_owner;
+		}
 	}
 
 	class_of_type = use_curr_class;

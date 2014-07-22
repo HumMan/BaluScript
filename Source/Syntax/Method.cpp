@@ -36,7 +36,10 @@ void TMethod::AnalyzeSyntax(TLexer& source, bool realization) {
 		source.Error(
 				"Ожидалось объявление метода,конструктора,деструктора,оператора или приведения типа!");
 	source.GetToken();
-	is_extern = source.TestAndGet(TTokenType::ResWord, TResWord::Extern);
+	if(owner->IsExternal())
+		is_extern = true;
+	else
+		is_extern = source.TestAndGet(TTokenType::ResWord, TResWord::Extern);
 	is_static = source.TestAndGet(TTokenType::ResWord, TResWord::Static);
 	switch (member_type) {
 	case TResWord::Func:
