@@ -141,6 +141,7 @@ const int operators_priority[TOperator::End] = {
 
 /*ParamsCall*/-1,
 /*GetArrayElement*/-1,
+/*GetByReference*/-1,
 
 /*TOperator::UnaryMinus*/8
 

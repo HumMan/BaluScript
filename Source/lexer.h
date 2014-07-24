@@ -108,7 +108,7 @@ namespace TOperator
 
 		ParamsCall,
 		GetArrayElement,
-		//GetByReference, //оператор -> доступа к значению по указателю (shared_ptr)
+		GetByReference, //оператор -> доступа к значению по указателю (shared_ptr)
 
 		UnaryMinus,
 
