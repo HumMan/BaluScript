@@ -58,6 +58,7 @@ public:
 	TSClass* GetClass()const;
 	bool IsRef()const;
 	TStackValue();
+	TStackValue(TStackValue&& copy_from);
 	TStackValue(const TStackValue& copy_from);
 	TStackValue(bool is_ref, TSClass* type);
 	void operator=(const TStackValue& right);

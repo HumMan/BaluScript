@@ -150,6 +150,20 @@ TStackValue::TStackValue(const TStackValue& copy_from)
 		internal_buf = NULL;
 	}
 }
+
+TStackValue::TStackValue(TStackValue&& copy_from)
+{
+	actual_size = copy_from.actual_size;
+	is_ref = copy_from.is_ref;
+	type = copy_from.type;
+	internal_buf = copy_from.internal_buf;
+
+	copy_from.actual_size = 0;
+	copy_from.is_ref = false;
+	copy_from.type = NULL;
+	copy_from.internal_buf = NULL;
+}
+
 void TStackValue::SetAsReference(void* use_ref)
 {
 	assert(is_ref);
@@ -208,6 +222,8 @@ TStackValue::~TStackValue()
 {
 	if (!is_ref)
 	{
+		if (internal_buf!=NULL)
+			memset(internal_buf, 0xfeefee, actual_size);
 		delete internal_buf;
 		internal_buf = NULL;
 	}

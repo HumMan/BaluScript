@@ -28,8 +28,24 @@ class TSClass;
 
 struct TDynArr
 {
-	std::vector<int> v;
+	std::vector<int>* v;//можно использовать не указатель, но учитывать move конструктор вектора, который видимо хранит backpointer
 	TSClass* el_class;
+	TDynArr()
+	{
+		el_class = NULL;
+		v = new std::vector<int>();
+	}
+	TDynArr(const TDynArr& r)
+	{
+		el_class = r.el_class;
+		v = new std::vector<int>(*r.v);
+	}
+	~TDynArr()
+	{
+		el_class = NULL;
+		delete v;
+		v = NULL;
+	}
 	static void constructor(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
 	static void destructor(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
 	static void copy_constr(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);

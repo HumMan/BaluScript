@@ -526,6 +526,51 @@ namespace Test
 				"}"
 				).get());
 		}
+		TEST_METHOD(CopyConstructorTest)
+		{
+			Assert::AreEqual(6, *(int*)RunCode(
+				"func static Test:int\n"
+				"{\n"
+				"	TDynArray<int> s;"
+				"	s.resize(2);\n"
+				"	TDynArray<int> s1(s),s2,s3(s),s4;"
+				"	TDynArray<int> sc(s);"
+				"	return sc.size()+s1.size()+s3.size();"
+				"}"
+				).get());
+
+			//on destructor crash
+			Assert::AreEqual(23 + 54 + 2 + 4, *(int*)RunCode(
+				"func static Test:int\n"
+				"{\n"
+				"	TDynArray<TDynArray<int>> s;\n"
+				"	s.resize(3);\n"
+				"	s[0].resize(23);\n"
+				"	s[1].resize(54);\n"
+				"	s[2].resize(2);\n"
+				"	s.resize(4);\n"
+				"	TDynArray<TDynArray<int>> sc(s);\n"
+				"	return sc[0].size()+sc[1].size()+sc[2].size()+sc.size();\n"
+				"}"
+				).get());
+
+			Assert::AreEqual(23 + 54 + 2 + 54, *(int*)RunCode(
+				"func static Test:int\n"
+				"{\n"
+				"	TDynArray<TDynArray<int>> s;\n"
+				"	s.resize(54);\n"
+				"	s[0].resize(23);\n"
+				"	s[1].resize(54);\n"
+				"	s[2].resize(2);\n"
+				"	TDynArray<TDynArray<int>> sc(s);\n"
+				"	s.resize(2);\n"
+				"	return sc[0].size()+sc[1].size()+sc[2].size()+sc.size();\n"
+				"}"
+				).get());
+		}
+		TEST_METHOD(AssignTest)
+		{
+		}
 		TEST_METHOD(GetElementTest)
 		{
 			Assert::AreEqual(23, *(int*)RunCode("func static Test:int{TDynArray<int> s;s.resize(1);s[0]=23;return s[0];}").get());
