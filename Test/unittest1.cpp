@@ -539,7 +539,6 @@ namespace Test
 				"}"
 				).get());
 
-			//on destructor crash
 			Assert::AreEqual(23 + 54 + 2 + 4, *(int*)RunCode(
 				"func static Test:int\n"
 				"{\n"
@@ -570,6 +569,32 @@ namespace Test
 		}
 		TEST_METHOD(AssignTest)
 		{
+			Assert::AreEqual(10+324-213, *(int*)RunCode(
+				"func static Test:int\n"
+				"{\n"
+				"	TDynArray<int> s;\n"
+				"	s.resize(10);\n"
+				"	s[0]=324;\n"
+				"	s[9]=-213;\n"
+				"	TDynArray<int> sc;\n"
+				"	sc=s;\n"
+				"	return sc.size()+sc[0]+sc[9];\n"
+				"}"
+				).get());
+			Assert::AreEqual(10+432-384, *(int*)RunCode(
+				"func static Test:int\n"
+				"{\n"
+				"	TDynArray<TDynArray<int>> s;\n"
+				"	s.resize(10);\n"
+				"	s[0].resize(2);\n"
+				"	s[9].resize(3);\n"
+				"	s[0][1]=432;\n"
+				"	s[9][2]=-384;\n"
+				"	TDynArray<TDynArray<int>> sc;\n"
+				"	sc=s;\n"
+				"	return sc.size()+sc[0][1]+sc[9][2];\n"
+				"}"
+				).get());
 		}
 		TEST_METHOD(GetElementTest)
 		{

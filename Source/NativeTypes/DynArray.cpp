@@ -46,6 +46,49 @@ void CallCopyConstr(std::vector<TStaticValue> &static_fields, int* v, int* copy_
 	}
 }
 
+void CallAssignOp(std::vector<TStaticValue> &static_fields, int* left, int* right, int first_element, int el_count, int el_size, TSClass* el_class, TSMethod* method)
+{
+	for (int i = first_element*el_size; i<el_count*el_size; i += el_size)
+	{
+		TStackValue el_obj;
+		std::vector<TStackValue> params;
+		TStackValue without_result;
+		params.resize(2);
+		params[0] = TStackValue(true, el_class);
+		params[0].SetAsReference(&left[i]);
+		params[1] = TStackValue(true, el_class);
+		params[1].SetAsReference(&right[i]);
+		method->Run(static_fields, params, without_result, el_obj);
+	}
+}
+
+void dyn_arr_resize(std::vector<TStaticValue> &static_fields, TDynArr* obj, int new_size)
+{
+	TSClass* el = obj->el_class;
+	int curr_size = obj->v->size() / el->GetSize();
+
+	if (curr_size == new_size)
+		return;
+
+	if (curr_size > new_size)
+	{
+		TSMethod* el_destr = el->GetDestructor();
+		if (el_destr != NULL)
+		{
+			CallMethod(static_fields, &((*obj->v)[0]), new_size, curr_size, el->GetSize(), el, el_destr);
+		}
+	}
+	obj->v->resize(el->GetSize()*new_size);
+	if (curr_size < new_size)
+	{
+		TSMethod* el_def_constr = el->GetDefConstr();
+		if (el_def_constr != NULL)
+		{
+			CallMethod(static_fields, &((*obj->v)[0]), curr_size, new_size, el->GetSize(), el, el_def_constr);
+		}
+	}
+}
+
 void TDynArr::destructor(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
 {
 	TDynArr* obj = ((TDynArr*)object.get());
@@ -89,8 +132,23 @@ void TDynArr::copy_constr(std::vector<TStaticValue> &static_fields, std::vector<
 
 void TDynArr::assign_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
 {
-	TDynArr* obj = ((TDynArr*)formal_params[0].get());
-	*obj = *(TDynArr*)formal_params[1].get();
+	TDynArr* left = ((TDynArr*)formal_params[0].get());
+	TDynArr* right = ((TDynArr*)formal_params[1].get());
+
+	std::vector<TSMethod*> ops;
+
+	left->el_class->GetOperators(ops, TOperator::Assign);
+
+	dyn_arr_resize(static_fields, left, right->v->size() / left->el_class->GetSize());
+	if (left->v->size() > 0)
+	{
+		if(ops.size()>0&&!ops[0]->GetSyntax()->IsBytecode())
+			CallAssignOp(static_fields, &((*left->v)[0]), &((*right->v)[0]), 0, left->v->size() / left->el_class->GetSize(), left->el_class->GetSize(), left->el_class, ops[0]);
+		else
+		{
+			memcpy(&((*left->v)[0]), &((*right->v)[0]), left->v->size()*sizeof(int));
+		}
+	}
 }
 
 void TDynArr::get_element_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
@@ -100,34 +158,14 @@ void TDynArr::get_element_op(std::vector<TStaticValue> &static_fields, std::vect
 	result.SetAsReference(&((*obj->v)[el->GetSize()*(*(int*)formal_params[1].get())]));
 }
 
+
+
 void TDynArr::resize(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
 {
 	TDynArr* obj = ((TDynArr*)object.get());
 	int new_size = *(int*)formal_params[0].get();
 	
-	TSClass* el = obj->el_class;
-	int curr_size = obj->v->size() / el->GetSize();
-
-	if (curr_size == new_size)
-		return;
-
-	if (curr_size > new_size)
-	{
-		TSMethod* el_destr = el->GetDestructor();
-		if (el_destr != NULL)
-		{
-			CallMethod(static_fields, &((*obj->v)[0]), new_size, curr_size, el->GetSize(), el, el_destr);
-		}
-	}
-	obj->v->resize(el->GetSize()*new_size);
-	if (curr_size < new_size)
-	{
-		TSMethod* el_def_constr = el->GetDefConstr();
-		if (el_def_constr != NULL)
-		{
-			CallMethod(static_fields, &((*obj->v)[0]), curr_size, new_size, el->GetSize(), el, el_def_constr);
-		}
-	}
+	dyn_arr_resize(static_fields, obj, new_size);
 }
 
 void TDynArr::get_size(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)

@@ -28,7 +28,7 @@ class TSClass;
 
 struct TDynArr
 {
-	std::vector<int>* v;//можно использовать не указатель, но учитывать move конструктор вектора, который видимо хранит backpointer
+	std::vector<int>* v;//можно использовать не указатель, но учитывать move конструктор вектора, который хранит backpointer
 	TSClass* el_class;
 	TDynArr()
 	{
