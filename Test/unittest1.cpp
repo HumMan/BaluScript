@@ -20,11 +20,11 @@ namespace Test
 
 			TSMethod* ms = new TSMethod(syntax->sem_base_class, m);
 			ms->Build();
-			
+
 			std::vector<TSClassField*> static_fields;
 			std::vector<TSLocalVar*> static_variables;
 
-			ms->LinkSignature(&static_fields,&static_variables);
+			ms->LinkSignature(&static_fields, &static_variables);
 			ms->LinkBody(&static_fields, &static_variables);
 			ms->CalculateParametersOffsets();
 
@@ -89,7 +89,7 @@ namespace Test
 		ms->Run(static_objects, params, result, object);
 		return result;
 	}
-	TStackValue RunClassMethod(TSClass* scl,char* method_name)
+	TStackValue RunClassMethod(TSClass* scl, char* method_name)
 	{
 		std::vector<TSMethod*> methods;
 		scl->GetMethods(methods, syntax->lexer.GetIdFromName(method_name));
@@ -126,7 +126,7 @@ namespace Test
 	public:
 
 		TEST_METHOD(IntConstr)
-		{		
+		{
 			Assert::AreEqual(5, *(int*)RunCode("func static Test:int{int s; s=5;return s;}").get());
 			Assert::AreEqual(5, *(int*)RunCode("func static Test:int{int s,b;b=5;s=b;return s;}").get());
 			Assert::AreEqual(5, *(int*)RunCode("func static Test:int{int s(5);return s;}").get());
@@ -141,7 +141,7 @@ namespace Test
 		{
 			Assert::AreEqual(9, *(int*)RunCode("func static Test:int{int a,b;a=3;b=6;return a+b;}").get());
 			Assert::AreEqual(-3, *(int*)RunCode("func static Test:int{int a,b;a=3;b=6;return a-b;}").get());
-			Assert::AreEqual(3*6, *(int*)RunCode("func static Test:int{int a,b;a=3;b=6;return a*b;}").get());
+			Assert::AreEqual(3 * 6, *(int*)RunCode("func static Test:int{int a,b;a=3;b=6;return a*b;}").get());
 			Assert::AreEqual(0, *(int*)RunCode("func static Test:int{int a,b;a=3;b=6;return a/b;}").get());
 			Assert::AreEqual(0, *(int*)RunCode("func static Test:int{int a,b;a=6;b=3;return a%b;}").get());
 			Assert::AreEqual(2, *(int*)RunCode("func static Test:int{int a,b;a=8;b=3;return a%b;}").get());
@@ -214,14 +214,14 @@ namespace Test
 		{
 			TSClass* cl = CreateClass(
 				"class TestClass {"
-					"class SubClass {"
-					"int a,b,c;"
-					"constr(int a1,int b1, int c1){}"
-					"func Init{a=1;b=2;c=3;}"
+				"class SubClass {"
+				"int a,b,c;"
+				"constr(int a1,int b1, int c1){}"
+				"func Init{a=1;b=2;c=3;}"
 				"}"
 				"func static Test:int"
 				"{"
-					"SubClass s;s.Init();return s.b;"
+				"SubClass s;s.Init();return s.b;"
 				"}}");
 			Assert::AreEqual((int)2, *(int*)RunClassMethod(cl, "Test").get());
 
@@ -317,7 +317,7 @@ namespace Test
 			Assert::AreEqual(5.0f, *(float*)RunCode("func static Test:float{return Abs(5.0);}").get());
 			Assert::AreEqual(0.0f, *(float*)RunCode("func static Test:float{return Abs(0.0);}").get());
 
-			Assert::AreEqual(asin(1.0f), *(float*)RunCode("func static Test:float{return Asin(1.0);}").get(),0.0001f);
+			Assert::AreEqual(asin(1.0f), *(float*)RunCode("func static Test:float{return Asin(1.0);}").get(), 0.0001f);
 			Assert::AreEqual(asin(0.0f), *(float*)RunCode("func static Test:float{return Asin(0.0);}").get(), 0.0001f);
 			Assert::AreEqual(asin(-1.0f), *(float*)RunCode("func static Test:float{return Asin(-1.0);}").get(), 0.0001f);
 
@@ -363,6 +363,21 @@ namespace Test
 		{
 			Assert::AreEqual(13, *(int*)RunCode("func static Test:int{int s=3;for(int i=0;i<5;i+=1)s+=i;return s;}").get());
 			Assert::AreEqual(389, *(int*)RunCode("func static Test:int{for(int i=0;i<500;i+=1){if(i==389)return i;}return 1;}").get());
+		}
+		TEST_METHOD(RecursiveTest)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"func static Factorial(int i):int\n"
+				"{\n"
+				"	if(i==0)return 1;else return i*Factorial(i-1);"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"return Factorial(5);\n"
+				"}}"));
+			Assert::AreEqual((int)1 * 2 * 3 * 4 * 5, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 	};
 	TEST_CLASS(StaticVariablesTesting)
@@ -467,36 +482,36 @@ namespace Test
 		{
 			TSClass* cl2 = NULL;
 			Assert::IsNotNull(cl2 = CreateClass(
-					"class TestClass {\n"
-					"int static destr_count;\n"
-					"int static constr_count;\n"
-					"int static copy_constr_count;\n"
-					"class SubClass {\n"
-					"int a,b,c;\n"
-					"constr{constr_count+=1;a=3;b=5;c=9;}\n"
-					"constr(SubClass& copy_from){copy_constr_count+=1;a=copy_from.a+1;b=copy_from.b+1;c=copy_from.c+1;}\n"
-					"destr{destr_count+=1;}\n"
-					"}\n"
-					"func static Test:int\n"
-					"{\n"
-					"constr_count=0;\n"
-					"copy_constr_count=0;\n"
-					"destr_count=0;\n"
-					"SubClass s0;\n"
-					"SubClass s1(s0); return s1.a;\n"
-					"}\n"
-					"func static GetDestrCount:int\n"
-					"{\n"
-					"return destr_count;\n"
-					"}\n"
-					"func static GetConstrCount:int\n"
-					"{\n"
-					"return constr_count;\n"
-					"}\n"
-					"func static GetCopyConstrCount:int\n"
-					"{\n"
-					"return copy_constr_count;\n"
-					"}}"));
+				"class TestClass {\n"
+				"int static destr_count;\n"
+				"int static constr_count;\n"
+				"int static copy_constr_count;\n"
+				"class SubClass {\n"
+				"int a,b,c;\n"
+				"constr{constr_count+=1;a=3;b=5;c=9;}\n"
+				"constr(SubClass& copy_from){copy_constr_count+=1;a=copy_from.a+1;b=copy_from.b+1;c=copy_from.c+1;}\n"
+				"destr{destr_count+=1;}\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"constr_count=0;\n"
+				"copy_constr_count=0;\n"
+				"destr_count=0;\n"
+				"SubClass s0;\n"
+				"SubClass s1(s0); return s1.a;\n"
+				"}\n"
+				"func static GetDestrCount:int\n"
+				"{\n"
+				"return destr_count;\n"
+				"}\n"
+				"func static GetConstrCount:int\n"
+				"{\n"
+				"return constr_count;\n"
+				"}\n"
+				"func static GetCopyConstrCount:int\n"
+				"{\n"
+				"return copy_constr_count;\n"
+				"}}"));
 			Assert::AreEqual((int)4, *(int*)RunClassMethod(cl2, "Test").get());
 			Assert::AreEqual((int)2, *(int*)RunClassMethod(cl2, "GetDestrCount").get());
 			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "GetConstrCount").get());
@@ -513,7 +528,7 @@ namespace Test
 		}
 		TEST_METHOD(ArrayOfArrayInitializationTest)
 		{
-			Assert::AreEqual(23+54+2+34, *(int*)RunCode(
+			Assert::AreEqual(23 + 54 + 2 + 34, *(int*)RunCode(
 				"func static Test:int"
 				"{"
 				"	TDynArray<TDynArray<int>> s;"
@@ -569,7 +584,7 @@ namespace Test
 		}
 		TEST_METHOD(AssignTest)
 		{
-			Assert::AreEqual(10+324-213, *(int*)RunCode(
+			Assert::AreEqual(10 + 324 - 213, *(int*)RunCode(
 				"func static Test:int\n"
 				"{\n"
 				"	TDynArray<int> s;\n"
@@ -581,7 +596,7 @@ namespace Test
 				"	return sc.size()+sc[0]+sc[9];\n"
 				"}"
 				).get());
-			Assert::AreEqual(10+432-384, *(int*)RunCode(
+			Assert::AreEqual(10 + 432 - 384, *(int*)RunCode(
 				"func static Test:int\n"
 				"{\n"
 				"	TDynArray<TDynArray<int>> s;\n"
@@ -593,6 +608,34 @@ namespace Test
 				"	TDynArray<TDynArray<int>> sc;\n"
 				"	sc=s;\n"
 				"	return sc.size()+sc[0][1]+sc[9][2];\n"
+				"}"
+				).get());
+			Assert::AreEqual(10 + 432 - 384, *(int*)RunCode(
+				"func static Test:int\n"
+				"{\n"
+				"	TDynArray<TDynArray<int>> s;\n"
+				"	s.resize(10);\n"
+				"	s[0].resize(2);\n"
+				"	s[9].resize(3);\n"
+				"	s[0][1]=432;\n"
+				"	s[9][2]=-384;\n"
+				"	TDynArray<TDynArray<int>> sc;\n"
+				"	sc=s;\n"
+				"	return sc.size()+sc[0][1]+sc[9][2];\n"
+				"}"
+				).get());
+		}
+		TEST_METHOD(AssignInCycle)
+		{
+			Assert::AreEqual(111, *(int*)RunCode(
+				"func static Test:int\n"
+				"{\n"
+				"	TDynArray<TDynArray<int>> s;\n"
+				"	s.resize(100);\n"
+				"	for(int i=0;i<100;i+=1){s[i].resize(i+1);for(int k=0;k<i+1;k+=1)s[i][k]=i+k;}"
+				"	TDynArray<TDynArray<int>> sc;\n"
+				"	sc=s;\n"
+				"	return sc.size()+sc[0][0]+sc[9][2];\n"
 				"}"
 				).get());
 		}

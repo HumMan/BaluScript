@@ -138,7 +138,7 @@ void TDynArr::assign_op(std::vector<TStaticValue> &static_fields, std::vector<TS
 	std::vector<TSMethod*> ops;
 
 	left->el_class->GetOperators(ops, TOperator::Assign);
-
+	//TODO поиск нужного оператора присваивания
 	dyn_arr_resize(static_fields, left, right->v->size() / left->el_class->GetSize());
 	if (left->v->size() > 0)
 	{
