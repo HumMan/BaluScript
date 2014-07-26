@@ -6,8 +6,11 @@
 #include "SType.h"
 #include "SStatements.h"
 
-#include "../Syntax/Statements.h"
 #include "../semanticAnalyzer.h"
+
+#include "../Syntax/Statements.h"
+#include "../Syntax/ClassField.h"
+#include "../Syntax/Method.h"
 
 TSClass::TSClass(TSClass* use_owner, TClass* use_syntax_node, TNodeWithTemplates::Type type) :TSyntaxNode(use_syntax_node)
 {
@@ -149,10 +152,11 @@ TSClass* TSClass::GetClass(TNameId use_name)
 
 	if (GetType() == TNodeWithTemplates::Realization)
 	{
-		std::vector<TSClass*> template_params = GetTemplateParams();
+		std::vector<TNodeWithTemplates::TTemplateParameter> template_params = GetTemplateParams();
 		for (int i = 0; i < template_params.size(); i++)
-			if (GetTemplateClass()->GetSyntax()->template_params[i] == use_name)
-				return template_params[i];
+			if (!template_params[i].is_value)
+				if (GetTemplateClass()->GetSyntax()->template_params[i] == use_name)
+					return template_params[i].type;
 	}
 
 	if (owner != NULL)
@@ -479,7 +483,19 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 				if (!field.GetSyntax()->IsStatic())
 				{
 					field.SetOffset(class_size);
-					class_size += field.GetClass()->GetSize();
+					if (field.GetSyntax()->HasSizeMultiplierId())
+					{
+						TNameId multiplier_id = field.GetSyntax()->GetFactorId();
+						int multiplier = this->FindTemplateIntParameter(multiplier_id);
+						field.SetSizeMultiplier(multiplier);
+					}
+					else if (field.GetSyntax()->HasSizeMultiplier())
+					{
+						int multiplier = field.GetSyntax()->GetSizeMultiplier();
+						field.SetSizeMultiplier(multiplier);
+					}
+					else
+						class_size += field.GetClass()->GetSize();
 				}
 			}
 		}

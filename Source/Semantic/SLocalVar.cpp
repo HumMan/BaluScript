@@ -1,14 +1,20 @@
 ﻿#include "SLocalVar.h"
 
-#include "SMethod.h"
-#include "SSyntaxNode.h"
-#include "../Syntax/LocalVar.h"
-#include "SStatements.h"
-#include "../semanticAnalyzer.h"
-#include "FormalParam.h"
-#include "SExpression.h"
 #include "../Syntax/Expression.h"
 #include "../Syntax/Statements.h"
+#include "../Syntax/LocalVar.h"
+#include "../Syntax/Method.h"
+
+#include "../semanticAnalyzer.h"
+
+#include "SMethod.h"
+#include "SSyntaxNode.h"
+#include "SStatements.h"
+#include "FormalParam.h"
+#include "SExpression.h"
+#include "SClass.h"
+
+
 
 TFormalParam TSLocalVar::Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {

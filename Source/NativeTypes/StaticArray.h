@@ -4,7 +4,7 @@
 #include "../VirtualMachine/Program.h"
 #include "../VirtualMachine.h"
 
-class TArrayClassMethod;
+struct TArrayClassMethod;
 struct TStaticArr
 	{
 	int COUNT;

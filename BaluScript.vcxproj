@@ -255,7 +255,9 @@
     <ClCompile Include="Source\Semantic\SWhile.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\Semantic\TemplateRealizations.cpp" />
+    <ClCompile Include="Source\Semantic\TemplateRealizations.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Source\Semantic\Variable.cpp" />
     <ClCompile Include="Source\syntaxAnalyzer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>

@@ -1,13 +1,15 @@
 ﻿#include "SReturn.h"
 
+#include "../Syntax/LocalVar.h"
+#include "../Syntax/Return.h"
+#include "../Syntax/Statements.h"
+#include "../Syntax/Method.h"
+
+#include "../semanticAnalyzer.h"
+
 #include "FormalParam.h"
 #include "SMethod.h"
 #include "SExpression.h"
-
-#include "../Syntax/LocalVar.h"
-#include "../semanticAnalyzer.h"
-#include "../Syntax/Return.h"
-#include "../Syntax/Statements.h"
 
 void TSReturn::Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {

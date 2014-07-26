@@ -54,6 +54,7 @@ namespace TResWord
 		Readonly,
 		This,
 		Bytecode,
+		Multifield,
 		
 		Func,
 		Constr,

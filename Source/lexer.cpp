@@ -15,6 +15,7 @@ TLexer::TLexer():source(NULL),curr_char(NULL),col(1),line(1)
 	res_words.Add("enum",		TToken(TTokenType::ResWord, TResWord::Enum));
 	res_words.Add("sealed",		TToken(TTokenType::ResWord, TResWord::Sealed));
 	res_words.Add("return",		TToken(TTokenType::ResWord, TResWord::Return));
+	res_words.Add("multifield", TToken(TTokenType::ResWord, TResWord::Multifield));
 
 	res_words.Add("true",		TToken(TTokenType::Value, TValue::Bool, 1));
 	res_words.Add("false",		TToken(TTokenType::Value, TValue::Bool, 0));

@@ -2,11 +2,16 @@
 
 #include "../Syntax/Expression.h"
 #include "../Syntax/Statements.h"
-#include "FormalParam.h"
+#include "../Syntax/Method.h"
+
 #include "../semanticAnalyzer.h"
+
+#include "FormalParam.h"
 #include "SStatements.h"
 #include "FormalParam.h"
 #include "SLocalVar.h"
+#include "SClass.h"
+
 
 class TSemanticTreeBuilder :public TExpressionTreeVisitor
 {

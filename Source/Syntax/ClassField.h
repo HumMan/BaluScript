@@ -1,15 +1,19 @@
 ﻿#pragma once
 
-#include "Type.h"
+#include <memory>
+
 #include "../lexer.h"
 #include "Accessible.h"
 
-class TClassField:public TAccessible,public TTokenPos
+class TClass;
+struct TType;
+
+class TClassField :public TAccessible, public TTokenPos, public TMultifield
 {
 	friend class TSClassField;
 	TClass* owner;
 	TNameId name;
-	TType type;
+	std::shared_ptr<TType> type;
 	bool is_static;
 	bool read_only;
 public:

@@ -2,11 +2,12 @@
 
 #include "SType.h"
 #include "Variable.h"
+#include "TemplateRealizations.h"
 
 class TClassField;
 class TSLocalVar;
 
-class TSClassField :public TSyntaxNode<TClassField>, public TVariable, public TNodeWithOffset
+class TSClassField :public TSyntaxNode<TClassField>, public TVariable, public TNodeWithOffset, public TSMultifield
 {
 	TSClass* owner;
 	TSType type;

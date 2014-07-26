@@ -8,7 +8,7 @@ class TExpression;
 class TLocalVar:public TStatement
 {
 	friend class TSLocalVar;
-	TType type;
+	std::shared_ptr<TType> type;
 	TNameId name;
 	std::unique_ptr<TExpression> assign_expr;
 	std::vector<std::unique_ptr<TExpression>> params;
@@ -20,7 +20,7 @@ public:
 	bool IsStatic();
 	TType* GetVarType()
 	{
-		return &type;
+		return type.get();
 	}
 	void Accept(TStatementVisitor* visitor);
 };

@@ -1,10 +1,12 @@
 #pragma once
 
 #include "../lexer.h"
-#include "SClass.h"
+
 #include "SSyntaxNode.h"
 #include "SType.h"
 #include "Variable.h"
+
+#include "../Syntax/Parameter.h"
 
 class TSMethod;
 class TSLocalVar;

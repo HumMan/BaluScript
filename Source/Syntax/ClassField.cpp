@@ -1,12 +1,13 @@
-﻿
-#include "ClassField.h"
+﻿#include "ClassField.h"
+
 #include "Class.h"
 #include "Method.h"
 #include "Statements.h"
+#include "Type.h"
 
 void TClassField::AnalyzeSyntax(TLexer& source) {
 	InitPos(source);
-	type.AnalyzeSyntax(source);
+	type->AnalyzeSyntax(source);
 	is_static = source.TestAndGet(TTokenType::ResWord, TResWord::Static);
 	TClassField* curr_field = this;
 	do {
@@ -34,7 +35,7 @@ bool TClassField::IsReadOnly()const
 void TClassField::SetReadOnly(bool use_read_only){
 	read_only = use_read_only;
 }
-TClassField::TClassField(TClass* use_owner) :owner(use_owner), type(use_owner)
+TClassField::TClassField(TClass* use_owner) :owner(use_owner), type(new TType(use_owner))
 , is_static(false), read_only(false)
 {
 }

@@ -37,8 +37,9 @@ public:
 
 class TStaticValue;
 
-struct TFormalParamWithConversions
+class TFormalParamWithConversions
 {
+public:
 	TFormalParam result;
 	TSMethod* copy_constr;//используется если необходимо преобразование из lvalue в rvalue
 	bool ref_to_rvalue;

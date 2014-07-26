@@ -1,7 +1,7 @@
 #pragma once 
 
-#include "../lexer.h"
 #include <memory>
+#include "../lexer.h"
 
 #include "../Syntax/Type.h"
 
@@ -12,11 +12,18 @@ class TSType;
 class TSClassField;
 class TSLocalVar;
 
-struct TSType_TClassName :TSyntaxNode<TType::TClassName>,TNodeSignatureLinked,TNodeBodyLinked
+struct TSType_TTemplateParameter
+{
+	bool is_value;
+	int value;
+	std::unique_ptr<TSType> type;
+};
+
+struct TSType_TClassName :TSyntaxNode<TType_TClassName>,TNodeSignatureLinked,TNodeBodyLinked
 {
 	TSClass* class_of_type;
-	std::list<TSType> template_params_classes;
-	TSType_TClassName(TType::TClassName* use_syntax) :TSyntaxNode(use_syntax)
+	std::list<TSType_TTemplateParameter> template_params_classes;
+	TSType_TClassName(TType_TClassName* use_syntax) :TSyntaxNode(use_syntax)
 	{
 		class_of_type = NULL;
 	}
@@ -30,7 +37,7 @@ struct TSType_TClassName :TSyntaxNode<TType::TClassName>,TNodeSignatureLinked,TN
 	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
 };
 
-struct TSType :public TSyntaxNode<TType>, public TNodeSignatureLinked, public TNodeBodyLinked
+class TSType :public TSyntaxNode<TType>, public TNodeSignatureLinked, public TNodeBodyLinked
 {
 private:
 	TSClass* owner;
@@ -48,3 +55,4 @@ public:
 		return classes.back().class_of_type;
 	}
 };
+

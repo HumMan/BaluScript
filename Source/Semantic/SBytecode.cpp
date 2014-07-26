@@ -1,9 +1,14 @@
 ﻿#include "SBytecode.h"
-#include "../virtualMachine.h"
-#include "../Syntax/Bytecode.h"
+
 #include "FormalParam.h"
 #include "SMethod.h"
+#include "SClass.h"
+
+#include "../virtualMachine.h"
+
 #include "../Syntax/Statements.h"
+#include "../Syntax/Bytecode.h"
+#include "../Syntax/Method.h"
 
 TSBytecode::TSBytecode(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TBytecode* use_syntax)
 	:TSStatement(TStatementType::Bytecode,use_owner,use_method,use_parent,(TStatement*)use_syntax)

@@ -1,9 +1,12 @@
 ﻿#include "SStatement.h"
 
 #include "SClass.h"
+
 #include "../semanticAnalyzer.h"
+
 #include "../Syntax/Statement.h"
 #include "../Syntax/Statements.h"
+#include "../Syntax/Method.h"
 
 void TSStatement::TestBoolExpr(TFormalParam& compare_result, std::unique_ptr<TFormalParamWithConversions>& conversion)
 {

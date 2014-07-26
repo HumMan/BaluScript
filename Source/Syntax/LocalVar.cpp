@@ -7,7 +7,7 @@
 
 void TLocalVar::AnalyzeSyntax(TLexer& source) {
 	InitPos(source);
-	type.AnalyzeSyntax(source);
+	type->AnalyzeSyntax(source);
 	is_static = source.TestAndGet(TTokenType::ResWord, TResWord::Static);
 	assert(parent->GetType()==TStatementType::Statements);
 	TStatements* statements = (TStatements*) parent;
@@ -67,7 +67,7 @@ void TLocalVar::AnalyzeSyntax(TLexer& source) {
 
 TLocalVar::TLocalVar(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id) :
 TStatement(TStatementType::VarDecl, use_owner, use_method, use_parent, use_stmt_id),
- type(use_owner), is_static(false)
+type(new TType(use_owner)), is_static(false)
 {
 }
 

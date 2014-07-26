@@ -7,7 +7,6 @@
 #include "../lexer.h"
 
 #include "Type.h"
-#include "Method.h"
 #include "OverloadedMethod.h"
 #include "Accessible.h"
 
@@ -17,6 +16,7 @@ class TMethod;
 class TClass:public TTokenPos
 {
 	friend class TSClass;
+	friend class TNodeWithTemplates;
 protected:
 	bool is_template;
 

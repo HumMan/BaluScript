@@ -142,7 +142,6 @@ class Script
 		operator static [](vec2& v,int id):float bytecode{ASM_RV_VEC2_GET_ELEMENT;};
 		operator static [](vec2 v,int id):float bytecode{ASM_VV_VEC2_GET_ELEMENT;};
 	}
-	func static Cross	(vec2 v0,vec2 v1):float bytecode{ASM_VEC2_CROSS;};
 	func static Distance(vec2 v0,vec2 v1):float bytecode{ASM_VEC2_DISTANCE;};
 	func static Dot		(vec2 v0,vec2 v1):float bytecode{ASM_VEC2_DOT;};
 	func static Length	(vec2 v0):float bytecode{ASM_VEC2_LENGTH;};

@@ -76,8 +76,6 @@ void TVirtualMachine::Execute(int method_id, int* stack_top, int* this_pointer)
 {
 	using namespace std;
 	using namespace TOpcode;
-	int temp;
-	int *s, *d;
 	TOp* op;
 	TProgram::TMethod* m = &program->methods_table[method_id];
 	if (m->pre_event != -1)
@@ -476,9 +474,6 @@ bool TVirtualMachine::ExecuteVec2Ops(TOp* op, int*& sp, int* object)
 		*(sp - 2) = sp[*sp - 2];
 		sp -= 2; break;
 
-	case VEC2_CROSS:
-		*(TVec2*)(sp - 3) = ((TVec2*)(sp - 3))->Cross(*(TVec2*)(sp - 1));
-		sp -= 3; break;
 	case VEC2_DISTANCE:
 		*(float*)(sp - 3) = ((TVec2*)(sp - 3))->Distance(*(TVec2*)(sp - 1));
 		sp -= 3; break;

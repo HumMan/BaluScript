@@ -19,6 +19,8 @@
 #include "baluScript.h"
 
 #include "../Source/Semantic/SMethod.h"
+#include "../Source/Semantic/SClass.h"
 #include "../Source/Semantic/FormalParam.h"
 #include "../Source/Syntax/Statements.h"
+#include "../Source/Syntax/Method.h"
 #include "../Source/semanticAnalyzer.h"

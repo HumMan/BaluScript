@@ -9,7 +9,8 @@ namespace TVariableType
 		ClassField,
 		Parameter,
 		Local,
-		This
+		This,
+		TemplateValue
 	};
 }
 

@@ -645,4 +645,23 @@ namespace Test
 			Assert::AreEqual(49573, *(int*)RunCode("func static Test:int{TDynArray<int> s;s.resize(1000);s[999]=49573;s.resize(1001);return s[999];}").get());
 		}
 	};
+	TEST_CLASS(TempatesTesting)
+	{
+	public:
+		TEST_METHOD(ValueParameters)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class TemplateClass<T,Size> {\n"
+				"multifield(Size) T value;\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	TemplateClass<int, 5> v;\n"
+				"	return 1;\n"
+				"}}"));
+			Assert::AreEqual((int)4, *(int*)RunClassMethod(cl2, "Test").get());
+		}
+	};
 }

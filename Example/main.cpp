@@ -20,6 +20,7 @@
 #include "../Source/Semantic/SMethod.h"
 #include "../Source/Semantic/FormalParam.h"
 #include "../Source/Syntax/Statements.h"
+#include "../Source/Syntax/Method.h"
 
 int main(int argc, char* argv[])
 {

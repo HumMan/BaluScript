@@ -2,8 +2,11 @@
 
 #include "Semantic/FormalParam.h"
 #include "Semantic/SClass.h"
+
 #include "syntaxAnalyzer.h"
+
 #include "Syntax/Statements.h"
+#include "Syntax/Method.h"
 
 #pragma push_macro("new")
 #undef new
@@ -12,7 +15,7 @@ void TDynArr::constructor(std::vector<TStaticValue> &static_fields, std::vector<
 {
 	memset((TDynArr*)object.get(), 0xfeefee, sizeof(TDynArr));
 	TDynArr* obj = new ((TDynArr*)object.get()) TDynArr();
-	obj->el_class = object.GetClass()->GetTemplateParam(0);
+	obj->el_class = object.GetClass()->GetTemplateParam(0).type;
 }
 
 void CallMethod(std::vector<TStaticValue> &static_fields, int* v, int first_element, int el_count, int el_size, TSClass* el_class, TSMethod* method)

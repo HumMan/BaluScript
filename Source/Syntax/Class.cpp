@@ -172,6 +172,20 @@ void TClass::AnalyzeSyntax(TLexer& source) {
 				func->AnalyzeSyntax(source);
 			}
 				break;
+			case TResWord::Multifield:
+			{
+				source.GetToken(TTokenType::ResWord, TResWord::Multifield);
+				source.GetToken(TTokenType::LParenth);
+				TNameId factor = source.NameId();
+				source.GetToken();
+				source.GetToken(TTokenType::RParenth);
+				fields.emplace_back(this);
+				fields.back().SetFactorId(factor);
+				fields.back().SetAccess(access);
+				fields.back().SetReadOnly(readonly);
+				fields.back().AnalyzeSyntax(source);
+			}
+				break;
 			default:
 				end_while = true;
 			}

@@ -1,6 +1,5 @@
 ﻿#include "SStatements.h"
 
-#include "../Syntax/Statements.h"
 #include "SLocalVar.h"
 #include "SMethod.h"
 #include "FormalParam.h"
@@ -10,6 +9,9 @@
 #include "SWhile.h"
 #include "SIf.h"
 #include "SFor.h"
+
+#include "../Syntax/Statements.h"
+#include "../Syntax/Method.h"
 
 class TSStatementBuilder :public TStatementVisitor
 {

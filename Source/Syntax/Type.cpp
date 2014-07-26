@@ -29,10 +29,20 @@ void TType::AnalyzeClassName(TLexer& source)
 		source.GetToken();
 		while (!source.TestAndGet(TTokenType::Operator, TOperator::Greater)) 
 		{
-			class_names.back().template_params.emplace_back(owner);
-			TType* template_param = &class_names.back().template_params.back();
-			template_param->AnalyzeSyntax(source);
-
+			class_names.back().template_params.emplace_back();
+			if (source.Test(TTokenType::Value, TValue::Int))
+			{
+				class_names.back().template_params.back().is_value = true;
+				class_names.back().template_params.back().value = source.Int();
+				source.GetToken();
+			}
+			else
+			{
+				class_names.back().template_params.back().is_value = false;
+				class_names.back().template_params.back().type.reset(new TType(owner));
+				TType* template_param = class_names.back().template_params.back().type.get();
+				template_param->AnalyzeSyntax(source);
+			}
 			if (!source.Test(TTokenType::Operator, TOperator::Greater))
 				source.GetToken(TTokenType::Comma);
 		}

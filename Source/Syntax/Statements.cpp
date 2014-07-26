@@ -13,7 +13,7 @@ bool ClassName(TLexer& source) {
 		return false;
 	if (source.TestAndGet(TTokenType::Operator, TOperator::Less)) {
 		while (!source.Test(TTokenType::Operator, TOperator::Greater)) {
-			if (!ClassName(source))
+			if (!(ClassName(source) || source.TestAndGet(TTokenType::Value, TValue::Int)))
 				return false;
 			if (!source.Test(TTokenType::Operator, TOperator::Greater))
 				source.GetToken(TTokenType::Comma);

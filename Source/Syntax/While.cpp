@@ -5,6 +5,8 @@
 #include "Class.h"
 #include "ClassField.h"
 
+#include "../Syntax/Method.h"
+
 void TWhile::AnalyzeSyntax(TLexer& source) {
 	InitPos(source);
 	source.GetToken(TTokenType::ResWord, TResWord::While);

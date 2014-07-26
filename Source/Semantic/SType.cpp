@@ -1,7 +1,9 @@
 ﻿#include "SType.h"
 
 #include "SClass.h"
+
 #include "../Syntax/Statements.h"
+#include "../Syntax/Method.h"
 
 TSType::TSType(TSClass* use_owner, TType* use_syntax_node) :TSyntaxNode(use_syntax_node)
 {
@@ -17,7 +19,7 @@ TSType::TSType(TSClass* use_owner, TSClass* use_class) : TSyntaxNode(NULL)
 
 void TSType::LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables, TSClass* use_curr_class)
 {
-	for (TType::TClassName& v : GetSyntax()->GetClassNames())
+	for (TType_TClassName& v : GetSyntax()->GetClassNames())
 	{
 		classes.emplace_back(&v);
 		use_curr_class = classes.back().LinkSignature(static_fields,static_variables, owner, use_curr_class);
@@ -81,25 +83,36 @@ TSClass* TSType_TClassName::LinkSignature(std::vector<TSClassField*>* static_fie
 				use_owner->GetSyntax()->Error("Класс не является шаблонным!");
 			if (template_params->size() != use_curr_class->GetSyntax()->GetTemplateParamsCount())
 				use_owner->GetSyntax()->Error("Шаблон имеет другое количество параметров!");
-			for (TType& t : *template_params)
+			for (TType_TTemplateParameter& t : *template_params)
 			{
-				template_params_classes.emplace_back(use_owner, &t);
-				template_params_classes.back().LinkSignature(static_fields, static_variables);
+				template_params_classes.emplace_back();
+				template_params_classes.back().is_value = t.is_value;
+				if (t.is_value)
+				{
+					template_params_classes.back().value = t.value;
+				}
+				else
+				{
+					template_params_classes.back().type.reset(new TSType(use_owner, t.type.get()));
+					template_params_classes.back().type->LinkSignature(static_fields, static_variables);
+				}
 			}
 
 			TSClass* realization = use_curr_class->FindTemplateRealization(template_params_classes);
 			if (realization == NULL)
 			{
-				//TODO !!!!!!!!!!  шаблонный класс не имеет доступа к своему шаблону
-				//при указании имени класса без шаблонныйх параметров - то же самое что с параметрами текущего класса
 				realization = new TSClass(use_curr_class->GetOwner(), use_curr_class->GetSyntax(), TNodeWithTemplates::Realization);
 				use_curr_class->AddTemplateRealization(realization);
 				realization->SetTemplateClass(use_curr_class);
 				{
-					std::vector<TSClass*> template_params;
-					for (TSType& t_par : template_params_classes)
+					std::vector<TNodeWithTemplates::TTemplateParameter> template_params;
+					for (TSType_TTemplateParameter& t_par : template_params_classes)
 					{
-						template_params.push_back(t_par.GetClass());
+						template_params.emplace_back();
+						template_params.back().is_value = t_par.is_value;
+						if (!t_par.is_value)
+							template_params.back().type = t_par.type->GetClass();
+						template_params.back().value = t_par.value;
 					}
 					realization->SetTemplateParams(template_params);
 				}
@@ -109,6 +122,8 @@ TSClass* TSType_TClassName::LinkSignature(std::vector<TSClassField*>* static_fie
 				{
 					realization->CopyExternalMethodBindingsFrom(use_curr_class);
 					realization->SetSize(use_curr_class->GetSize());
+					//TODO если класс внешний то размер должен получаться из обработчика, в зависимости от параметров
+					//но размер мы можем получить только после CalculateSizes
 				}
 				else
 				{
@@ -142,9 +157,10 @@ void TSType_TClassName::LinkBody(std::vector<TSClassField*>* static_fields, std:
 	else
 		return;
 
-	for (TSType& t_par : template_params_classes)
+	for (TSType_TTemplateParameter& t_par : template_params_classes)
 	{
-		t_par.LinkBody(static_fields, static_variables);
+		if (!t_par.is_value)
+			t_par.type->LinkBody(static_fields, static_variables);
 	}
 
 	std::vector<TSClass*> owners;
