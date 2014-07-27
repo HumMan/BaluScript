@@ -118,9 +118,13 @@ TSClass* TSType_TClassName::LinkSignature(std::vector<TSClassField*>* static_fie
 				}
 				realization->Build();
 				realization->LinkSignature(static_fields, static_variables);
+				
+				//если класс или его методы являются внешними, то копируем привязки к внешним методам
+				realization->CopyExternalMethodBindingsFrom(use_curr_class);
+
 				if (use_curr_class->GetSyntax()->IsExternal())
 				{
-					realization->CopyExternalMethodBindingsFrom(use_curr_class);
+					
 					realization->SetSize(use_curr_class->GetSize());
 					//TODO если класс внешний то размер должен получаться из обработчика, в зависимости от параметров
 					//но размер мы можем получить только после CalculateSizes
@@ -129,6 +133,7 @@ TSClass* TSType_TClassName::LinkSignature(std::vector<TSClassField*>* static_fie
 				{
 					realization->InitAutoMethods();
 				}
+
 				//std::vector<TSClass*> owners;
 				//realization->CalculateSizes(owners);
 				//realization->CalculateMethodsSizes();

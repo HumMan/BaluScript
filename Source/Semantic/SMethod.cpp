@@ -110,10 +110,13 @@ void TSMethod::CalculateParametersOffsets()
 	parameters_size = 0;
 	for (int i = 0; i<parameters.size(); i++)
 	{
-		//parameters[i]->SetOffset(parameters_size);
-		parameters[i]->SetOffset(i);
-		parameters[i]->CalculateSize();
-		parameters_size += parameters[i]->GetSize();
+		if (!parameters[i]->IsOffsetInitialized())
+		{
+			//parameters[i]->SetOffset(parameters_size);
+			parameters[i]->SetOffset(i);
+			parameters[i]->CalculateSize();
+			parameters_size += parameters[i]->GetSize();
+		}
 	}
 	if (GetRetClass() != NULL)
 	{

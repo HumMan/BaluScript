@@ -28,6 +28,9 @@ namespace Test
 			ms->LinkBody(&static_fields, &static_variables);
 			ms->CalculateParametersOffsets();
 
+			std::vector<TSClass*> owners;
+			syntax->sem_base_class->CalculateSizes(owners);
+
 			InitializeStaticClassFields(static_fields, static_objects);
 			InitializeStaticVariables(static_variables, static_objects);
 
@@ -661,7 +664,51 @@ namespace Test
 				"	TemplateClass<int, 5> v;\n"
 				"	return 1;\n"
 				"}}"));
-			Assert::AreEqual((int)4, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test").get());
+		}
+	};
+	TEST_CLASS(StaticArrayTesting)
+	{
+	public:
+		TEST_METHOD(InitializationTest)
+		{
+			Assert::AreEqual(3, *(int*)RunCode("func static Test:int{TStaticArray<int,3> s;return s.size();}").get());
+			Assert::AreEqual(34, *(int*)RunCode("func static Test:int{TStaticArray<int,34> s;return s.size();}").get());
+		}
+		TEST_METHOD(ArrayOfArrayInitializationTest)
+		{
+			Assert::AreEqual(43+243, *(int*)RunCode(
+				"func static Test:int"
+				"{"
+				"	TStaticArray<TStaticArray<int,4>,4> s;"
+				"	s[0][0]=43;"
+				"	s[3][3]=243;"
+				"	return s[0][0]+s[3][3];"
+				"}"
+				).get());
+		}
+		TEST_METHOD(ArrayOfArrayInCycleInitializationTest)
+		{
+			Assert::AreEqual(3+5, *(int*)RunCode(
+				"func static Test:int"
+				"{"
+				"	TStaticArray<TStaticArray<int,4>,4> s;"
+				"	for(int i=0;i<4;i+=1){for(int k=0;k<4;k+=1)s[i][k]=i+k;}"
+				"	return s[2][1]+s[3][2];"
+				"}"
+				).get());
+		}
+		TEST_METHOD(CopyConstructor)
+		{
+
+		}
+		TEST_METHOD(AssignTest)
+		{
+
+		}
+		TEST_METHOD(GetElementTest)
+		{
+			Assert::AreEqual(7, *(int*)RunCode("func static Test:int{TStaticArray<int,3> s;s[0]=5;s[2]=2;return s[0]+s[2];}").get());
 		}
 	};
 }

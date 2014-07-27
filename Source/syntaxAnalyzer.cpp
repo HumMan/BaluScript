@@ -8,6 +8,7 @@
 #include "Semantic/SStatements.h"
 
 #include "NativeTypes\DynArray.h"
+#include "NativeTypes\StaticArray.h"
 
 TSyntaxAnalyzer::~TSyntaxAnalyzer()
 {
@@ -32,6 +33,7 @@ void TSyntaxAnalyzer::Compile(char* use_source, TTime& time)
 	sem_base_class->Build();
 
 	TDynArr::DeclareExternalClass(this);
+	TStaticArr::DeclareExternalClass(this);
 
 	sem_base_class->CreateInternalClasses();
 	sem_base_class->LinkSignature(&static_fields, &static_variables);

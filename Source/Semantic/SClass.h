@@ -14,6 +14,7 @@ class TStackValue;
 
 class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize,public TNodeSignatureLinked,public TNodeBodyLinked,public TNodeWithTemplates, public TNodeWithAutoMethods
 {	
+	friend class TStaticArr;
 	std::list<TSClassField> fields;
 	std::list<TSOverloadedMethod> methods;
 	std::unique_ptr<TSOverloadedMethod> constructors;

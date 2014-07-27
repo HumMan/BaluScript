@@ -250,41 +250,41 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 		//////////////////////////////////////////////////
 		//static array
 
-	case R_STATIC_ARR_DEF_CONSTR:
-		((TStaticArr*)this_pointer)->DefConstr(this, op->v1);
-		break;
-	case RR_STATIC_ARR_COPY_CONSTR:
-		((TStaticArr*)this_pointer)->RCopyConstr(this, sp);
-		break;
-	case R_STATIC_ARR_DESTR:
-		((TStaticArr*)this_pointer)->Destr(this);
-		break;
-	case RV_STATIC_ARR_GET_ELEMENT:
-	{
-		int temp = *(sp--);
-		TStaticArr* s_arr = (TStaticArr*)*sp;
-		if (temp > s_arr->methods->el_count - 1 || temp < -1)throw "Ошибка доступа к элементу массива!";
-		*sp = (int)&s_arr->data[temp*s_arr->methods->el_size];
-		break;
-	}
-	case STATIC_ARR_ASSIGN:
-	{
-		int *s, *d;
-		s = sp - (unsigned int)(op->f1 ? 0 : (op->v1 - 1));
-		d = s - 1;
-		((TStaticArr*)*d)->AssignOp(this, (TStaticArr*)(op->f1 ? (int*)*s : s));
-		if (!op->f1)((TStaticArr*)s)->Destr(this);
-	}break;
-	case STATIC_ARR_EQUAL:
-	{
-		int *s, *d;
-		s = sp - (unsigned int)(op->f2 ? 0 : (op->v1 - 1));
-		d = s - (unsigned int)(op->f1 ? 1 : op->v1);
-		int temp = ((TStaticArr*)(op->f1 ? (int*)*d : d))->EqualOp(this, (TStaticArr*)(op->f2 ? (int*)*s : s));
-		*(++sp) = temp;
-		if (!op->f1)((TStaticArr*)d)->Destr(this);
-		if (!op->f2)((TStaticArr*)s)->Destr(this);
-	}break;
+	//case R_STATIC_ARR_DEF_CONSTR:
+	//	((TStaticArr*)this_pointer)->DefConstr(this, op->v1);
+	//	break;
+	//case RR_STATIC_ARR_COPY_CONSTR:
+	//	((TStaticArr*)this_pointer)->RCopyConstr(this, sp);
+	//	break;
+	//case R_STATIC_ARR_DESTR:
+	//	((TStaticArr*)this_pointer)->Destr(this);
+	//	break;
+	//case RV_STATIC_ARR_GET_ELEMENT:
+	//{
+	//	int temp = *(sp--);
+	//	TStaticArr* s_arr = (TStaticArr*)*sp;
+	//	if (temp > s_arr->methods->el_count - 1 || temp < -1)throw "Ошибка доступа к элементу массива!";
+	//	*sp = (int)&s_arr->data[temp*s_arr->methods->el_size];
+	//	break;
+	//}
+	//case STATIC_ARR_ASSIGN:
+	//{
+	//	int *s, *d;
+	//	s = sp - (unsigned int)(op->f1 ? 0 : (op->v1 - 1));
+	//	d = s - 1;
+	//	((TStaticArr*)*d)->AssignOp(this, (TStaticArr*)(op->f1 ? (int*)*s : s));
+	//	if (!op->f1)((TStaticArr*)s)->Destr(this);
+	//}break;
+	//case STATIC_ARR_EQUAL:
+	//{
+	//	int *s, *d;
+	//	s = sp - (unsigned int)(op->f2 ? 0 : (op->v1 - 1));
+	//	d = s - (unsigned int)(op->f1 ? 1 : op->v1);
+	//	int temp = ((TStaticArr*)(op->f1 ? (int*)*d : d))->EqualOp(this, (TStaticArr*)(op->f2 ? (int*)*s : s));
+	//	*(++sp) = temp;
+	//	if (!op->f1)((TStaticArr*)d)->Destr(this);
+	//	if (!op->f2)((TStaticArr*)s)->Destr(this);
+	//}break;
 	//////////////////////////////////////////////////
 	//dynamic array
 
