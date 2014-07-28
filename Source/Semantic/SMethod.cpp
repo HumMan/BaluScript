@@ -197,7 +197,7 @@ void TSMethod::Build()
 {
 	for (const std::unique_ptr<TParameter>& v : GetSyntax()->parameters)
 	{
-		parameters.push_back(std::unique_ptr<TSParameter>(new TSParameter(owner, this, v.get(), &v->type)));
+		parameters.push_back(std::unique_ptr<TSParameter>(new TSParameter(owner, this, v.get(), v->type.get())));
 	}
 	is_external = GetSyntax()->is_extern;
 }

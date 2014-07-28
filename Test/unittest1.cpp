@@ -111,7 +111,7 @@ namespace Test
 		time->Start();
 		char* source;
 		{
-			TFileData file("../../Source/NativeTypes/int_type.bscript", "rb");
+			TFileData file("../../Source/NativeTypes/base_types.bscript", "rb");
 			source = file.ReadAll();
 			source[file.GetSize()] = '\0';
 		}
@@ -698,6 +698,14 @@ namespace Test
 				"}"
 				).get());
 		}
+		TEST_METHOD(ElementsInitialization)
+		{
+
+		}
+		TEST_METHOD(ElementsDestructor)
+		{
+
+		}
 		TEST_METHOD(CopyConstructor)
 		{
 
@@ -709,6 +717,23 @@ namespace Test
 		TEST_METHOD(GetElementTest)
 		{
 			Assert::AreEqual(7, *(int*)RunCode("func static Test:int{TStaticArray<int,3> s;s[0]=5;s[2]=2;return s[0]+s[2];}").get());
+		}
+	};
+	TEST_CLASS(EnumerationTesting)
+	{
+	public:
+		TEST_METHOD(Initialization)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"enum TestEnum{One,Two,Three}"
+				"func static Test:int\n"
+				"{\n"
+				"	TestEnum e;\n"
+				"	return 1;\n"
+				"}}"));
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 	};
 }

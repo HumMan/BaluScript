@@ -216,19 +216,20 @@ public:
 			syntax_node->Error("Оператор доступа к члену класса нельзя применить к методу!");
 		if (left_result.IsType())
 		{
-			//if (left_result.GetType()->IsEnum())
-			//{
-			//	int id = left_result.GetType()->GetEnumId(name);
-			//	//TODO ввести спец функции min max count
-			//	if (id == -1)
-			//		Error("Перечислимого типа с таким именем не существует!");
-			//	else
-			//	{
-			//		program.Push(TOp(TOpcode::PUSH, id), left_result.GetOps());
-			//		return TFormalParam(left_result.GetType(), false, left_result.GetOps());
-			//	}
-			//}
-			//else
+			if (left_result.GetType()->GetSyntax()->IsEnumeration())
+			{
+				int id = left_result.GetType()->GetSyntax()->GetEnumId(operation_node->name);
+				//TODO ввести спец функции min max count
+				if (id == -1)
+					syntax_node->Error("Перечислимого типа с таким именем не существует!");
+				else
+				{
+					TSExpression::TEnumValue* result = new TSExpression::TEnumValue(owner, left_result.GetType());
+					result->val = id;
+					return_new_operation = result;
+				}
+			}
+			else
 			{
 				TSClassField* static_member = left_result.GetType()->GetField(operation_node->name, true, true);
 				if (static_member != NULL)
@@ -511,6 +512,20 @@ void TSExpression::TBool::Run(std::vector<TStaticValue> &static_fields, std::vec
 TFormalParam TSExpression::TBool::GetFormalParameter()
 {
 	return TFormalParam(type.GetClass(), false);
+}
+
+TSExpression::TEnumValue::TEnumValue(TSClass* owner, TSClass* _type)
+	:type(_type)
+{
+}
+void TSExpression::TEnumValue::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
+{
+	result = TStackValue(false, type);
+	*(int*)result.get() = val;
+}
+TFormalParam TSExpression::TEnumValue::GetFormalParameter()
+{
+	return TFormalParam(type, false);
 }
 
 TFormalParam TSExpression_TMethodCall::GetFormalParameter()

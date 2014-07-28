@@ -2,6 +2,8 @@
 
 #include <assert.h>
 
+#include "../lexer.h"
+
 namespace TTypeOfAccess
 {
 	enum Enum

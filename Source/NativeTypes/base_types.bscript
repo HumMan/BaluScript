@@ -1,5 +1,5 @@
-class Script
-{	
+//class Script
+//{	
 	class sealed int
 	{
 	private:
@@ -147,4 +147,15 @@ class Script
 	func static Length	(vec2 v0):float bytecode{ASM_VEC2_LENGTH;};
 	func static Normalize(vec2 v0):float bytecode{ASM_VEC2_NORMALIZE;};
 	func static Reflect	 (vec2 v0,vec2 v1):float bytecode{ASM_VEC2_REFLECT;};
-}
+	
+	class sealed char
+	{
+	private:
+		dword unnamed;
+	public:
+		operator static = (char& l,char r)bytecode{ASM_ASSIGN 0,1;};
+
+		operator static ==(char l,char r):bool bytecode{ASM_EQUAL 0,0,1;};
+		operator static !=(char l,char r):bool bytecode{ASM_NOT_EQUAL 0,0,1;};
+	}
+//}

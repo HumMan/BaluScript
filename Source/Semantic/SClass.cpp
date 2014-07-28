@@ -443,74 +443,81 @@ void TSClass::CreateInternalClasses()
 
 void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 {
-	if (GetType() != TNodeWithTemplates::Template)
+	if (GetSyntax()->IsEnumeration())
 	{
-		if (!IsSizeInitialized())
+		SetSize(1);
+	}
+	else
+	{
+		if (GetType() != TNodeWithTemplates::Template)
 		{
-			int class_size = 0;
-			if (std::find(owners.begin(), owners.end(), this) != owners.end())
+			if (!IsSizeInitialized())
 			{
-				//Error(" ласс не может содержать поле с собственным типом(кроме дин. массивов)!");//TODO см. initautomethods дл¤ дин массивов
-				GetSyntax()->Error("Класс не может содержать поле собственного типа!");
-			}
-			else {
-				owners.push_back(this);
-				if (parent != NULL)
+				int class_size = 0;
+				if (std::find(owners.begin(), owners.end(), this) != owners.end())
 				{
-					TSClass* parent_class = parent;
-					parent_class->CalculateSizes(owners);
-					class_size = parent_class->GetSize();
-
-					do {
-						//TODO в методы по умолчанию
-						/*
-						//добавляем приведение в родительские классы
-						TMethod* temp = new TMethod(this, TClassMember::Conversion);
-						temp->SetAs(TOpArray(), parent_class, true, true, 1);
-
-						TParameter* t = new TParameter(this, temp);
-						t->SetAs(true, this);
-						temp->AddParam(t);
-						temp->CalcParamSize();
-						AddConversion(temp);*/
-
-						parent_class = parent_class->GetParent();
-					} while (parent_class != NULL);
+					//Error(" ласс не может содержать поле с собственным типом(кроме дин. массивов)!");//TODO см. initautomethods дл¤ дин массивов
+					GetSyntax()->Error("Класс не может содержать поле собственного типа!");
 				}
-				for (TSClassField& field : fields)
-				{
-					field.GetClass()->CalculateSizes(owners);
-					if (!field.GetSyntax()->IsStatic())
+				else {
+					owners.push_back(this);
+					if (parent != NULL)
 					{
-						field.SetOffset(class_size);
-						if (field.GetSyntax()->HasSizeMultiplierId())
-						{
-							TNameId multiplier_id = field.GetSyntax()->GetFactorId();
-							int multiplier = this->FindTemplateIntParameter(multiplier_id);
-							field.SetSizeMultiplier(multiplier);
-						}
-						else if (field.GetSyntax()->HasSizeMultiplier())
-						{
-							int multiplier = field.GetSyntax()->GetSizeMultiplier();
-							field.SetSizeMultiplier(multiplier);
-						}
+						TSClass* parent_class = parent;
+						parent_class->CalculateSizes(owners);
+						class_size = parent_class->GetSize();
 
-						if (field.HasSizeMultiplier())
-							class_size += field.GetClass()->GetSize()*field.GetSizeMultiplier();
-						else
-							class_size += field.GetClass()->GetSize();
+						do {
+							//TODO в методы по умолчанию
+							/*
+							//добавляем приведение в родительские классы
+							TMethod* temp = new TMethod(this, TClassMember::Conversion);
+							temp->SetAs(TOpArray(), parent_class, true, true, 1);
+
+							TParameter* t = new TParameter(this, temp);
+							t->SetAs(true, this);
+							temp->AddParam(t);
+							temp->CalcParamSize();
+							AddConversion(temp);*/
+
+							parent_class = parent_class->GetParent();
+						} while (parent_class != NULL);
+					}
+					for (TSClassField& field : fields)
+					{
+						field.GetClass()->CalculateSizes(owners);
+						if (!field.GetSyntax()->IsStatic())
+						{
+							field.SetOffset(class_size);
+							if (field.GetSyntax()->HasSizeMultiplierId())
+							{
+								TNameId multiplier_id = field.GetSyntax()->GetFactorId();
+								int multiplier = this->FindTemplateIntParameter(multiplier_id);
+								field.SetSizeMultiplier(multiplier);
+							}
+							else if (field.GetSyntax()->HasSizeMultiplier())
+							{
+								int multiplier = field.GetSyntax()->GetSizeMultiplier();
+								field.SetSizeMultiplier(multiplier);
+							}
+
+							if (field.HasSizeMultiplier())
+								class_size += field.GetClass()->GetSize()*field.GetSizeMultiplier();
+							else
+								class_size += field.GetClass()->GetSize();
+						}
 					}
 				}
+				owners.pop_back();
+				SetSize(class_size);
 			}
-			owners.pop_back();
-			SetSize(class_size);
+			for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
+				nested_class->CalculateSizes(owners);
 		}
-		for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
-			nested_class->CalculateSizes(owners);
+		if (GetType() == TNodeWithTemplates::Template)
+			for (TSClass* realization : GetRealizations())
+				realization->CalculateSizes(owners);
 	}
-	if (GetType() == TNodeWithTemplates::Template)
-		for (TSClass* realization : GetRealizations())
-			realization->CalculateSizes(owners);
 }
 
 void TSClass::CalculateMethodsSizes()

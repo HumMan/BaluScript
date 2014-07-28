@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <memory>
+
 #include "Statement.h"
 
 class TExpression;

@@ -6,6 +6,7 @@
 class TClass;
 class TStatements;
 class TParameter;
+class TType;
 
 namespace TClassMember
 {
@@ -25,7 +26,7 @@ class TMethod:public TTokenPos,public TAccessible
 	friend class TOverloadedMethod;
 	friend class TSMethod;
 private:
-	TType ret;
+	std::unique_ptr<TType> ret;
 	bool ret_ref;
 	TClass* owner;
 	bool is_static;
@@ -65,7 +66,7 @@ public:
 	void CheckForErrors();
 	TType* GetRetType()
 	{
-		return &ret;
+		return ret.get();
 	}
 };
 

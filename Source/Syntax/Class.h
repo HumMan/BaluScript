@@ -6,6 +6,8 @@
 
 #include "../lexer.h"
 
+#include "../Syntax/Method.h"
+
 #include "Type.h"
 #include "OverloadedMethod.h"
 #include "Accessible.h"
@@ -13,7 +15,38 @@
 class TClassField;
 class TMethod;
 
-class TClass:public TTokenPos
+class TCanBeEnumeration
+{
+	bool is_enum;
+	bool is_enum_initialized;
+public:
+	TCanBeEnumeration()
+	{
+		is_enum = false;
+		is_enum_initialized = false;
+	}
+	void SetAsEnumeration()
+	{
+		assert(!is_enum_initialized);
+		is_enum_initialized = true;
+		is_enum = true;
+	}
+	bool IsEnumeration()
+	{
+		return is_enum;
+	}
+	std::vector<TNameId> enums;
+	int GetEnumId(TNameId use_enum)
+	{
+		assert(is_enum);
+		for (int i = 0; i < enums.size(); i++)
+			if (enums[i] == use_enum)
+				return i;
+		return -1;
+	}
+};
+
+class TClass:public TTokenPos, public TCanBeEnumeration
 {
 	friend class TSClass;
 	friend class TNodeWithTemplates;

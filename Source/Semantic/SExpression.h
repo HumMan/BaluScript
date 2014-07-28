@@ -83,6 +83,15 @@ public:
 		TFormalParam GetFormalParameter();
 		void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
+	class TEnumValue : public TOperation
+	{
+	public:
+		TEnumValue(TSClass* owner, TSClass* type);
+		int val;
+		TSClass* type;
+		TFormalParam GetFormalParameter();
+		void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
+	};
 	class TGetMethods :public TOperation
 	{
 	public:

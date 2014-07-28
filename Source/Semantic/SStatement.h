@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "../lexer.h"
 
 #include "../Syntax/Statement.h"

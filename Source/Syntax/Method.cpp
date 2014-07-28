@@ -21,7 +21,7 @@ void TMethod::ParametersDecl(TLexer& source) {
 	if (source.TestAndGet(TTokenType::Colon))
 	{
 		ret_ref = source.TestAndGet(TTokenType::Ampersand);//TODO проверка ссылки после типа а то не понятно почему ошибка
-		ret.AnalyzeSyntax(source);
+		ret->AnalyzeSyntax(source);
 		has_return = true;
 	}
 	else
@@ -121,7 +121,7 @@ void TMethod::AnalyzeSyntax(TLexer& source, bool realization) {
 }
 
 TMethod::TMethod(TClass* use_owner, TClassMember::Enum use_member_type)
-	:ret(use_owner), ret_ref(false), owner(use_owner)
+	:ret(new TType(use_owner)), ret_ref(false), owner(use_owner)
 	, is_static(false), is_extern(false)
 	, statements(new TStatements(use_owner, this, NULL, -1))
 	, has_return(false)

@@ -2,7 +2,6 @@
 
 #include <assert.h>
 #include "../lexer.h"
-#include "../notOptimizedProgram.h"
 
 class TMethod;
 class TStatements;

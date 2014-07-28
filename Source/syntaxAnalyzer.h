@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include "notOptimizedProgram.h"
 #include "lexer.h"
 #include <vector>
 
