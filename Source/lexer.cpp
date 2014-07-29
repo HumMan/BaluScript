@@ -5,6 +5,8 @@
 TLexer::TLexer():source(NULL),curr_char(NULL),col(1),line(1)
 {
 	tokens.reserve(5000);
+	curr_token = 0;
+	tokens.resize(0);
 	curr_unique_id=0;
 	res_words.Add("if",			TToken(TTokenType::ResWord, TResWord::If));
 	res_words.Add("else",		TToken(TTokenType::ResWord, TResWord::Else));		
@@ -46,8 +48,6 @@ void TLexer::ParseSource(char* use_source)
 	col=1;
 	line=1;
 	c=*curr_char;
-	curr_token=0;
-	tokens.resize(0);
 	int token_col=col;
 	int token_line=line;
 	std::vector<char> id_buf;

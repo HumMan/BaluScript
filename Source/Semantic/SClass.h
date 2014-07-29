@@ -32,7 +32,7 @@ class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize,public TNodeSigna
 	///<summary>јвтоматически созданный деструктор</summary>
 	std::unique_ptr<TSMethod> auto_destr;
 	///<summary>“ип от которого унаследован данный класс</summary>
-	TSClass* parent;
+	TSType parent;
 	///<summary>ќт данного класса запрещено наследование</summary>
 	bool is_sealed;
 	///<summary> ласс в пределах которого объ€влен данный класс</summary>
@@ -48,7 +48,7 @@ public:
 	TSClass* GetOwner();
 	TSClass* GetParent()
 	{
-		return parent;
+		return parent.GetClass();
 	}
 	TSClassField* GetField(TNameId name, bool only_in_this);
 	TSClassField* GetField(TNameId name, bool is_static, bool only_in_this);

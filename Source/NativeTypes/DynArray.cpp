@@ -161,7 +161,19 @@ void TDynArr::get_element_op(std::vector<TStaticValue> &static_fields, std::vect
 	result.SetAsReference(&((*obj->v)[el->GetSize()*(*(int*)formal_params[1].get())]));
 }
 
+void TDynArr::EmplaceBack(std::vector<TStaticValue> &static_fields)
+{
+	dyn_arr_resize(static_fields, this, GetSize()+1);
+}
 
+void* TDynArr::GetElement(int i)
+{
+	return &v->at(el_class->GetSize()*i);
+}
+int TDynArr::GetSize()
+{
+	return v->size() / el_class->GetSize();
+}
 
 void TDynArr::resize(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
 {
@@ -195,6 +207,7 @@ void TDynArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 		"}\n"
 		);
 	cl->AnalyzeSyntax(syntax->lexer);
+	syntax->lexer.GetToken(TTokenType::Done);
 
 	TSClass* scl = new TSClass(syntax->sem_base_class, cl);
 	syntax->sem_base_class->AddClass(scl);

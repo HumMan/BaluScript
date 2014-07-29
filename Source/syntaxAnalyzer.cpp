@@ -26,7 +26,7 @@ void TSyntaxAnalyzer::Compile(char* use_source, TTime& time)
 	base_class->InitPos(lexer);
 
 	base_class->AnalyzeSyntax(lexer);
-
+	lexer.GetToken(TTokenType::Done);
 
 	sem_base_class = new TSClass(NULL,base_class);
 
@@ -135,8 +135,10 @@ TSClassField* TSyntaxAnalyzer::GetStaticField(char* use_var)
 			result = curr_class->GetField(lexer.NameId(), true);
 		}
 		else curr_class = t;
+		lexer.GetToken();
 	}
 	if (result == NULL)lexer.Error("Статического члена класса с таким именем не существует!");
+	lexer.GetToken(TTokenType::Done);
 	//if(!result->IsStatic())lexer->Error("Член класса с таким именем не является статическим!");
 	return result;
 }

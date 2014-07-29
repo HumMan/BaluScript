@@ -40,6 +40,9 @@ struct TDynArr
 		el_class = r.el_class;
 		v = new std::vector<int>(*r.v);
 	}
+	void* GetElement(int i);
+	int GetSize();
+	void EmplaceBack(std::vector<TStaticValue> &static_fields);
 	~TDynArr()
 	{
 		el_class = NULL;

@@ -13,8 +13,10 @@ struct TType_TClassName
 	TNameId name;
 	///<summary>Список шаблонных параметров. Например: TestType&lt;int,TDecl&gt; s;</summary>
 	std::list<TType_TTemplateParameter> template_params;
-	///<summary>Список измерений статических массивов (0-динамический массив). Например: int[2][][6] variable;</summary>
+	///<summary>Список измерений статических массивов ((-1)-динамический массив). Например: int[2][][6] variable;</summary>
 	std::vector<int> dimensions;
+	///<summary>Преобразование списка измерений в вызов соответствующих шаблонов</summary>
+	void ConvertDimensionsToTemplates();
 };
 
 struct TType:public TTokenPos

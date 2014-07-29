@@ -116,7 +116,7 @@ namespace Test
 			source[file.GetSize()] = '\0';
 		}
 		syntax = new TSyntaxAnalyzer();
-		syntax->Compile(source, *time);
+		syntax->Compile((char*)(("class Script{"+std::string(source)+"}").c_str()), *time);
 		delete source;
 	}
 	TEST_MODULE_CLEANUP(BaseTypesTestsCleanup)
@@ -734,6 +734,14 @@ namespace Test
 				"	return 1;\n"
 				"}}"));
 			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test").get());
+		}
+	};
+	TEST_CLASS(ArraysSpecialSyntaxTesting)
+	{
+	public:
+		TEST_METHOD(Initialization)
+		{
+			//Assert::AreEqual(7, *(int*)RunCode("func static Test:int{TStaticArray<int,3> s;s[0]=5;s[2]=2;return s[0]+s[2];}").get());
 		}
 	};
 }

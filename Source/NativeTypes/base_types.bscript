@@ -1,5 +1,3 @@
-//class Script
-//{	
 	class sealed int
 	{
 	private:
@@ -158,4 +156,3 @@
 		operator static ==(char l,char r):bool bytecode{ASM_EQUAL 0,0,1;};
 		operator static !=(char l,char r):bool bytecode{ASM_NOT_EQUAL 0,0,1;};
 	}
-//}

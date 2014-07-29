@@ -40,6 +40,7 @@ void TStaticArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 		"}\n"
 		);
 	cl->AnalyzeSyntax(syntax->lexer);
+	syntax->lexer.GetToken(TTokenType::Done);
 
 	TSClass* scl = new TSClass(syntax->sem_base_class, cl);
 	syntax->sem_base_class->AddClass(scl);

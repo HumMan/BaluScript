@@ -52,6 +52,8 @@ public:
 	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
 	TSClass* GetClass()const
 	{
+		if (classes.size() == 0)
+			return NULL;
 		return classes.back().class_of_type;
 	}
 };

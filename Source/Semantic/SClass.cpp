@@ -12,7 +12,7 @@
 #include "../Syntax/ClassField.h"
 #include "../Syntax/Method.h"
 
-TSClass::TSClass(TSClass* use_owner, TClass* use_syntax_node, TNodeWithTemplates::Type type) :TSyntaxNode(use_syntax_node)
+TSClass::TSClass(TSClass* use_owner, TClass* use_syntax_node, TNodeWithTemplates::Type type) :TSyntaxNode(use_syntax_node), parent(this,&use_syntax_node->parent)
 {
 	if (type == TNodeWithTemplates::Unknown)
 	{
@@ -25,7 +25,6 @@ TSClass::TSClass(TSClass* use_owner, TClass* use_syntax_node, TNodeWithTemplates
 		SetType(type);
 	is_sealed = false;
 
-	parent = NULL;
 	owner = use_owner;
 }
 
@@ -177,8 +176,8 @@ TSClassField* TSClass::GetField(TNameId name, bool only_in_this)
 TSClassField* TSClass::GetField(TNameId name, bool is_static, bool only_in_this)
 {
 	TSClassField* result_parent = NULL;
-	if (parent != NULL)
-		result_parent = parent->GetField(name, true);
+	if (parent.GetClass() != NULL)
+		result_parent = parent.GetClass()->GetField(name, true);
 	if (result_parent != NULL)
 		return result_parent;
 	for (TSClassField& field : fields)
@@ -199,6 +198,8 @@ void TSClass::LinkSignature(std::vector<TSClassField*>* static_fields, std::vect
 	else
 		return;
 
+
+	parent.LinkSignature(static_fields, static_variables);
 	//определить присутствие конструктора по умолчанию, деструктора, конструктора копии
 
 	for (TSClassField& field : fields)
@@ -234,6 +235,8 @@ void TSClass::LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TS
 		return;
 
 	CheckForErrors();
+
+	parent.LinkBody(static_fields, static_variables);
 
 	for (TSClassField& field : fields)
 	{
@@ -274,8 +277,8 @@ bool TSClass::GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name
 	}
 	if (owner != NULL)
 		owner->GetMethods(result, use_method_name, true);
-	if (parent != NULL)
-		parent->GetMethods(result, use_method_name);
+	if (parent.GetClass() != NULL)
+		parent.GetClass()->GetMethods(result, use_method_name);
 	return result.size() > 0;
 }
 
@@ -293,8 +296,8 @@ bool TSClass::GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name
 	}
 	if (is_static && owner != NULL)
 		owner->GetMethods(result, use_method_name, true);
-	if (parent != NULL)
-		parent->GetMethods(result, use_method_name, is_static);
+	if (parent.GetClass() != NULL)
+		parent.GetClass()->GetMethods(result, use_method_name, is_static);
 	return result.size() > 0;
 }
 
@@ -390,11 +393,11 @@ bool TSClass::HasConversion(TSClass* target_type)
 
 bool TSClass::IsNestedIn(TSClass* use_parent)
 {
-	if (parent == NULL)
+	if (parent.GetClass() == NULL)
 		return false;
-	if (parent == use_parent)
+	if (parent.GetClass() == use_parent)
 		return true;
-	return parent->IsNestedIn(use_parent);
+	return parent.GetClass()->IsNestedIn(use_parent);
 }
 bool TSClass::GetOperators(std::vector<TSMethod*> &result, TOperator::Enum op)
 {
@@ -461,11 +464,11 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 				}
 				else {
 					owners.push_back(this);
-					if (parent != NULL)
+					if (parent.GetClass() != NULL)
 					{
-						TSClass* parent_class = parent;
+						TSClass* parent_class = parent.GetClass();
 						parent_class->CalculateSizes(owners);
-						class_size = parent_class->GetSize();
+						class_size += parent_class->GetSize();
 
 						do {
 							//TODO в методы по умолчанию
