@@ -634,8 +634,19 @@ void TSClass::RunAutoDefConstr(std::vector<TStaticValue> &static_fields, TStackV
 
 			ValidateAccess(field.GetSyntax(), this, field_def_constr);
 			TStackValue field_object(true, field_class);
-			field_object.SetAsReference(&(((int*)object.get())[field.GetOffset()]));
-			field_def_constr->Run(static_fields, formal_params, result, field_object);
+			if (field.HasSizeMultiplier())
+			{
+				for (int i = 0; i < field.GetSizeMultiplier(); i++)
+				{
+					field_object.SetAsReference(&(((int*)object.get())[field.GetOffset()+i*field.GetClass()->GetSize()]));
+					field_def_constr->Run(static_fields, formal_params, result, field_object);
+				}
+			}
+			else
+			{
+				field_object.SetAsReference(&(((int*)object.get())[field.GetOffset()]));
+				field_def_constr->Run(static_fields, formal_params, result, field_object);
+			}
 		}
 	}
 }
@@ -658,8 +669,19 @@ void TSClass::RunAutoDestr(std::vector<TStaticValue> &static_fields, TStackValue
 
 			ValidateAccess(field.GetSyntax(), this, field_destr);
 			TStackValue field_object(true, field_class);
-			field_object.SetAsReference(&(((int*)object.get())[field.GetOffset()]));
-			field_destr->Run(static_fields, formal_params, result, field_object);
+			if (field.HasSizeMultiplier())
+			{
+				for (int i = 0; i < field.GetSizeMultiplier(); i++)
+				{
+					field_object.SetAsReference(&(((int*)object.get())[field.GetOffset() + i*field.GetClass()->GetSize()]));
+					field_destr->Run(static_fields, formal_params, result, field_object);
+				}
+			}
+			else
+			{
+				field_object.SetAsReference(&(((int*)object.get())[field.GetOffset()]));
+				field_destr->Run(static_fields, formal_params, result, field_object);
+			}
 		}
 	}
 }
@@ -687,20 +709,40 @@ void TSClass::RunAutoCopyConstr(std::vector<TStaticValue> &static_fields, std::v
 			{
 				ValidateAccess(field.GetSyntax(), this, field_copy_constr);
 				TStackValue field_object(true, field_class);
-				
-				//настраиваем указатель this - инициализируемый объект
-				field_object.SetAsReference(&(((int*)object.get())[field.GetOffset()]));
-				std::vector<TStackValue> field_formal_params;
+				if (field.HasSizeMultiplier())
+				{
+					for (int i = 0; i < field.GetSizeMultiplier(); i++)
+					{
+						//настраиваем указатель this - инициализируемый объект
+						field_object.SetAsReference(&(((int*)object.get())[field.GetOffset() + i*field.GetClass()->GetSize()]));
+						std::vector<TStackValue> field_formal_params;
 
-				//передаем в качестве параметра ссылку на копируемый объект
-				field_formal_params.push_back(TStackValue(true, field_class));
-				field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field.GetOffset()]);
-				field_copy_constr->Run(static_fields, field_formal_params, result, field_object);
+						//передаем в качестве параметра ссылку на копируемый объект
+						field_formal_params.push_back(TStackValue(true, field_class));
+						field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field.GetOffset() + i*field.GetClass()->GetSize()]);
+						field_copy_constr->Run(static_fields, field_formal_params, result, field_object);
+					}
+				}
+				else
+				{
+					//настраиваем указатель this - инициализируемый объект
+					field_object.SetAsReference(&(((int*)object.get())[field.GetOffset()]));
+					std::vector<TStackValue> field_formal_params;
+
+					//передаем в качестве параметра ссылку на копируемый объект
+					field_formal_params.push_back(TStackValue(true, field_class));
+					field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field.GetOffset()]);
+					field_copy_constr->Run(static_fields, field_formal_params, result, field_object);
+				}
 			}
 			//иначе просто копируем поле объекта
 			else
 			{
-				memcpy(&(((int*)object.get())[field.GetOffset()]), &(((int*)formal_params[0].get())[field.GetOffset()]), field_class->GetSize()*sizeof(int));
+				if (field.HasSizeMultiplier())
+				{
+					memcpy(&(((int*)object.get())[field.GetOffset()]), &(((int*)formal_params[0].get())[field.GetOffset()]), field_class->GetSize()*sizeof(int)*field.GetSizeMultiplier());
+				}else
+					memcpy(&(((int*)object.get())[field.GetOffset()]), &(((int*)formal_params[0].get())[field.GetOffset()]), field_class->GetSize()*sizeof(int));
 			}
 		}
 	}

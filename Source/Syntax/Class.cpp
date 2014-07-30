@@ -223,7 +223,5 @@ void TClass::AnalyzeSyntax(TLexer& source) {
 				break;
 		}
 		source.GetToken(TTokenType::RBrace);
-		//if (owner == NULL)
-		//	source.GetToken(TTokenType::Done);//в файле должен содержаться только один основной класс
 	}
 }

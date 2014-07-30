@@ -17,6 +17,7 @@ namespace Test
 			TMethod* m = new TMethod(syntax->base_class);
 			syntax->lexer.ParseSource(code);
 			m->AnalyzeSyntax(syntax->lexer);
+			syntax->lexer.GetToken(TTokenType::Done);
 
 			TSMethod* ms = new TSMethod(syntax->sem_base_class, m);
 			ms->Build();
@@ -50,8 +51,10 @@ namespace Test
 			TClass* cl = new TClass(syntax->base_class);
 			syntax->lexer.ParseSource(code);
 			cl->AnalyzeSyntax(syntax->lexer);
+			syntax->lexer.GetToken(TTokenType::Done);
 
 			TSClass* scl = new TSClass(syntax->sem_base_class, cl);
+			syntax->sem_base_class->AddClass(scl);
 			scl->Build();
 
 			std::vector<TSClassField*> static_fields;
@@ -60,10 +63,11 @@ namespace Test
 			scl->LinkSignature(&static_fields, &static_variables);
 			scl->InitAutoMethods();
 			scl->LinkBody(&static_fields, &static_variables);
-			std::vector<TSClass*> owners;
-			scl->CalculateSizes(owners);
 			scl->CheckForErrors();
 			scl->CalculateMethodsSizes();
+
+			std::vector<TSClass*> owners;
+			syntax->sem_base_class->CalculateSizes(owners);
 
 			InitializeStaticClassFields(static_fields, static_objects);
 			InitializeStaticVariables(static_variables, static_objects);
@@ -698,21 +702,73 @@ namespace Test
 				"}"
 				).get());
 		}
-		TEST_METHOD(ElementsInitialization)
+		TEST_METHOD(ElementsConstructor)
 		{
-
+			Assert::Fail();
+		}
+		TEST_METHOD(ConstructorDestructorCount)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"int static constr_count;"
+				"int static destr_count;"
+				"class TemplateClass {\n"
+				"	int v;\n"
+				"	constr {v=347;constr_count+=1;}\n"
+				"	destr {v=0;destr_count+=1;}\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	constr_count=0;\n"
+				"	destr_count=0;\n"
+				"	TStaticArray<TemplateClass,4> s;\n"
+				"	return s[0].v+s[1].v+s[2].v+s[3].v;\n"
+				"}\n"
+				"func static Test2:int\n"
+				"{\n"
+				"	return constr_count;\n"
+				"}\n"
+				"func static Test3:int\n"
+				"{\n"
+				"	return destr_count;\n"
+				"}}"));
+			Assert::AreEqual((int)347 * 4, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((int) 4, *(int*)RunClassMethod(cl2, "Test2").get());
+			Assert::AreEqual((int)4, *(int*)RunClassMethod(cl2, "Test3").get());
 		}
 		TEST_METHOD(ElementsDestructor)
 		{
-
+			Assert::Fail();
 		}
 		TEST_METHOD(CopyConstructor)
 		{
-
+			Assert::AreEqual(3 + 5, *(int*)RunCode(
+				"func static Test:int"
+				"{"
+				"	TStaticArray<TStaticArray<int,4>,4> s;"
+				"	for(int i=0;i<4;i+=1){for(int k=0;k<4;k+=1)s[i][k]=i+k;}"
+				"	TStaticArray<TStaticArray<int,4>,4> sc(s);"
+				"	return sc[2][1]+sc[3][2];"
+				"}"
+				).get());
 		}
 		TEST_METHOD(AssignTest)
 		{
-
+			Assert::AreEqual(3 + 5, *(int*)RunCode(
+				"func static Test:int"
+				"{"
+				"	TStaticArray<TStaticArray<int,4>,4> s;"
+				"	for(int i=0;i<4;i+=1){for(int k=0;k<4;k+=1)s[i][k]=i+k;}"
+				"	TStaticArray<TStaticArray<int,4>,4> sc;"
+				"	sc=s;"
+				"	return sc[2][1]+sc[3][2];"
+				"}"
+				).get());
+		}
+		TEST_METHOD(CustomAssignTest)
+		{
+			Assert::Fail();
 		}
 		TEST_METHOD(GetElementTest)
 		{
@@ -733,15 +789,50 @@ namespace Test
 				"	TestEnum e;\n"
 				"	return 1;\n"
 				"}}"));
-			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 	};
 	TEST_CLASS(ArraysSpecialSyntaxTesting)
 	{
 	public:
-		TEST_METHOD(Initialization)
+		TEST_METHOD(StaticInitialization)
 		{
-			//Assert::AreEqual(7, *(int*)RunCode("func static Test:int{TStaticArray<int,3> s;s[0]=5;s[2]=2;return s[0]+s[2];}").get());
+			Assert::AreEqual(7, *(int*)RunCode("func static Test:int{int[3] s;s[0]=5;s[2]=2;return s[0]+s[2];}").get());
+		}
+		TEST_METHOD(DynamicInitialization)
+		{
+			Assert::AreEqual(7, *(int*)RunCode("func static Test:int{int[] s;s.resize(3);s[0]=5;s[2]=2;return s[0]+s[2];}").get());
+		}
+		TEST_METHOD(MixedInitialization)
+		{
+			Assert::AreEqual(7, *(int*)RunCode("func static Test:int{int[][3] s;s.resize(3);s[0][2]=5;s[2][1]=2;return s[0][2]+s[2][1];}").get());
+		}
+		TEST_METHOD(MixedWithSubclassInitialization)
+		{
+				TSClass* cl2 = NULL;
+				Assert::IsNotNull(cl2 = CreateClass(
+					"class TestClass {\n"
+					"int static constr_count;"
+					"int static destr_count;"
+					"class TemplateClass {\n"
+					"	int v;\n"
+					"	class Sub{int member;}\n"
+					"	constr {v=347;constr_count+=1;}\n"
+					"	destr {v=0;destr_count+=1;}\n"
+					"}\n"
+					"func static sum(TemplateClass.Sub[][3] v):int\n"
+					"{\n"
+					"	int result=0;\n"
+					"	for(int i=0;i<v.size();i+=1)result+=v[i][0]+v[i][1]+v[i][1];\n"
+					"	return result;\n"
+					"}\n"
+					"func static Test:int\n"
+					"{\n"
+					"	TestClass.TemplateClass.Sub[][3] arr;\n"
+					"	arr.resize(100);\n"
+					"	for(int i=0;i<100;i+=1){arr[i][0].member=0;arr[i][1].member=1;arr[i][2].member=i;}\n"
+					"	return sum(arr);\n"
+					"}}"));
+				Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 	};
 }
