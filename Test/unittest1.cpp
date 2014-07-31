@@ -524,6 +524,18 @@ namespace Test
 			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "GetConstrCount").get());
 			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "GetCopyConstrCount").get());
 		}
+		TEST_METHOD(UserConstrCallAutoConstrTest)
+		{
+			Assert::Fail();
+		}
+		TEST_METHOD(UserCopyConstrCallAutoConstrTest)
+		{
+			Assert::Fail();
+		}
+		TEST_METHOD(UserDestructorCallAutoDestTest)
+		{
+			Assert::Fail();
+		}
 	};
 	TEST_CLASS(DynArrayTesting)
 	{
@@ -811,8 +823,8 @@ namespace Test
 				TSClass* cl2 = NULL;
 				Assert::IsNotNull(cl2 = CreateClass(
 					"class TestClass {\n"
-					"int static constr_count;"
-					"int static destr_count;"
+					"int static constr_count;\n"
+					"int static destr_count;\n"
 					"class TemplateClass {\n"
 					"	int v;\n"
 					"	class Sub{int member;}\n"
@@ -835,4 +847,5 @@ namespace Test
 				Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 	};
+	//TODO Вызов авто коснтруктора из пользовательского
 }

@@ -126,6 +126,7 @@ TSClass* TSType_TClassName::LinkSignature(std::vector<TSClassField*>* static_fie
 				{
 					
 					realization->SetSize(use_curr_class->GetSize());
+					realization->SetAutoMethodsInitialized();
 					//TODO если класс внешний то размер должен получаться из обработчика, в зависимости от параметров
 					//но размер мы можем получить только после CalculateSizes
 				}

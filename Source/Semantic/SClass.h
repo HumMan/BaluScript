@@ -28,7 +28,7 @@ class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize,public TNodeSigna
 	std::unique_ptr<TSMethod> auto_def_constr;
 	std::unique_ptr<TSMethod> auto_copy_constr;
 	///<summary>Автоматически созданный оператор присваивания</summary>
-	//std::unique_ptr<TSMethod> auto_assign_operator;
+	std::unique_ptr<TSMethod> auto_assign_operator;
 	///<summary>Автоматически созданный деструктор</summary>
 	std::unique_ptr<TSMethod> auto_destr;
 	///<summary>Тип от которого унаследован данный класс</summary>
@@ -62,6 +62,7 @@ public:
 	bool GetUserConstructors(std::vector<TSMethod*> &result);
 	TSMethod* GetDefConstr();
 	TSMethod* GetCopyConstr();
+	TSMethod* GetAssignOperator();
 	TSMethod* GetDestructor();
 	TSMethod* GetConversion(bool source_ref, TSClass* target_type);
 	TSClass* GetNested(TNameId name);
@@ -78,4 +79,5 @@ public:
 	void RunAutoDefConstr(std::vector<TStaticValue> &static_fields, TStackValue& object);
 	void RunAutoDestr(std::vector<TStaticValue> &static_fields, TStackValue& object);
 	void RunAutoCopyConstr(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object);
+	void RunAutoAssign(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object);
 };
