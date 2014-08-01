@@ -43,7 +43,9 @@ void TMethod::AnalyzeSyntax(TLexer& source, bool realization) {
 	is_static = source.TestAndGet(TTokenType::ResWord, TResWord::Static);
 	switch (member_type) {
 	case TResWord::Func:
-	case TResWord::Constr:
+	case TResWord::Default:
+	case TResWord::Copy:
+	case TResWord::Move:
 	case TResWord::Destr:
 	case TResWord::Operator:
 	case TResWord::Conversion:
@@ -52,17 +54,20 @@ void TMethod::AnalyzeSyntax(TLexer& source, bool realization) {
 		source.Error(
 				"Ожидалось объявление метода,конструктора,деструктора,оператора или приведения типа!");
 	}
-	//
-	if (!realization) {
+	//Если это не реализация метода, а поиск по названию, то в начале может стоять название класса
+	if (!realization) 
+	{
 		if (source.NameId() != owner->GetName())
 			Error("Ожидалось имя базового класса!");
 		source.GetToken();
-		while (source.Test(TTokenType::Dot)) {
+		while (source.Test(TTokenType::Dot)) 
+		{
 			source.GetToken(TTokenType::Dot);
 			if (!source.Test(TTokenType::Identifier))
 				break;
 			TClass* t = owner->GetNested(source.NameId());
-			if (t != NULL) {
+			if (t != NULL) 
+			{
 				source.GetToken();
 				owner = t;
 			} else
@@ -86,8 +91,14 @@ void TMethod::AnalyzeSyntax(TLexer& source, bool realization) {
 			case TClassMember::Func:
 				owner->AddMethod(this, method_name);
 				break;
-			case TClassMember::Constr:
-				owner->AddConstr(this);
+			case TResWord::Default:
+				owner->AddDefaultConstr(this);
+				break;
+			case TResWord::Copy:
+				owner->AddCopyConstr(this);
+				break;
+			case TResWord::Move:
+				owner->AddMoveConstr(this);
 				break;
 			case TClassMember::Destr:
 				owner->AddDestr(this);
@@ -140,11 +151,13 @@ TNameId TMethod::GetName(){
 TClass* TMethod::GetOwner()const{
 	return owner;
 }
-TOperator::Enum TMethod::GetOperatorType(){
+TOperator::Enum TMethod::GetOperatorType()
+{
 	assert(member_type == TClassMember::Operator);
 	return operator_type;
 }
-TClassMember::Enum TMethod::GetMemberType()const{
+TClassMember::Enum TMethod::GetMemberType()const
+{
 	return member_type;
 }
 TParameter* TMethod::GetParam(int use_id)

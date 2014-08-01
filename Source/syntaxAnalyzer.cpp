@@ -63,8 +63,14 @@ TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 	case TClassMember::Func:
 		method_decl->GetOwner()->GetMethods(methods, method_decl->GetSyntax()->GetName());
 		break;
-	case TClassMember::Constr:
-		method_decl->GetOwner()->GetConstructors(methods);
+	case TClassMember::DefaultConstr:
+		method = method_decl->GetOwner()->GetDefConstr();
+		break;
+	case TClassMember::CopyConstr:
+		method_decl->GetOwner()->GetCopyConstructors(methods);
+		break;
+	case TClassMember::MoveConstr:
+		method_decl->GetOwner()->GetMoveConstructors(methods);
 		break;
 	case TClassMember::Destr:
 		method = method_decl->GetOwner()->GetDestructor();
@@ -79,7 +85,8 @@ TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 	}
 	TClassMember::Enum temp = method_decl->GetSyntax()->GetMemberType();
 	if (temp == TClassMember::Func ||
-		temp == TClassMember::Constr ||
+		temp == TClassMember::CopyConstr ||
+		temp == TClassMember::MoveConstr ||
 		temp == TClassMember::Operator)
 	{
 		for (int i = 0; i<methods.size(); i++)

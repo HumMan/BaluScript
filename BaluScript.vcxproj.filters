@@ -183,6 +183,9 @@
     <ClInclude Include="Source\memleaks.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Semantic\SConstructObject.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\lexer.cpp">
@@ -321,6 +324,9 @@
       <Filter>Source Files\Syntax\Statements</Filter>
     </ClCompile>
     <ClCompile Include="Source\Semantic\SBytecode.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Semantic\SConstructObject.cpp">
       <Filter>Source Files\Semantic\Statements</Filter>
     </ClCompile>
   </ItemGroup>

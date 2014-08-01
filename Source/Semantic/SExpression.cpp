@@ -169,15 +169,16 @@ public:
 			int conv_need = -1;
 			std::vector<TSMethod*> constructors;
 			TSClass* constr_class = left_result.GetType();
-			constr_class->GetConstructors(constructors);
-			TSMethod* constructor = FindMethod(syntax_node, constructors, params_result, conv_need);
-			if (constructor != NULL)
-			{
-				ValidateAccess(syntax_node, owner, constructor);
-				invoke = constructor;
-			}
-			else if (params_result.size()>0)
-				syntax_node->Error("Конструктора с такими параметрами не существует!");
+			//TODO
+			//constr_class->GetConstructors(constructors);
+			//TSMethod* constructor = FindMethod(syntax_node, constructors, params_result, conv_need);
+			//if (constructor != NULL)
+			//{
+			//	ValidateAccess(syntax_node, owner, constructor);
+			//	invoke = constructor;
+			//}
+			//else if (params_result.size()>0)
+			//	syntax_node->Error("Конструктора с такими параметрами не существует!");
 		}
 		else
 		{

@@ -46,8 +46,18 @@ void TSClass::Build()
 		methods.emplace_back(this, &method);
 		methods.back().Build();
 	}
-	constructors = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, &GetSyntax()->constructors));
-	constructors->Build();
+
+	if (GetSyntax()->constr_default)
+	{
+		default_constructor = std::unique_ptr<TSMethod>(new TSMethod(this, GetSyntax()->constr_default.get()));
+		default_constructor->Build();
+	}
+
+	copy_constructors = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, &GetSyntax()->constr_copy));
+	copy_constructors->Build();
+
+	move_constructors = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, &GetSyntax()->constr_move));
+	move_constructors->Build();
 
 	if (GetSyntax()->destructor)
 	{
@@ -214,7 +224,13 @@ void TSClass::LinkSignature(std::vector<TSClassField*>* static_fields, std::vect
 	{
 		method.LinkSignature(static_fields, static_variables);
 	}
-	constructors->LinkSignature(static_fields, static_variables);
+
+	if (default_constructor)
+		default_constructor->LinkSignature(static_fields, static_variables);
+	if (copy_constructors)
+		copy_constructors->LinkSignature(static_fields, static_variables);
+	if (move_constructors)
+		move_constructors->LinkSignature(static_fields, static_variables);
 	if (destructor)
 		destructor->LinkSignature(static_fields, static_variables);
 
@@ -248,8 +264,12 @@ void TSClass::LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TS
 	{
 		method.LinkBody(static_fields, static_variables);
 	}
-	if (constructors)
-		constructors->LinkBody(static_fields, static_variables);
+	if (default_constructor)
+		default_constructor->LinkBody(static_fields, static_variables);
+	if (copy_constructors)
+		copy_constructors->LinkBody(static_fields, static_variables);
+	if (move_constructors)
+		move_constructors->LinkBody(static_fields, static_variables);
 	if (destructor)
 		destructor->LinkBody(static_fields, static_variables);
 
@@ -314,50 +334,48 @@ TSMethod* TSClass::GetConversion(bool source_ref, TSClass* target_type)
 	return NULL;
 }
 
-bool TSClass::GetUserConstructors(std::vector<TSMethod*> &result)
+bool TSClass::GetCopyConstructors(std::vector<TSMethod*> &result)
 {
-	for (const std::unique_ptr<TSMethod>& constructor : constructors->methods)
+	assert(IsAutoMethodsInitialized());
+	for (const std::unique_ptr<TSMethod>& constructor : copy_constructors->methods)
 	{
 		result.push_back(constructor.get());
 	}
+	if (auto_copy_constr)
+		result.push_back(auto_copy_constr.get());
 	return result.size() > 0;
 }
 
-bool TSClass::GetConstructors(std::vector<TSMethod*> &result)
+
+bool TSClass::GetMoveConstructors(std::vector<TSMethod*> &result)
 {
 	assert(IsAutoMethodsInitialized());
-	GetUserConstructors(result);
+	for (const std::unique_ptr<TSMethod>& constructor : move_constructors->methods)
+	{
+		result.push_back(constructor.get());
+	}
 
-	if (!GetSyntax()->constr_override && auto_def_constr)
-		result.push_back(auto_def_constr.get());
-	TSMethod* cpy = GetCopyConstr();
-	if (cpy!=NULL&&cpy->GetType() == TSpecialClassMethod::AutoCopyConstr)
-		result.push_back(cpy);
+	if (auto_move_constr)
+		result.push_back(auto_move_constr.get());
 	return result.size() > 0;
 }
 
 TSMethod* TSClass::GetDefConstr()
 {
 	assert(IsAutoMethodsInitialized());
-	if (GetSyntax()->constr_override)
-	{
-		for (const std::unique_ptr<TSMethod>& constructor : constructors->methods)
-			if (constructor->GetParamsCount() == 0)
-				return constructor.get();
-	}
+	if (default_constructor)
+		return default_constructor.get();
 	if (auto_def_constr)
 		return auto_def_constr.get();
 	return NULL;
 }
 
-
-
 TSMethod* TSClass::GetCopyConstr()
 {
 	assert(IsAutoMethodsInitialized());
-	if (constructors)
+	if (copy_constructors)
 	{
-		for (const std::unique_ptr<TSMethod>& constructor : constructors->methods)
+		for (const std::unique_ptr<TSMethod>& constructor : copy_constructors->methods)
 		{
 			if (constructor->GetParamsCount() == 1
 				&& constructor->GetParam(0)->GetClass() == this
@@ -371,9 +389,28 @@ TSMethod* TSClass::GetCopyConstr()
 	return NULL;
 }
 
+TSMethod* TSClass::GetMoveConstr()
+{
+	assert(IsAutoMethodsInitialized());
+	if (move_constructors)
+	{
+		for (const std::unique_ptr<TSMethod>& constructor : move_constructors->methods)
+		{
+			if (constructor->GetParamsCount() == 1
+				&& constructor->GetParam(0)->GetClass() == this
+				&& constructor->GetParam(0)->GetSyntax()->IsRef() == true) {
+				return constructor.get();
+			}
+		}
+	}
+	if (auto_move_constr)
+		return auto_copy_constr.get();
+	return NULL;
+}
+
 TSMethod* TSClass::GetAssignOperator()
 {
-	//assert(methods_declared);
+	assert(IsAutoMethodsInitialized());
 	if (operators[TOperator::Assign])
 	{
 		for (const std::unique_ptr<TSMethod>& assign_op : operators[TOperator::Assign]->methods)
@@ -394,7 +431,7 @@ TSMethod* TSClass::GetAssignOperator()
 
 TSMethod* TSClass::GetDestructor()
 {
-	//assert(methods_declared&&auto_methods_build);
+	assert(IsAutoMethodsInitialized());
 	if (destructor)
 		return destructor.get();
 	if (auto_destr)
@@ -418,7 +455,7 @@ bool TSClass::IsNestedIn(TSClass* use_parent)
 }
 bool TSClass::GetOperators(std::vector<TSMethod*> &result, TOperator::Enum op)
 {
-	//assert(methods_declared&&auto_methods_build);
+	assert(IsAutoMethodsInitialized());
 	operators[op]->GetMethods(result);
 	return result.size() > 0;
 }
@@ -439,7 +476,12 @@ void TSClass::CopyExternalMethodBindingsFrom(TSClass* source)
 		i++;
 		k++;
 	}
-	constructors->CopyExternalMethodBindingsFrom(source->constructors.get());
+	if (default_constructor)
+		default_constructor->CopyExternalMethodBindingsFrom(source->default_constructor.get());
+	if (copy_constructors)
+		copy_constructors->CopyExternalMethodBindingsFrom(source->copy_constructors.get());
+	if (move_constructors)
+		move_constructors->CopyExternalMethodBindingsFrom(source->move_constructors.get());
 	if (destructor)
 		destructor->CopyExternalMethodBindingsFrom(source->destructor.get());
 
@@ -549,8 +591,12 @@ void TSClass::CalculateMethodsSizes()
 	{
 		method.CalculateParametersOffsets();
 	}
-	if (constructors)
-		constructors->CalculateParametersOffsets();
+	if (default_constructor)
+		default_constructor->CalculateParametersOffsets();
+	if (copy_constructors)
+		copy_constructors->CalculateParametersOffsets();
+	if (move_constructors)
+		move_constructors->CalculateParametersOffsets();
 	if (destructor)
 		destructor->CalculateParametersOffsets();
 
@@ -593,6 +639,8 @@ void TSClass::InitAutoMethods()
 		if (field_class->GetDestructor() != NULL)
 			has_destr = true;
 	}
+
+	//TODO проверка наследуемых классов на наличие конструктора, деструктора и т.д.
 
 	assert(!auto_def_constr);
 	assert(!auto_copy_constr);

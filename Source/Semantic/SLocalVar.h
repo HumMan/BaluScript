@@ -9,13 +9,13 @@ class TLocalVar;
 class TFormalParam;
 class TSExpression_TMethodCall;
 class TOperation;
+class TSConstructObject;
 
 class TSLocalVar :public TSStatement, public TVariable, public TNodeWithOffset
 {
-	TSType type;
 	std::unique_ptr<TSExpression> assign_expr;
-	std::vector<std::unique_ptr<TOperation>> params;
-	std::unique_ptr<TSExpression_TMethodCall> constructor_call;
+	std::unique_ptr<TSConstructObject> construct_object;
+	TSType type;
 public:
 	TLocalVar* GetSyntax()
 	{

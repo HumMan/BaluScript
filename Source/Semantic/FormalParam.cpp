@@ -255,6 +255,6 @@ bool TStaticValue::IsInitialized()
 
 void* TStaticValue::get()
 {
-	assert(is_initialized);
+	//assert(is_initialized);
 	return TStackValue::get();
 }

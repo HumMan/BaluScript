@@ -223,7 +223,7 @@ namespace Test
 				"class TestClass {"
 				"class SubClass {"
 				"int a,b,c;"
-				"constr(int a1,int b1, int c1){}"
+				"copy(int a1,int b1, int c1){}"
 				"func Init{a=1;b=2;c=3;}"
 				"}"
 				"func static Test:int"
@@ -237,7 +237,7 @@ namespace Test
 				"func static Make(int& a,int& b,int& c){a=2;b=4;c=6;}"
 				"class SubClass {"
 				"int a,b,c;"
-				"constr(int a1,int b1, int c1){}"
+				"copy(int a1,int b1, int c1){}"
 				"func Init{Make(a,b,c);}"
 				"}"
 				"func static Test:int"
@@ -396,7 +396,7 @@ namespace Test
 				"class TestClass {\n"
 				"class SubClass {\n"
 				"int a,b,c;\n"
-				"constr{a=3;b=5;c=9;}\n"
+				"default{a=3;b=5;c=9;}\n"
 				"}\n"
 				"class SubClass2 {\n"
 				"SubClass static test_static;\n"
@@ -413,12 +413,12 @@ namespace Test
 				"class TestClass {\n"
 				"class SubClass {\n"
 				"int a,b,c;\n"
-				"constr{a=3;b=5;c=9;}\n"
+				"default{a=3;b=5;c=9;}\n"
 				"}\n"
 				"class SubClass2 {\n"
 				"SubClass tested_field,a,b;\n"
 				"SubClass static test_static;\n"
-				"constr{test_static.a+=1;test_static.c+=2;}\n"
+				"default{test_static.a+=1;test_static.c+=2;}\n"
 				"}\n"
 				"func static Test:int\n"
 				"{\n"
@@ -450,7 +450,7 @@ namespace Test
 				"class TestClass {"
 				"class SubClass {"
 				"int a,b,c;"
-				"constr{a=3;b=5;c=9;}"
+				"default{a=3;b=5;c=9;}"
 				"}"
 				"class SubClass2 {"
 				"SubClass tested_field,a,b;"
@@ -472,8 +472,8 @@ namespace Test
 				"class TestClass {"
 				"class SubClass {"
 				"int a,b,c;"
-				"constr{a=3;b=5;c=9;}"
-				"constr(SubClass& copy_from){a=copy_from.a+1;b=copy_from.b+1;c=copy_from.c+1;}"
+				"default{a=3;b=5;c=9;}"
+				"copy(SubClass& copy_from){a=copy_from.a+1;b=copy_from.b+1;c=copy_from.c+1;}"
 				"}"
 				"class SubClass2 {"
 				"SubClass tested_field,a,b;"
@@ -495,8 +495,8 @@ namespace Test
 				"int static copy_constr_count;\n"
 				"class SubClass {\n"
 				"int a,b,c;\n"
-				"constr{constr_count+=1;a=3;b=5;c=9;}\n"
-				"constr(SubClass& copy_from){copy_constr_count+=1;a=copy_from.a+1;b=copy_from.b+1;c=copy_from.c+1;}\n"
+				"default{constr_count+=1;a=3;b=5;c=9;}\n"
+				"copy(SubClass& copy_from){copy_constr_count+=1;a=copy_from.a+1;b=copy_from.b+1;c=copy_from.c+1;}\n"
 				"destr{destr_count+=1;}\n"
 				"}\n"
 				"func static Test:int\n"
@@ -664,6 +664,74 @@ namespace Test
 			Assert::AreEqual(49573, *(int*)RunCode("func static Test:int{TDynArray<int> s;s.resize(1000);s[999]=49573;s.resize(1001);return s[999];}").get());
 		}
 	};
+	TEST_CLASS(ConversionsTesting)
+	{
+	public:
+		TEST_METHOD(ConversionInLocalVarInit)
+		{
+			Assert::Fail();
+		}
+		TEST_METHOD(ConversionInMethodCall)
+		{
+			Assert::Fail();
+		}
+		TEST_METHOD(ConversionInConstructTempObject)
+		{
+			Assert::Fail();
+		}
+		TEST_METHOD(ConversionInOperatorCall)
+		{
+			Assert::Fail();
+		}
+	};
+	TEST_CLASS(OperatorsOverloadingTesting)
+	{
+	public:
+		TEST_METHOD(ArithmenticOperatorsOverload)
+		{
+			Assert::Fail();
+		}
+		TEST_METHOD(IncrementDecrementPostfixOperatorsOverload)
+		{
+			Assert::Fail();
+		}
+		TEST_METHOD(IncrementDecrementPrefixOperatorsOverload)
+		{
+			Assert::Fail();
+		}
+		TEST_METHOD(UnaryMinusOverload)
+		{
+			Assert::Fail();
+		}
+		TEST_METHOD(OperatorsOverload)
+		{
+			Assert::Fail();
+		}
+		TEST_METHOD(LogicalOperatorsOverload)
+		{
+			Assert::Fail();
+		}
+		TEST_METHOD(CompareOperatorsOverload)
+		{
+			Assert::Fail();
+		}
+		TEST_METHOD(AssignOperatorsOverload)
+		{
+			Assert::Fail();
+		}
+		TEST_METHOD(GetArrayElementOverload)
+		{
+			Assert::Fail();
+		}
+		TEST_METHOD(CallParamsOverload)
+		{
+			Assert::Fail();
+		}
+		TEST_METHOD(GetByReferenceOverload)
+		{
+			Assert::Fail();
+		}
+	};
 	TEST_CLASS(TempatesTesting)
 	{
 	public:
@@ -727,7 +795,7 @@ namespace Test
 				"int static destr_count;"
 				"class TemplateClass {\n"
 				"	int v;\n"
-				"	constr {v=347;constr_count+=1;}\n"
+				"	default {v=347;constr_count+=1;}\n"
 				"	destr {v=0;destr_count+=1;}\n"
 				"}\n"
 				"func static Test:int\n"
@@ -808,18 +876,22 @@ namespace Test
 	public:
 		TEST_METHOD(StaticInitialization)
 		{
-			Assert::AreEqual(7, *(int*)RunCode("func static Test:int{int[3] s;s[0]=5;s[2]=2;return s[0]+s[2];}").get());
+			Assert::Fail();
+			//Assert::AreEqual(7, *(int*)RunCode("func static Test:int{int[3] s;s[0]=5;s[2]=2;return s[0]+s[2];}").get());
 		}
 		TEST_METHOD(DynamicInitialization)
 		{
-			Assert::AreEqual(7, *(int*)RunCode("func static Test:int{int[] s;s.resize(3);s[0]=5;s[2]=2;return s[0]+s[2];}").get());
+			Assert::Fail();
+			//Assert::AreEqual(7, *(int*)RunCode("func static Test:int{int[] s;s.resize(3);s[0]=5;s[2]=2;return s[0]+s[2];}").get());
 		}
 		TEST_METHOD(MixedInitialization)
 		{
-			Assert::AreEqual(7, *(int*)RunCode("func static Test:int{int[][3] s;s.resize(3);s[0][2]=5;s[2][1]=2;return s[0][2]+s[2][1];}").get());
+			Assert::Fail();
+			//Assert::AreEqual(7, *(int*)RunCode("func static Test:int{int[][3] s;s.resize(3);s[0][2]=5;s[2][1]=2;return s[0][2]+s[2][1];}").get());
 		}
 		TEST_METHOD(MixedWithSubclassInitialization)
 		{
+			Assert::Fail();
 				TSClass* cl2 = NULL;
 				Assert::IsNotNull(cl2 = CreateClass(
 					"class TestClass {\n"
@@ -828,7 +900,7 @@ namespace Test
 					"class TemplateClass {\n"
 					"	int v;\n"
 					"	class Sub{int member;}\n"
-					"	constr {v=347;constr_count+=1;}\n"
+					"	default {v=347;constr_count+=1;}\n"
 					"	destr {v=0;destr_count+=1;}\n"
 					"}\n"
 					"func static sum(TemplateClass.Sub[][3] v):int\n"

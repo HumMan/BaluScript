@@ -17,7 +17,9 @@ class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize,public TNodeSigna
 	friend class TStaticArr;
 	std::list<TSClassField> fields;
 	std::list<TSOverloadedMethod> methods;
-	std::unique_ptr<TSOverloadedMethod> constructors;
+
+	std::unique_ptr<TSMethod> default_constructor;
+	std::unique_ptr<TSOverloadedMethod> copy_constructors,move_constructors;
 	///<summary>Пользовательский деструктор (автоматический деструктор, если существует, будет добавлен как PostEvent)</summary>
 	std::unique_ptr<TSMethod> destructor;
 	std::unique_ptr<TSOverloadedMethod> operators[TOperator::End];
@@ -27,6 +29,7 @@ class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize,public TNodeSigna
 
 	std::unique_ptr<TSMethod> auto_def_constr;
 	std::unique_ptr<TSMethod> auto_copy_constr;
+	std::unique_ptr<TSMethod> auto_move_constr;
 	///<summary>Автоматически созданный оператор присваивания</summary>
 	std::unique_ptr<TSMethod> auto_assign_operator;
 	///<summary>Автоматически созданный деструктор</summary>
@@ -54,17 +57,21 @@ public:
 	TSClassField* GetField(TNameId name, bool is_static, bool only_in_this);
 	bool HasConversion(TSClass* target_type);
 	bool IsNestedIn(TSClass* use_parent);
+	
+	TSMethod* GetDefConstr();
+	TSMethod* GetDestructor();
+	//
+	TSMethod* GetCopyConstr();
+	TSMethod* GetMoveConstr();
+	TSMethod* GetAssignOperator();
+	//
+	bool GetCopyConstructors(std::vector<TSMethod*> &result);
+	bool GetMoveConstructors(std::vector<TSMethod*> &result);
 	bool GetOperators(std::vector<TSMethod*> &result, TOperator::Enum op);
-	//TSMethod* GetBinOp(TOperator::Enum op, TSClass* left, bool left_ref, TSClass* right, bool right_ref);
 	bool GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name);
 	bool GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name, bool is_static);
-	bool GetConstructors(std::vector<TSMethod*> &result);
-	bool GetUserConstructors(std::vector<TSMethod*> &result);
-	TSMethod* GetDefConstr();
-	TSMethod* GetCopyConstr();
-	TSMethod* GetAssignOperator();
-	TSMethod* GetDestructor();
 	TSMethod* GetConversion(bool source_ref, TSClass* target_type);
+
 	TSClass* GetNested(TNameId name);
 	///<summary>Постоение семанитческого дерева по синтаксическому(для всех кроме тел методов) без какого либо анализа типов</summary>
 	void Build();

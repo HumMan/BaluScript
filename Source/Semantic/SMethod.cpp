@@ -149,9 +149,6 @@ void TSMethod::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackV
 			statements->Run(static_fields, formal_params, result_returned, returned_result, object, local_variables);
 
 			result = returned_result;
-
-
-			result = returned_result;
 		}
 		else
 		{
@@ -228,7 +225,9 @@ void TSMethod::CheckForErrors()
 	case TResWord::Func:
 		assert(!GetSyntax()->method_name.IsNull());
 		break;
-	case TResWord::Constr:
+	case TResWord::Default:
+	case TResWord::Copy:
+	case TResWord::Move:
 		if (GetSyntax()->is_static)GetSyntax()->Error("Конструктор должен быть не статичным!");
 		break;
 	case TResWord::Destr:
@@ -248,7 +247,12 @@ void TSMethod::CheckForErrors()
 		{
 		case TClassMember::Func:
 			break;
-		case TClassMember::Constr:
+		case TResWord::Default:
+			if (ret.GetClass() != NULL)GetSyntax()->Error("Конструктор по умолчанию не должен возвращать значение!");
+			if (parameters.size() != 0)GetSyntax()->Error("Конструктор по умолчанию не имеет параметров!");
+			break;
+		case TResWord::Copy:
+		case TResWord::Move:
 			if (ret.GetClass() != NULL)GetSyntax()->Error("Конструктор не должен возвращать значение!");
 			break;
 		case TClassMember::Destr:

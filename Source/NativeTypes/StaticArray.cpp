@@ -45,6 +45,7 @@ void TStaticArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 	TSClass* scl = new TSClass(syntax->sem_base_class, cl);
 	syntax->sem_base_class->AddClass(scl);
 	scl->Build();
+	scl->SetAutoMethodsInitialized();
 
 	std::vector<TSMethod*> m;
 

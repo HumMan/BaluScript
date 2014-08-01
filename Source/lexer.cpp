@@ -32,7 +32,10 @@ TLexer::TLexer():source(NULL),curr_char(NULL),col(1),line(1)
 	res_words.Add("bytecode",	TToken(TTokenType::ResWord, TResWord::Bytecode));
 
 	res_words.Add("func",		TToken(TTokenType::ResWord, TResWord::Func));		
-	res_words.Add("constr",		TToken(TTokenType::ResWord, TResWord::Constr));	
+	/*res_words.Add("constr",		TToken(TTokenType::ResWord, TResWord::Constr));	*/
+	res_words.Add("default", TToken(TTokenType::ResWord, TResWord::Default));
+	res_words.Add("copy", TToken(TTokenType::ResWord, TResWord::Copy));
+	res_words.Add("move", TToken(TTokenType::ResWord, TResWord::Move));
 	res_words.Add("destr",		TToken(TTokenType::ResWord, TResWord::Destr));		
 	res_words.Add("operator",	TToken(TTokenType::ResWord, TResWord::Operator));
 	res_words.Add("conversion",	TToken(TTokenType::ResWord, TResWord::Conversion));

@@ -21,7 +21,7 @@ void TClassField::AnalyzeSyntax(TLexer& source) {
 		if (source.Test(TTokenType::Comma)) {
 			//curr_field = new TClassField(owner);
 			//owner->AddField(curr_field);
-			curr_field = owner->AddField(owner);
+			curr_field = owner->EmplaceField(owner);
 		}
 	} while (source.TestAndGet(TTokenType::Comma));
 	source.GetToken(TTokenType::Semicolon);

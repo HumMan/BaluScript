@@ -57,16 +57,15 @@ protected:
 
 	std::list<TClassField> fields;
 	std::list<TOverloadedMethod> methods;
-	TOverloadedMethod constructors;
-	///<summary>Пользовательский деструктор (автоматический деструктор, если существует, будет добавлен как PostEvent)</summary>
+	std::unique_ptr<TMethod> constr_default;
+	TOverloadedMethod constr_copy, constr_move;
+	///<summary>Пользовательский деструктор</summary>
 	std::unique_ptr<TMethod> destructor;
 	TOverloadedMethod operators[TOperator::End];
 	TOverloadedMethod conversions;
 
 	std::vector<std::unique_ptr<TClass>> nested_classes;
 
-	///<summary>Имеется пользовательский конструктор по умолчанию</summary>
-	bool constr_override;
 	///<summary>Название класса</summary>
 	TNameId name;
 	///<summary>Тип от которого унаследован данный класс</summary>
@@ -78,30 +77,26 @@ protected:
 	bool is_external;
 public:
 	TClass(TClass* use_owner);
-
 	void AnalyzeSyntax(TLexer& source);
-
-
 	void AccessDecl(TLexer& source,bool& readonly, TTypeOfAccess::Enum access);
 
-	bool IsTemplate();
-	bool IsExternal()
-	{
-		return is_external;
-	}
-	
 	void SetIsTemplate(bool use_is_template);
 	
+	bool IsTemplate();
+	bool IsExternal();
 	int GetTemplateParamsCount();
-	void AddMethod(TMethod* use_method, TNameId name);
-	void AddOperator(TOperator::Enum op, TMethod* use_method);
-	void AddConversion(TMethod* method);
-	void AddConstr(TMethod* use_method);
-	void AddDestr(TMethod* use_method);
-	void AddNested(TClass* use_class);
-	//void AddField(TClassField* use_field);
-	TClassField* AddField(TClass* use_field_owner);
 	TClass* GetNested(TNameId name);
 	TNameId GetName();
 	TClass* GetOwner();
+
+	void AddMethod(TMethod* use_method, TNameId name);
+	void AddOperator(TOperator::Enum op, TMethod* use_method);
+	void AddConversion(TMethod* method);
+	//void AddConstr(TMethod* use_method);
+	void AddDefaultConstr(TMethod* use_method);
+	void AddCopyConstr(TMethod* use_method);
+	void AddMoveConstr(TMethod* use_method);
+	void AddDestr(TMethod* use_method);
+	void AddNested(TClass* use_class);
+	TClassField* EmplaceField(TClass* use_field_owner);
 };

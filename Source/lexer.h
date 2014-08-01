@@ -34,7 +34,7 @@ namespace TTokenType
 
 namespace TResWord
 {
-	enum Enum
+	enum _Enum
 	{
 		If,
 		Else,
@@ -57,7 +57,10 @@ namespace TResWord
 		Multifield,
 		
 		Func,
-		Constr,
+		/*Constr,*/
+		Default,
+		Copy,
+		Move,
 		Destr,
 		Operator,
 		Conversion,

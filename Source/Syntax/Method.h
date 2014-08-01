@@ -13,11 +13,12 @@ namespace TClassMember
 	enum Enum
 	{
 		Func=TResWord::Func,
-		Constr,
+		DefaultConstr,
+		CopyConstr,
+		MoveConstr,
 		Destr,
 		Operator,
-		Conversion,
-		Enumeration
+		Conversion
 	};
 }
 

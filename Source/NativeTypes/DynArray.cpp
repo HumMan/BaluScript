@@ -197,8 +197,8 @@ void TDynArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 	syntax->lexer.ParseSource(
 		"class extern TDynArray<T>\n"
 		"{\n"
-		"constr();\n"
-		"constr(TDynArray& copy_from);\n"
+		"default();\n"
+		"copy(TDynArray& copy_from);\n"
 		"destr();\n"
 		"operator static [](TDynArray& v,int id):&T;\n"
 		"operator static =(TDynArray& v,TDynArray& l);\n"
@@ -214,15 +214,17 @@ void TDynArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 	scl->Build();
 
 	scl->SetSize(IntSizeOf(sizeof(TDynArr))/sizeof(int));
+	scl->SetAutoMethodsInitialized();
 
+	scl->GetDefConstr()->SetAsExternal(TDynArr::constructor);
+	
 	std::vector<TSMethod*> m;
-
 	m.clear();
-	scl->GetUserConstructors(m);
-	m[0]->SetAsExternal(TDynArr::constructor);
-	m[1]->SetAsExternal(TDynArr::copy_constr);
+	scl->GetCopyConstructors(m);
+	m[0]->SetAsExternal(TDynArr::copy_constr);
 	scl->GetDestructor()->SetAsExternal(TDynArr::destructor);
 
+	
 	m.clear();
 	scl->GetOperators(m, TOperator::GetArrayElement);
 	m[0]->SetAsExternal(TDynArr::get_element_op);

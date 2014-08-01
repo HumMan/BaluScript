@@ -96,6 +96,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Source\Semantic\SClassField.h" />
+    <ClInclude Include="Source\Semantic\SConstructObject.h" />
     <ClInclude Include="Source\Semantic\SExpression.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
@@ -221,6 +222,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Source\Semantic\SClassField.cpp" />
+    <ClCompile Include="Source\Semantic\SConstructObject.cpp" />
     <ClCompile Include="Source\Semantic\SExpression.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
