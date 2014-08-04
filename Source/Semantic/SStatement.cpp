@@ -1,6 +1,7 @@
 ﻿#include "SStatement.h"
 
 #include "SClass.h"
+#include "SExpression.h"
 
 #include "../semanticAnalyzer.h"
 
@@ -8,13 +9,15 @@
 #include "../Syntax/Statements.h"
 #include "../Syntax/Method.h"
 
-void TSStatement::TestBoolExpr(TFormalParam& compare_result, std::unique_ptr<TFormalParamWithConversions>& conversion)
+void TSStatement::TestBoolExpr(TExpressionResult& compare_result, std::unique_ptr<TActualParamWithConversion>& conversion)
 {
 	int conv_needed;
+	
 	TSClass* bool_class = owner->GetClass(GetSyntax()->source->GetIdFromName("bool"));
-	if (!IsEqualClasses(compare_result, bool_class, false, conv_needed))
+	TFormalParameter formal_param(bool_class, false);
+	if (!IsEqualClasses(compare_result, formal_param, conv_needed))
 		GetSyntax()->Error("Выражение невозможно преобразовать в логический тип!");
 
-	conversion = std::unique_ptr<TFormalParamWithConversions>(new TFormalParamWithConversions());
-	conversion->BuildConvert(compare_result, bool_class, false);
+	conversion.reset(new TActualParamWithConversion());
+	conversion->BuildConvert(compare_result, formal_param);
 }

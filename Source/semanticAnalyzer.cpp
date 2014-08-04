@@ -9,27 +9,27 @@
 #include "Semantic/SClass.h"
 #include "Semantic/SLocalVar.h"
 
-bool IsEqualClasses(TFormalParam formal_par,TSClass* param_class,bool param_ref,int& need_conv)
+bool IsEqualClasses(TExpressionResult actual_parameter, TFormalParameter formal_parameter, int& need_conv)
 //============== На выходе =========================================
 //результат - равенство классов или возможность приведения класса
 {
 	need_conv=0;
-	if((!formal_par.IsRef())&&param_ref)return false;		
-	if(formal_par.IsMethods()||formal_par.IsType())return false;
-	if(param_class!=formal_par.GetClass())
+	if (!actual_parameter.IsRef() && formal_parameter.IsRef())return false;
+	if (actual_parameter.IsMethods() || actual_parameter.IsType())return false;
+	if (formal_parameter.GetClass() != actual_parameter.GetClass())
 	{
-		if(!formal_par.GetClass()->HasConversion(param_class))return false;
-		if(param_ref&&!formal_par.GetClass()->IsNestedIn(param_class))return false;
+		if (!actual_parameter.GetClass()->HasConversion(formal_parameter.GetClass()))return false;
+		if (formal_parameter.IsRef() && !actual_parameter.GetClass()->IsNestedIn(formal_parameter.GetClass()))return false;
 		need_conv+=1;	
 	}
-	if(formal_par.IsRef()&&!param_ref)need_conv+=1;
+	if (actual_parameter.IsRef() && !formal_parameter.IsRef())need_conv += 1;
 	return true;
 }
 
-TSMethod* FindMethod(TTokenPos* source, std::vector<TSMethod*> &methods_to_call,const std::vector<TFormalParam> &formal_params, int& conv_needed)
+TSMethod* FindMethod(TTokenPos* source, std::vector<TSMethod*> &methods_to_call, const std::vector<TExpressionResult> &actual_params, int& conv_needed)
 {
-	for(int k=0;k<formal_params.size();k++){
-		if(formal_params[k].IsVoid())
+	for (int k = 0; k<actual_params.size(); k++){
+		if (actual_params[k].IsVoid())
 			source->Error("Параметр метода должен иметь тип отличный от void!");
 	}
 	int i,k;
@@ -37,16 +37,16 @@ TSMethod* FindMethod(TTokenPos* source, std::vector<TSMethod*> &methods_to_call,
 	conv_needed=-1;
 	for (i=0;i<methods_to_call.size();i++)
 	{			
-		if(formal_params.size()==0&&methods_to_call[i]->GetParamsCount()==0){
+		if (actual_params.size() == 0 && methods_to_call[i]->GetParamsCount() == 0){
 			conv_needed=0;
 			return methods_to_call[i];
 		}
-		if(formal_params.size()!=methods_to_call[i]->GetParamsCount())goto end_search;
+		if (actual_params.size() != methods_to_call[i]->GetParamsCount())goto end_search;
 		temp_conv=0;
 		conv=0;
-		for(k=0;k<formal_params.size();k++){
+		for (k = 0; k<actual_params.size(); k++){
 			TSParameter* p=methods_to_call[i]->GetParam(k);
-			if (!IsEqualClasses(formal_params[k], p->GetClass(), p->IsRef(), conv))goto end_search;
+			if (!IsEqualClasses(actual_params[k], p->AsFormalParameter(), conv))goto end_search;
 			else temp_conv+=conv;
 		}
 		if(temp_conv<conv_needed||conv_needed==-1)

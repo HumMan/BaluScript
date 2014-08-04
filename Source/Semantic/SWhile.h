@@ -11,7 +11,7 @@ class TSLocalVar;
 class TSWhile :public TSStatement
 {
 	std::unique_ptr<TSExpression> compare;
-	std::unique_ptr<TFormalParamWithConversions> compare_conversion;
+	std::unique_ptr<TActualParamWithConversion> compare_conversion;
 	std::unique_ptr<TSStatements> statements;
 public:
 	TSWhile(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TWhile* use_syntax);

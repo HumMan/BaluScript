@@ -15,7 +15,7 @@
 #include "SClass.h"
 #include "SConstructObject.h"
 
-TFormalParam TSLocalVar::Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+void TSLocalVar::Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {
 	type.LinkSignature(static_fields, static_variables);
 	type.LinkBody(static_fields, static_variables);
@@ -55,7 +55,6 @@ TFormalParam TSLocalVar::Build(std::vector<TSClassField*>* static_fields, std::v
 		assign_expr = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->assign_expr.get()));
 		assign_expr->Build(static_fields, static_variables);
 	}
-	return TVoid();
 }
 
 TSLocalVar::TSLocalVar(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TLocalVar* use_syntax)

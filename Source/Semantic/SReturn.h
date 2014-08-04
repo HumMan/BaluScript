@@ -3,15 +3,15 @@
 class TSExpression;
 class TSClass;
 class TSMethod;
-class TFormalParam;
-class TFormalParamWithConversions;
+class TExpressionResult;
+class TActualParamWithConversion;
 class TSClassField;
 class TSLocalVar;
 
 class TSReturn :public TSStatement
 {
 	std::unique_ptr<TSExpression> result;
-	std::unique_ptr<TFormalParamWithConversions> conversions;
+	std::unique_ptr<TActualParamWithConversion> conversions;
 public:
 	TSReturn(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TReturn* use_syntax);
 	TReturn* GetSyntax()

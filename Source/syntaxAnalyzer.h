@@ -5,7 +5,7 @@
 
 class TClass;
 class TSClassField;
-class TFormalParam;
+class TExpressionResult;
 class TSClass;
 class TSMethod;
 class TTemplateRealizations;

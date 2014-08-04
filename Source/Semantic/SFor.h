@@ -5,14 +5,14 @@ class TSClass;
 class TSMethod;
 class TSStatements;
 class TSExpression;
-class TFormalParam;
+class TExpressionResult;
 class TSClassField;
 class TSLocalVar;
 
 class TSFor :public TSStatement
 {
 	std::unique_ptr<TSExpression> compare;
-	std::unique_ptr<TFormalParamWithConversions> compare_conversion;
+	std::unique_ptr<TActualParamWithConversion> compare_conversion;
 	std::unique_ptr<TSStatements> increment;
 	std::unique_ptr<TSStatements> statements;
 public:

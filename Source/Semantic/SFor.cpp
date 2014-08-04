@@ -1,7 +1,9 @@
 ﻿#include "SFor.h"
 #include "SExpression.h"
 #include "SStatements.h"
+
 #include "../Syntax/For.h"
+#include "../Syntax/Statements.h"
 
 TSFor::TSFor(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TFor* use_syntax)
 	:TSStatement(TStatementType::For, use_owner, use_method, use_parent, (TStatement*)use_syntax)
@@ -13,7 +15,7 @@ void TSFor::Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocal
 {
 	compare = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->compare.get()));
 	compare->Build(static_fields, static_variables);
-	TFormalParam compare_result = compare->GetFormalParameter();
+	TExpressionResult compare_result = compare->GetFormalParameter();
 	TestBoolExpr(compare_result,compare_conversion);
 
 	increment = std::unique_ptr<TSStatements>(new TSStatements(owner, method, parent, GetSyntax()->increment.get()));

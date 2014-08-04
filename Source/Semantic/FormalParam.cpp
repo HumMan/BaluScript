@@ -7,112 +7,50 @@
 #include "../Syntax/Statements.h"
 #include "../Syntax/Method.h"
 
-void TFormalParam::Init(){
-	class_pointer = NULL;
+void TExpressionResult::Init(){
+	result_value_type = NULL;
 	is_ref = false;
 	type = NULL;
 }
-TFormalParam::TFormalParam(){
+TExpressionResult::TExpressionResult(){
 	Init();
 }
-TFormalParam::TFormalParam(std::vector<TSMethod*> use_methods, bool use_need_push_this){
+TExpressionResult::TExpressionResult(std::vector<TSMethod*> use_methods, bool use_need_push_this){
 	Init();
 	methods = use_methods;
 }
-TFormalParam::TFormalParam(TSClass* use_class, bool use_is_ref){
+TExpressionResult::TExpressionResult(TSClass* use_class, bool use_is_ref){
 	Init();
-	class_pointer = use_class;
+	result_value_type = use_class;
 	is_ref = use_is_ref;
 }
-TFormalParam::TFormalParam(TSClass* use_type){
+TExpressionResult::TExpressionResult(TSClass* use_type){
 	Init();
 	type = use_type;
 }
-bool TFormalParam::IsRef()const{
+bool TExpressionResult::IsRef()const{
 	return is_ref;
 }
-void TFormalParam::SetIsRef(bool use_is_ref){
+void TExpressionResult::SetIsRef(bool use_is_ref){
 	is_ref = use_is_ref;
 }
-bool TFormalParam::IsMethods()const{
+bool TExpressionResult::IsMethods()const{
 	return methods.size() != 0;
 }
-bool TFormalParam::IsType()const{
+bool TExpressionResult::IsType()const{
 	return type != NULL;
 }
-TSClass* TFormalParam::GetType()const{
+TSClass* TExpressionResult::GetType()const{
 	return type;
 }
-std::vector<TSMethod*>& TFormalParam::GetMethods(){
+std::vector<TSMethod*>& TExpressionResult::GetMethods(){
 	return methods;
 }
-TSClass* TFormalParam::GetClass()const{
-	return class_pointer;
+TSClass* TExpressionResult::GetClass()const{
+	return result_value_type;
 }
-bool TFormalParam::IsVoid()const{
-	return class_pointer == NULL && (!IsMethods()) && type == NULL;//TODO в дальнейшем methods_pointer не должен считаться void
-}
-
-void TFormalParamWithConversions::RunConversion(std::vector<TStaticValue> &static_fields, TStackValue &value)
-{
-	if (ref_to_rvalue)
-	{
-		if (copy_constr != NULL)
-		{
-			std::vector<TStackValue> constr_params;
-			constr_params.push_back(value);
-			TStackValue constr_result;
-			TStackValue constructed_object(false, value.GetClass());
-			copy_constr->Run(static_fields, constr_params, constr_result, constructed_object);
-			value = constructed_object;
-		}
-		else
-		{
-			TStackValue constructed_object(false, value.GetClass());
-			memcpy(constructed_object.get(), value.get(), value.GetClass()->GetSize()*sizeof(int));
-			value = constructed_object;
-		}
-	}
-	if (conversion != NULL)
-	{
-		std::vector<TStackValue> conv_params;
-		conv_params.push_back(value);
-		TStackValue result;
-		conversion->Run(static_fields, conv_params, result, value);
-		value = result;
-	}
-}
-
-TFormalParamWithConversions::TFormalParamWithConversions()
-{
-	this->copy_constr = NULL;
-	this->conversion = NULL;
-	this->ref_to_rvalue = false;
-}
-void TFormalParamWithConversions::BuildConvert(TFormalParam from_result, TSClass* param_class, bool param_ref)
-{
-	result = from_result;
-
-	//если необходимо преобразование типа формального параметра то добавляем его
-	if (result.GetClass() != param_class)
-	{
-		conversion = result.GetClass()->GetConversion(result.IsRef(), param_class);
-		if (result.IsRef() && !param_ref)
-		{
-			if (conversion == NULL)
-			{
-				copy_constr = result.GetClass()->GetCopyConstr();
-				conversion = result.GetClass()->GetConversion(false, param_class);
-			}
-		}
-		assert(conversion != NULL);//ошибка в FindMethod
-	}
-	//если в стеке находится ссылка, а в качестве параметра требуется значение, то добавляем преобразование
-	else if (result.IsRef() && !param_ref)
-	{
-		copy_constr = result.GetClass()->GetCopyConstr();
-		ref_to_rvalue = true;
-	}
+bool TExpressionResult::IsVoid()const{
+	return result_value_type == NULL && (!IsMethods()) && type == NULL;//TODO в дальнейшем methods_pointer не должен считаться void
 }
 
 TSClass* TStackValue::GetClass()const

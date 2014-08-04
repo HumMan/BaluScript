@@ -16,7 +16,7 @@ void TSWhile::Build(std::vector<TSClassField*>* static_fields, std::vector<TSLoc
 {
 	compare = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->compare.get()));
 	compare->Build(static_fields, static_variables);
-	TFormalParam compare_result = compare->GetFormalParameter();
+	TExpressionResult compare_result = compare->GetFormalParameter();
 	TestBoolExpr(compare_result, compare_conversion);
 
 	statements = std::unique_ptr<TSStatements>(new TSStatements(owner, method, parent, GetSyntax()->statements.get()));

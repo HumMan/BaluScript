@@ -12,8 +12,8 @@ class TSMethod;
 class TSStatements;
 class TSClass;
 class TStackValue;
-class TFormalParam;
-class TFormalParamWithConversions;
+class TExpressionResult;
+class TActualParamWithConversion;
 class TStaticValue;
 
 class TSStatement :public TSyntaxNode<TStatement>
@@ -29,6 +29,6 @@ public:
 	//virtual void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value, int method_base) = 0;
 	virtual void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables) = 0;
 	virtual ~TSStatement(){}
-	void TestBoolExpr(TFormalParam& compare_result, std::unique_ptr<TFormalParamWithConversions>& conversion);
+	void TestBoolExpr(TExpressionResult& compare_result, std::unique_ptr<TActualParamWithConversion>& conversion);
 };
 

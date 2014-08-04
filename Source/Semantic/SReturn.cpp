@@ -10,21 +10,22 @@
 #include "FormalParam.h"
 #include "SMethod.h"
 #include "SExpression.h"
+#include "SParameter.h"
 
 void TSReturn::Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {
 	result = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, &GetSyntax()->result));
 	result->Build(static_fields, static_variables);
-	TFormalParam result_result = result->GetFormalParameter();
+	TExpressionResult result_result = result->GetFormalParameter();
 	if(method->GetRetClass()!=NULL)
 	{
 		int conv_needed;
 		if(result_result.IsVoid())
 			GetSyntax()->Error("После оператора return должно следовать какое-то выражение!");
-		if(!IsEqualClasses(result_result,method->GetRetClass(),method->GetSyntax()->IsReturnRef(),conv_needed))
+		if(!IsEqualClasses(result_result,TFormalParameter(method->GetRetClass(),method->GetSyntax()->IsReturnRef()),conv_needed))
 			GetSyntax()->Error("Выражение невозможно преобразовать в тип возвращаемого значения!");
-		conversions = std::unique_ptr<TFormalParamWithConversions>(new TFormalParamWithConversions());
-		conversions->BuildConvert(result_result, method->GetRetClass(), method->GetSyntax()->IsReturnRef());
+		conversions.reset(new TActualParamWithConversion());
+		conversions->BuildConvert(result_result, TFormalParameter(method->GetRetClass(), method->GetSyntax()->IsReturnRef()));
 	}
 	else 
 		if(result_result.GetClass()!=NULL)

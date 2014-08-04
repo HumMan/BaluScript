@@ -10,6 +10,7 @@
 #include "SClass.h"
 #include "SLocalVar.h"
 #include "SStatement.h"
+#include "SParameter.h"
 
 TSConstructObject::TSConstructObject(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TSClass* use_object_type)
 	:owner(use_owner), method(use_method), parent(use_parent), object_type(use_object_type)
@@ -17,16 +18,19 @@ TSConstructObject::TSConstructObject(TSClass* use_owner, TSMethod* use_method, T
 	constr_copy_memcpy = false;
 }
 
-TFormalParam TSConstructObject::Build(TSLocalVar* local_var, TTokenPos* source, std::vector<std::unique_ptr<TExpression>>& syntax_params, std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+void TSConstructObject::Build(TSLocalVar* local_var, TTokenPos* source, std::vector<std::unique_ptr<TExpression>>& syntax_params, std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {
-	std::vector<TFormalParam> params_result;
+	std::vector<TExpressionResult> params_result;
+	std::vector<TFormalParameter> params_formals;
+	std::vector<TOperation*> params;
 
 	for (const std::unique_ptr<TExpression>& param_syntax : syntax_params)
 	{
 		auto t = new TSExpression(owner, method, parent, param_syntax.get());
 		t->Build(static_fields, static_variables);
-		params.push_back(std::unique_ptr<TSExpression>(t));
+		params.push_back(t);
 		params_result.push_back(params.back()->GetFormalParameter());
+		params_formals.push_back(TFormalParameter(params_result.back().GetClass(), params_result.back().IsRef()));
 	}
 
 	int conv_need = 0;
@@ -41,9 +45,13 @@ TFormalParam TSConstructObject::Build(TSLocalVar* local_var, TTokenPos* source, 
 		{
 			if (params_result.size() == 1 && params_result[0].GetClass() == object_type)
 			{
-				//constructor = memcpy
+				constr_copy_memcpy = true;
 			}else
 				source->Error(" оструктора с такими парметрами не существует!");
+		}
+		else
+		{
+			actual_params.Build(params, params_formals);
 		}
 	}
 	else
@@ -63,26 +71,24 @@ TFormalParam TSConstructObject::Build(TSLocalVar* local_var, TTokenPos* source, 
 
 	if (constructor != NULL)
 	{
-		std::vector<TOperation*> param_expressions;
-		for (const std::unique_ptr<TOperation>& v : params)
-		{
-			param_expressions.push_back(v.get());
-		}
 		constructor_call = std::unique_ptr<TSExpression_TMethodCall>(new TSExpression_TMethodCall());
 
 		TSExpression::TGetLocal* get_local_id = new TSExpression::TGetLocal();
 		get_local_id->variable = local_var;
 		constructor_call->left = get_local_id;
-		constructor_call->Build(param_expressions, params_result, constructor);
+		constructor_call->Build(params, constructor);
 		ValidateAccess(source, owner, constructor);
 	}
-	return TVoid();
 }
 
 
 void TSConstructObject::Construct(TStackValue& constructed_object, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
-	if (constructor_call)
+	if (constr_copy_memcpy)
+	{
+
+	}
+	else if (constructor_call)
 	{
 		TStackValue constr_result;
 		//constructor_call->Run(formal_params, constr_result, local_variables[GetOffset()], local_variables);

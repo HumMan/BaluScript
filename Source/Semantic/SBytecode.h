@@ -1,6 +1,6 @@
 #include "SStatement.h"
 
-class TFormalParam;
+class TExpressionResult;
 class TBytecode;
 class TSClassField;
 class TSLocalVar;
@@ -10,7 +10,7 @@ class TSBytecode :public TSStatement
 	std::vector<TSClass*> array_element_classes;
 public:
 	TSBytecode(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TBytecode* use_syntax);
-	//TFormalParam Build();
+	//TExpressionResult Build();
 	TBytecode* GetSyntax()
 	{
 		return (TBytecode*)TSyntaxNode::GetSyntax();
