@@ -33,6 +33,21 @@ TSClass* TSClass::GetOwner()
 	return owner;
 }
 
+TSClass* TSClass::GetNestedByFullName(std::vector<TNameId> full_name, int curr_id)
+{
+	TNameId curr = full_name[curr_id];
+	TSClass* child = GetNested(full_name[curr_id]);
+	if (child!=NULL)
+	{
+		if (curr_id + 1 == full_name.size())
+			return child;
+		else
+			return child->GetNestedByFullName(full_name, curr_id+1);
+	}
+	else
+		return NULL;
+}
+
 void TSClass::Build()
 {
 	for (TClassField& field_syntax : GetSyntax()->fields)

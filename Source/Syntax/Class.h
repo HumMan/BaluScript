@@ -88,6 +88,7 @@ public:
 	TClass* GetNested(TNameId name);
 	TNameId GetName();
 	TClass* GetOwner();
+	std::vector<TNameId> GetFullClassName();
 
 	void AddMethod(TMethod* use_method, TNameId name);
 	void AddOperator(TOperator::Enum op, TMethod* use_method);

@@ -35,6 +35,15 @@ TClass* TClass::GetOwner()
 	return owner;
 }
 
+std::vector<TNameId> TClass::GetFullClassName()
+{
+	std::vector<TNameId> result;
+	if (owner != NULL)
+		result = owner->GetFullClassName();
+	result.push_back(name);
+	return result;
+}
+
 TClass::TClass(TClass* use_owner) :parent(this)
 {
 	is_template = false;

@@ -53,6 +53,7 @@ public:
 	{
 		return parent.GetClass();
 	}
+	TSClass* GetNestedByFullName(std::vector<TNameId> full_name, int curr_id);
 	TSClassField* GetField(TNameId name, bool only_in_this);
 	TSClassField* GetField(TNameId name, bool is_static, bool only_in_this);
 	bool HasConversion(TSClass* target_type);

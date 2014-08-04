@@ -53,7 +53,8 @@ TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 	lexer.ParseSource(use_method);
 	TMethod* method_decl_syntax = new TMethod(base_class);
 	method_decl_syntax->AnalyzeSyntax(lexer, false);
-	TSMethod* method_decl = new TSMethod(sem_base_class, method_decl_syntax);
+	lexer.GetToken(TTokenType::Done);
+	TSMethod* method_decl = new TSMethod(sem_base_class->GetNestedByFullName(method_decl_syntax->GetOwner()->GetFullClassName(),1), method_decl_syntax);
 	method_decl->Build();
 	//method_decl->LinkBody(&static_fields, &static_variables);
 	std::vector<TSMethod*> methods;
