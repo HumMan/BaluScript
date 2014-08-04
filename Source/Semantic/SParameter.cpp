@@ -130,9 +130,8 @@ void TActualParameters::Build(const std::vector<TOperation*>& actual_params, con
 	}
 }
 
-void TActualParameters::Construct(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
+void TActualParameters::Construct(std::vector<TStackValue> &method_call_formal_params, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
-	method_call_formal_params.clear();
 	for (TActualParamWithConversion& par : input)
 	{
 		TStackValue exp_result;
@@ -143,7 +142,7 @@ void TActualParameters::Construct(std::vector<TStaticValue> &static_fields, std:
 	}
 }
 
-void TActualParameters::Destroy(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &_formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
+void TActualParameters::Destroy(std::vector<TStackValue> &method_call_formal_params, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &_formal_params, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
 	auto it = input.begin();
 	for (int i = 0; i < method_call_formal_params.size(); i++)

@@ -25,13 +25,18 @@ class TSExpression_TMethodCall : public TOperation
 {
 	TActualParameters params;
 	TSMethod* invoke;
+
+	
 public:
 	TOperation* left;
+	bool memcpy_assign;
 	TSExpression_TMethodCall()
 	{
 		left = NULL;
+		memcpy_assign = false;
 	}
 	void Build(const std::vector<TOperation*>& param_expressions, TSMethod* method);
+	void Build(const std::vector<TOperation*>& param_expressions);
 	TExpressionResult GetFormalParameter();
 	void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 };

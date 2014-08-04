@@ -33,6 +33,8 @@ void TSConstructObject::Build(TSLocalVar* local_var, TTokenPos* source, std::vec
 		params_formals.push_back(TFormalParameter(params_result.back().GetClass(), params_result.back().IsRef()));
 	}
 
+	actual_params.Build(params, params_formals);
+
 	int conv_need = 0;
 
 	TSMethod* constructor = NULL;
@@ -46,7 +48,8 @@ void TSConstructObject::Build(TSLocalVar* local_var, TTokenPos* source, std::vec
 			if (params_result.size() == 1 && params_result[0].GetClass() == object_type)
 			{
 				constr_copy_memcpy = true;
-			}else
+			}
+			else
 				source->Error(" оструктора с такими парметрами не существует!");
 		}
 		else
@@ -86,35 +89,26 @@ void TSConstructObject::Construct(TStackValue& constructed_object, std::vector<T
 {
 	if (constr_copy_memcpy)
 	{
-
+		std::vector < TStackValue > method_call_params;
+		actual_params.Construct(method_call_params, static_fields, formal_params, object, local_variables);
+		assert(method_call_params.size() == 1);
+		memcpy(constructed_object.get(), method_call_params[0].get(), object_type->GetSize()*sizeof(int));
 	}
 	else if (constructor_call)
 	{
 		TStackValue constr_result;
-		//constructor_call->Run(formal_params, constr_result, local_variables[GetOffset()], local_variables);
 		constructor_call->Run(static_fields, formal_params, constr_result, object, local_variables);
-	}
-	//вызываем конструктор по умолчанию
-	else
-	{
-		TSMethod* def_constr = object_type->GetDefConstr();
-		if (def_constr != NULL)
-		{
-			std::vector<TStackValue> constr_formal_params;
-			TStackValue without_result;
-			def_constr->Run(static_fields, constr_formal_params, without_result, constructed_object);
-		}
 	}
 }
 
 void TSConstructObject::Destruct(TStackValue& constructed_object, std::vector<TStaticValue> &static_fields, std::vector<TStackValue>& local_variables)
 {
 	TSMethod* destr = object_type->GetDestructor();
-		if (destr != NULL)
-		{
-			std::vector<TStackValue> without_params;
-			TStackValue without_result;
+	if (destr != NULL)
+	{
+		std::vector<TStackValue> without_params;
+		TStackValue without_result;
 
-			destr->Run(static_fields, without_params, without_result, constructed_object);
-		}
+		destr->Run(static_fields, without_params, without_result, constructed_object);
+	}
 }

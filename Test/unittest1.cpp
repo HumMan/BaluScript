@@ -836,14 +836,14 @@ namespace Test
 		TEST_METHOD(AssignTest)
 		{
 			Assert::AreEqual(3 + 5, *(int*)RunCode(
-				"func static Test:int"
-				"{"
-				"	TStaticArray<TStaticArray<int,4>,4> s;"
-				"	for(int i=0;i<4;i+=1){for(int k=0;k<4;k+=1)s[i][k]=i+k;}"
-				"	TStaticArray<TStaticArray<int,4>,4> sc;"
-				"	sc=s;"
-				"	return sc[2][1]+sc[3][2];"
-				"}"
+				"func static Test:int\n"
+				"{\n"
+				"	TStaticArray<TStaticArray<int,4>,4> s;\n"
+				"	for(int i=0;i<4;i+=1){for(int k=0;k<4;k+=1)s[i][k]=i+k;}\n"
+				"	TStaticArray<TStaticArray<int,4>,4> sc;\n"
+				"	sc=s;\n"
+				"	return sc[2][1]+sc[3][2];\n"
+				"}\n"
 				).get());
 		}
 		TEST_METHOD(CustomAssignTest)

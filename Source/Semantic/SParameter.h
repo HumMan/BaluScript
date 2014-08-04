@@ -82,7 +82,6 @@ class TActualParameters
 	std::list<TActualParamWithConversion> input;
 public:
 	void Build(const std::vector<TOperation*>& actual_params, const std::vector<TFormalParameter>& formal_params);
-	std::vector<TStackValue> method_call_formal_params;
-	void Construct(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
-	void Destroy(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
+	void Construct(std::vector<TStackValue> &method_call_formal_params, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object, std::vector<TStackValue>& local_variables);
+	void Destroy(std::vector<TStackValue> &method_call_formal_params, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object, std::vector<TStackValue>& local_variables);
 };
