@@ -74,6 +74,8 @@ public:
 	TSMethod* GetConversion(bool source_ref, TSClass* target_type);
 
 	TSClass* GetNested(TNameId name);
+
+	TNodeWithTemplates::TTemplateParameter GetTemplateParameter(TNameId name);
 	///<summary>ѕостоение семанитческого дерева по синтаксическому(дл€ всех кроме тел методов) без какого либо анализа типов</summary>
 	void Build();
 	///<param name = 'static_fields'>—писок статических полей класса - необходим дл€ их дальнейшей инициализации</param>

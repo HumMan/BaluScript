@@ -536,6 +536,25 @@ namespace Test
 		{
 			Assert::Fail();
 		}
+		TEST_METHOD(TempObjectConstructorTest)
+		{
+			TSClass* cl2 = CreateClass(
+				"class TestClass {"
+				"class SubClass {"
+				"int a,b,c;"
+				"default{a=3;b=5;c=9;}"
+				"copy(int _a,int _b,int _c){a=_a;b=_b;c=_c;}"
+				"}"
+				"func static Sum(SubClass obj):int"
+				"{"
+				"return obj.a+obj.b+obj.c;"
+				"}"
+				"func static Test:int"
+				"{"
+				"return Sum(SubClass(1,2,3));"
+				"}}");
+			Assert::AreEqual((int)1+2+3, *(int*)RunClassMethod(cl2, "Test").get());
+		}
 	};
 	TEST_CLASS(DynArrayTesting)
 	{
@@ -689,7 +708,25 @@ namespace Test
 	public:
 		TEST_METHOD(ArithmenticOperatorsOverload)
 		{
-			Assert::Fail();
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class Vec2<T,Size> {\n"
+				"TStaticArray<T,Size> value;\n"
+				"copy(T v0, T v1){value[0]=v0;value[1]=v1;}\n"
+				"copy(Vec2 l){value[0]=l[0];value[1]=l[1];}\n"
+				"operator +(Vec2 l, Vec2 r):Vec2 {return Vec2(l[0]+r[0],l[1]+r[1]);}\n"
+				"operator -(Vec2 l, Vec2 r):Vec2 {return Vec2(l[0]-r[0],l[1]-r[1]);}\n"
+				"operator [](Vec2& l, int i):T {return value[i];}\n"
+				"func Dot(Vec2 l, Vec2 r):T {return l[0]*r[0]+l[1]*r[1];}\n"
+				"\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	Vec2<int, 2> v(3,5),r(-2,8);\n"
+				"	return (v+r).Dot(v-r);\n"
+				"}}"));
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 		TEST_METHOD(IncrementDecrementPostfixOperatorsOverload)
 		{

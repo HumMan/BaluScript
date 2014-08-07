@@ -103,6 +103,22 @@ TSClass* TSClass::GetNested(TNameId name) {
 	return NULL;
 }
 
+TNodeWithTemplates::TTemplateParameter TSClass::GetTemplateParameter(TNameId name)
+{
+	assert(GetType() == TNodeWithTemplates::Realization);
+	int par_count = GetTemplateClass()->GetSyntax()->GetTemplateParamsCount();
+	int i = 0;
+	for (TNameId& n : GetTemplateClass()->GetSyntax()->template_params)
+	{
+		if (n == name)
+		{
+			return GetTemplateParam(i);
+		}
+		i++;
+	}
+	assert(false);
+}
+
 void TSClass::CheckForErrors()
 {
 	if (owner != NULL&&owner->GetOwner() != NULL&&owner->GetOwner()->GetClass(GetSyntax()->GetName()))

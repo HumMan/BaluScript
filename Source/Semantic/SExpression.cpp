@@ -11,6 +11,7 @@
 #include "FormalParam.h"
 #include "SLocalVar.h"
 #include "SClass.h"
+#include "SConstructObject.h"
 
 
 class TSemanticTreeBuilder :public TExpressionTreeVisitor
@@ -178,6 +179,9 @@ public:
 			int conv_need = -1;
 			std::vector<TSMethod*> constructors;
 			TSClass* constr_class = left_result.GetType();
+
+			
+
 			//TODO
 			//constr_class->GetConstructors(constructors);
 			//TSMethod* constructor = FindMethod(syntax_node, constructors, params_result, conv_need);
@@ -212,6 +216,7 @@ public:
 		TSExpression_TMethodCall* method_call = new TSExpression_TMethodCall();
 		method_call->Build(param_expressions, invoke);
 		method_call->left = left;
+		//method_call->construct_temp_object->Build()
 		return_new_operation = method_call;
 	}
 	

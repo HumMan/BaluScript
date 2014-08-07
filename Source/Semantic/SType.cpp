@@ -93,8 +93,29 @@ TSClass* TSType_TClassName::LinkSignature(std::vector<TSClassField*>* static_fie
 				}
 				else
 				{
-					template_params_classes.back().type.reset(new TSType(use_owner, t.type.get()));
-					template_params_classes.back().type->LinkSignature(static_fields, static_variables);
+					
+
+					//если параметр шаблона это константный идентификатор шаблона, то копируем его значение
+					if (use_owner->GetType() == TNodeWithTemplates::Realization)
+					{
+						TNodeWithTemplates::TTemplateParameter val = use_owner->GetTemplateParameter(t.type->GetClassNames().back().name);
+						if (val.is_value)
+						{
+
+							template_params_classes.back().is_value = true;
+							template_params_classes.back().value = val.value;
+						}
+						else
+						{
+							template_params_classes.back().type.reset(new TSType(use_owner, t.type.get()));
+							template_params_classes.back().type->LinkSignature(static_fields, static_variables);
+						}
+					}
+					else
+					{
+						template_params_classes.back().type.reset(new TSType(use_owner, t.type.get()));
+						template_params_classes.back().type->LinkSignature(static_fields, static_variables);
+					}
 				}
 			}
 

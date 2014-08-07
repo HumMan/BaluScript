@@ -11,6 +11,7 @@ class TVariable;
 class TSClassField;
 class TSParameter;
 class TSLocalVar;
+class TSConstructObject;
 
 class TOperation : public TTokenPos
 {
@@ -30,6 +31,10 @@ class TSExpression_TMethodCall : public TOperation
 public:
 	TOperation* left;
 	bool memcpy_assign;
+
+	bool temp_object;
+	//std::unique_ptr<TSConstructObject> construct_temp_object;
+
 	TSExpression_TMethodCall()
 	{
 		left = NULL;
