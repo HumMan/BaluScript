@@ -124,8 +124,7 @@ void TActualParameters::Build(const std::vector<TOperation*>& actual_params, con
 	for (TOperation* act : actual_params)
 	{
 		input.emplace_back();
-		input.back().expression = act;
-		//input.back().expression.reset(act);
+		input.back().expression.reset(act);
 		input.back().BuildConvert(act->GetFormalParameter(), formal_params[i]);
 		i++;
 	}

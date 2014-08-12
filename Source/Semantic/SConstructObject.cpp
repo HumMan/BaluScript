@@ -33,7 +33,7 @@ void TSConstructObject::Build(TSLocalVar* local_var, TTokenPos* source, std::vec
 		params_formals.push_back(TFormalParameter(params_result.back().GetClass(), params_result.back().IsRef()));
 	}
 
-	actual_params.Build(params, params_formals);
+	//actual_params.Build(params, params_formals);
 
 	int conv_need = 0;
 
@@ -54,7 +54,7 @@ void TSConstructObject::Build(TSLocalVar* local_var, TTokenPos* source, std::vec
 		}
 		else
 		{
-			actual_params.Build(params, params_formals);
+			//actual_params.Build(params, params_formals);
 		}
 	}
 	else

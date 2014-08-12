@@ -375,7 +375,7 @@ public:
 			case TVariableType::Parameter:
 			{
 				TSExpression::TGetParameter* result = new TSExpression::TGetParameter();
-				result->parameter.reset((TSParameter*)var);
+				result->parameter = (TSParameter*)var;
 				return_new_operation = result;
 				return;
 			}break;

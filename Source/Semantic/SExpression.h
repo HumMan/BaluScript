@@ -109,7 +109,7 @@ public:
 	class TGetParameter :public TOperation
 	{
 	public:
-		std::unique_ptr<TSParameter> parameter;
+		TSParameter* parameter;
 		TExpressionResult GetFormalParameter();
 		void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
