@@ -77,8 +77,8 @@ void TSConstructObject::Build(TSLocalVar* local_var, TTokenPos* source, std::vec
 		constructor_call = std::unique_ptr<TSExpression_TMethodCall>(new TSExpression_TMethodCall());
 
 		TSExpression::TGetLocal* get_local_id = new TSExpression::TGetLocal();
-		get_local_id->variable = local_var;
-		constructor_call->left = get_local_id;
+		constructor_call->left.reset(get_local_id);
+		get_local_id->variable = local_var;	
 		constructor_call->Build(params, constructor);
 		ValidateAccess(source, owner, constructor);
 	}

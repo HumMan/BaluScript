@@ -29,10 +29,10 @@ class TSExpression_TMethodCall : public TOperation
 
 	
 public:
-	TOperation* left;
+	std::unique_ptr<TOperation> left;
 	bool memcpy_assign;
 
-	bool temp_object;
+	//bool temp_object;
 	//std::unique_ptr<TSConstructObject> construct_temp_object;
 
 	TSExpression_TMethodCall()

@@ -787,6 +787,107 @@ namespace Test
 				"}}"));
 			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test").get());
 		}
+		TEST_METHOD(TemplateOfTemplate)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass{\n"
+				"class Test1<T>\n"
+				"{\n"
+				"	T f;\n"
+				"}\n"
+				"class Test2<T>\n"
+				"{\n"
+				"	T f;\n"
+				"}\n"
+				"func static Main:int\n"
+				"{\n"
+				"	Test1<Test2<int>> ddd;\n"
+				"	Test1<Test2<Test1<int>>> ddd2;\n"
+				"	Test1<Test1<Test1<int>>> ddd3;\n"
+				"	Test2<Test2<Test1<int>>> ddd4;\n"
+				"	return 1;\n"
+				"}}\n"
+				));
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Main").get());
+		}
+		TEST_METHOD(TemplateOfTemplateWithMethodBody)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass{\n"
+				"class Test1<T>\n"
+				"{\n"
+				"	T f;\n"
+				"	func SetValue(Test1<T> v)\n"
+				"	{\n"
+				"		Test1<int> tested_variable;\n"
+				"	}\n"
+				"	func SetValue2(Test2<T> v)\n"
+				"	{\n"
+				"		Test2<int> tested_variable;\n"
+				"	}\n"
+				"	func SetValue12(Test1<T> v1,Test2<T> v2)\n"
+				"	{\n"
+				"		Test1<int> tested_variable;\n"
+				"		Test2<int> tested_variable2;\n"
+				"	}\n"
+				"}\n"
+				"class Test2<T>\n"
+				"{\n"
+				"	T f;\n"
+				"}\n"
+				"func static Main:int\n"
+				"{\n"
+				"	Test1<int> ddd;\n"
+				"	return 1;\n"
+				"}}\n"
+				));
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Main").get());
+		}
+		TEST_METHOD(TemplateOfTemplateCrossRef)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass{\n"
+				"class Test1<T>\n"
+				"{\n"
+				"	T f;\n"
+				"	func SetValue(Test2<T> v, Test1<T> vvd)\n"
+				"	{\n"
+				"		Test2<Test1<Test2<float>>> df;\n"
+				"		Test1<int> ddd;\n"
+				"		TTmm<int, float> dsfsf;\n"
+				"	}\n"
+				"}\n"
+				"class Test2<T>\n"
+				"{\n"
+				"	T f;\n"
+				"	func SetValue(Test1<T> v)\n"
+				"	{\n"
+				"		Test2<Test1<Test2<float>>> df;\n"
+				"		Test1<int> ddd;\n"
+				"		TTmm<int, float> dsfsf;\n"
+				"	}\n"
+				"}\n"
+				"class TTmm<T, K>\n"
+				"{\n"
+				"	T f1;\n"
+				"	K f21;\n"
+				"	func SetValue(T a, K b, TTmm<K, T> dsf)\n"
+				"	{\n"
+				"		Test2<Test1<Test2<float>>> df;\n"
+				"	}\n"
+				"}\n"
+				"func static Main:int\n"
+				"{\n"
+				"	Test1<int> ddd;\n"
+				"	TTmm<int, float> dsfsf;\n"
+				"	return 1;\n"
+				"}}\n"
+				));
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Main").get());
+		}
 	};
 	TEST_CLASS(StaticArrayTesting)
 	{

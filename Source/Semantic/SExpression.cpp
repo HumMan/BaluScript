@@ -215,7 +215,7 @@ public:
 		
 		TSExpression_TMethodCall* method_call = new TSExpression_TMethodCall();
 		method_call->Build(param_expressions, invoke);
-		method_call->left = left;
+		method_call->left.reset(left);
 		//method_call->construct_temp_object->Build()
 		return_new_operation = method_call;
 	}
