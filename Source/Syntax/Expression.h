@@ -49,29 +49,20 @@ public:
 	class TBinOp:public TOperation
 	{
 		friend class TSemanticTreeBuilder;
-		TOperation *left,*right;
+		std::unique_ptr<TOperation> left, right;
 		TOperator::Enum op;
 	public:
 		TBinOp(TOperation *use_left,TOperation *use_right,TOperator::Enum use_op):left(use_left),right(use_right),op(use_op){}
 		void Accept(TExpressionTreeVisitor* visitor);
-		~TBinOp()
-		{
-			delete left;
-			delete right;
-		}
 	};
 	class TUnaryOp:public TOperation
 	{
 		friend class TSemanticTreeBuilder;
-		TOperation *left;
+		std::unique_ptr<TOperation> left;
 		TOperator::Enum op;
 	public:
 		TUnaryOp(TOperation *use_left,TOperator::Enum use_op):left(use_left),op(use_op){}
 		void Accept(TExpressionTreeVisitor* visitor);
-		~TUnaryOp()
-		{
-			delete left;
-		}
 	};
 	class TIntValue:public TOperation
 	{
@@ -121,21 +112,17 @@ public:
 	class TGetMemberOp:public TOperation
 	{
 		friend class TSemanticTreeBuilder;
-		TOperation *left;
+		std::unique_ptr<TOperation> left;
 		TNameId name;
 	public:
 		TGetMemberOp(TOperation *use_left,TNameId use_member):left(use_left),name(use_member){}
 		void Accept(TExpressionTreeVisitor* visitor);
-		~TGetMemberOp()
-		{
-			delete left;
-		}
 	};
 	class TCallParamsOp:public TOperation
 	{
 		friend class TSemanticTreeBuilder;
-		TOperation *left;
-		std::vector<TOperation*> param;
+		std::unique_ptr<TOperation> left;
+		std::vector<std::unique_ptr<TOperation>> param;
 		bool is_bracket;
 	public:
 		TCallParamsOp(){}
@@ -145,11 +132,7 @@ public:
 		}
 		void AddParam(TOperation* use_param)
 		{
-			param.push_back(use_param);
-		}
-		~TCallParamsOp()
-		{
-			delete left;
+			param.push_back(std::unique_ptr<TOperation>(use_param));
 		}
 	};
 	class TId:public TOperation
@@ -166,7 +149,7 @@ public:
 		void Accept(TExpressionTreeVisitor* visitor);
 	};
 
-	TOperation* first_op;
+	std::unique_ptr<TOperation> first_op;
 
 	TOperation* ParamsCall(TLexer& source,TOperation* curr_operation);
 	TOperation* Factor(TLexer& source);
@@ -180,12 +163,10 @@ public:
 	}
 
 	TExpression(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id)
-		:TStatement(TStatementType::Expression, use_owner, use_method, use_parent, use_stmt_id), first_op(NULL){}
+		:TStatement(TStatementType::Expression, use_owner, use_method, use_parent, use_stmt_id){}
 
 	~TExpression()
 	{
-		if(first_op!=NULL)
-			delete first_op;
 	}
 	void Accept(TExpressionTreeVisitor* visitor)
 	{

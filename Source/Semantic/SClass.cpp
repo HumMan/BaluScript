@@ -35,6 +35,8 @@ TSClass* TSClass::GetOwner()
 
 TSClass* TSClass::GetNestedByFullName(std::vector<TNameId> full_name, int curr_id)
 {
+	if (curr_id == full_name.size())
+		return this;
 	TNameId curr = full_name[curr_id];
 	TSClass* child = GetNested(full_name[curr_id]);
 	if (child!=NULL)
@@ -536,18 +538,8 @@ void TSClass::CopyExternalMethodBindingsFrom(TSClass* source)
 		operators[i]->CopyExternalMethodBindingsFrom(source->operators[i].get());
 	conversions->CopyExternalMethodBindingsFrom(source->conversions.get());
 
-	assert(nested_classes.size() == 0); //внешние классы с вложенными классами не допускаются
-}
-
-void TSClass::CreateInternalClasses()
-{
-	TClass* t_syntax = new TClass(GetSyntax());
-	t_syntax->name = GetSyntax()->source->GetIdFromName("dword");
-	TSClass* t = new TSClass(this, t_syntax);
-	t->SetSize(1);
-	t->SetSignatureLinked();
-	t->SetBodyLinked();
-	nested_classes.push_back(std::unique_ptr<TSClass>(t));
+	//assert(nested_classes.size() == 0); //внешние классы с вложенными классами не допускаются
+	//TODO разобраться
 }
 
 void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
@@ -624,7 +616,7 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 				nested_class->CalculateSizes(owners);
 		}
 		if (GetType() == TNodeWithTemplates::Template)
-			for (TSClass* realization : GetRealizations())
+			for (const std::unique_ptr<TSClass>& realization : GetRealizations())
 				realization->CalculateSizes(owners);
 	}
 }
@@ -657,7 +649,7 @@ void TSClass::CalculateMethodsSizes()
 		nested_class->CalculateMethodsSizes();
 
 	if (GetType() == TNodeWithTemplates::Template)
-		for (TSClass* realization : GetRealizations())
+		for (const std::unique_ptr<TSClass>& realization : GetRealizations())
 			realization->CalculateMethodsSizes();
 }
 
@@ -715,7 +707,7 @@ void TSClass::InitAutoMethods()
 		nested_class->InitAutoMethods();
 
 	if (GetType() == TNodeWithTemplates::Template)
-		for (TSClass* realization : GetRealizations())
+		for (const std::unique_ptr<TSClass>& realization : GetRealizations())
 			realization->InitAutoMethods();
 }
 

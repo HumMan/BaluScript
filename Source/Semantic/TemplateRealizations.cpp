@@ -2,6 +2,7 @@
 
 #include "SType.h"
 #include "SClass.h"
+#include "SStatements.h"
 
 #include "../Syntax/Method.h"
 #include "../Syntax/Statements.h"
@@ -20,7 +21,7 @@ int TNodeWithTemplates::FindTemplateIntParameter(TNameId parameter_id)
 TSClass* TNodeWithTemplates::FindTemplateRealization(const std::list<TSType_TTemplateParameter>& params_to_find)
 {
 	assert(type == Template);
-	for (TSClass* realization : realizations)
+	for (const std::unique_ptr<TSClass>& realization : realizations)
 	{
 		const std::vector<TNodeWithTemplates::TTemplateParameter>& r_params = realization->GetTemplateParams();
 		if (r_params.size() != params_to_find.size())
@@ -50,7 +51,69 @@ TSClass* TNodeWithTemplates::FindTemplateRealization(const std::list<TSType_TTem
 			it++;
 		}
 		if (found)
-			return realization;
+			return realization.get();
 	}
 	return NULL;
+}
+
+TNodeWithTemplates::TNodeWithTemplates()
+{
+	type = Unknown;
+	template_class_set = false;
+	template_params_set = false;
+	template_class = NULL;
+}
+
+TNodeWithTemplates::~TNodeWithTemplates()
+{
+}
+
+const std::vector<std::unique_ptr<TSClass>>& TNodeWithTemplates::GetRealizations()
+{
+	assert(type == Template);
+	return realizations;
+}
+TSClass* TNodeWithTemplates::GetTemplateClass()
+{
+	assert(type == Realization);
+	return template_class;
+}
+std::vector<TNodeWithTemplates::TTemplateParameter> TNodeWithTemplates::GetTemplateParams()
+{
+	assert(type == Realization);
+	return template_params;
+}
+TNodeWithTemplates::TTemplateParameter TNodeWithTemplates::GetTemplateParam(int i)
+{
+	return template_params[i];
+}
+void TNodeWithTemplates::SetType(Type use_type)
+{
+	assert(type == Unknown);
+	assert(use_type != Unknown);
+	type = use_type;
+}
+TNodeWithTemplates::Type TNodeWithTemplates::GetType()
+{
+	assert(type != Unknown);
+	return type;
+}
+void TNodeWithTemplates::SetTemplateParams(std::vector<TTemplateParameter> params)
+{
+	assert(!template_params_set);
+	assert(type == Realization);
+	this->template_params = params;
+	template_params_set = true;
+}
+void TNodeWithTemplates::SetTemplateClass(TSClass* template_class)
+{
+	assert(!template_class_set);
+	assert(type == Realization);
+	this->template_class = template_class;
+	template_class_set = true;
+}
+void TNodeWithTemplates::AddTemplateRealization(TSClass* realization)
+{
+	assert(type == Template);
+	realizations.push_back(std::unique_ptr<TSClass>(realization));
 }

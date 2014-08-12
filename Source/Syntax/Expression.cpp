@@ -56,7 +56,7 @@ TExpression::TOperation* TExpression::Factor(TLexer& source) {
 	TTokenPos token_pos;
 	token_pos.InitPos(source);
 	if (source.Test(TTokenType::Value))
-	//—интаксис: Value
+	//Синтаксис: Value
 	{
 		switch (source.Token()) {
 		case TValue::Int:
@@ -88,20 +88,20 @@ TExpression::TOperation* TExpression::Factor(TLexer& source) {
 			curr_operation = new TThis();
 			*(TTokenPos*) curr_operation = token_pos;
 		} else if (source.Test(TTokenType::Identifier))
-		//—интаксис: Identifier
+		//Синтаксис: Identifier
 		{
 			curr_operation = new TId(source.NameId());
 			*(TTokenPos*) curr_operation = token_pos;
 			source.GetToken();
 		} else if (source.TestAndGet(TTokenType::LParenth))
-		//—интаксис: Expr
+		//Синтаксис: Expr
 		{
 			curr_operation = Expr(source, 0);
 			source.GetToken(TTokenType::RParenth);
 		}
 		if (curr_operation == NULL)
 			source.Error("ќшибка в выражении!");
-		//—интаксис: SpecialPostfixOp*
+		//Синтаксис: SpecialPostfixOp*
 		do {
 			curr_operation = SpecialPostfix(source, curr_operation);
 		} while (source.Test(TTokenType::LParenth) || source.Test(
@@ -152,7 +152,7 @@ TExpression::TOperation* TExpression::Expr(TLexer& source, int curr_prior_level)
 	const int operators_priority_max = 8;
 
 	//TODO
-	//dyn_test2=dyn_test1; если dyn_test1 не объ¤влен то в ошибке неправильно указываетс¤ символ
+	//dyn_test2=dyn_test1; если dyn_test1 не объявлен то в ошибке неправильно указывается символ
 
 	TOperation *left;
 	TOperator::Enum curr_op, curr_unary_op;
@@ -189,7 +189,7 @@ TExpression::TOperation* TExpression::Expr(TLexer& source, int curr_prior_level)
 
 void TExpression::AnalyzeSyntax(TLexer& source) {
 	InitPos(source);
-	first_op = Expr(source, 0);
+	first_op = std::unique_ptr<TOperation>(Expr(source, 0));
 	//BuildPostfix();
 }
 

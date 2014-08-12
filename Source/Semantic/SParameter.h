@@ -67,7 +67,8 @@ class TExpressionResult;
 class TActualParamWithConversion
 {
 public:
-	std::unique_ptr<TOperation> expression;//выражение являющееся параметром
+	//std::unique_ptr<TOperation> expression;//выражение являющееся параметром
+	TOperation* expression;//выражение являющееся параметром
 	TExpressionResult result;
 	TSMethod* copy_constr;//используется если необходимо преобразование из lvalue в rvalue
 	bool ref_to_rvalue;

@@ -11,6 +11,7 @@
 #include "SMethod.h"
 #include "SExpression.h"
 #include "SParameter.h"
+#include "SClass.h"
 
 void TSReturn::Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {

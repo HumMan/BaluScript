@@ -193,7 +193,8 @@ void TDynArr::get_size(std::vector<TStaticValue> &static_fields, std::vector<TSt
 
 void TDynArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 {
-	TClass* cl = new TClass(syntax->base_class);
+	TClass* cl = new TClass(syntax->base_class.get());
+	syntax->base_class->AddNested(cl);
 	syntax->lexer.ParseSource(
 		"class extern TDynArray<T>\n"
 		"{\n"
@@ -209,7 +210,7 @@ void TDynArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 	cl->AnalyzeSyntax(syntax->lexer);
 	syntax->lexer.GetToken(TTokenType::Done);
 
-	TSClass* scl = new TSClass(syntax->sem_base_class, cl);
+	TSClass* scl = new TSClass(syntax->sem_base_class.get(), cl);
 	syntax->sem_base_class->AddClass(scl);
 	scl->Build();
 

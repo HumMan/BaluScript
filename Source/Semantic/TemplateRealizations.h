@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <list>
 #include <vector>
+#include <memory>
 
 #include "../lexer.h"
 
@@ -35,66 +36,22 @@ private:
 	///<summary>Если класс является реализацией одного из шаблонов, то содержит указатель на шаблонный класс по которому была сгенерирована данная реализация</summary>
 	TSClass* template_class;
 	bool template_class_set;
-	std::vector<TSClass*> realizations;
+	std::vector<std::unique_ptr<TSClass>> realizations;
 public:
+	TNodeWithTemplates();
+	~TNodeWithTemplates();
+
 	TSClass* FindTemplateRealization(const std::list<TSType_TTemplateParameter>& params_to_find);
 	int FindTemplateIntParameter(TNameId parameter_id);
-	TNodeWithTemplates()
-	{
-		type = Unknown;
-		template_class_set = false;
-		template_params_set = false;
-		template_class = NULL;
-	}
-	std::vector<TSClass*> GetRealizations()
-	{
-		assert(type == Template);
-		return realizations;
-	}
-	TSClass* GetTemplateClass()
-	{
-		assert(type == Realization);
-		return template_class;
-	}
-	std::vector<TTemplateParameter> GetTemplateParams()
-	{
-		assert(type == Realization);
-		return template_params;
-	}
-	TTemplateParameter GetTemplateParam(int i)
-	{
-		return template_params[i];
-	}
-	void SetType(Type use_type)
-	{
-		assert(type == Unknown);
-		assert(use_type != Unknown);
-		type = use_type;
-	}
-	Type GetType()
-	{
-		assert(type != Unknown);
-		return type;
-	}
-	void SetTemplateParams(std::vector<TTemplateParameter> params)
-	{
-		assert(!template_params_set);
-		assert(type == Realization);
-		this->template_params = params;
-		template_params_set = true;
-	}
-	void SetTemplateClass(TSClass* template_class)
-	{
-		assert(!template_class_set);
-		assert(type == Realization);
-		this->template_class = template_class;
-		template_class_set = true;
-	}
-	void AddTemplateRealization(TSClass* realization)
-	{
-		assert(type == Template);
-		realizations.push_back(realization);
-	}
+	const std::vector<std::unique_ptr<TSClass>>& GetRealizations();
+	TSClass* GetTemplateClass();
+	std::vector<TTemplateParameter> GetTemplateParams();
+	TTemplateParameter GetTemplateParam(int i);
+	void SetType(Type use_type);
+	Type GetType();
+	void SetTemplateParams(std::vector<TTemplateParameter> params);
+	void SetTemplateClass(TSClass* template_class);
+	void AddTemplateRealization(TSClass* realization);
 };
 
 class TSMultifield

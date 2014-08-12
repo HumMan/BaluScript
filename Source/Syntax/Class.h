@@ -50,6 +50,7 @@ class TClass:public TTokenPos, public TCanBeEnumeration
 {
 	friend class TSClass;
 	friend class TNodeWithTemplates;
+	friend class TSyntaxAnalyzer;
 protected:
 	bool is_template;
 

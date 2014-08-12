@@ -142,6 +142,11 @@ TMethod::TMethod(TClass* use_owner, TClassMember::Enum use_member_type)
 {
 }
 
+TMethod::~TMethod()
+{
+
+}
+
 void TMethod::SetHasReturn(bool use_has_return){
 	has_return = use_has_return;
 }

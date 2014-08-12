@@ -46,7 +46,7 @@ private:
 public:
 
 	TMethod(TClass* use_owner, TClassMember::Enum use_member_type = TClassMember::Func);
-
+	~TMethod();
 	void ParametersDecl(TLexer& source);
 	void AnalyzeSyntax(TLexer& source,bool realization=true);//realization - используется при получении идентификатора метода (т.к. только прототип без тела метода)
 

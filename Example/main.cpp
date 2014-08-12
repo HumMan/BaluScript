@@ -8,17 +8,19 @@
 
 #include "../Source/Semantic/SMethod.h"
 #include "../Source/Semantic/FormalParam.h"
+#include "../Source/Semantic/SStatements.h"
 #include "../Source/Syntax/Statements.h"
 #include "../Source/Syntax/Method.h"
 
 int main(int argc, char* argv[])
 {
-	setlocale(LC_ALL,"windows");
-
-	printf("Compiling ... \n");
-	TTime time;
-	time.Start();
+	
 	{
+		setlocale(LC_ALL, "windows");
+
+		printf("Compiling ... \n");
+		TTime time;
+		time.Start();
 		printf("Compiling ... \n");
 
 		char* source;
@@ -52,6 +54,7 @@ int main(int argc, char* argv[])
 				std::vector<TStaticValue> static_variables;
 				TStackValue result, object;
 				main_func->Run(static_fields, params, result, object);
+
 		/*		if(print_info)
 					printf("ok (%.3f ms)\n",time.TimeDiff(time.GetTime(),t0)*1000);
 				t0=time.GetTime();
@@ -86,12 +89,7 @@ int main(int argc, char* argv[])
 				printf(s.c_str());
 			}
 		}
-		delete source;
-#ifdef _MSC_VER
-		//MBFreeContext();
-#endif
-	};//while (FindNextFile(hFind, &FindFileData) != 0);
-	//FindClose(hFind);
+	}
 
 	printf("All done");
 	_CrtDumpMemoryLeaks();

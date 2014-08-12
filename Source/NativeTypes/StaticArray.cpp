@@ -30,7 +30,8 @@ void TStaticArr::get_size(std::vector<TStaticValue> &static_fields, std::vector<
 
 void TStaticArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 {
-	TClass* cl = new TClass(syntax->base_class);
+	TClass* cl = new TClass(syntax->base_class.get());
+	syntax->base_class->AddNested(cl);
 	syntax->lexer.ParseSource(
 		"class TStaticArray<T,Size>\n"
 		"{\n"
@@ -42,7 +43,7 @@ void TStaticArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 	cl->AnalyzeSyntax(syntax->lexer);
 	syntax->lexer.GetToken(TTokenType::Done);
 
-	TSClass* scl = new TSClass(syntax->sem_base_class, cl);
+	TSClass* scl = new TSClass(syntax->sem_base_class.get(), cl);
 	syntax->sem_base_class->AddClass(scl);
 	scl->Build();
 	scl->SetAutoMethodsInitialized();

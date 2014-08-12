@@ -9,6 +9,7 @@
 #include "SWhile.h"
 #include "SIf.h"
 #include "SFor.h"
+#include "SClass.h"
 
 #include "../Syntax/Statements.h"
 #include "../Syntax/Method.h"

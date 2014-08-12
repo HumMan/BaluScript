@@ -10,10 +10,12 @@
 #include "NativeTypes\DynArray.h"
 #include "NativeTypes\StaticArray.h"
 
+TSyntaxAnalyzer::TSyntaxAnalyzer()
+{
+}
+
 TSyntaxAnalyzer::~TSyntaxAnalyzer()
 {
-	if (base_class != NULL)
-		delete base_class;
 }
 
 void TSyntaxAnalyzer::Compile(char* use_source, TTime& time)
@@ -22,20 +24,20 @@ void TSyntaxAnalyzer::Compile(char* use_source, TTime& time)
 	lexer.ParseSource(use_source);
 	printf("Source parsing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
 	t = time.GetTime();
-	base_class = new TClass(NULL);
+	base_class.reset(new TClass(NULL));
 	base_class->InitPos(lexer);
 
 	base_class->AnalyzeSyntax(lexer);
 	lexer.GetToken(TTokenType::Done);
 
-	sem_base_class = new TSClass(NULL,base_class);
+	sem_base_class.reset(new TSClass(NULL,base_class.get()));
 
 	sem_base_class->Build();
 
 	TDynArr::DeclareExternalClass(this);
 	TStaticArr::DeclareExternalClass(this);
 
-	sem_base_class->CreateInternalClasses();
+	CreateInternalClasses();
 	sem_base_class->LinkSignature(&static_fields, &static_variables);
 	sem_base_class->InitAutoMethods();
 	sem_base_class->LinkBody(&static_fields, &static_variables);
@@ -48,13 +50,28 @@ void TSyntaxAnalyzer::Compile(char* use_source, TTime& time)
 }
 
 
+void TSyntaxAnalyzer::CreateInternalClasses()
+{
+	TNameId name_id = lexer.GetIdFromName("dword");
+	TClass* t_syntax = new TClass(base_class.get());
+	base_class->AddNested(t_syntax);
+	t_syntax->name = name_id;
+	TSClass* t = new TSClass(sem_base_class.get(), t_syntax);
+	t->SetSize(1);
+	t->SetSignatureLinked();
+	t->SetBodyLinked();
+	sem_base_class->AddClass(t);
+}
+
+
+
 TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 {
 	lexer.ParseSource(use_method);
-	TMethod* method_decl_syntax = new TMethod(base_class);
+	std::unique_ptr<TMethod> method_decl_syntax(new TMethod(base_class.get()));
 	method_decl_syntax->AnalyzeSyntax(lexer, false);
 	lexer.GetToken(TTokenType::Done);
-	TSMethod* method_decl = new TSMethod(sem_base_class->GetNestedByFullName(method_decl_syntax->GetOwner()->GetFullClassName(),1), method_decl_syntax);
+	std::unique_ptr<TSMethod> method_decl(new TSMethod(sem_base_class->GetNestedByFullName(method_decl_syntax->GetOwner()->GetFullClassName(),1), method_decl_syntax.get()));
 	method_decl->Build();
 	//method_decl->LinkBody(&static_fields, &static_variables);
 	std::vector<TSMethod*> methods;
@@ -116,12 +133,10 @@ TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 		if (method_decl->GetRetClass() != method->GetRetClass()
 			|| method_decl->GetSyntax()->IsReturnRef() != method->GetSyntax()->IsReturnRef())
 			lexer.Error("Метод возвращает другое значение!");
-		delete method_decl;
 		return method;
 	}
 	else
 		lexer.Error("Такого метода не существует!");
-	delete method_decl;
 	return NULL;
 }
 
@@ -132,7 +147,7 @@ TSClassField* TSyntaxAnalyzer::GetStaticField(char* use_var)
 		lexer.Error("Ожидалось имя класса!");
 	lexer.GetToken();
 	TSClassField* result = NULL;
-	TSClass* curr_class = sem_base_class;
+	TSClass* curr_class = sem_base_class.get();
 	while (lexer.Test(TTokenType::Dot))
 	{
 		lexer.GetToken(TTokenType::Dot);

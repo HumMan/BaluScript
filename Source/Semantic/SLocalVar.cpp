@@ -52,7 +52,7 @@ void TSLocalVar::Build(std::vector<TSClassField*>* static_fields, std::vector<TS
 
 	if (GetSyntax()->assign_expr != NULL)
 	{
-		assign_expr = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->assign_expr.get()));
+		assign_expr.reset(new TSExpression(owner, method, parent, GetSyntax()->assign_expr.get()));
 		assign_expr->Build(static_fields, static_variables);
 	}
 }

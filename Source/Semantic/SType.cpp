@@ -1,6 +1,7 @@
 ﻿#include "SType.h"
 
 #include "SClass.h"
+#include "SStatements.h"
 
 #include "../Syntax/Statements.h"
 #include "../Syntax/Method.h"
@@ -87,13 +88,14 @@ TSClass* TSType_TClassName::LinkSignature(std::vector<TSClassField*>* static_fie
 			{
 				template_params_classes.emplace_back();
 				template_params_classes.back().is_value = t.is_value;
+				//если параметр шаблона это константный идентификатор шаблона, то копируем его значение
 				if (t.is_value)
 				{
-					//если параметр шаблона это константный идентификатор шаблона, то копируем его значение
 					template_params_classes.back().value = t.value;
 				}
 				else
 				{
+					//проверяем не является ли идентификатор шаблонным параметром
 					if (use_owner->GetType() == TNodeWithTemplates::Realization && use_owner->HasTemplateParameter(t.type->GetClassNames().back().name))
 					{
 						TNodeWithTemplates::TTemplateParameter val = use_owner->GetTemplateParameter(t.type->GetClassNames().back().name);
