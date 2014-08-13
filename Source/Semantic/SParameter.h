@@ -61,13 +61,13 @@ public:
 };
 
 
-class TOperation;
+class TSOperation;
 class TExpressionResult;
 
 class TActualParamWithConversion
 {
 public:
-	std::unique_ptr<TOperation> expression;//выражение являющееся параметром
+	std::unique_ptr<TSOperation> expression;//выражение являющееся параметром
 	TExpressionResult result;
 	TSMethod* copy_constr;//используется если необходимо преобразование из lvalue в rvalue
 	bool ref_to_rvalue;
@@ -81,7 +81,7 @@ class TActualParameters
 {
 	std::list<TActualParamWithConversion> input;
 public:
-	void Build(const std::vector<TOperation*>& actual_params, const std::vector<TFormalParameter>& formal_params);
+	void Build(const std::vector<TSOperation*>& actual_params, const std::vector<TFormalParameter>& formal_params);
 	void Construct(std::vector<TStackValue> &method_call_formal_params, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object, std::vector<TStackValue>& local_variables);
 	void Destroy(std::vector<TStackValue> &method_call_formal_params, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object, std::vector<TStackValue>& local_variables);
 };

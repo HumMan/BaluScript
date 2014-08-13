@@ -10,7 +10,6 @@ namespace Test
 
 	std::vector<TStaticValue> *static_objects;
 
-	//std::vector < std::unique_ptr<TMethod>> *methods;
 	std::vector < std::unique_ptr<TSMethod>> *smethods;
 
 	TSMethod* CreateMethod(char* code)
@@ -18,7 +17,6 @@ namespace Test
 		try
 		{
 			TMethod* m = new TMethod(syntax->base_class.get());
-			//methods->push_back(std::unique_ptr<TMethod>(m));
 			syntax->lexer.ParseSource(code);
 			m->AnalyzeSyntax(syntax->lexer);
 			syntax->lexer.GetToken(TTokenType::Done);
@@ -120,7 +118,7 @@ namespace Test
 		time = new TTime();
 		time->Start();
 
-		//methods = new std::vector<std::unique_ptr<TMethod>>();
+		static_objects = new std::vector<TStaticValue>();
 		smethods = new std::vector<std::unique_ptr<TSMethod>>();
 
 		char* source;
@@ -135,7 +133,7 @@ namespace Test
 	}
 	TEST_MODULE_CLEANUP(BaseTypesTestsCleanup)
 	{
-		//delete methods;
+		delete static_objects;
 		delete smethods;
 
 		delete time;

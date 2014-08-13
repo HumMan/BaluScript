@@ -117,11 +117,11 @@ void TActualParamWithConversion::BuildConvert(TExpressionResult from_result, TFo
 	}
 }
 
-void TActualParameters::Build(const std::vector<TOperation*>& actual_params, const std::vector<TFormalParameter>& formal_params)
+void TActualParameters::Build(const std::vector<TSOperation*>& actual_params, const std::vector<TFormalParameter>& formal_params)
 {
 	assert(actual_params.size() == formal_params.size());
 	int i = 0;
-	for (TOperation* act : actual_params)
+	for (TSOperation* act : actual_params)
 	{
 		input.emplace_back();
 		input.back().expression.reset(act);

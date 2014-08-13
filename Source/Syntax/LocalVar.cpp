@@ -28,7 +28,7 @@ void TLocalVar::AnalyzeSyntax(TLexer& source) {
 		{
 			//source.GetToken(TTokenType::Identifier);
 			//source.TestAndGet(TTokenType::Operator,TOperator::Assign);
-			curr_var->assign_expr = std::unique_ptr<TExpression>(new TExpression(owner, method, parent,
+			curr_var->assign_expr.reset(new TExpression(owner, method, parent,
 					curr_var->stmt_id));
 			curr_var->assign_expr->AnalyzeSyntax(source);
 		} else {

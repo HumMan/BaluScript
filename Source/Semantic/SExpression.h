@@ -13,46 +13,70 @@ class TSParameter;
 class TSLocalVar;
 class TSConstructObject;
 
-class TOperation : public TTokenPos
+class TSOperation : public TTokenPos
 {
 public:
 	///<summary>Получить тип возвращаемого подвыражением значения</summary>
 	virtual TExpressionResult GetFormalParameter() = 0;
-	virtual ~TOperation(){}
+	virtual ~TSOperation(){}
 	virtual void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables) = 0;
 };
 
-class TSExpression_TMethodCall : public TOperation
+class TSExpression_TMethodCall : public TSOperation
 {
 	TActualParameters params;
 	TSMethod* invoke;
-
 	
+	bool is_static;
+	bool with_external_object;
 public:
-	std::unique_ptr<TOperation> left;
-	bool memcpy_assign;
-
-	//bool temp_object;
-	//std::unique_ptr<TSConstructObject> construct_temp_object;
-
-	TSExpression_TMethodCall()
+	std::unique_ptr<TSOperation> left;
+	enum TMethodCallType
 	{
-		left = NULL;
-		memcpy_assign = false;
+		Method,
+		ObjectConstructor,
+		Operator,
+		DefaultAssignOperator
+	}type;
+	TSExpression_TMethodCall(TMethodCallType type)
+	{
+		invoke = NULL;
+		this->type = type;
 	}
-	void Build(const std::vector<TOperation*>& param_expressions, TSMethod* method);
-	void Build(const std::vector<TOperation*>& param_expressions);
+	void Build(const std::vector<TSOperation*>& param_expressions, TSMethod* method);
+	//void Build(const std::vector<TSOperation*>& param_expressions);
+	TExpressionResult GetFormalParameter();
+	void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
+	void Run(TStackValue& object_to_construct, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
+};
+
+class TSExpression_TGetClass : public TSOperation
+{
+public:
+	std::unique_ptr<TSExpression_TGetClass> left;
+	TSClass* get_class;
 	TExpressionResult GetFormalParameter();
 	void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 };
 
-class TSExpression :public TSStatement,public TOperation
+class TSExpression_TCreateTempObject : public TSOperation
 {
-	std::unique_ptr<TOperation> first_op;
+	
+public:
+	std::unique_ptr<TSExpression_TGetClass> left;
+	std::unique_ptr<TSConstructObject> construct_object;
+	void Build(const std::vector<TExpression*>& param_expressions);
+	TExpressionResult GetFormalParameter();
+	void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
+};
+
+class TSExpression :public TSStatement,public TSOperation
+{
+	std::unique_ptr<TSOperation> first_op;
 public:
 	
 	
-	class TInt : public TOperation
+	class TInt : public TSOperation
 	{
 	public:
 		TInt(TSClass* owner, TType* syntax_node);
@@ -61,7 +85,7 @@ public:
 		TExpressionResult GetFormalParameter();
 		void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
-	class TFloat : public TOperation
+	class TFloat : public TSOperation
 	{
 	public:
 		TFloat(TSClass* owner, TType* syntax_node);
@@ -70,7 +94,7 @@ public:
 		TExpressionResult GetFormalParameter();
 		void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
-	class TBool : public TOperation
+	class TBool : public TSOperation
 	{
 	public:
 		TBool(TSClass* owner, TType* syntax_node);
@@ -79,7 +103,7 @@ public:
 		TExpressionResult GetFormalParameter();
 		void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
-	class TEnumValue : public TOperation
+	class TEnumValue : public TSOperation
 	{
 	public:
 		TEnumValue(TSClass* owner, TSClass* type);
@@ -88,62 +112,52 @@ public:
 		TExpressionResult GetFormalParameter();
 		void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
-	class TGetMethods :public TOperation
+	class TGetMethods :public TSOperation
 	{
 	public:
-		std::unique_ptr<TOperation> left;
+		std::unique_ptr<TSOperation> left;
 		TExpressionResult left_result;
 		TExpressionResult result;
 		TExpressionResult GetFormalParameter();
 		void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
-	class TGetClassField :public TOperation
+	class TGetClassField :public TSOperation
 	{
 	public:
-		std::unique_ptr<TOperation>  left;
+		std::unique_ptr<TSOperation>  left;
 		TExpressionResult left_result;
 		TSClassField* field;
 		TExpressionResult GetFormalParameter();
 		void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
-	class TGetParameter :public TOperation
+	class TGetParameter :public TSOperation
 	{
 	public:
 		TSParameter* parameter;
 		TExpressionResult GetFormalParameter();
 		void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
-	class TGetLocal :public TOperation
+	class TGetLocal :public TSOperation
 	{
 	public:
 		TSLocalVar* variable;
 		TExpressionResult GetFormalParameter();
 		void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
-	class TGetThis :public TOperation
+	class TGetThis :public TSOperation
 	{
 	public:
 		TSClass* owner;
 		TExpressionResult GetFormalParameter();
 		void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
-	class TGetClass : public TOperation
-	{
-	public:
-		std::unique_ptr<TGetClass> left;
-		TSClass* get_class;
-		TExpressionResult GetFormalParameter();
-		void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
-	};
+	
 public:
 	TSExpression(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TExpression* syntax_node)
-		:TSStatement(TStatementType::Expression, use_owner, use_method, use_parent, (TStatement*)syntax_node){}
+		:TSStatement(TStatementType::Expression, use_owner, use_method, use_parent, (TStatement*)(syntax_node)){}
 	void Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
 	TVariable* GetVar(TNameId name);
-	TExpression* GetSyntax()
-	{
-		return (TExpression*)TSStatement::GetSyntax();
-	}
+	TExpression* GetSyntax();
 	TExpressionResult GetFormalParameter()
 	{
 		return first_op->GetFormalParameter();

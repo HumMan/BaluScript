@@ -8,7 +8,15 @@ class TVariable;
 
 class TExpressionTreeVisitor;
 
-class TExpression:public TStatement
+class TOperation
+{
+public:
+	TTokenPos operation_source;
+	virtual ~TOperation(){}
+	virtual void Accept(TExpressionTreeVisitor* visitor) = 0;
+};
+
+class TExpression:public TStatement, public TOperation
 {
 	friend class TSExpression;
 	//TODO доделать обратную польскую нотацию
@@ -40,12 +48,7 @@ class TExpression:public TStatement
 	std::vector<int> methods;
 	void BuildPostfix();
 public:
-	class TOperation: public TTokenPos
-	{
-	public:
-		virtual ~TOperation(){}
-		virtual void Accept(TExpressionTreeVisitor* visitor) = 0;
-	};
+	
 	class TBinOp:public TOperation
 	{
 		friend class TSemanticTreeBuilder;
@@ -122,7 +125,7 @@ public:
 	{
 		friend class TSemanticTreeBuilder;
 		std::unique_ptr<TOperation> left;
-		std::vector<std::unique_ptr<TOperation>> param;
+		std::vector<std::unique_ptr<TExpression>> param;
 		bool is_bracket;
 	public:
 		TCallParamsOp(){}
@@ -130,9 +133,9 @@ public:
 		TCallParamsOp(TOperation *use_left,bool use_is_bracket):left(use_left),is_bracket(use_is_bracket)
 		{
 		}
-		void AddParam(TOperation* use_param)
+		void AddParam(TExpression* use_param)
 		{
-			param.push_back(std::unique_ptr<TOperation>(use_param));
+			param.push_back(std::unique_ptr<TExpression>(use_param));
 		}
 	};
 	class TId:public TOperation
@@ -163,7 +166,14 @@ public:
 	}
 
 	TExpression(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id)
-		:TStatement(TStatementType::Expression, use_owner, use_method, use_parent, use_stmt_id){}
+		:TStatement(TStatementType::Expression, use_owner, use_method, use_parent, use_stmt_id)
+	{
+	}
+
+	TExpression(TOperation* use_op, TClass* use_owner, TMethod* use_method, TStatements* use_parent)
+		:TStatement(TStatementType::Expression, use_owner, use_method, use_parent, -1), first_op(use_op)
+	{
+	}
 
 	~TExpression()
 	{

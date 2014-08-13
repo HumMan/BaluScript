@@ -208,6 +208,7 @@ TSClass* TSClass::GetClass(TNameId use_name)
 		}
 	}
 
+	//если реализация класса, то не забываем проверить не является ли идентификатор одним из параметров класса
 	if (GetType() == TNodeWithTemplates::Realization)
 	{
 		std::vector<TNodeWithTemplates::TTemplateParameter> template_params = GetTemplateParams();

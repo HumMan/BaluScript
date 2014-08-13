@@ -42,7 +42,7 @@ void TSLocalVar::Build(std::vector<TSClassField*>* static_fields, std::vector<TS
 
 	construct_object.reset(new TSConstructObject(owner, method, parent, type.GetClass()));
 
-	construct_object->Build(this,GetSyntax(),GetSyntax()->params,static_fields, static_variables);
+	construct_object->Build(GetSyntax(),GetSyntax()->params,static_fields, static_variables);
 
 	if (GetSyntax()->is_static)
 	{

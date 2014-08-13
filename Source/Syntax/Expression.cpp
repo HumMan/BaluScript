@@ -3,13 +3,13 @@
 #include "Statements.h"
 #include "ClassField.h"
 
-TExpression::TOperation* TExpression::ParamsCall(TLexer& source,
-		TExpression::TOperation* curr_operation) {
+TOperation* TExpression::ParamsCall(TLexer& source,
+		TOperation* curr_operation) {
 	bool use_brackets = source.Test(TTokenType::LBracket) || source.Test(
 			TTokenType::Operator, TOperator::GetArrayElement);
 	TExpression::TCallParamsOp* params_call = new TCallParamsOp(curr_operation,
 			use_brackets);
-	params_call->InitPos(source);
+	params_call->operation_source.InitPos(source);
 
 	if (use_brackets) {
 		if (!source.TestAndGet(TTokenType::Operator, TOperator::GetArrayElement))
@@ -24,7 +24,7 @@ TExpression::TOperation* TExpression::ParamsCall(TLexer& source,
 	}
 	while (!source.Test(use_brackets ? (TTokenType::RBracket)
 			: (TTokenType::RParenth))) {
-		params_call->AddParam(Expr(source, 0));
+		params_call->AddParam(new TExpression(Expr(source, 0),owner,method,parent));
 		if (!source.TestAndGet(TTokenType::Comma))
 			break;
 	}
@@ -33,12 +33,12 @@ TExpression::TOperation* TExpression::ParamsCall(TLexer& source,
 	return params_call;
 }
 
-TExpression::TOperation* TExpression::SpecialPostfix(TLexer& source,
-		TExpression::TOperation* curr_operation) {
+TOperation* TExpression::SpecialPostfix(TLexer& source,
+		TOperation* curr_operation) {
 	if (source.TestAndGet(TTokenType::Dot)) {
 		source.TestToken(TTokenType::Identifier);
 		curr_operation = new TGetMemberOp(curr_operation, source.NameId());
-		curr_operation->InitPos(source);
+		curr_operation->operation_source.InitPos(source);
 		source.GetToken();
 		return curr_operation;
 	} else if (source.Test(TTokenType::LBracket) || source.Test(
@@ -51,7 +51,7 @@ TExpression::TOperation* TExpression::SpecialPostfix(TLexer& source,
 	}
 }
 
-TExpression::TOperation* TExpression::Factor(TLexer& source) {
+TOperation* TExpression::Factor(TLexer& source) {
 	TOperation* curr_operation = NULL;
 	TTokenPos token_pos;
 	token_pos.InitPos(source);
@@ -86,12 +86,12 @@ TExpression::TOperation* TExpression::Factor(TLexer& source) {
 	} else {
 		if (source.TestAndGet(TTokenType::ResWord, TResWord::This)) {
 			curr_operation = new TThis();
-			*(TTokenPos*) curr_operation = token_pos;
+			curr_operation->operation_source = token_pos;
 		} else if (source.Test(TTokenType::Identifier))
 		//Синтаксис: Identifier
 		{
 			curr_operation = new TId(source.NameId());
-			*(TTokenPos*) curr_operation = token_pos;
+			curr_operation->operation_source = token_pos;
 			source.GetToken();
 		} else if (source.TestAndGet(TTokenType::LParenth))
 		//Синтаксис: Expr
@@ -100,7 +100,7 @@ TExpression::TOperation* TExpression::Factor(TLexer& source) {
 			source.GetToken(TTokenType::RParenth);
 		}
 		if (curr_operation == NULL)
-			source.Error("ќшибка в выражении!");
+			source.Error("Ошибка в выражении!");
 		//Синтаксис: SpecialPostfixOp*
 		do {
 			curr_operation = SpecialPostfix(source, curr_operation);
@@ -108,7 +108,7 @@ TExpression::TOperation* TExpression::Factor(TLexer& source) {
 				TTokenType::Operator, TOperator::ParamsCall) || source.Test(
 				TTokenType::LBracket) || source.Test(TTokenType::Dot));
 	}
-	*(TTokenPos*) curr_operation = token_pos;
+	curr_operation->operation_source = token_pos;
 	return curr_operation;
 }
 
@@ -147,7 +147,7 @@ const int operators_priority[TOperator::End] = {
 
 };
 
-TExpression::TOperation* TExpression::Expr(TLexer& source, int curr_prior_level) {
+TOperation* TExpression::Expr(TLexer& source, int curr_prior_level) {
 
 	const int operators_priority_max = 8;
 
@@ -171,7 +171,7 @@ TExpression::TOperation* TExpression::Expr(TLexer& source, int curr_prior_level)
 		source.GetToken();
 		TOperation* t = new TUnaryOp(Expr(source, curr_prior_level),
 				curr_unary_op);
-		*(TTokenPos*) t = temp;
+		t->operation_source = temp;
 		return t;
 	} else
 		left = Expr(source, curr_prior_level + 1);
@@ -182,7 +182,7 @@ TExpression::TOperation* TExpression::Expr(TLexer& source, int curr_prior_level)
 		curr_op = TOperator::Enum(source.Token());
 		source.GetToken();
 		left = new TBinOp(left, Expr(source, curr_prior_level + 1), curr_op);
-		*(TTokenPos*) left = temp;
+		left->operation_source = temp;
 	}
 	return left;
 }
