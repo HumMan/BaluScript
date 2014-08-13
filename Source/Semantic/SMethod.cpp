@@ -11,14 +11,30 @@
 #include "../Syntax/Statements.h"
 #include "../Syntax/Method.h"
 
+TSpecialClassMethod::Type GetMethodTypeFromSyntax(TMethod* use_syntax)
+{
+	switch (use_syntax->GetMemberType())
+	{
+	case TClassMember::DefaultConstr:
+		return TSpecialClassMethod::Default;
+	case TClassMember::CopyConstr:
+		return TSpecialClassMethod::CopyConstr;
+	case TClassMember::Destr:
+		return TSpecialClassMethod::Destructor;
+	default:
+		return TSpecialClassMethod::NotSpecial;
+	}
+}
+
 TSMethod::TSMethod(TSClass* use_owner, TMethod* use_syntax)
-	:TSyntaxNode(use_syntax), ret(use_owner, use_syntax->GetRetType()), TSpecialClassMethod(TSpecialClassMethod::NotSpecial)
+	:TSyntaxNode(use_syntax), ret(use_owner, use_syntax->GetRetType()), TSpecialClassMethod(GetMethodTypeFromSyntax(use_syntax))
 {
 	owner = use_owner;
 	is_external = false;
 	external_func = NULL;
 	has_return = use_syntax->has_return;
 	ret_ref = use_syntax->IsReturnRef();
+	
 }
 
 TSMethod::TSMethod(TSClass* use_owner, TSpecialClassMethod::Type special_method_type)
@@ -133,22 +149,20 @@ void TSMethod::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackV
 {
 	if (is_external)
 	{
-		assert(GetType() == TSpecialClassMethod::NotSpecial);
 		external_func(static_fields, formal_params, result, object);
 	}
 	else
-
 	{
+		bool result_returned = false;
+
+		std::vector<TStackValue> local_variables;
+
 		if (GetType() == TSpecialClassMethod::NotSpecial)
 		{
-			bool result_returned = false;
-			TStackValue returned_result;
-
-			std::vector<TStackValue> local_variables;
-
-			statements->Run(static_fields, formal_params, result_returned, returned_result, object, local_variables);
-
-			result = returned_result;
+			statements->Run(static_fields, formal_params, result_returned, result, object, local_variables);
+			//TODO заглушка для отслеживания завершения метода без возврата значения
+			//if (has_return)
+			//	assert(result_returned);
 		}
 		else
 		{
@@ -166,6 +180,26 @@ void TSMethod::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackV
 			{
 				owner->RunAutoDestr(static_fields, object);
 			}break;
+			case TSpecialClassMethod::Default:
+			{
+				if (owner->auto_def_constr)
+					owner->RunAutoDefConstr(static_fields, object);
+				statements->Run(static_fields, formal_params, result_returned, result, object, local_variables);
+			}break;
+			case TSpecialClassMethod::CopyConstr:
+			{
+				if (owner->auto_def_constr)
+					owner->RunAutoDefConstr(static_fields, object);
+				statements->Run(static_fields, formal_params, result_returned, result, object, local_variables);
+			}break;
+			case TSpecialClassMethod::Destructor:
+			{
+				if (owner->auto_destr)
+					owner->RunAutoDestr(static_fields, object);
+				statements->Run(static_fields, formal_params, result_returned, result, object, local_variables);
+			}break;
+
+
 			default:
 				assert(false);
 			}

@@ -98,7 +98,7 @@ void TSLocalVar::Run(std::vector<TStaticValue> &static_fields, std::vector<TStac
 	else
 		var_object.SetAsReference(local_variables.back().get());
 
-	construct_object->Construct(var_object,static_fields, formal_params, result_returned, result, object, local_variables);
+	construct_object->Construct(var_object,static_fields, formal_params, object, local_variables);
 
 	if (IsStatic())
 	{

@@ -35,9 +35,11 @@ public:
 		this->method = method;
 		this->parent = parent;
 		this->static_fields = static_fields;
+		return_new_operation = NULL;
 	}
 	void Visit(TExpression::TBinOp* operation_node)
 	{
+		return_new_operation = NULL;
 		std::vector<TSOperation*> param_expressions;
 
 		TSOperation *left,*right;
@@ -112,6 +114,7 @@ public:
 	}
 	void Visit(TExpression::TUnaryOp* operation_node)
 	{
+		return_new_operation = NULL;
 		std::vector<TSOperation*> param_expressions;
 		TSOperation *left;
 		operation_node->left->Accept(this);
@@ -147,23 +150,29 @@ public:
 	}
 	void Visit(TExpression::TCallParamsOp* operation_node)
 	{
-		
+		return_new_operation = NULL;
 		TSOperation *left;
 		operation_node->left->Accept(this);
 		left = return_new_operation;
+		return_new_operation = NULL;
 
 		TExpressionResult left_result = left->GetFormalParameter();
+		
 		std::vector<TExpressionResult> params_result;
 		std::vector<TSOperation*> param_expressions;
+		std::vector<TFormalParameter> params_formals;
+
 		for (int i = 0; i < operation_node->param.size(); i++)
 		{
 			operation_node->param[i]->Accept(this);
 			param_expressions.push_back(return_new_operation);
 			params_result.push_back(return_new_operation->GetFormalParameter());
+			params_formals.push_back(TFormalParameter(params_result.back().GetClass(), params_result.back().IsRef()));
 		}
 		
 		if (left_result.IsMethods())
 		{
+			return_new_operation = NULL;
 			//вызов метода
 			if (operation_node->is_bracket)
 				assert(false);//при вызове метода используются круглые скобки
@@ -186,6 +195,7 @@ public:
 		}
 		else if (left_result.IsType())
 		{
+			return_new_operation = NULL;
 			//if(left_result.GetType()->GetType()==TYPE_ENUM)
 			//	Error("Для перечислений нельзя использовать оператор вызова параметров!");
 			int conv_need = -1;
@@ -193,12 +203,15 @@ public:
 			TSClass* constr_class = left_result.GetType();
 
 			TSExpression_TCreateTempObject* create_temp_obj = new TSExpression_TCreateTempObject();
-			create_temp_obj->construct_object->Build(&operation_node->operation_source, operation_node->param,static_fields,static_variables);
+			create_temp_obj->construct_object.reset(new TSConstructObject(owner, method, parent->GetParentStatements(), constr_class));
+			create_temp_obj->construct_object->Build(&operation_node->operation_source, params_result, param_expressions, params_formals, static_fields, static_variables);
 			create_temp_obj->left.reset((TSExpression_TGetClass*)left);
+			return_new_operation = create_temp_obj;
 		}
 		else
 			//иначе вызов оператора () или []
 		{
+			return_new_operation = NULL;
 			//т.к. все операторы статические - первым параметром передаем ссылку на объект
 			param_expressions.insert(param_expressions.begin(), left);
 			params_result.insert(params_result.begin(), left_result);
@@ -229,6 +242,7 @@ public:
 	
 	void Visit(TExpression::TGetMemberOp* operation_node)
 	{
+		return_new_operation = NULL;
 		TSOperation *left;
 		operation_node->left->Accept(this);
 		left = return_new_operation;
@@ -355,6 +369,7 @@ public:
 	}
 	void Visit(TExpression::TId* operation_node)
 	{
+		return_new_operation = NULL;
 		TVariable* var = parent->GetVar(operation_node->name);
 		if (var != NULL)
 		{
@@ -436,6 +451,7 @@ public:
 	}
 	void Visit(TExpression::TThis *operation_node)
 	{
+		return_new_operation = NULL;
 		if (method->GetSyntax()->IsStatic())
 			syntax_node->Error("Ключевое слово 'this' можно использовать только в нестатических методах!");
 		TSExpression::TGetThis* result = new TSExpression::TGetThis();
@@ -444,6 +460,7 @@ public:
 	}
 	void Visit(TExpression::TIntValue *op)
 	{
+		return_new_operation = NULL;
 		TSExpression::TInt* result = new TSExpression::TInt(owner, &op->type);
 		result->val = op->val;
 		result->type.LinkSignature(static_fields, static_variables);
@@ -452,14 +469,15 @@ public:
 	}
 	void Visit(TExpression::TStringValue *op)
 	{
-
+		return_new_operation = NULL;
 	}
 	void Visit(TExpression::TCharValue* op)
 	{
-
+		return_new_operation = NULL;
 	}
 	void Visit(TExpression::TFloatValue* op)
 	{
+		return_new_operation = NULL;
 		TSExpression::TFloat* result = new TSExpression::TFloat(owner, &op->type);
 		result->val = op->val;
 		result->type.LinkSignature(static_fields, static_variables);
@@ -468,6 +486,7 @@ public:
 	}
 	void Visit(TExpression::TBoolValue* op)
 	{
+		return_new_operation = NULL;
 		TSExpression::TBool* result = new TSExpression::TBool(owner, &op->type);
 		result->val = op->val;
 		result->type.LinkSignature(static_fields, static_variables);
@@ -609,7 +628,8 @@ void TSExpression_TMethodCall::Run(TStackValue& object_to_construct, std::vector
 	{
 	case TSExpression_TMethodCall::ObjectConstructor:
 	{
-		invoke->Run(static_fields, method_call_formal_params, result, object_to_construct);
+		TStackValue withoutresult;
+		invoke->Run(static_fields, method_call_formal_params, withoutresult, object_to_construct);
 	}break;
 	default:
 		assert(false);
@@ -710,7 +730,8 @@ TExpressionResult TSExpression_TCreateTempObject::GetFormalParameter()
 }
 void TSExpression_TCreateTempObject::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
-
+	result = TStackValue(false, left->GetFormalParameter().GetType());
+	construct_object->Construct(result, static_fields, formal_params, object, local_variables);
 }
 
 TExpressionResult TSExpression::TGetThis::GetFormalParameter()

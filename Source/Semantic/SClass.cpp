@@ -547,7 +547,10 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 {
 	if (GetSyntax()->IsEnumeration())
 	{
-		SetSize(1);
+		if (!IsSizeInitialized())
+		{
+			SetSize(1);
+		}
 	}
 	else
 	{

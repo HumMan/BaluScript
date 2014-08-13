@@ -68,10 +68,13 @@ namespace Test
 			scl->InitAutoMethods();
 			scl->LinkBody(&static_fields, &static_variables);
 			scl->CheckForErrors();
-			scl->CalculateMethodsSizes();
 
 			std::vector<TSClass*> owners;
-			syntax->sem_base_class->CalculateSizes(owners);
+			scl->CalculateSizes(owners);
+			scl->CalculateMethodsSizes();
+
+			owners.clear();
+			syntax->sem_base_class->CalculateSizes(owners);//т.к. в этом классе могут использоваться другие шаблонные класса, реализацию которых нужно обновить
 
 			InitializeStaticClassFields(static_fields, *static_objects);
 			InitializeStaticVariables(static_variables, *static_objects);
@@ -553,15 +556,63 @@ namespace Test
 		}
 		TEST_METHOD(UserConstrCallAutoConstrTest)
 		{
-			Assert::Fail();
+			TSClass* cl2 = CreateClass(
+				"class TestClass {\n"
+				"class SubClass {\n"
+				"TDynArray<int> arr;\n"
+				"default{arr.resize(3);arr[0]=3;arr[1]=5;arr[2]=9;}\n"
+				"}\n"
+				"func static Sum(SubClass &obj):int\n"
+				"{\n"
+				"return obj.arr[0]+obj.arr[1]+obj.arr[2];\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	SubClass s;\n"
+				"	return Sum(s);\n"
+				"}}");
+			Assert::AreEqual((int)3 + 5 + 9, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 		TEST_METHOD(UserCopyConstrCallAutoConstrTest)
 		{
-			Assert::Fail();
+			TSClass* cl2 = CreateClass(
+				"class TestClass {"
+				"class SubClass {"
+				"TDynArray<int> arr;"
+				"default{arr.resize(3);arr[0]=3;arr[1]=5;arr[2]=9;}"
+				"copy(int _a,int _b,int _c){arr.resize(3);arr[0]=_a;arr[1]=_b;arr[2]=_c;}"
+				"}"
+				"func static Sum(SubClass obj):int"
+				"{"
+				"return obj.arr[0]+obj.arr[1]+obj.arr[2];\n"
+				"}"
+				"func static Test:int"
+				"{"
+				"	SubClass s(1,2,3);\n"
+				"	return Sum(SubClass(1,2,3));"
+				"}}");
+			Assert::AreEqual((int)1 + 2 + 3, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 		TEST_METHOD(UserDestructorCallAutoDestTest)
 		{
-			Assert::Fail();
+			TSClass* cl2 = CreateClass(
+				"class TestClass {"
+				"class SubClass {"
+				"TDynArray<int> arr;"
+				"default{arr.resize(3);arr[0]=3;arr[1]=5;arr[2]=9;}"
+				"copy(int _a,int _b,int _c){arr.resize(3);arr[0]=_a;arr[1]=_b;arr[2]=_c;}"
+				"destr{bool nothing_to_do=true;}"
+				"}"
+				"func static Sum(SubClass obj):int"
+				"{"
+				"return obj.arr[0]+obj.arr[1]+obj.arr[2];\n"
+				"}"
+				"func static Test:int"
+				"{"
+				"	SubClass s(1,2,3);\n"
+				"	return Sum(SubClass(1,2,3));"
+				"}}");
+			Assert::AreEqual((int)1 + 2 + 3, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 		TEST_METHOD(TempObjectConstructorTest)
 		{
@@ -581,6 +632,14 @@ namespace Test
 				"return Sum(SubClass(1,2,3));"
 				"}}");
 			Assert::AreEqual((int)1+2+3, *(int*)RunClassMethod(cl2, "Test").get());
+		}
+		TEST_METHOD(ParameterRValueCopy)
+		{
+			Assert::Fail();
+		}
+		TEST_METHOD(ParameterRValueDestructor)
+		{
+			Assert::Fail();
 		}
 	};
 	TEST_CLASS(DynArrayTesting)

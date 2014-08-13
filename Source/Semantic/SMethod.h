@@ -21,7 +21,11 @@ public:
 		AutoDefConstr,
 		AutoCopyConstr,
 		AutoDestructor,
-		AutoAssignOperator
+		AutoAssignOperator,
+
+		Default,
+		CopyConstr,
+		Destructor
 	};
 private:
 	Type type;

@@ -18,22 +18,10 @@ TSConstructObject::TSConstructObject(TSClass* use_owner, TSMethod* use_method, T
 	constr_copy_memcpy = false;
 }
 
-void TSConstructObject::Build(TTokenPos* source, std::vector<std::unique_ptr<TExpression>>& syntax_params, std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+void TSConstructObject::Build(TTokenPos* source, std::vector<TExpressionResult>& params_result, std::vector<TSOperation*>& params, std::vector<TFormalParameter>& params_formals, std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {
-	std::vector<TExpressionResult> params_result;
-	std::vector<TFormalParameter> params_formals;
-	std::vector<TSOperation*> params;
 
-	for (const std::unique_ptr<TExpression>& param_syntax : syntax_params)
-	{
-		auto t = new TSExpression(owner, method, parent, param_syntax.get());
-		t->Build(static_fields, static_variables);
-		params.push_back(t);
-		params_result.push_back(params.back()->GetFormalParameter());
-		params_formals.push_back(TFormalParameter(params_result.back().GetClass(), params_result.back().IsRef()));
-	}
-
-	//actual_params.Build(params, params_formals);
+	actual_params.Build(params, params_formals);
 
 	int conv_need = 0;
 
@@ -84,8 +72,25 @@ void TSConstructObject::Build(TTokenPos* source, std::vector<std::unique_ptr<TEx
 	}
 }
 
+void TSConstructObject::Build(TTokenPos* source, std::vector<std::unique_ptr<TExpression>>& syntax_params, std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+{
+	std::vector<TExpressionResult> params_result;
+	std::vector<TFormalParameter> params_formals;
+	std::vector<TSOperation*> params;
 
-void TSConstructObject::Construct(TStackValue& constructed_object, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
+	for (const std::unique_ptr<TExpression>& param_syntax : syntax_params)
+	{
+		auto t = new TSExpression(owner, method, parent, param_syntax.get());
+		t->Build(static_fields, static_variables);
+		params.push_back(t);
+		params_result.push_back(params.back()->GetFormalParameter());
+		params_formals.push_back(TFormalParameter(params_result.back().GetClass(), params_result.back().IsRef()));
+	}
+	Build(source, params_result, params, params_formals, static_fields, static_variables);
+}
+
+
+void TSConstructObject::Construct(TStackValue& constructed_object, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
 	if (constr_copy_memcpy)
 	{
