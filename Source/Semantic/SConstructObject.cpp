@@ -21,7 +21,7 @@ TSConstructObject::TSConstructObject(TSClass* use_owner, TSMethod* use_method, T
 void TSConstructObject::Build(TTokenPos* source, std::vector<TExpressionResult>& params_result, std::vector<TSOperation*>& params, std::vector<TFormalParameter>& params_formals, std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {
 
-	actual_params.Build(params, params_formals);
+	//actual_params.Build(params, params_formals);
 
 	int conv_need = 0;
 
@@ -95,12 +95,14 @@ void TSConstructObject::Construct(TStackValue& constructed_object, std::vector<T
 	if (constr_copy_memcpy)
 	{
 		std::vector < TStackValue > method_call_params;
-		actual_params.Construct(method_call_params, static_fields, formal_params, object, local_variables);
+		//actual_params.Construct(method_call_params, static_fields, formal_params, object, local_variables);
 		assert(method_call_params.size() == 1);
 		memcpy(constructed_object.get(), method_call_params[0].get(), object_type->GetSize()*sizeof(int));
+		
 	}
 	else if (constructor_call)
 	{
+		char* sss = new char[100];
 		constructor_call->Run(constructed_object,static_fields, formal_params, constructed_object, constructed_object, local_variables);
 	}
 }

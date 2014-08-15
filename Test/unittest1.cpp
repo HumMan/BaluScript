@@ -827,10 +827,6 @@ namespace Test
 		{
 			Assert::Fail();
 		}
-		TEST_METHOD(OperatorsOverload)
-		{
-			Assert::Fail();
-		}
 		TEST_METHOD(LogicalOperatorsOverload)
 		{
 			Assert::Fail();
