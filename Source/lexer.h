@@ -55,6 +55,7 @@ namespace TResWord
 		This,
 		Bytecode,
 		Multifield,
+		New,
 		
 		Func,
 		/*Constr,*/

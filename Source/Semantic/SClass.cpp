@@ -627,31 +627,31 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 
 void TSClass::CalculateMethodsSizes()
 {
-	if (GetType() == TNodeWithTemplates::Template)
-		return;
-
-	for (TSOverloadedMethod& method : methods)
+	if (GetType() != TNodeWithTemplates::Template)
 	{
-		method.CalculateParametersOffsets();
+
+		for (TSOverloadedMethod& method : methods)
+		{
+			method.CalculateParametersOffsets();
+		}
+		if (default_constructor)
+			default_constructor->CalculateParametersOffsets();
+		if (copy_constructors)
+			copy_constructors->CalculateParametersOffsets();
+		if (move_constructors)
+			move_constructors->CalculateParametersOffsets();
+		if (destructor)
+			destructor->CalculateParametersOffsets();
+
+		for (int i = 0; i < TOperator::End; i++)
+			if (operators[i])
+				operators[i]->CalculateParametersOffsets();
+		if (conversions)
+			conversions->CalculateParametersOffsets();
+
+		for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
+			nested_class->CalculateMethodsSizes();
 	}
-	if (default_constructor)
-		default_constructor->CalculateParametersOffsets();
-	if (copy_constructors)
-		copy_constructors->CalculateParametersOffsets();
-	if (move_constructors)
-		move_constructors->CalculateParametersOffsets();
-	if (destructor)
-		destructor->CalculateParametersOffsets();
-
-	for (int i = 0; i < TOperator::End; i++)
-		if (operators[i])
-			operators[i]->CalculateParametersOffsets();
-	if (conversions)
-		conversions->CalculateParametersOffsets();
-
-	for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
-		nested_class->CalculateMethodsSizes();
-
 	if (GetType() == TNodeWithTemplates::Template)
 		for (const std::unique_ptr<TSClass>& realization : GetRealizations())
 			realization->CalculateMethodsSizes();

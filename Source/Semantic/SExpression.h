@@ -59,13 +59,24 @@ public:
 	void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 };
 
+class TSExpression_TempObjectType;
+
 class TSExpression_TCreateTempObject : public TSOperation
 {
 	
 public:
-	std::unique_ptr<TSExpression_TGetClass> left;
+	std::unique_ptr<TSExpression_TempObjectType> left;
 	std::unique_ptr<TSConstructObject> construct_object;
 	void Build(const std::vector<TExpression*>& param_expressions);
+	TExpressionResult GetFormalParameter();
+	void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
+};
+
+class TSExpression_TempObjectType : public TSOperation
+{
+public:
+	TSExpression_TempObjectType(TSClass* owner, TType* syntax_node);
+	TSType type;
 	TExpressionResult GetFormalParameter();
 	void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 };

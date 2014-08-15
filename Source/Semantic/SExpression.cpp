@@ -148,6 +148,14 @@ public:
 		}
 		else syntax_node->Error("Унарного оператора для данного типа не существует!");
 	}
+	void Visit(TExpression::TConstructTempObject* operation_node)
+	{
+		return_new_operation = NULL;
+		TSExpression_TempObjectType* result = new TSExpression_TempObjectType(owner, operation_node->type.get());
+		result->type.LinkSignature(static_fields, static_variables);
+		result->type.LinkBody(static_fields, static_variables);
+		return_new_operation = result;
+	}
 	void Visit(TExpression::TCallParamsOp* operation_node)
 	{
 		return_new_operation = NULL;
@@ -205,7 +213,7 @@ public:
 			TSExpression_TCreateTempObject* create_temp_obj = new TSExpression_TCreateTempObject();
 			create_temp_obj->construct_object.reset(new TSConstructObject(owner, method, parent->GetParentStatements(), constr_class));
 			create_temp_obj->construct_object->Build(&operation_node->operation_source, params_result, param_expressions, params_formals, static_fields, static_variables);
-			create_temp_obj->left.reset((TSExpression_TGetClass*)left);
+			create_temp_obj->left.reset((TSExpression_TempObjectType*)left);
 			return_new_operation = create_temp_obj;
 		}
 		else
@@ -724,16 +732,28 @@ void TSExpression_TCreateTempObject::Build(const std::vector<TExpression*>& para
 {
 
 }
+TSExpression_TempObjectType::TSExpression_TempObjectType(TSClass* owner, TType* syntax_node)
+	:type(owner,syntax_node)
+{
+}
 TExpressionResult TSExpression_TCreateTempObject::GetFormalParameter()
 {
 	return TExpressionResult(left->GetFormalParameter().GetType(),false);
 }
+
 void TSExpression_TCreateTempObject::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
 	result = TStackValue(false, left->GetFormalParameter().GetType());
 	construct_object->Construct(result, static_fields, formal_params, object, local_variables);
 }
-
+TExpressionResult TSExpression_TempObjectType::GetFormalParameter()
+{
+	return TExpressionResult(type.GetClass());
+}
+void TSExpression_TempObjectType::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
+{
+	//nothing to do
+}
 TExpressionResult TSExpression::TGetThis::GetFormalParameter()
 {
 	return TExpressionResult(owner, true);

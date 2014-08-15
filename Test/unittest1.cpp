@@ -801,18 +801,19 @@ namespace Test
 				"TStaticArray<T,Size> value;\n"
 				"copy(T v0, T v1){value[0]=v0;value[1]=v1;}\n"
 				"copy(Vec2 l){value[0]=l[0];value[1]=l[1];}\n"
-				"operator +(Vec2 l, Vec2 r):Vec2 {return Vec2(l[0]+r[0],l[1]+r[1]);}\n"
-				"operator -(Vec2 l, Vec2 r):Vec2 {return Vec2(l[0]-r[0],l[1]-r[1]);}\n"
-				"operator [](Vec2& l, int i):T {return value[i];}\n"
-				"func Dot(Vec2 l, Vec2 r):T {return l[0]*r[0]+l[1]*r[1];}\n"
+				"operator +(Vec2 l, Vec2 r):Vec2 {return new Vec2(l[0]+r[0],l[1]+r[1]);}\n" //TODO return без new компилируется хотя должны быть ошибка
+				"operator -(Vec2 l, Vec2 r):Vec2 {return new Vec2(l[0]-r[0],l[1]-r[1]);}\n"
+				"operator [](Vec2& l, int i):T {return l.value[i];}\n" //TODO return value компилируется (возвр 0) хотя должны быть ошибка
+				"func Dot(Vec2 r):T {return value[0]*r[0]+value[1]*r[1];}\n"
 				"\n"
 				"}\n"
 				"func static Test:int\n"
 				"{\n"
 				"	Vec2<int, 2> v(3,5),r(-2,8);\n"
-				"	return (v+r).Dot(v-r);\n"
+				"	Vec2<int, 2> s=(v+r);\n"
+				"	return s.Dot(v-r);\n"
 				"}}"));
-			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((int)-34, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 		TEST_METHOD(IncrementDecrementPostfixOperatorsOverload)
 		{

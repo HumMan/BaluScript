@@ -121,6 +121,15 @@ public:
 		TGetMemberOp(TOperation *use_left,TNameId use_member):left(use_left),name(use_member){}
 		void Accept(TExpressionTreeVisitor* visitor);
 	};
+	class TConstructTempObject :public TOperation
+	{
+		friend class TSemanticTreeBuilder;
+		
+	public:
+		std::shared_ptr<TType> type;
+		TConstructTempObject(){}
+		void Accept(TExpressionTreeVisitor* visitor);
+	};
 	class TCallParamsOp:public TOperation
 	{
 		friend class TSemanticTreeBuilder;
@@ -191,6 +200,7 @@ public:
 	virtual void Visit(TExpression::TBinOp* op) = 0;
 	virtual void Visit(TExpression::TUnaryOp* op) = 0;
 	virtual void Visit(TExpression::TCallParamsOp* op) = 0;
+	virtual void Visit(TExpression::TConstructTempObject* op) = 0;
 	virtual void Visit(TExpression::TCharValue* op) = 0;
 	virtual void Visit(TExpression::TFloatValue* op) = 0;
 	virtual void Visit(TExpression::TGetMemberOp* op) = 0;
