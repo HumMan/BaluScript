@@ -194,9 +194,9 @@ void TSMethod::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackV
 			}break;
 			case TSpecialClassMethod::Destructor:
 			{
+				statements->Run(static_fields, formal_params, result_returned, result, object, local_variables);
 				if (owner->auto_destr)
 					owner->RunAutoDestr(static_fields, object);
-				statements->Run(static_fields, formal_params, result_returned, result, object, local_variables);
 			}break;
 
 
