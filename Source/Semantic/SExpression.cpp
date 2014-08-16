@@ -523,6 +523,14 @@ void TSExpression_TMethodCall::Build(const std::vector<TSOperation*>& param_expr
 		assert(param_expressions.size() == 2);
 		for (int i = 0; i < param_expressions.size(); i++)
 		{
+			formal_params.emplace_back(param_expressions[0]->GetFormalParameter().GetClass(), true);
+		}
+	}
+	else if (type == TSExpression_TMethodCall::ObjectConstructorInitWithAssign)
+	{
+		assert(param_expressions.size() == 1);
+		for (int i = 0; i < param_expressions.size(); i++)
+		{
 			formal_params.emplace_back(param_expressions[i]->GetFormalParameter().GetClass(), param_expressions[i]->GetFormalParameter().IsRef());
 		}
 	}
@@ -634,6 +642,10 @@ void TSExpression_TMethodCall::Run(TStackValue& object_to_construct, std::vector
 	params.Construct(method_call_formal_params, static_fields, formal_params, object, local_variables);
 	switch (type)
 	{
+	case TSExpression_TMethodCall::ObjectConstructorInitWithAssign:
+	{
+		memcpy(object_to_construct.get(), method_call_formal_params[0].get(), object_to_construct.GetClass()->GetSize()*sizeof(int));
+	}break;
 	case TSExpression_TMethodCall::ObjectConstructor:
 	{
 		TStackValue withoutresult;

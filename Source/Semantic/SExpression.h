@@ -35,6 +35,7 @@ public:
 	{
 		Method,
 		ObjectConstructor,
+		ObjectConstructorInitWithAssign,
 		Operator,
 		DefaultAssignOperator
 	}type;

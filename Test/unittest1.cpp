@@ -1025,10 +1025,6 @@ namespace Test
 				"}"
 				).get());
 		}
-		TEST_METHOD(ElementsConstructor)
-		{
-			Assert::Fail();
-		}
 		TEST_METHOD(ConstructorDestructorCount)
 		{
 			TSClass* cl2 = NULL;
@@ -1062,7 +1058,19 @@ namespace Test
 		}
 		TEST_METHOD(ElementsDestructor)
 		{
-			Assert::Fail();
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class TemplateClass {\n"
+				"	TDynArray<int> v;\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	TStaticArray<TemplateClass,10> ss;\n"
+				"	for(int i=0;i<10;i+=1){ss[i].v.resize(i+5);ss[i].v[2]=i;}\n"
+				"	return ss[1].v[2]+ss[4].v[2];\n"
+				"}}"));
+			Assert::AreEqual((int)1 + 4, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 		TEST_METHOD(CopyConstructor)
 		{
@@ -1089,9 +1097,26 @@ namespace Test
 				"}\n"
 				).get());
 		}
-		TEST_METHOD(CustomAssignTest)
+		TEST_METHOD(CustomElementAssignTest)
 		{
-			Assert::Fail();
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class TemplateClass {\n"
+				"	TDynArray<int> v;\n"
+				"	default{v.resize(10);for(int i=0;i<10;i+=1)v[i]=i;}"
+				"	operator static =(TemplateClass& l,TemplateClass& r)\n"
+				"	{l.v.resize(r.v.size());for(int i=0;i<l.v.size();i+=1)l.v[i]=r.v[i]+5;}\n"
+				"	destr{v.resize(1);v[0]=223;}"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	TStaticArray<TemplateClass,10> ss;\n"
+				"	TStaticArray<TemplateClass,10> ss2;\n"
+				"	ss=ss2;\n"
+				"	return ss[1].v[2]+ss[4].v[2];\n"
+				"}}"));
+			Assert::AreEqual((int)2 + 5 + 2 + 5, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 		TEST_METHOD(GetElementTest)
 		{
