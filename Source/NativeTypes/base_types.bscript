@@ -4,8 +4,7 @@
 		dword unnamed;
 	public:
 		copy(float v) bytecode{ASM_FLOAT_TO_INT;ASM_INT_CONSTR;};
-		
-		operator static = (int& l,int r)bytecode{ASM_ASSIGN 0,1;};
+
 		operator static +=(int& l,int r)bytecode{ASM_INT_PLUS_A;};
 		operator static -=(int& l,int r)bytecode{ASM_INT_MINUS_A;};
 		operator static *=(int& l,int r)bytecode{ASM_INT_MUL_A;};
@@ -44,8 +43,7 @@
 		dword unnamed;
 	public:
 		copy(float v) bytecode{ASM_FLOAT_CONSTR;};
-		
-		operator static = (float& l,float r)bytecode{ASM_ASSIGN 0,1;};
+
 		operator static +=(float& l,float r)bytecode{ASM_FLOAT_PLUS_A;};
 		operator static -=(float& l,float r)bytecode{ASM_FLOAT_MINUS_A;};
 		operator static *=(float& l,float r)bytecode{ASM_FLOAT_MUL_A;};
@@ -104,7 +102,6 @@
 		dword unnamed;
 	public:
 		copy(bool v) bytecode{ASM_BOOL_CONSTR;};
-		operator static = (bool& l,bool r)bytecode{ASM_ASSIGN 0,1;};
 
 		operator static ==(bool l,bool r):bool bytecode{ASM_EQUAL 0,0,1;};
 		operator static !=(bool l,bool r):bool bytecode{ASM_NOT_EQUAL 0,0,1;};
@@ -123,7 +120,6 @@
 		copy(int v) bytecode{ASM_INT_TO_VEC2;};
 		copy(float v) bytecode{ASM_FLOAT_TO_VEC2;};
 		
- 		operator static = (vec2& l,vec2 r)bytecode{ASM_ASSIGN 0,2;};
  		operator static +=(vec2& l,vec2 r)bytecode{ASM_VEC2_PLUS_A;};
 		operator static -=(vec2& l,vec2 r)bytecode{ASM_VEC2_MINUS_A;};
 		operator static *=(vec2& l,vec2 r)bytecode{ASM_VEC2_MUL_A;};
@@ -150,8 +146,6 @@
 	private:
 		dword unnamed;
 	public:
-		operator static = (char& l,char r)bytecode{ASM_ASSIGN 0,1;};
-
 		operator static ==(char l,char r):bool bytecode{ASM_EQUAL 0,0,1;};
 		operator static !=(char l,char r):bool bytecode{ASM_NOT_EQUAL 0,0,1;};
 	}
