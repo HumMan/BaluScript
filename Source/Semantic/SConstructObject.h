@@ -12,8 +12,6 @@ class TSOperation;
 
 class TSConstructObject
 {
-	//std::vector<std::unique_ptr<TSOperation>> params;
-	//TActualParameters actual_params;
 	std::unique_ptr<TSExpression_TMethodCall> constructor_call;
 	TSClass* object_type;
 	TSMethod* method;

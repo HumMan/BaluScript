@@ -730,7 +730,7 @@ void TSClass::RunAutoDefConstr(std::vector<TStaticValue> &static_fields, TStackV
 	{
 		assert(field.GetClass()->IsAutoMethodsInitialized());
 		TSMethod* field_def_constr = field.GetClass()->GetDefConstr();
-		if (field_def_constr != NULL&&!field_def_constr->GetSyntax()->IsBytecode() && !field.GetSyntax()->IsStatic())
+		if (field_def_constr != NULL&& !field.GetSyntax()->IsStatic())
 		{
 			//TOpArray ops;
 			//if (parent_has_def_constr)
@@ -772,7 +772,7 @@ void TSClass::RunAutoDestr(std::vector<TStaticValue> &static_fields, TStackValue
 	{
 		assert(field.GetClass()->IsAutoMethodsInitialized());
 		TSMethod* field_destr = field.GetClass()->GetDestructor();
-		if (field_destr != NULL&&!field_destr->GetSyntax()->IsBytecode() && !field.GetSyntax()->IsStatic())
+		if (field_destr != NULL&& !field.GetSyntax()->IsStatic())
 		{
 			TSClass* field_class = field.GetClass();
 

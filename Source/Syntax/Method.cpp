@@ -182,12 +182,12 @@ bool TMethod::IsStatic(){
 bool TMethod::IsExternal(){
 	return is_extern;
 }
-bool TMethod::IsBytecode()
-{
-		return one_instruction
-		&&statements->GetHigh() == 0
-		&& statements->GetStatement(0)->GetType() == TStatementType::Bytecode;
-}
+//bool TMethod::IsBytecode()
+//{
+//		return one_instruction
+//		&&statements->GetHigh() == 0
+//		&& statements->GetStatement(0)->GetType() == TStatementType::Bytecode;
+//}
 void TMethod::AddParam(TParameter* use_param)
 {
 	parameters.push_back(std::unique_ptr<TParameter>(use_param));

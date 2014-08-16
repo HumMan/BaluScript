@@ -61,7 +61,7 @@ public:
 	bool IsReturnRef()const;
 	bool IsStatic();
 	bool IsExternal();
-	bool IsBytecode();
+	//bool IsBytecode();
 	void AddParam(TParameter* use_param);
 	bool HasParams(std::vector<std::unique_ptr<TParameter>> &use_params)const;
 	void CheckForErrors();

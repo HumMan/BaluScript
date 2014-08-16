@@ -145,7 +145,7 @@ void TDynArr::assign_op(std::vector<TStaticValue> &static_fields, std::vector<TS
 	dyn_arr_resize(static_fields, left, right->v->size() / left->el_class->GetSize());
 	if (left->v->size() > 0)
 	{
-		if(ops.size()>0&&!ops[0]->GetSyntax()->IsBytecode())
+		if(ops.size()>0)
 			CallAssignOp(static_fields, &((*left->v)[0]), &((*right->v)[0]), 0, left->v->size() / left->el_class->GetSize(), left->el_class->GetSize(), left->el_class, ops[0]);
 		else
 		{
