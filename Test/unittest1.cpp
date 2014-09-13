@@ -1097,6 +1097,25 @@ namespace Test
 				"}\n"
 				).get());
 		}
+		TEST_METHOD(CustomElementAssignTest0)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class TemplateClass {\n"
+				"	TDynArray<int> v;\n"
+				"	operator static =(TemplateClass& l,TemplateClass& r)\n"
+				"	{l.v=r.v;}"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	TStaticArray<TemplateClass,10> ss;\n"
+				"	TStaticArray<TemplateClass,10> ss2;\n"
+				"	ss=ss2;\n"
+				"	return ss[1].v.size()+ss[4].v.size();\n"
+				"}}"));
+			Assert::AreEqual((int)2 + 5 + 2 + 5, *(int*)RunClassMethod(cl2, "Test").get());
+		}
 		TEST_METHOD(CustomElementAssignTest)
 		{
 			TSClass* cl2 = NULL;

@@ -671,6 +671,7 @@ void TSClass::InitAutoMethods()
 	bool has_def_constr = false;
 	bool has_copy_constr = false;
 	bool has_destr = false;
+	bool has_assign_op = false;
 
 	for (TSClassField& field : fields)
 	{
@@ -681,6 +682,8 @@ void TSClass::InitAutoMethods()
 			has_copy_constr = true;
 		if (field_class->GetDestructor() != NULL)
 			has_destr = true;
+		if (field_class->GetAssignOperator() != NULL)
+			has_assign_op = true;
 	}
 
 	//TODO проверка наследуемых классов на наличие конструктора, деструктора и т.д.
@@ -703,6 +706,22 @@ void TSClass::InitAutoMethods()
 	if (has_destr)
 	{
 		auto_destr.reset(new TSMethod(this, TSpecialClassMethod::AutoDestructor));
+	}
+
+	if (has_copy_constr)
+	{
+		auto_copy_constr.reset(new TSMethod(this, TSpecialClassMethod::AutoCopyConstr));
+		TSParameter* p = new TSParameter(this, auto_copy_constr.get(), this, true);
+		auto_copy_constr->AddParameter(p);
+	}
+
+	if (has_assign_op)
+	{
+		auto_assign_operator.reset(new TSMethod(this, TSpecialClassMethod::AutoAssignOperator));
+		TSParameter* p = new TSParameter(this, auto_assign_operator.get(), this, true);
+		auto_assign_operator->AddParameter(p);
+		p = new TSParameter(this, auto_assign_operator.get(), this, true);
+		auto_assign_operator->AddParameter(p);
 	}
 
 	SetAutoMethodsInitialized();
