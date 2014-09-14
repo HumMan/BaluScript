@@ -772,9 +772,63 @@ namespace Test
 	TEST_CLASS(ConversionsTesting)
 	{
 	public:
-		TEST_METHOD(ConversionInLocalVarInit)
+		TEST_METHOD(ConversionInLocalVarConstructor)
 		{
-			Assert::Fail();
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class B {\n"
+				"int a,b;\n"
+				"conversion static (B& value):float {return value.a+value.b;}\n"
+				"}\n"
+				"func static Test:float\n"
+				"{\n"
+				"	B r;\n"
+				"	r.a = 3;\n"
+				"	r.b = -6;\n"
+				"	float s(r);\n"
+				"	return s;\n"
+				"}}"));
+			Assert::AreEqual((float)-3, *(float*)RunClassMethod(cl2, "Test").get());
+		}
+		TEST_METHOD(ConversionInLocalVarAssignInit)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class B {\n"
+				"int a,b;\n"
+				"conversion static (B& value):int {return value.a+value.b;}\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	B r;\n"
+				"	r.a = 3;\n"
+				"	r.b = -6;\n"
+				"	int s=r;\n"
+				"	return s;\n"
+				"}}"));
+			Assert::AreEqual((int)-3, *(int*)RunClassMethod(cl2, "Test").get());
+		}
+		TEST_METHOD(ConversionInLocalVarAssign)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class B {\n"
+				"int a,b;\n"
+				"conversion static (B& value):int {return value.a+value.b;}\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	B r;\n"
+				"	r.a = 3;\n"
+				"	r.b = -6;\n"
+				"	int s;\n"
+				"	s=r;\n"
+				"	return s;\n"
+				"}}"));
+			Assert::AreEqual((int)-3, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 		TEST_METHOD(ConversionInMethodCall)
 		{
