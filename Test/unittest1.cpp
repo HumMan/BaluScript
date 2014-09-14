@@ -1111,12 +1111,13 @@ namespace Test
 				"{\n"
 				"	TStaticArray<TemplateClass,10> ss;\n"
 				"	TStaticArray<TemplateClass,10> ss2;\n"
+				"	ss2[1].v.resize(3);\n"
 				"	ss=ss2;\n"
-				"	return ss[1].v.size()+ss[4].v.size();\n"
+				"	return ss[1].v.size();\n"
 				"}}"));
-			Assert::AreEqual((int)2 + 5 + 2 + 5, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((int)3, *(int*)RunClassMethod(cl2, "Test").get());
 		}
-		TEST_METHOD(CustomElementAssignTest)
+		TEST_METHOD(CustomElementAssignTest1)
 		{
 			TSClass* cl2 = NULL;
 			Assert::IsNotNull(cl2 = CreateClass(

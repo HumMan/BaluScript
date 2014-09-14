@@ -507,6 +507,9 @@ bool TSClass::GetOperators(std::vector<TSMethod*> &result, TOperator::Enum op)
 {
 	assert(IsAutoMethodsInitialized());
 	operators[op]->GetMethods(result);
+	if (result.size() == 0 && op == TOperator::Assign)
+		if (auto_assign_operator)
+			result.push_back(auto_assign_operator.get());
 	return result.size() > 0;
 }
 

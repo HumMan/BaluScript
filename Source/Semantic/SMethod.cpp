@@ -198,8 +198,10 @@ void TSMethod::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackV
 				if (owner->auto_destr)
 					owner->RunAutoDestr(static_fields, object);
 			}break;
-
-
+			case TSpecialClassMethod::AutoAssignOperator:
+			{
+				owner->RunAutoAssign(static_fields, formal_params, object);
+			}break;
 			default:
 				assert(false);
 			}
