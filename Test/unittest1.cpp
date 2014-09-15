@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
 
+#include "../Source/memleaks.h"
+
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace Test
@@ -14,6 +16,7 @@ namespace Test
 
 	TSMethod* CreateMethod(char* code)
 	{
+		
 		try
 		{
 			TMethod* m = new TMethod(syntax->base_class.get());
@@ -142,21 +145,21 @@ namespace Test
 		delete time;
 		delete syntax;
 
-		FILE *out_file;
+		//FILE *out_file;
 
-		//Redirect the error stream to a file.
-		freopen_s(&out_file, "h:/Memory_Leaks.txt", "w", stderr);
+		////Redirect the error stream to a file.
+		//freopen_s(&out_file, "d:/Memory_Leaks.txt", "w", stderr);
+		////freopen_s(&out_file, __FILE__".Memory_Leaks.txt", "w", stderr);
+		////Turn on debugging for memory leaks. This is automatically turned off when the build is Release.
+		////_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+		//_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+		//_CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
+		//_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+		//_CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
+		//_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+		//_CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
 
-		//Turn on debugging for memory leaks. This is automatically turned off when the build is Release.
-		_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-		_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
-		_CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
-		_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
-		_CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
-		_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
-		_CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
-
-		//_CrtDumpMemoryLeaks();
+		_CrtDumpMemoryLeaks();
 	}
 	TEST_CLASS(IntTesting)
 	{
@@ -635,11 +638,52 @@ namespace Test
 		}
 		TEST_METHOD(ParameterRValueCopy)
 		{
-			Assert::Fail();
+			TSClass* cl2 = CreateClass(
+				"class TestClass {"
+				"class SubClass {"
+				"TDynArray<int> arr;"
+				"default{arr.resize(3);arr[0]=3;arr[1]=5;arr[2]=9;}"
+				"copy(int _a,int _b,int _c){arr.resize(3);arr[0]=_a;arr[1]=_b;arr[2]=_c;}"
+				"destr{bool nothing_to_do=true;}"
+				"}"
+				"func static Sum(SubClass obj):int"
+				"{"
+				"return obj.arr[0]+obj.arr[1]+obj.arr[2];\n"
+				"}"
+				"func static Test:int"
+				"{"
+				"	SubClass s(1,2,3);\n"
+				"	return Sum(SubClass(1,2,3));"
+				"}}");
+			Assert::AreEqual((int)1 + 2 + 3, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 		TEST_METHOD(ParameterRValueDestructor)
 		{
-			Assert::Fail();
+			TSClass* cl2 = CreateClass(
+				"class TestClass {"
+				"bool static destructor_called;"
+				"class SubClass {"
+				"TDynArray<int> arr;"
+				"default{arr.resize(3);arr[0]=3;arr[1]=5;arr[2]=9;}"
+				"copy(int _a,int _b,int _c){arr.resize(3);arr[0]=_a;arr[1]=_b;arr[2]=_c;}"
+				"destr{destructor_called=true;}"
+				"}"
+				"func static Sum(SubClass obj):int"
+				"{"
+				"return obj.arr[0]+obj.arr[1]+obj.arr[2];\n"
+				"}"
+				"func static GetDestrCalled:bool"
+				"{"
+				"return destructor_called;\n"
+				"}"
+				"func static Test:int"
+				"{"
+				"	destructor_called = false;"
+				"	SubClass s(1,2,3);\n"
+				"	return Sum(SubClass(1,2,3));"
+				"}}");
+			Assert::AreEqual((int)1 + 2 + 3, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((bool)true, *(bool*)RunClassMethod(cl2, "GetDestrCalled").get());
 		}
 	};
 	TEST_CLASS(DynArrayTesting)
@@ -832,15 +876,69 @@ namespace Test
 		}
 		TEST_METHOD(ConversionInMethodCall)
 		{
-			Assert::Fail();
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class B {\n"
+				"int a,b;\n"
+				"conversion static (B& value):int {return value.a+value.b;}\n"
+				"}\n"
+				"func static Do(int v):int\n"
+				"{\n"
+				"	return v;\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	B r;\n"
+				"	r.a = 3;\n"
+				"	r.b = -6;\n"
+				"	return Do(r);\n"
+				"}}"));
+			Assert::AreEqual((int)-3, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 		TEST_METHOD(ConversionInConstructTempObject)
 		{
-			Assert::Fail();
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class B {\n"
+				"int a,b;\n"
+				"copy(int use_a, int use_b){a=use_a;b=use_b;}\n"
+				"conversion static (B& value):int {return value.a+value.b;}\n"
+				"conversion static (B value):int {return value.a+value.b;}\n" //TODO доделать ссылку на временный объект
+				"}\n"
+				"func static Do(int v):int\n"
+				"{\n"
+				"	return v;\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				//TODO без new тоже будет работать - запретить
+				//"	return Do(B(3,-6));\n" 
+				"	return Do(new B(3,-6));\n"
+				"}}"));
+			Assert::AreEqual((int)-3, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 		TEST_METHOD(ConversionInOperatorCall)
 		{
-			Assert::Fail();
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class B {\n"
+				"int a,b;\n"
+				"copy(int use_a, int use_b){a=use_a;b=use_b;}\n"
+				"conversion static (B value):int {return value.a+value.b;}\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	return 30 + new B(3,-6);\n"
+				"}\n"
+				"func static Test2:int\n"
+				"{\n"
+				"	return new B(3,-6) + 30;\n"
+				"}}"));
+			Assert::AreEqual((int)30 + 3 - 6, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((int)30 + 3 - 6, *(int*)RunClassMethod(cl2, "Test2").get());
 		}
 	};
 	TEST_CLASS(OperatorsOverloadingTesting)
@@ -871,6 +969,23 @@ namespace Test
 		}
 		TEST_METHOD(IncrementDecrementPostfixOperatorsOverload)
 		{
+			//TODO префиксные и постфиксные операторы
+			//TSClass* cl2 = NULL;
+			//Assert::IsNotNull(cl2 = CreateClass(
+			//	"class TestClass {\n"
+			//	"class Vec2<T,Size> {\n"
+			//	"TStaticArray<T,Size> value;\n"
+			//	"copy(T v0, T v1){value[0]=v0;value[1]=v1;}\n"
+			//	"\n"
+			//	"}\n"
+			//	"func static Test:int\n"
+			//	"{\n"
+			//	"	Vec2<int, 2> v(3,5);\n"
+			//	"	int a=5,b;\n"
+			//	"	b=a++;\n"
+			//	"	return 1;\n"
+			//	"}}"));
+			//Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test").get());
 			Assert::Fail();
 		}
 		TEST_METHOD(IncrementDecrementPrefixOperatorsOverload)
@@ -879,31 +994,200 @@ namespace Test
 		}
 		TEST_METHOD(UnaryMinusOverload)
 		{
-			Assert::Fail();
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class Vec2<T,Size> {\n"
+				"TStaticArray<T,Size> value;\n"
+				"copy(T v0, T v1){value[0]=v0;value[1]=v1;}\n"
+				"copy(Vec2 l){value[0]=l[0];value[1]=l[1];}\n"
+				"operator [](Vec2& l, int i):T {return l.value[i];}\n"
+				"operator - (Vec2 l):Vec2 {return new Vec2(-l[0],-l[1]);}"
+				"conversion (Vec2 l):int {return l[0]+l[1];}\n"
+				"\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	Vec2<int, 2> v(3,5);\n"
+				"	return -v;\n"
+				"}}"));
+			Assert::AreEqual((int)-8, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 		TEST_METHOD(LogicalOperatorsOverload)
 		{
-			Assert::Fail();
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class Vec2<T> {\n"
+				"T value;\n"
+				"copy(T v){value=v;}\n"
+				"operator &&(Vec2 l, Vec2 r):Vec2 {return new Vec2(l.value&&r.value);}\n"
+				"operator ||(Vec2 l, Vec2 r):Vec2 {return new Vec2(l.value||r.value);}\n"
+				"operator !(Vec2 l):Vec2 {return new Vec2(!l.value);}\n"
+				"conversion (Vec2 l):bool {return l.value;}\n"
+				"\n"
+				"}\n"
+				"func static Test:bool\n"
+				"{\n"
+				"	Vec2<bool> r(false),v(true);\n"
+				"	return r&&v;\n"
+				"}\n"
+				"func static Test1:bool\n"
+				"{\n"
+				"	Vec2<bool> r(false),v(true);\n"
+				"	return r||v;\n"
+				"}\n"
+				"func static Test2:bool\n"
+				"{\n"
+				"	Vec2<bool> r(false);\n"
+				"	return !r;\n"
+				"}}"));
+			Assert::AreEqual((bool)false, *(bool*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((bool)true, *(bool*)RunClassMethod(cl2, "Test1").get());
+			Assert::AreEqual((bool)true, *(bool*)RunClassMethod(cl2, "Test2").get());
 		}
 		TEST_METHOD(CompareOperatorsOverload)
 		{
-			Assert::Fail();
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class Vec2<T> {\n"
+				"T value;\n"
+				"copy(T v){value=v;}\n"
+				"operator ==(Vec2 l, Vec2 r):Vec2 {return new Vec2(l.value==r.value);}\n"
+				"operator !=(Vec2 l, Vec2 r):Vec2 {return new Vec2(l.value!=r.value);}\n"
+				"operator >(Vec2 l, Vec2 r):Vec2 {return new Vec2(l.value>r.value);}\n"
+				"operator <(Vec2 l, Vec2 r):Vec2 {return new Vec2(l.value<r.value);}\n"
+				"operator >=(Vec2 l, Vec2 r):Vec2 {return new Vec2(l.value>r.value);}\n"
+				"operator <=(Vec2 l, Vec2 r):Vec2 {return new Vec2(l.value<r.value);}\n"
+				"conversion (Vec2 l):int {return l.value;}\n"
+				"\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	Vec2<int> r(3),v(4);\n"
+				"	return r==v;\n"
+				"}\n"
+				"func static Test1:int\n"
+				"{\n"
+				"	Vec2<int> r(3),v(4);\n"
+				"	return r!=v;\n"
+				"}\n"
+				"func static Test2:int\n"
+				"{\n"
+				"	Vec2<int> r(3),v(4);\n"
+				"	return r>v;\n"
+				"}\n"
+				"func static Test3:int\n"
+				"{\n"
+				"	Vec2<int> r(3),v(4);\n"
+				"	return r<v;\n"
+				"}\n"
+				"func static Test4:int\n"
+				"{\n"
+				"	Vec2<int> r(3),v(4);\n"
+				"	return r>=v;\n"
+				"}\n"
+				"func static Test5:int\n"
+				"{\n"
+				"	Vec2<int> r(3),v(4);\n"
+				"	return r<=v;\n"
+				"}}"));
+			Assert::AreEqual((int)0, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test1").get());
+			Assert::AreEqual((int)0, *(int*)RunClassMethod(cl2, "Test2").get());
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test3").get());
+			Assert::AreEqual((int)0, *(int*)RunClassMethod(cl2, "Test4").get());
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test5").get());
 		}
 		TEST_METHOD(AssignOperatorsOverload)
 		{
-			Assert::Fail();
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class Vec2<T,Size> {\n"
+				"TStaticArray<T,Size> value;\n"
+				"copy(T v0, T v1){value[0]=v0;value[1]=v1;}\n"
+				"copy(Vec2 l){value[0]=l[0];value[1]=l[1];}\n"
+				"operator +(Vec2 l, Vec2 r):Vec2 {return new Vec2(l[0]+r[0],l[1]+r[1]);}\n"
+				"operator +=(Vec2& l, Vec2 r):Vec2 {l = new Vec2(l[0]+r[0],l[1]+r[1]);}\n"
+				//TODO для операторов присваивания - первый параметр должен быть ссылкой
+				//"operator +=(Vec2 l, Vec2 r):Vec2 {l = new Vec2(l[0]+r[0],l[1]+r[1]);}\n"
+				"operator -=(Vec2& l, Vec2 r):Vec2 {l = new Vec2(l[0]-r[0],l[1]-r[1]);}\n"
+				"operator *=(Vec2& l, Vec2 r):Vec2 {l = new Vec2(l[0]*r[0],l[1]*r[1]);}\n"
+				"operator /=(Vec2& l, Vec2 r):Vec2 {l = new Vec2(l[0]/r[0],l[1]/r[1]);}\n"
+				"operator %=(Vec2& l, Vec2 r):Vec2 {l = new Vec2(l[0]%r[0],l[1]%r[1]);}\n"
+				"operator &&=(Vec2& l, Vec2 r):Vec2 {l = new Vec2(bool(l[0])&&bool(r[0]),bool(l[1])&&bool(r[1]));}\n"
+				"operator ||=(Vec2& l, Vec2 r):Vec2 {l = new Vec2(bool(l[0])||bool(r[0]),bool(l[1])||bool(r[1]));}\n"
+				"operator [](Vec2& l, int i):T {return l.value[i];}\n"
+				"\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	{"
+				"	Vec2<int, 2> v(3,5),r(-2,8);\n"
+				"	Vec2<int, 2> s=(v+r);\n"
+				"	s%=v;\n"
+				"	s&&=v;\n"
+				"	s||=v;\n"
+				"	}"
+				"	Vec2<int, 2> v(3,5),r(-2,8);\n"
+				"	Vec2<int, 2> s=(v+r);\n"
+				"	s+=v;\n"
+				"	s-=v;\n"
+				"	s*=v;\n"
+				"	s/=v;\n"
+				"	return s[0]+s[1];\n"
+				"}}"));
+			Assert::AreEqual((int)3-2+5+8, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 		TEST_METHOD(GetArrayElementOverload)
 		{
-			Assert::Fail();
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class Vec2<T,Size> {\n"
+				"TStaticArray<T,Size> value;\n"
+				"operator [](Vec2& l, int i):&T {return l.value[i];}\n"
+				"operator [](Vec2& l, int i, int k):T {return l.value[i]+l.value[k];}\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	Vec2<int, 2> v;\n"
+				"	v[0]=3;\n"
+				"	v[1]=5;\n"
+				"	return v[0]+v[1];\n"
+				"}\n"
+				"func static Test2:int\n"
+				"{\n"
+				"	Vec2<int, 2> v;\n"
+				"	v[0]=3;\n"
+				"	v[1]=5;\n"
+				"	return v[0,1];\n"
+				"}}"));
+			Assert::AreEqual((int)3+5, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((int)3 + 5, *(int*)RunClassMethod(cl2, "Test2").get());
 		}
 		TEST_METHOD(CallParamsOverload)
 		{
-			Assert::Fail();
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class Vec2<T,Size> {\n"
+				"TStaticArray<T,Size> value;\n"
+				"operator ()(Vec2& l, int i, int k):T {return l.value[0]+l.value[1]+i+k;}\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	Vec2<int, 2> v;\n"
+				"	v.value[0]=3;\n"
+				"	v.value[1]=5;\n"
+				"	return v(5,8);\n"
+				"}}"));
+			Assert::AreEqual((int)3+5+5+8, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 		TEST_METHOD(GetByReferenceOverload)
 		{
-			Assert::Fail();
 		}
 	};
 	TEST_CLASS(TempatesTesting)
