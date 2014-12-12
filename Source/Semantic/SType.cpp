@@ -98,7 +98,11 @@ TSClass* TSType_TClassName::LinkSignature(std::vector<TSClassField*>* static_fie
 					//проверяем не является ли идентификатор шаблонным параметром
 					if (use_owner->GetType() == TNodeWithTemplates::Realization && use_owner->HasTemplateParameter(t.type->GetClassNames().back().name))
 					{
-						TNodeWithTemplates::TTemplateParameter val = use_owner->GetTemplateParameter(t.type->GetClassNames().back().name);
+						TNodeWithTemplates::TTemplateParameter val;
+						if (!use_owner->GetTemplateParameter(t.type->GetClassNames().back().name, val))
+						{
+							use_owner->GetSyntax()->Error("Не найден шаблонный параметр!");
+						}
 						if (val.is_value)
 						{
 

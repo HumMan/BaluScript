@@ -122,7 +122,7 @@ void TSStatements::Build(std::vector<TSClassField*>* static_fields, std::vector<
 
 TVariable* TSStatements::GetVar(TNameId name, int sender_id)
 {
-	for (int i = 0; i < var_declarations.size(); i++)
+	for (size_t i = 0; i < var_declarations.size(); i++)
 	{
 		if (var_declarations[i].stmt_id <= sender_id
 			&&var_declarations[i].pointer->GetName() == name)

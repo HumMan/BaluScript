@@ -28,14 +28,13 @@ bool IsEqualClasses(TExpressionResult actual_parameter, TFormalParameter formal_
 
 TSMethod* FindMethod(TTokenPos* source, std::vector<TSMethod*> &methods_to_call, const std::vector<TExpressionResult> &actual_params, int& conv_needed)
 {
-	for (int k = 0; k<actual_params.size(); k++){
+	for (size_t k = 0; k<actual_params.size(); k++){
 		if (actual_params[k].IsVoid())
 			source->Error("Параметр метода должен иметь тип отличный от void!");
 	}
-	int i,k;
 	int min_conv_method=-1,temp_conv,conv;
 	conv_needed=-1;
-	for (i=0;i<methods_to_call.size();i++)
+	for (size_t i = 0; i<methods_to_call.size(); i++)
 	{			
 		if (actual_params.size() == 0 && methods_to_call[i]->GetParamsCount() == 0){
 			conv_needed=0;
@@ -44,7 +43,7 @@ TSMethod* FindMethod(TTokenPos* source, std::vector<TSMethod*> &methods_to_call,
 		if (actual_params.size() != methods_to_call[i]->GetParamsCount())goto end_search;
 		temp_conv=0;
 		conv=0;
-		for (k = 0; k<actual_params.size(); k++){
+		for (size_t k = 0; k<actual_params.size(); k++){
 			TSParameter* p=methods_to_call[i]->GetParam(k);
 			if (!IsEqualClasses(actual_params[k], p->AsFormalParameter(), conv))goto end_search;
 			else temp_conv+=conv;

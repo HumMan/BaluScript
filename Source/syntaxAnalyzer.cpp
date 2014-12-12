@@ -107,7 +107,7 @@ TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 		temp == TClassMember::MoveConstr ||
 		temp == TClassMember::Operator)
 	{
-		for (int i = 0; i<methods.size(); i++)
+		for (size_t i = 0; i<methods.size(); i++)
 		{
 			if (method_decl->GetParamsCount() == 0 && methods[i]->GetParamsCount() == 0){
 				method = methods[i];

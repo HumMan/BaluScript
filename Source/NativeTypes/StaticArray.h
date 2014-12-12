@@ -10,8 +10,9 @@ class TStackValue;
 class TSyntaxAnalyzer;
 class TSClass;
 
-struct TStaticArr
+class TStaticArr
 {
+public:
 	static void get_element_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
 	static void get_size(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
 

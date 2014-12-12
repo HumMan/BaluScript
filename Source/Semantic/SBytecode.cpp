@@ -18,7 +18,7 @@ TSBytecode::TSBytecode(TSClass* use_owner, TSMethod* use_method, TSStatements* u
 
 void TSBytecode::Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
 {
-	for (int i = 0; i<GetSyntax()->code.size(); i++)
+	for (size_t i = 0; i<GetSyntax()->code.size(); i++)
 	{
 		if (GetSyntax()->code[i].f[0] == TBytecode::TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID)
 		{

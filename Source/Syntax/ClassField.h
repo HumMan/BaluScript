@@ -6,7 +6,7 @@
 #include "Accessible.h"
 
 class TClass;
-struct TType;
+class TType;
 
 class TClassField :public TAccessible, public TTokenPos, public TMultifield
 {

@@ -10,12 +10,13 @@
 int TNodeWithTemplates::FindTemplateIntParameter(TNameId parameter_id)
 {
 	assert(type == Realization);
-	for (int i = 0; i < template_params.size(); i++)
+	for (size_t i = 0; i < template_params.size(); i++)
 	{
 		if (template_params[i].is_value&&template_class->GetSyntax()->template_params[i] == parameter_id)
 			return template_params[i].value;
 	}
 	assert(false);//TODO поиск шаблонного параметра значения должен происходить не только здесь, можно инициализировать значения в выражениях
+	return -1;
 }
 
 TSClass* TNodeWithTemplates::FindTemplateRealization(const std::list<TSType_TTemplateParameter>& params_to_find)
@@ -30,7 +31,7 @@ TSClass* TNodeWithTemplates::FindTemplateRealization(const std::list<TSType_TTem
 		}
 		bool found = true;
 		auto it = params_to_find.begin();
-		for (int i = 0; i < r_params.size(); i++)
+		for (size_t i = 0; i < r_params.size(); i++)
 		{
 			if (r_params[i].is_value)
 			{

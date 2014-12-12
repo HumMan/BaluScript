@@ -39,7 +39,7 @@ void TSOverloadedMethod::CalculateParametersOffsets()
 
 void TSOverloadedMethod::CopyExternalMethodBindingsFrom(TSOverloadedMethod* source)
 {
-	for (int i = 0; i < source->methods.size(); i++)
+	for (size_t i = 0; i < source->methods.size(); i++)
 		methods[i]->CopyExternalMethodBindingsFrom(source->methods[i].get());
 }
 

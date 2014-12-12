@@ -105,7 +105,7 @@ TSClass* TSClass::GetNested(TNameId name) {
 	return NULL;
 }
 
-TNodeWithTemplates::TTemplateParameter TSClass::GetTemplateParameter(TNameId name)
+bool TSClass::GetTemplateParameter(TNameId name, TNodeWithTemplates::TTemplateParameter& result)
 {
 	assert(GetType() == TNodeWithTemplates::Realization);
 	int par_count = GetTemplateClass()->GetSyntax()->GetTemplateParamsCount();
@@ -114,10 +114,12 @@ TNodeWithTemplates::TTemplateParameter TSClass::GetTemplateParameter(TNameId nam
 	{
 		if (n == name)
 		{
-			return GetTemplateParam(i);
+			result = GetTemplateParam(i);
+			return true;
 		}
 		i++;
 	}
+	return false;
 	assert(false);
 }
 
@@ -142,9 +144,9 @@ void TSClass::CheckForErrors()
 	if (owner != NULL&&owner->GetOwner() != NULL&&owner->GetOwner()->GetClass(GetSyntax()->GetName()))
 		GetSyntax()->Error("Класс с таким именем уже существует!");//TODO как выводить ошибки если объекты были получены не из кода, а созданы вручную - исправить
 	//for (const std::unique_ptr<TSClass> nested_class : nested_classes)
-	for (int i = 0; i < nested_classes.size(); i++)
+	for (size_t i = 0; i < nested_classes.size(); i++)
 	{
-		for (int k = 0; k < i; k++)
+		for (size_t k = 0; k < i; k++)
 		{
 			if (nested_classes[i]->GetSyntax()->GetName() == nested_classes[k]->GetSyntax()->GetName())
 				nested_classes[i]->GetSyntax()->Error("Класс с таким именем уже существует!");
@@ -175,7 +177,7 @@ void TSClass::CheckForErrors()
 		std::vector<TSMethod*> owner_methods;
 		if (owner != NULL&&owner->GetMethods(owner_methods, method.GetName()))
 		{
-			for (int k = 0; k < owner_methods.size(); k++)
+			for (size_t k = 0; k < owner_methods.size(); k++)
 			{
 				TSMethod* temp = method.FindParams(owner_methods[k]);
 				if (temp != NULL)
@@ -212,7 +214,7 @@ TSClass* TSClass::GetClass(TNameId use_name)
 	if (GetType() == TNodeWithTemplates::Realization)
 	{
 		std::vector<TNodeWithTemplates::TTemplateParameter> template_params = GetTemplateParams();
-		for (int i = 0; i < template_params.size(); i++)
+		for (size_t i = 0; i < template_params.size(); i++)
 			if (!template_params[i].is_value)
 				if (GetTemplateClass()->GetSyntax()->template_params[i] == use_name)
 					return template_params[i].type;

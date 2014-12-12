@@ -33,10 +33,5 @@ public:
 	int static_vars_init;
 	int static_vars_destroy;
 	int static_vars_size;
-	void SetExternalMethod(int method_id,TExternalMethod external_func)
-	{
-		if(!methods_table[method_id].is_external)
-			throw "Данный метод не является внешним!";
-		methods_table[method_id].extern_method=external_func;
-	}
+	void SetExternalMethod(int method_id, TExternalMethod external_func);
 };

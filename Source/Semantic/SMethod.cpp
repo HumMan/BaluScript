@@ -95,7 +95,7 @@ bool TSMethod::HasParams(std::vector<std::unique_ptr<TSParameter>> &use_params)c
 {
 	if (use_params.size() != parameters.size())
 		return false;
-	for (int i = 0; i<parameters.size(); i++)
+	for (size_t i = 0; i<parameters.size(); i++)
 		if (!parameters[i]->IsEqualTo(*(use_params[i])))
 			return false;
 	return true;
@@ -124,7 +124,7 @@ void TSMethod::LinkBody(std::vector<TSClassField*>* static_fields, std::vector<T
 void TSMethod::CalculateParametersOffsets()
 {
 	parameters_size = 0;
-	for (int i = 0; i<parameters.size(); i++)
+	for (size_t i = 0; i<parameters.size(); i++)
 	{
 		if (!parameters[i]->IsOffsetInitialized())
 		{
@@ -239,10 +239,10 @@ void TSMethod::CheckForErrors()
 {
 	if (owner->GetOwner() == NULL&&!GetSyntax()->IsStatic())
 		GetSyntax()->Error("Базовый класс может содержать только статические методы!");
-	for (int i = 0; i<parameters.size(); i++)
+	for (size_t i = 0; i<parameters.size(); i++)
 	{
 		if (!parameters[i]->GetSyntax()->GetName().IsNull())
-			for (int k = 0; k<i; k++)
+			for (size_t k = 0; k<i; k++)
 			{
 			if (parameters[i]->GetSyntax()->GetName() == parameters[k]->GetSyntax()->GetName())
 				parameters[i]->GetSyntax()->Error("Параметр с таким именем уже существует!");
@@ -342,7 +342,7 @@ void TSMethod::CheckForErrors()
 
 TVariable* TSMethod::GetVar(TNameId name)
 {
-	for (int i = 0; i<parameters.size(); i++)
+	for (size_t i = 0; i<parameters.size(); i++)
 		if (parameters[i]->GetSyntax()->GetName() == name)
 			return (TVariable*)parameters[i].get();
 	return (TVariable*)owner->GetField(name, false);

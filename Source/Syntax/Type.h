@@ -19,7 +19,7 @@ struct TType_TClassName
 	void ConvertDimensionsToTemplates();
 };
 
-struct TType:public TTokenPos
+class TType:public TTokenPos
 {
 
 private:

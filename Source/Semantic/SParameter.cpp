@@ -145,7 +145,7 @@ void TActualParameters::Construct(std::vector<TStackValue> &method_call_formal_p
 void TActualParameters::Destroy(std::vector<TStackValue> &method_call_formal_params, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &_formal_params, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
 	auto it = input.begin();
-	for (int i = 0; i < method_call_formal_params.size(); i++)
+	for (size_t i = 0; i < method_call_formal_params.size(); i++)
 	{
 		if (!it->result.IsRef() && it->result.GetClass()->GetDestructor() != NULL)
 		{

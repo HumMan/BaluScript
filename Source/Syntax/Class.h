@@ -39,7 +39,7 @@ public:
 	int GetEnumId(TNameId use_enum)
 	{
 		assert(is_enum);
-		for (int i = 0; i < enums.size(); i++)
+		for (size_t i = 0; i < enums.size(); i++)
 			if (enums[i] == use_enum)
 				return i;
 		return -1;

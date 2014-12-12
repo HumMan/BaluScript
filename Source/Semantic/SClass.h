@@ -75,7 +75,7 @@ public:
 
 	TSClass* GetNested(TNameId name);
 
-	TNodeWithTemplates::TTemplateParameter GetTemplateParameter(TNameId name);
+	bool GetTemplateParameter(TNameId name, TNodeWithTemplates::TTemplateParameter& result);
 	bool HasTemplateParameter(TNameId name);
 	///<summary>Постоение семанитческого дерева по синтаксическому(для всех кроме тел методов) без какого либо анализа типов</summary>
 	void Build();

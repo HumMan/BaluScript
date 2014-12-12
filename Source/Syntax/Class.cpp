@@ -171,7 +171,7 @@ void TClass::AnalyzeSyntax(TLexer& source)
 		do
 		{
 			source.Test(TTokenType::Identifier);
-			for (int i = 0; i < enums.size(); i++)
+			for (size_t i = 0; i < enums.size(); i++)
 				if (enums[i] == source.NameId())
 					source.Error("Значение перечисления с таким имененм уже существует!");
 			enums.push_back(source.NameId());

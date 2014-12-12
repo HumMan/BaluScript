@@ -170,7 +170,7 @@ public:
 		std::vector<TSOperation*> param_expressions;
 		std::vector<TFormalParameter> params_formals;
 
-		for (int i = 0; i < operation_node->param.size(); i++)
+		for (size_t i = 0; i < operation_node->param.size(); i++)
 		{
 			operation_node->param[i]->Accept(this);
 			param_expressions.push_back(return_new_operation);
@@ -521,7 +521,7 @@ void TSExpression_TMethodCall::Build(const std::vector<TSOperation*>& param_expr
 	if (type == TSExpression_TMethodCall::DefaultAssignOperator)
 	{
 		assert(param_expressions.size() == 2);
-		for (int i = 0; i < param_expressions.size(); i++)
+		for (size_t i = 0; i < param_expressions.size(); i++)
 		{
 			formal_params.emplace_back(param_expressions[0]->GetFormalParameter().GetClass(), true);
 		}
@@ -529,7 +529,7 @@ void TSExpression_TMethodCall::Build(const std::vector<TSOperation*>& param_expr
 	else if (type == TSExpression_TMethodCall::ObjectConstructorInitWithAssign)
 	{
 		assert(param_expressions.size() == 1);
-		for (int i = 0; i < param_expressions.size(); i++)
+		for (size_t i = 0; i < param_expressions.size(); i++)
 		{
 			formal_params.emplace_back(param_expressions[i]->GetFormalParameter().GetClass(), param_expressions[i]->GetFormalParameter().IsRef());
 		}
@@ -538,7 +538,7 @@ void TSExpression_TMethodCall::Build(const std::vector<TSOperation*>& param_expr
 	{
 		assert(param_expressions.size() == method->GetParamsCount());
 		invoke = method;
-		for (int i = 0; i < param_expressions.size(); i++)
+		for (size_t i = 0; i < param_expressions.size(); i++)
 		{
 			formal_params.emplace_back(method->GetParam(i)->GetClass(), method->GetParam(i)->IsRef());
 		}

@@ -8,6 +8,8 @@
 #include "Syntax/Statements.h"
 #include "Syntax/Method.h"
 
+#pragma push_macro("new")
+
 void TStaticArr::get_element_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
 {
 	TSClass* obj_class = formal_params[0].GetClass();
