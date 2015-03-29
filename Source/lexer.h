@@ -66,7 +66,7 @@ namespace TResWord
 		Operator,
 		Conversion,
 
-		End //используетс¤ дл¤ получени¤ количества зарезервированных слов
+		End //используется для получения количества зарезервированных слов
 	};
 }
 namespace TValue
@@ -329,8 +329,8 @@ private:
 	int curr_unique_id;
 	std::vector<std::string*> ids;
 
-	char* source;
-	char* curr_char;
+	const char* source;
+	const char* curr_char;
 	int col;
 	int line;
 	char c;
@@ -368,7 +368,7 @@ public:
 	{
 		return curr_token;
 	}
-	void ParseSource(char* use_source);
+	void ParseSource(const char* use_source);
 	void Error(char* s,int token_id=-1,va_list args=NULL)
 	{
 		const int err_head_length=600;

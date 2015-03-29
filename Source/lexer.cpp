@@ -45,7 +45,7 @@ TLexer::TLexer():source(NULL),curr_char(NULL),col(1),line(1)
 		res_words.Add(GetBytecodeString((TOpcode::Enum)i),TToken(TTokenType::Bytecode, i));
 }
 
-void TLexer::ParseSource(char* use_source)
+void TLexer::ParseSource(const char* use_source)
 {
 	source=use_source;
 	curr_char=source;

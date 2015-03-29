@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <vector>
+#include <assert.h>
 
 class TSClass;
 class TSMethod;
@@ -44,6 +45,12 @@ public:
 	void operator=(const TStackValue& right);
 	void SetAsReference(void* use_ref);
 	void* get();
+	template<class T>
+	T* get_as()
+	{
+		assert(actual_size == IntSizeOf(sizeof(T)) / sizeof(int));
+		return reinterpret_cast<T*>(internal_buf);
+	}
 	~TStackValue();
 };
 
