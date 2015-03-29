@@ -9,6 +9,7 @@
 
 #include "NativeTypes\DynArray.h"
 #include "NativeTypes\StaticArray.h"
+#include "NativeTypes\String.h"
 
 TSyntaxAnalyzer::TSyntaxAnalyzer()
 {
@@ -36,6 +37,7 @@ void TSyntaxAnalyzer::Compile(char* use_source, TTime& time)
 
 	TDynArr::DeclareExternalClass(this);
 	TStaticArr::DeclareExternalClass(this);
+	TString::DeclareExternalClass(this);
 
 	CreateInternalClasses();
 	sem_base_class->LinkSignature(&static_fields, &static_variables);

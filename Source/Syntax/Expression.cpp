@@ -70,8 +70,8 @@ TOperation* TExpression::Factor(TLexer& source)
 		switch (source.Token())
 		{
 		case TValue::Int:
-			curr_operation = new TIntValue(source.Int(), source.GetIdFromName(
-				"int"), owner);
+			curr_operation = new TIntValue(source.Int(),
+				source.GetIdFromName("int"), owner);
 			break;
 		case TValue::Float:
 			curr_operation = new TFloatValue(source.Float(),
@@ -82,7 +82,7 @@ TOperation* TExpression::Factor(TLexer& source)
 				source.GetIdFromName("bool"), owner);
 			break;
 		case TValue::String:
-			curr_operation = new TStringValue(source.String(),
+			curr_operation = new TStringValue(source.StringValue(),
 				source.GetIdFromName("string"), owner);
 			break;
 		case TValue::Char:

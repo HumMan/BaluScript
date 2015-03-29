@@ -13,6 +13,7 @@
 #include "SClass.h"
 #include "SConstructObject.h"
 
+#include "../NativeTypes/String.h"
 
 class TSemanticTreeBuilder :public TExpressionTreeVisitor
 {
@@ -359,7 +360,10 @@ public:
 			else
 			{
 				if (!left_result.IsRef())
-					syntax_node->Error("Вызов метода для временного объекта недопустим!");
+				{
+					//syntax_node->Error("Вызов метода для временного объекта недопустим!");
+					int tttt;
+				}
 				std::vector<TSMethod*> methods;
 				if (left_result.GetClass()->GetMethods(methods, operation_node->name, false))
 				{
@@ -478,6 +482,11 @@ public:
 	void Visit(TExpression::TStringValue *op)
 	{
 		return_new_operation = NULL;
+		TSExpression::TString* result = new TSExpression::TString(owner, &op->type);
+		result->val = op->val;
+		result->type.LinkSignature(static_fields, static_variables);
+		result->type.LinkBody(static_fields, static_variables);
+		return_new_operation = result;
 	}
 	void Visit(TExpression::TCharValue* op)
 	{
@@ -579,6 +588,20 @@ void TSExpression::TBool::Run(std::vector<TStaticValue> &static_fields, std::vec
 	*(int*)result.get() = val;
 }
 TExpressionResult TSExpression::TBool::GetFormalParameter()
+{
+	return TExpressionResult(type.GetClass(), false);
+}
+
+TSExpression::TString::TString(TSClass* owner, TType* syntax_node)
+	:type(owner, syntax_node)
+{
+}
+void TSExpression::TString::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
+{
+	result = TStackValue(false, type.GetClass());
+	*((::TString*)result.get())->v = val;
+}
+TExpressionResult TSExpression::TString::GetFormalParameter()
 {
 	return TExpressionResult(type.GetClass(), false);
 }

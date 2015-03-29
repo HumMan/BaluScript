@@ -1545,5 +1545,75 @@ namespace Test
 				Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 	};
+	TEST_CLASS(OperatorsTesting)
+	{
+	public:
+		TEST_METHOD(CallMethodFromMember)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class ITestBase { func GetValue:int {return 547;}}"
+				"class ITest { func GetBase:ITestBase{return new ITestBase();}}"
+				"func static Test:int\n"
+				"{\n"
+				"	ITest e;\n"
+				"	int v = e.GetBase().GetValue();\n"
+				"	return v;\n"
+				"}}"));
+			Assert::AreEqual((int)547, *(int*)RunClassMethod(cl2, "Test").get());
+		}
+		TEST_METHOD(CallMethodWithParamFromMember)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class ITestBase { func GetValue(string s):int {return 547;}}"
+				"class ITest { func GetBase:ITestBase{return new ITestBase();}}"
+				"func static Test:int\n"
+				"{\n"
+				"	ITest e;\n"
+				"	int v = e.GetBase().GetValue(\"test\");\n"
+				"	return v;\n"
+				"}}"));
+			Assert::AreEqual((int)547, *(int*)RunClassMethod(cl2, "Test").get());
+		}
+	};
 	//TODO Вызов авто коснтруктора из пользовательского
+
+	TEST_CLASS(StringTesting)
+	{
+	public:
+
+		TEST_METHOD(StringDefConstr)
+		{
+			Assert::AreEqual(0, *(int*)RunCode(
+				"func static Test:int"
+				"{"
+				"	string s;"
+				"	return s.length();"
+				"}"
+				).get());
+		}
+		TEST_METHOD(StringLength)
+		{
+			Assert::AreEqual(0, *(int*)RunCode(
+				"func static Test:int"
+				"{"
+				"	string s;"
+				"	return s.length();"
+				"}"
+				).get());
+		}
+		TEST_METHOD(StringConstr)
+		{
+			Assert::AreEqual(0, *(int*)RunCode(
+				"func static Test:int"
+				"{"
+				"	string s(\"test\");"
+				"	return s.length();"
+				"}"
+				).get());
+		}
+	};
 }

@@ -97,10 +97,10 @@ public:
 	class TStringValue:public TOperation
 	{
 		friend class TSemanticTreeBuilder;
-		TNameId val;
+		std::string val;
 		TType type;
 	public:
-		TStringValue(TNameId use_val,TNameId string_class_name,TClass* use_owner):val(use_val),type(string_class_name,use_owner){}
+		TStringValue(std::string use_val, TNameId string_class_name, TClass* use_owner) :val(use_val), type(string_class_name, use_owner){}
 		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TCharValue:public TOperation

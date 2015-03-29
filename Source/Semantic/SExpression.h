@@ -115,6 +115,15 @@ public:
 		TExpressionResult GetFormalParameter();
 		void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 	};
+	class TString : public TSOperation
+	{
+	public:
+		TString(TSClass* owner, TType* syntax_node);
+		std::string val;
+		TSType type;
+		TExpressionResult GetFormalParameter();
+		void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
+	};
 	class TEnumValue : public TSOperation
 	{
 	public:

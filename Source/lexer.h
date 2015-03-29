@@ -209,7 +209,7 @@ public:
 		TData* data;
 		return Add(GetHash(use_key),use_key,use_data,key,data);
 	}
-	int GetHash(char* str)
+	int GetHash(const char* str)
 	{
 		assert(hash_bits_count>=1&&hash_bits_count<=16);
 		unsigned char h1, h2;
@@ -322,7 +322,7 @@ private:
 	};
 
 private:
-	THash<std::string,char*,int,16> ids_table;
+	THash<std::string,const char*,int,16> ids_table;
 	THash<std::string,char*,int,16> string_literals_table;
 	THash<std::string,char*,TToken,8> res_words;
 
@@ -343,7 +343,7 @@ private:
 		c=*(++curr_char);
 		col++;
 	}
-	TNameId AddIdentifier(char* use_name)
+	TNameId AddIdentifier(const char* use_name)
 	{
 		int hash=ids_table.GetHash(use_name);
 		int* d;
@@ -400,6 +400,13 @@ public:
 		return tokens[curr_token].identifier;
 #endif
 	}
+	//TODO не должно использоваться, только через lexer по name_id (т.к. много одинаковых)
+	std::string StringValue()
+	{
+		if (!(tokens[curr_token].type == TTokenType::Value&&tokens[curr_token].token == TValue::String))
+			Error("Ожидалась строковая константа!");
+		return std::string(*ids[tokens[curr_token].identifier]);
+	}
 	TNameId String()
 	{
 		if(!(tokens[curr_token].type==TTokenType::Value&&tokens[curr_token].token==TValue::String))
@@ -448,7 +455,7 @@ public:
 	{
 		return *(ids[use_id.id]);
 	}
-	TNameId GetIdFromName(char* use_name)
+	TNameId GetIdFromName(const char* use_name)
 	{
 		return AddIdentifier(use_name);
 	}

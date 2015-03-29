@@ -173,10 +173,10 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 		sp -= op->v1; break;
 	case PUSH_THIS:
 		*(++sp) = (int)this_pointer; break;
-	case PUSH_STRING_CONST:
-		sp += 2;
-		((TString*)(sp - 1))->CopyFromConst(program->string_consts[op->v1]);
-		break;
+	//case PUSH_STRING_CONST:
+	//	sp += 2;
+	//	((TString*)(sp - 1))->CopyFromConst(program->string_consts[op->v1]);
+	//	break;
 	case RVALUE:
 	{
 		int *s, *d;
@@ -336,52 +336,52 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 		//////////////////////////////////////////////////
 		//string
 
-	case R_STRING_DEF_CONSTR:
-		((TString*)this_pointer)->Init();
-		break;
-	case RR_STRING_COPY_CONSTR:
-		((TString*)this_pointer)->Copy((TString*)*sp);
-		break;
-	case R_STRING_DESTR:
-		((TString*)this_pointer)->Destr();
-		break;
-	case STRING_ASSIGN:
-	{
-		int *s, *d;
-		s = sp - (unsigned int)(op->f2 ? 0 : (_INTSIZEOF(TString) / 4 - 1));
-		d = s - 1;
-		((TString*)(op->f1 ? (int*)*d : d))->AssignOp((TString*)(op->f2 ? (int*)*s : s));
-		sp = d - 1;
-		if (!op->f2)((TString*)s)->Destr();
-	}break;
-	//case VV_STRING_PLUS:
+	//case R_STRING_DEF_CONSTR:
+	//	((TString*)this_pointer)->Init();
 	//	break;
-	//case RV_STRING_PLUS_ASSIGN:
+	//case RR_STRING_COPY_CONSTR:
+	//	((TString*)this_pointer)->Copy((TString*)*sp);
 	//	break;
-	case STRING_EQUAL:
-	{
-		int *s, *d;
-		s = sp - (unsigned int)(op->f2 ? 0 : (_INTSIZEOF(TString) / 4 - 1));//TODO заменить все sizeof()/4 на _INT_SIZE
-		d = s - (unsigned int)(op->f1 ? 1 : (_INTSIZEOF(TString) / 4));
-		int temp = ((TString*)(op->f1 ? (int*)*d : d))->EqualOp((TString*)(op->f2 ? (int*)*s : s));
-		sp = d;
-		*sp = temp;
-		if (!op->f1)((TString*)d)->Destr();
-		if (!op->f2)((TString*)s)->Destr();
-	}break;
-	case R_STRING_PRINT:
-		//CharToOem(((TString*)sp[0])->chars,buf);
-		//printf(buf);
-		printf(((TString*)sp[0])->chars);
-		sp--;
-		break;
-	case V_STRING_PRINT:
-		//CharToOem(((TString*)(sp-1))->chars,buf);
-		printf(buf);
-		printf(((TString*)(sp - 1))->chars);
-		((TString*)(sp - 1))->Destr();
-		sp -= 2;
-		break;
+	//case R_STRING_DESTR:
+	//	((TString*)this_pointer)->Destr();
+	//	break;
+	//case STRING_ASSIGN:
+	//{
+	//	int *s, *d;
+	//	s = sp - (unsigned int)(op->f2 ? 0 : (_INTSIZEOF(TString) / 4 - 1));
+	//	d = s - 1;
+	//	((TString*)(op->f1 ? (int*)*d : d))->AssignOp((TString*)(op->f2 ? (int*)*s : s));
+	//	sp = d - 1;
+	//	if (!op->f2)((TString*)s)->Destr();
+	//}break;
+	////case VV_STRING_PLUS:
+	////	break;
+	////case RV_STRING_PLUS_ASSIGN:
+	////	break;
+	//case STRING_EQUAL:
+	//{
+	//	int *s, *d;
+	//	s = sp - (unsigned int)(op->f2 ? 0 : (_INTSIZEOF(TString) / 4 - 1));//TODO заменить все sizeof()/4 на _INT_SIZE
+	//	d = s - (unsigned int)(op->f1 ? 1 : (_INTSIZEOF(TString) / 4));
+	//	int temp = ((TString*)(op->f1 ? (int*)*d : d))->EqualOp((TString*)(op->f2 ? (int*)*s : s));
+	//	sp = d;
+	//	*sp = temp;
+	//	if (!op->f1)((TString*)d)->Destr();
+	//	if (!op->f2)((TString*)s)->Destr();
+	//}break;
+	//case R_STRING_PRINT:
+	//	//CharToOem(((TString*)sp[0])->chars,buf);
+	//	//printf(buf);
+	//	printf(((TString*)sp[0])->chars);
+	//	sp--;
+	//	break;
+	//case V_STRING_PRINT:
+	//	//CharToOem(((TString*)(sp-1))->chars,buf);
+	//	printf(buf);
+	//	printf(((TString*)(sp - 1))->chars);
+	//	((TString*)(sp - 1))->Destr();
+	//	sp -= 2;
+	//	break;
 
 
 

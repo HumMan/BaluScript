@@ -170,14 +170,17 @@ void TClass::AnalyzeSyntax(TLexer& source)
 		source.GetToken(TTokenType::LBrace);
 		do
 		{
-			source.Test(TTokenType::Identifier);
-			for (size_t i = 0; i < enums.size(); i++)
-				if (enums[i] == source.NameId())
-					source.Error("Значение перечисления с таким именем уже существует!");
-			enums.push_back(source.NameId());
-			source.GetToken();
+			if (source.Test(TTokenType::Identifier))
+			{
+				for (size_t i = 0; i < enums.size(); i++)
+					if (enums[i] == source.NameId())
+						source.Error("Значение перечисления с таким именем уже существует!");
+				enums.push_back(source.NameId());
+				source.GetToken();
+			}
+			else
+				break;
 		} while (source.TestAndGet(TTokenType::Comma));
-		source.TestAndGet(TTokenType::Comma);
 		source.GetToken(TTokenType::RBrace);
 		return;
 	}
