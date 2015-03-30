@@ -7,49 +7,62 @@
 #include "../Syntax/Statements.h"
 #include "../Syntax/Method.h"
 
-void TExpressionResult::Init(){
+void TExpressionResult::Init()
+{
 	result_value_type = NULL;
 	is_ref = false;
 	type = NULL;
 }
-TExpressionResult::TExpressionResult(){
+TExpressionResult::TExpressionResult()
+{
 	Init();
 }
-TExpressionResult::TExpressionResult(std::vector<TSMethod*> use_methods, bool use_need_push_this){
+TExpressionResult::TExpressionResult(std::vector<TSMethod*> use_methods, bool use_need_push_this)
+{
 	Init();
 	methods = use_methods;
 }
-TExpressionResult::TExpressionResult(TSClass* use_class, bool use_is_ref){
+TExpressionResult::TExpressionResult(TSClass* use_class, bool use_is_ref)
+{
 	Init();
 	result_value_type = use_class;
 	is_ref = use_is_ref;
 }
-TExpressionResult::TExpressionResult(TSClass* use_type){
+TExpressionResult::TExpressionResult(TSClass* use_type)
+{
 	Init();
 	type = use_type;
 }
-bool TExpressionResult::IsRef()const{
+bool TExpressionResult::IsRef()const
+{
 	return is_ref;
 }
-void TExpressionResult::SetIsRef(bool use_is_ref){
+void TExpressionResult::SetIsRef(bool use_is_ref)
+{
 	is_ref = use_is_ref;
 }
-bool TExpressionResult::IsMethods()const{
+bool TExpressionResult::IsMethods()const
+{
 	return methods.size() != 0;
 }
-bool TExpressionResult::IsType()const{
+bool TExpressionResult::IsType()const
+{
 	return type != NULL;
 }
-TSClass* TExpressionResult::GetType()const{
+TSClass* TExpressionResult::GetType()const
+{
 	return type;
 }
-std::vector<TSMethod*>& TExpressionResult::GetMethods(){
+std::vector<TSMethod*>& TExpressionResult::GetMethods()
+{
 	return methods;
 }
-TSClass* TExpressionResult::GetClass()const{
+TSClass* TExpressionResult::GetClass()const
+{
 	return result_value_type;
 }
-bool TExpressionResult::IsVoid()const{
+bool TExpressionResult::IsVoid()const
+{
 	return result_value_type == NULL && (!IsMethods()) && type == NULL;//TODO в дальнейшем methods_pointer не должен считаться void
 }
 
