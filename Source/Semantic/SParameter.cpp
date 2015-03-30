@@ -103,11 +103,13 @@ void TActualParamWithConversion::BuildConvert(TExpressionResult from_result, TFo
 		{
 			if (conversion == NULL)
 			{
+				//если отсутствует преобразование, но имеется конструктор копии
 				copy_constr = result.GetClass()->GetCopyConstr();
 				conversion = result.GetClass()->GetConversion(false, to_formal_param.GetClass());
 			}
 		}
-		assert(conversion != NULL);//ошибка в FindMethod
+		if(conversion == NULL)
+			throw std::exception("Невозможно преобразовать тип!");
 	}
 	//если в стеке находится ссылка, а в качестве параметра требуется значение, то добавляем преобразование
 	else if (result.IsRef() && !to_formal_param.IsRef())

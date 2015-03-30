@@ -8,10 +8,13 @@ class TSMethod;
 
 class TExpressionResult
 {
+	//если возвращается значение - то его тип и ссылочность
 	TSClass* result_value_type;
-	TSClass* type;//указатель на тип (для доступа к статическим членам и функциям)
 	bool is_ref;
-	std::vector<TSMethod*> methods;//указатель на перегруженые методы
+
+	TSClass* type;//указатель на тип (для доступа к статическим членам и функциям)
+	
+	std::vector<TSMethod*> methods;//указатель на перегруженые методы - все доступные из области видимости (если выражение является методом)
 	void Init();
 public:
 	TExpressionResult();

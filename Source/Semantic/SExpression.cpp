@@ -17,7 +17,9 @@
 
 class TSemanticTreeBuilder :public TExpressionTreeVisitor
 {
-	TSOperation* return_new_operation;
+	TSOperation* return_new_operation; //через это поле возвращается результат метода Visit (созданная операция)
+
+	//общие для всех выражений поля
 	TExpression* syntax_node;
 	TSClass* owner;
 	TSMethod* method;
@@ -362,6 +364,7 @@ public:
 				if (!left_result.IsRef())
 				{
 					//syntax_node->Error("Вызов метода для временного объекта недопустим!");
+					//TODO
 					int tttt;
 				}
 				std::vector<TSMethod*> methods;
@@ -599,7 +602,7 @@ TSExpression::TString::TString(TSClass* owner, TType* syntax_node)
 void TSExpression::TString::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
 	result = TStackValue(false, type.GetClass());
-	*((::TString*)result.get())->v = val;
+	((::TString*)result.get())->InitBy(val);
 }
 TExpressionResult TSExpression::TString::GetFormalParameter()
 {

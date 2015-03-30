@@ -31,6 +31,8 @@
 		conversion static (int  v):float bytecode{ASM_INT_TO_FLOAT;};
 		conversion static (int& v):bool  bytecode{ASM_R_INT_TO_BOOL;};
 		conversion static (int  v):bool  bytecode{ASM_INT_TO_BOOL;};
+		conversion static (int  v):vec2  bytecode{ASM_INT_TO_VEC2;};
+		conversion static (int  v):vec2i  bytecode{ASM_INT_TO_VEC2I;};
 	}
 	func static Abs(int v		):int bytecode{ASM_INT_ABS;};
 	func static Max(int v0,int v1):int bytecode{ASM_INT_MAXIMUM;};
@@ -66,6 +68,8 @@
 
 		conversion static (float& v):bool  bytecode{ASM_R_FLOAT_TO_BOOL;};
 		conversion static (float  v):bool  bytecode{ASM_FLOAT_TO_BOOL;};
+		conversion static (float  v):vec2  bytecode{ASM_FLOAT_TO_VEC2;};
+		conversion static (float  v):vec2i  bytecode{ASM_FLOAT_TO_VEC2I;};
 	}
 	func static Abs		(float v):float bytecode{ASM_FLOAT_ABS;};
 	func static Asin	(float v):float bytecode{ASM_FLOAT_ASIN;};
@@ -117,8 +121,10 @@
 	{
 	public:
 		float x,y;
-		copy(int v) bytecode{ASM_INT_TO_VEC2;};
-		copy(float v) bytecode{ASM_FLOAT_TO_VEC2;};
+		copy(float x, float y) bytecode{ASM_VEC2_CONSTR;};
+		copy(vec2 v) bytecode{ASM_VEC2_CONSTR;};
+		copy(int v) bytecode{ASM_INT_TO_VEC2;ASM_VEC2_CONSTR;};
+		copy(float v) bytecode{ASM_FLOAT_TO_VEC2;ASM_VEC2_CONSTR;};
 		
  		operator static +=(vec2& l,vec2 r)bytecode{ASM_VEC2_PLUS_A;};
 		operator static -=(vec2& l,vec2 r)bytecode{ASM_VEC2_MINUS_A;};
@@ -140,6 +146,36 @@
 	func static Length	(vec2 v0):float bytecode{ASM_VEC2_LENGTH;};
 	func static Normalize(vec2 v0):float bytecode{ASM_VEC2_NORMALIZE;};
 	func static Reflect	 (vec2 v0,vec2 v1):float bytecode{ASM_VEC2_REFLECT;};
+	
+	class sealed vec2i
+	{
+	public:
+		int x,y;
+		copy(int x, int y) bytecode{ASM_VEC2I_CONSTR;};
+		copy(vec2i v) bytecode{ASM_VEC2I_CONSTR;};
+		copy(int v) bytecode{ASM_INT_TO_VEC2I;ASM_VEC2I_CONSTR;};
+		copy(float v) bytecode{ASM_FLOAT_TO_VEC2I;ASM_VEC2I_CONSTR;};
+		
+ 		operator static +=(vec2i& l,vec2i r)bytecode{ASM_VEC2I_PLUS_A;};
+		operator static -=(vec2i& l,vec2i r)bytecode{ASM_VEC2I_MINUS_A;};
+		operator static *=(vec2i& l,vec2i r)bytecode{ASM_VEC2I_MUL_A;};
+		operator static /=(vec2i& l,vec2i r)bytecode{ASM_VEC2I_DIV_A;};
+
+		operator static +(vec2i l,vec2i r):vec2i bytecode{ASM_VEC2I_PLUS;};
+		operator static -(vec2i l,vec2i r):vec2i bytecode{ASM_VEC2I_MINUS;};
+		operator static *(vec2i l,vec2i r):vec2i bytecode{ASM_VEC2I_MULT;};
+		operator static /(vec2i l,vec2i r):vec2i bytecode{ASM_VEC2I_DIV;};
+
+		operator static -(vec2i  l):vec2i bytecode{ASM_VEC2I_UNARY_MINUS;};
+		operator static -(vec2i& l):vec2i bytecode{ASM_R_VEC2I_UNARY_MINUS;};
+		operator static [](vec2i& v,int id):float bytecode{ASM_RV_VEC2I_GET_ELEMENT;};
+		operator static [](vec2i v,int id):float bytecode{ASM_VV_VEC2I_GET_ELEMENT;};
+	}
+	func static Distance(vec2i v0,vec2i v1):float bytecode{ASM_VEC2I_DISTANCE;};
+	func static Dot		(vec2i v0,vec2i v1):float bytecode{ASM_VEC2I_DOT;};
+	func static Length	(vec2i v0):float bytecode{ASM_VEC2I_LENGTH;};
+	func static Normalize(vec2i v0):float bytecode{ASM_VEC2I_NORMALIZE;};
+	func static Reflect	 (vec2i v0,vec2i v1):float bytecode{ASM_VEC2I_REFLECT;};
 	
 	class sealed char
 	{

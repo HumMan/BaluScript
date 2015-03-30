@@ -71,7 +71,9 @@ void TSBytecode::Run(std::vector<TStaticValue> &static_fields, std::vector<TStac
 			TVirtualMachine::ExecuteIntOps(&op.op, sp, (int*)object.get()) ||
 			TVirtualMachine::ExecuteFloatOps(&op.op, sp, (int*)object.get()) ||
 			TVirtualMachine::ExecuteBoolOps(&op.op, sp, (int*)object.get()) ||
-			TVirtualMachine::ExecuteBaseOps(&op.op, sp, (int*)object.get()))
+			TVirtualMachine::ExecuteBaseOps(&op.op, sp, (int*)object.get()) ||
+			TVirtualMachine::ExecuteVec2Ops(&op.op, sp, (int*)object.get()) ||
+			TVirtualMachine::ExecuteVec2iOps(&op.op, sp, (int*)object.get()))
 		{
 
 		}

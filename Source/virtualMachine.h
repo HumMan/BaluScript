@@ -170,5 +170,6 @@ public:
 	static bool ExecuteFloatOps(TOp* op, int*& sp, int* object);
 	static bool ExecuteBoolOps(TOp* op, int*& sp, int* object);
 	static bool ExecuteVec2Ops(TOp* op, int*& sp, int* object);
+	static bool ExecuteVec2iOps(TOp* op, int*& sp, int* object);
 	static bool ExecuteBaseOps(TOp* op, int*& sp, int* object);
 };

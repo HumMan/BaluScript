@@ -77,12 +77,19 @@ void TString::assign_op(std::vector<TStaticValue> &static_fields, std::vector<TS
 	TString* left = ((TString*)formal_params[0].get());
 	TString* right = ((TString*)formal_params[1].get());
 
-	*left = *right;
+	if (left->v != nullptr)
+	{
+		delete left->v;
+	}
+
+	left->v = new std::string(*right->v);
 }
 
 void TString::get_char_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
 {
 	TString* obj = ((TString*)formal_params[0].get());
+	int index = *((int*)formal_params[1].get());
+	result.SetAsReference(&(*(obj->v))[index]);
 }
 
 void TString::get_length(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
@@ -102,9 +109,11 @@ void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 		"{\n"
 		"default();\n"
 		"copy(string& copy_from);\n"
+		"copy(string copy_from);\n"
 		"destr();\n"
 		"operator static [](string& v,int id):&char;\n"
 		"operator static =(string& v,string& l);\n"
+		"operator static =(string& v,string l);\n"
 		"func length:int;\n"
 		"}\n"
 		);
@@ -124,8 +133,9 @@ void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 	m.clear();
 	scl->GetCopyConstructors(m);
 	m[0]->SetAsExternal(TString::copy_constr);
-	scl->GetDestructor()->SetAsExternal(TString::destructor);
+	m[1]->SetAsExternal(TString::copy_constr);
 
+	scl->GetDestructor()->SetAsExternal(TString::destructor);
 
 	m.clear();
 	scl->GetOperators(m, TOperator::GetArrayElement);
@@ -133,7 +143,9 @@ void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 
 	m.clear();
 	scl->GetOperators(m, TOperator::Assign);
+	//TODO ввести использование ссылки на временный объект
 	m[0]->SetAsExternal(TString::assign_op);
+	m[1]->SetAsExternal(TString::assign_op);
 
 	m.clear();
 	scl->GetMethods(m, syntax->lexer.GetIdFromName("length"));

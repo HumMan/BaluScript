@@ -382,6 +382,54 @@ namespace Test
 			Assert::AreEqual(0.0f, *(float*)RunCode("func static Test:float{return Sign(0.0);}").get());
 		}
 	};
+	TEST_CLASS(Vec2Testing)
+	{
+	public:
+		TEST_METHOD(Vec2Constr)
+		{
+			TVec2 t;
+			t = *(TVec2*)RunCode("func static Test:vec2{vec2 s; s=5.0;return s;}").get();
+			Assert::AreEqual(5.0f, t[0]);
+			Assert::AreEqual(5.0f, t[1]);
+			t = *(TVec2*)RunCode("func static Test:vec2{vec2 s,b;b=5.0;s=b;return s;}").get();
+			Assert::AreEqual(5.0f, t[0]);
+			Assert::AreEqual(5.0f, t[1]);
+			t = *(TVec2*)RunCode("func static Test:vec2{vec2 s(5);return s;}").get();
+			Assert::AreEqual(5.0f, t[0]);
+			Assert::AreEqual(5.0f, t[1]);
+			t = *(TVec2*)RunCode("func static Test:vec2{vec2 s(8+2-8,-2);return s;}").get();
+			Assert::AreEqual(2.0f, t[0]);
+			Assert::AreEqual(-2.0f, t[1]);
+		}
+		TEST_METHOD(Vec2Func)
+		{
+			Assert::Fail();
+		}
+	};
+	TEST_CLASS(Vec2iTesting)
+	{
+	public:
+		TEST_METHOD(Vec2iConstr)
+		{
+			TVec2i t;
+			t = *(TVec2i*)RunCode("func static Test:vec2i{vec2i s; s=5.0;return s;}").get();
+			Assert::AreEqual(5, t[0]);
+			Assert::AreEqual(5, t[1]);
+			t = *(TVec2i*)RunCode("func static Test:vec2i{vec2i s,b;b=5.0;s=b;return s;}").get();
+			Assert::AreEqual(5, t[0]);
+			Assert::AreEqual(5, t[1]);
+			t = *(TVec2i*)RunCode("func static Test:vec2i{vec2i s(5);return s;}").get();
+			Assert::AreEqual(5, t[0]);
+			Assert::AreEqual(5, t[1]);
+			t = *(TVec2i*)RunCode("func static Test:vec2i{vec2i s(8+2-8,-2);return s;}").get();
+			Assert::AreEqual(2, t[0]);
+			Assert::AreEqual(-2, t[1]);
+		}
+		TEST_METHOD(Vec2iFunc)
+		{
+			Assert::Fail();
+		}
+	};
 	TEST_CLASS(StatementsTesting)
 	{
 	public:
@@ -1605,13 +1653,34 @@ namespace Test
 				"}"
 				).get());
 		}
-		TEST_METHOD(StringConstr)
+		TEST_METHOD(StringAssign)
 		{
-			Assert::AreEqual(0, *(int*)RunCode(
+			Assert::AreEqual(4, *(int*)RunCode(
+				"func static Test:int"
+				"{"
+				"	string s;"
+				"	s=\"test\";"
+				"	return s.length();"
+				"}"
+				).get());
+		}
+		TEST_METHOD(StringCopyConstr)
+		{
+			Assert::AreEqual(4, *(int*)RunCode(
 				"func static Test:int"
 				"{"
 				"	string s(\"test\");"
 				"	return s.length();"
+				"}"
+				).get());
+		}
+		TEST_METHOD(StringGetChar)
+		{
+			Assert::AreEqual('e', *(char*)RunCode(
+				"func static Test:char"
+				"{"
+				"	string s(\"test\");"
+				"	return s[1];"
 				"}"
 				).get());
 		}

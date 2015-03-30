@@ -23,6 +23,10 @@ class TSClass;
 struct TString
 {
 	std::string* v;
+	void InitBy(std::string value)
+	{
+		v = new std::string(value);
+	}
 	TString()
 	{
 		v = new std::string();
