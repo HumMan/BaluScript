@@ -15,25 +15,29 @@
 	//void AssignOp(TString* right);
 	//bool EqualOp(TString* right);
 //};
+
 class TStaticValue;
 class TStackValue;
 class TSyntaxAnalyzer;
 class TSClass;
 
-struct TString
+template<class T>
+struct TStringWrapper
 {
-	std::string* v;
-	void InitBy(std::string value)
+	typedef T Arg;
+	typedef T TypeForGetName;
+	T* v;
+	void InitBy(T value)
 	{
-		v = new std::string(value);
+		v = new T(value);
 	}
-	TString()
+	TStringWrapper()
 	{
-		v = new std::string();
+		v = new T();
 	}
-	TString(const TString& r)
+	TStringWrapper(const TStringWrapper& r)
 	{
-		v = new std::string(*r.v);
+		v = new T(*r.v);
 	}
 	char GetChar(int i)
 	{
@@ -43,7 +47,11 @@ struct TString
 	{
 		return v->size();
 	}
-	~TString()
+	T& GetCppValue()
+	{
+		return *v;
+	}
+	~TStringWrapper()
 	{
 		delete v;
 		v = NULL;
@@ -57,3 +65,5 @@ struct TString
 
 	static void DeclareExternalClass(TSyntaxAnalyzer* syntax);
 };
+
+typedef TStringWrapper<std::string> TString;
