@@ -21,11 +21,12 @@ class TStackValue;
 class TSyntaxAnalyzer;
 class TSClass;
 
-template<class T>
+template<class T, class pass_as = T>
 struct TStringWrapper
 {
 	typedef T Arg;
 	typedef T TypeForGetName;
+	typedef pass_as PassInMethodAs;
 	T* v;
 	void InitBy(T value)
 	{
