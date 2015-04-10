@@ -581,24 +581,24 @@ bool TVirtualMachine::ExecuteBoolOps(TOp* op, int*& sp, int* object)
 	switch (op->type)
 	{
 	case BOOL_CONSTR:
-		*object = sp[0];
+		*object = *(bool*)&sp[0];
 		sp--; break;
 		//////////////////////////////////////////////////
 		//bool
 	case BOOL_AND:
-		sp[-1] = sp[-1] && sp[0];
+		sp[-1] = *(bool*)&sp[-1] && *(bool*)&sp[0];
 		sp--; break;
 	case BOOL_OR:
-		sp[-1] = sp[-1] || sp[0];
+		sp[-1] = *(bool*)&sp[-1] || *(bool*)&sp[0];
 		sp--; break;
 	case BOOL_NOT:
-		sp[0] = !sp[0]; break;
+		sp[0] = !*(bool*)&sp[0]; break;
 	case EQUAL:
 		Compare(op,sp);
 		break;
 	case NOT_EQUAL:
 		Compare(op,sp);
-		sp[0] = (!sp[0]);
+		sp[0] = (!*(bool*)&sp[0]);
 		break;
 	default:
 		return false;

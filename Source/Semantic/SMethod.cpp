@@ -48,6 +48,10 @@ TSMethod::TSMethod(TSClass* use_owner, TSpecialClassMethod::Type special_method_
 	ret_ref=false;
 }
 
+TSMethod::~TSMethod()
+{
+}
+
 void TSMethod::CopyExternalMethodBindingsFrom(TSMethod* source)
 {
 	external_func = source->external_func;

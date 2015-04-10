@@ -104,5 +104,7 @@ public:
 	void CalculateParametersOffsets();
 
 	void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
+
+	~TSMethod();
 };
 

@@ -130,6 +130,7 @@ void* TStackValue::get()
 
 TStackValue::TStackValue(bool is_ref, TSClass* type)
 {
+	assert(type != nullptr);
 	this->is_ref = is_ref;
 	this->type = type;
 	if (is_ref)

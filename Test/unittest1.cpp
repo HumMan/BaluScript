@@ -1664,6 +1664,17 @@ namespace Test
 				"}"
 				).get());
 		}
+		TEST_METHOD(StringAssignOp)
+		{
+			Assert::AreEqual(4, *(int*)RunCode(
+				"func static Test:int"
+				"{"
+				"	string s=\"\";"
+				"	s+=\"test\";"
+				"	return s.length();"
+				"}"
+				).get());
+		}
 		TEST_METHOD(StringCopyConstr)
 		{
 			Assert::AreEqual(4, *(int*)RunCode(

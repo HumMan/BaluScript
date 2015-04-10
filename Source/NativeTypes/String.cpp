@@ -61,6 +61,10 @@ void TString::constructor(std::vector<TStaticValue> &static_fields, std::vector<
 
 void TString::destructor(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
 {
+	//TODO не должен вызываться конструктор для ссылочного типа
+	if (object.IsRef())
+		return;
+
 	TString* obj = ((TString*)object.get());
 	obj->~TString();
 }
@@ -77,12 +81,25 @@ void TString::assign_op(std::vector<TStaticValue> &static_fields, std::vector<TS
 	TString* left = ((TString*)formal_params[0].get());
 	TString* right = ((TString*)formal_params[1].get());
 
-	if (left->v != nullptr)
-	{
-		delete left->v;
-	}
+	*(left->v) = *right->v;
+}
 
-	left->v = new std::string(*right->v);
+void TString::assign_plus_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+{
+	TString* left = ((TString*)formal_params[0].get());
+	TString* right = ((TString*)formal_params[1].get());
+
+	*(left->v) += *right->v;
+}
+
+void TString::plus_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+{
+	TString* left = ((TString*)formal_params[0].get());
+	TString* right = ((TString*)formal_params[1].get());
+
+	auto temp = (*left->v + *right->v);
+
+	result.get_as<TString>().InitBy(temp);
 }
 
 void TString::get_char_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
@@ -114,6 +131,9 @@ void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 		"operator static [](string& v,int id):&char;\n"
 		"operator static =(string& v,string& l);\n"
 		"operator static =(string& v,string l);\n"
+		"operator static +=(string& v,string& l);\n"
+		"operator static +=(string& v,string l);\n"
+		"operator static +(string& v,string& l):string;\n"
 		"func length:int;\n"
 		"}\n"
 		);
@@ -146,6 +166,17 @@ void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 	//TODO ввести использование ссылки на временный объект
 	m[0]->SetAsExternal(TString::assign_op);
 	m[1]->SetAsExternal(TString::assign_op);
+
+	m.clear();
+	scl->GetOperators(m, TOperator::PlusA);
+	//TODO ввести использование ссылки на временный объект
+	m[0]->SetAsExternal(TString::assign_plus_op);
+	m[1]->SetAsExternal(TString::assign_plus_op);
+
+	m.clear();
+	scl->GetOperators(m, TOperator::Plus);
+	//TODO ввести использование ссылки на временный объект
+	m[0]->SetAsExternal(TString::plus_op);
 
 	m.clear();
 	scl->GetMethods(m, syntax->lexer.GetIdFromName("length"));
