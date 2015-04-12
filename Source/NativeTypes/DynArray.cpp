@@ -8,14 +8,10 @@
 #include "Syntax/Statements.h"
 #include "Syntax/Method.h"
 
-#pragma push_macro("new")
-#undef new
-
 void TDynArr::constructor(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
 {
-	memset((TDynArr*)object.get(), 0xfeefee, sizeof(TDynArr));
-	TDynArr* obj = new ((TDynArr*)object.get()) TDynArr();
-	obj->el_class = object.GetClass()->GetTemplateParam(0).type;
+	object.get_as<TDynArr>().Init();
+	object.get_as<TDynArr>().el_class = object.GetClass()->GetTemplateParam(0).type;
 }
 
 void CallMethod(std::vector<TStaticValue> &static_fields, int* v, int first_element, int el_count, int el_size, TSClass* el_class, TSMethod* method)
@@ -110,15 +106,15 @@ void TDynArr::destructor(std::vector<TStaticValue> &static_fields, std::vector<T
 
 void TDynArr::copy_constr(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
 {
-	TDynArr* obj = ((TDynArr*)object.get());
-	TDynArr* copy_from = (TDynArr*)formal_params[0].get();
+	TDynArr* obj = &object.get_as<TDynArr>();
+	TDynArr* copy_from = &formal_params[0].get_as<TDynArr>();
 
 	TSClass* el = copy_from->el_class;
 	TSMethod* el_copy_constr = el->GetCopyConstr();
 	
 	if (el_copy_constr != NULL)
 	{
-		new (obj)TDynArr();
+		obj->Init();
 		obj->el_class = el;
 		if (copy_from->v->size() > 0)
 		{
@@ -129,7 +125,7 @@ void TDynArr::copy_constr(std::vector<TStaticValue> &static_fields, std::vector<
 	else
 	{
 		memset((TDynArr*)object.get(), 0xfeefee, sizeof(TDynArr));
-		new (obj)TDynArr(*copy_from);
+		obj->Init(*copy_from);
 	}
 }
 
@@ -188,8 +184,6 @@ void TDynArr::get_size(std::vector<TStaticValue> &static_fields, std::vector<TSt
 	TDynArr* obj = ((TDynArr*)object.get());
 	*(int*)result.get() = obj->v->size()/obj->el_class->GetSize();
 }
-
-#pragma pop_macro("new")
 
 void TDynArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 {

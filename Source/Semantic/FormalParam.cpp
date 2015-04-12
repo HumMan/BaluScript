@@ -128,6 +128,11 @@ void* TStackValue::get()
 	return internal_buf;
 }
 
+int TStackValue::GetSize()
+{
+	return type->GetSize();
+}
+
 TStackValue::TStackValue(bool is_ref, TSClass* type)
 {
 	assert(type != nullptr);

@@ -8,8 +8,6 @@
 #include "Syntax/Statements.h"
 #include "Syntax/Method.h"
 
-#pragma push_macro("new")
-
 void TStaticArr::get_element_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
 {
 	TSClass* obj_class = formal_params[0].GetClass();
@@ -27,8 +25,6 @@ void TStaticArr::get_size(std::vector<TStaticValue> &static_fields, std::vector<
 	int size = obj_class->fields.begin()->GetSizeMultiplier();
 	*(int*)result.get() = size;
 }
-
-#pragma pop_macro("new")
 
 void TStaticArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 {

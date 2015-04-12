@@ -11,15 +11,23 @@ struct TDynArr
 {
 	std::vector<int>* v;//можно использовать не указатель, но учитывать move конструктор вектора, который хранит backpointer
 	TSClass* el_class;
-	TDynArr()
+	void Init()
 	{
 		el_class = NULL;
 		v = new std::vector<int>();
 	}
+	void Init(const TDynArr& r)
+	{
+		el_class = NULL;
+		v = new std::vector<int>();
+	}
+	TDynArr()
+	{
+		Init();
+	}
 	TDynArr(const TDynArr& r)
 	{
-		el_class = r.el_class;
-		v = new std::vector<int>(*r.v);
+		Init(r);
 	}
 	void* GetElement(int i);
 	int GetSize();

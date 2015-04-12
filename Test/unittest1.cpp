@@ -1666,10 +1666,10 @@ namespace Test
 		}
 		TEST_METHOD(StringAssignOp)
 		{
-			Assert::AreEqual(4, *(int*)RunCode(
+			Assert::AreEqual(7, *(int*)RunCode(
 				"func static Test:int"
 				"{"
-				"	string s=\"\";"
+				"	string s=\"abc\";"
 				"	s+=\"test\";"
 				"	return s.length();"
 				"}"
@@ -1694,6 +1694,89 @@ namespace Test
 				"	return s[1];"
 				"}"
 				).get());
+		}
+		TEST_METHOD(StringGetLengthFromTemp)
+		{
+			Assert::AreEqual(16, *(int*)RunCode(
+				"func static Test:int"
+				"{"
+				"	return ((\"test\"+\"zopa\")+(\"test\"+\"zopa\")).length();"
+				"}"
+				).get());
+		}
+
+		TEST_METHOD(StringGetLengthFromTemp2)
+		{
+			Assert::AreEqual(16, *(int*)RunCode(
+				"func static Test:int"
+				"{"
+				"	string temp = ((\"test\"+\"zopa\")+(\"test\"+\"zopa\"));"
+				"	return temp.length();"
+				"}"
+				).get());
+		}
+
+		TEST_METHOD(StringGetLengthFromTemp3)
+		{
+			Assert::AreEqual(16, *(int*)RunCode(
+				"func static Test:int\n"
+				"{\n"
+				"	string temp((\"zopa\"+\"zopa\")+(\"zopa\"+\"zopa\"));\n"
+				"	return temp.length();\n"
+				"}"
+				).get());
+		}
+
+		TEST_METHOD(StringGetMembersFromRef)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class ITest1 { vec2 v; string abc; default { v.x = 1; v.y = 2; abc = \"zopa\";}}"
+				"class ITest2  { ITest1 v; }"
+				"func static ReturnResult:ITest2\n"
+				"{ ITest2 v; return v;}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	vec2 test = ReturnResult().v.v;\n"
+				"	string abc = ReturnResult().v.abc;\n"
+				"	return abc.length();\n"
+				"}}"));
+			Assert::AreEqual((int)4, *(int*)RunClassMethod(cl2, "Test").get());
+		}
+
+		TEST_METHOD(StringGetMemberStringFromRef)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class ITest1 { string abc; }"
+				"func static ReturnResult:ITest1\n"
+				"{ return ITest1();}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	string abc = ReturnResult().abc;\n"
+				"	return 4;\n"
+				"}}"));
+			Assert::AreEqual((int)4, *(int*)RunClassMethod(cl2, "Test").get());
+		}
+
+		TEST_METHOD(StringGetMemberStringFromRef2)
+		{
+			//TODO оператор присваивания не работает с временным объектом, т.к. DefaultAssign требует ссылку на rvalue
+			//TODO добавиться ссылку на временный объект - иначе никак
+			//TODO упростить вызов методов - добавить авто методы в класс как обычные, если метод отсутствует значит его нет, никаких долполнительных проверок
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class ITest1 { string abc; }"
+				"func static Test:int\n"
+				"{\n"
+				"	ITest1 abc;\n"
+				"	abc = ITest1();\n"
+				"	return 4;\n"
+				"}}"));
+			Assert::AreEqual((int)4, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 	};
 }

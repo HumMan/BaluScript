@@ -50,20 +50,16 @@
 #include "Syntax/Statements.h"
 #include "Syntax/Method.h"
 
-#pragma push_macro("new")
-#undef new
-
 void TString::constructor(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
 {
-	memset((TString*)object.get(), 0xfeefee, sizeof(TString));
-	TString* obj = new ((TString*)object.get()) TString();
+	object.get_as<TString>().Init();
 }
 
 void TString::destructor(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
 {
 	//TODO не должен вызываться конструктор для ссылочного типа
-	if (object.IsRef())
-		return;
+	//if (object.IsRef())
+	//	return;
 
 	TString* obj = ((TString*)object.get());
 	obj->~TString();
@@ -73,7 +69,7 @@ void TString::copy_constr(std::vector<TStaticValue> &static_fields, std::vector<
 {
 	TString* obj = ((TString*)object.get());
 	TString* copy_from = (TString*)formal_params[0].get();
-	new (obj)TString(*copy_from);
+	obj->Init(*copy_from->v);
 }
 
 void TString::assign_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
@@ -99,7 +95,7 @@ void TString::plus_op(std::vector<TStaticValue> &static_fields, std::vector<TSta
 
 	auto temp = (*left->v + *right->v);
 
-	result.get_as<TString>().InitBy(temp);
+	result.get_as<TString>().Init(temp);
 }
 
 void TString::get_char_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
@@ -114,8 +110,6 @@ void TString::get_length(std::vector<TStaticValue> &static_fields, std::vector<T
 	TString* obj = ((TString*)object.get());
 	*(int*)result.get() = obj->GetLength();
 }
-
-#pragma pop_macro("new")
 
 void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 {
@@ -134,6 +128,7 @@ void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 		"operator static +=(string& v,string& l);\n"
 		"operator static +=(string& v,string l);\n"
 		"operator static +(string& v,string& l):string;\n"
+		"operator static +(string v,string l):string;\n"
 		"func length:int;\n"
 		"}\n"
 		);
@@ -177,6 +172,7 @@ void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 	scl->GetOperators(m, TOperator::Plus);
 	//TODO ввести использование ссылки на временный объект
 	m[0]->SetAsExternal(TString::plus_op);
+	m[1]->SetAsExternal(TString::plus_op);
 
 	m.clear();
 	scl->GetMethods(m, syntax->lexer.GetIdFromName("length"));

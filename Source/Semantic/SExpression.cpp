@@ -565,7 +565,7 @@ TSExpression::TInt::TInt(TSClass* owner, TType* syntax_node)
 void TSExpression::TInt::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
 	result = TStackValue(false, type.GetClass());
-	*(int*)result.get() = val;
+	result.get_as<int>() = val;
 }
 TSExpression::TFloat::TFloat(TSClass* owner, TType* syntax_node)
 	:type(owner, syntax_node)
@@ -574,7 +574,7 @@ TSExpression::TFloat::TFloat(TSClass* owner, TType* syntax_node)
 void TSExpression::TFloat::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
 	result = TStackValue(false, type.GetClass());
-	*(float*)result.get() = val;
+	result.get_as<float>() = val;
 }
 TExpressionResult TSExpression::TFloat::GetFormalParameter()
 {
@@ -588,7 +588,7 @@ TSExpression::TBool::TBool(TSClass* owner, TType* syntax_node)
 void TSExpression::TBool::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
 	result = TStackValue(false, type.GetClass());
-	*(int*)result.get() = val;
+	result.get_as<int>() = val;
 }
 TExpressionResult TSExpression::TBool::GetFormalParameter()
 {
@@ -602,7 +602,7 @@ TSExpression::TString::TString(TSClass* owner, TType* syntax_node)
 void TSExpression::TString::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
 	result = TStackValue(false, type.GetClass());
-	((::TString*)result.get())->InitBy(val);
+	result.get_as<::TString>().Init(val);
 }
 TExpressionResult TSExpression::TString::GetFormalParameter()
 {
@@ -616,7 +616,7 @@ TSExpression::TEnumValue::TEnumValue(TSClass* owner, TSClass* _type)
 void TSExpression::TEnumValue::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
 {
 	result = TStackValue(false, type);
-	*(int*)result.get() = val;
+	result.get_as<int>() = val;
 }
 TExpressionResult TSExpression::TEnumValue::GetFormalParameter()
 {
@@ -666,10 +666,12 @@ void TSExpression_TMethodCall::Run(TStackValue& object_to_construct, std::vector
 	//соглашение о вызовах - вызывающий инициализирует параметры, резервирует место для возвращаемого значения, вызывает деструкторы параметров
 	std::vector<TStackValue> method_call_formal_params;
 	params.Construct(method_call_formal_params, static_fields, formal_params, object, local_variables);
+	
 	switch (type)
 	{
 	case TSExpression_TMethodCall::ObjectConstructorInitWithAssign:
 	{
+		assert(object_to_construct.GetSize() == method_call_formal_params[0].GetSize());
 		memcpy(object_to_construct.get(), method_call_formal_params[0].get(), object_to_construct.GetClass()->GetSize()*sizeof(int));
 	}break;
 	case TSExpression_TMethodCall::ObjectConstructor:

@@ -22,13 +22,19 @@ class TSyntaxAnalyzer;
 class TSClass;
 
 template<class T, class pass_as = T>
-struct TStringWrapper
+class TStringWrapper
 {
+private:
+	T* v;
+public:
 	typedef T Arg;
 	typedef T TypeForGetName;
 	typedef pass_as PassInMethodAs;
-	T* v;
-	void InitBy(T value)
+	void Init()
+	{
+		v = new T();
+	}
+	void Init(const T& value)
 	{
 		v = new T(value);
 	}
@@ -38,7 +44,7 @@ struct TStringWrapper
 	}
 	TStringWrapper(const TStringWrapper& r)
 	{
-		v = new T(*r.v);
+		Init(*r.v);
 	}
 	char GetChar(int i)
 	{
@@ -51,6 +57,10 @@ struct TStringWrapper
 	T& GetCppValue()
 	{
 		return *v;
+	}
+	void operator=(const TStringWrapper& right)
+	{
+		*v = *right.v;
 	}
 	~TStringWrapper()
 	{
