@@ -59,7 +59,8 @@ void TActualParamWithConversion::RunConversion(std::vector<TStaticValue> &static
 {
 	if (ref_to_rvalue)
 	{
-		if (copy_constr != NULL)
+		assert(copy_constr != NULL);
+		//if (copy_constr != NULL)
 		{
 			std::vector<TStackValue> constr_params;
 			constr_params.push_back(value);
@@ -68,12 +69,12 @@ void TActualParamWithConversion::RunConversion(std::vector<TStaticValue> &static
 			copy_constr->Run(static_fields, constr_params, constr_result, constructed_object);
 			value = constructed_object;
 		}
-		else
-		{
-			TStackValue constructed_object(false, value.GetClass());
-			memcpy(constructed_object.get(), value.get(), value.GetClass()->GetSize()*sizeof(int));
-			value = constructed_object;
-		}
+		//else
+		//{
+		//	TStackValue constructed_object(false, value.GetClass());
+		//	memcpy(constructed_object.get(), value.get(), value.GetClass()->GetSize()*sizeof(int));
+		//	value = constructed_object;
+		//}
 	}
 	if (conversion != NULL)
 	{

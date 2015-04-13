@@ -35,9 +35,9 @@ public:
 	{
 		Method,
 		ObjectConstructor,
-		ObjectConstructorInitWithAssign,
+		//ObjectConstructorInitWithAssign,
 		Operator,
-		DefaultAssignOperator
+		//DefaultAssignOperator
 	}type;
 	TSExpression_TMethodCall(TMethodCallType type)
 	{
@@ -48,7 +48,7 @@ public:
 	//void Build(const std::vector<TSOperation*>& param_expressions);
 	TExpressionResult GetFormalParameter();
 	void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
-	void Run(TStackValue& object_to_construct, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
+	//void Run(TStackValue& object_to_construct, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
 };
 
 class TSExpression_TGetClass : public TSOperation

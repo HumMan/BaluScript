@@ -9,25 +9,28 @@
 #include "Semantic/SClass.h"
 #include "Semantic/SLocalVar.h"
 
+//actual_parameter - параметр который был передан методу
+//formal_parameter - параметр указаный в сигнатуре метода
 bool IsEqualClasses(TExpressionResult actual_parameter, TFormalParameter formal_parameter, int& need_conv)
 //============== На выходе =========================================
-//результат - равенство классов или возможность приведения класса
+//результат - равенство классов или возможность преобразования (conversion) класса
 {
 	need_conv=0;
-	if (!actual_parameter.IsRef() && formal_parameter.IsRef())return false;
 	if (actual_parameter.IsMethods() || actual_parameter.IsType())return false;
 	if (formal_parameter.GetClass() != actual_parameter.GetClass())
 	{
 		if (!actual_parameter.GetClass()->HasConversion(formal_parameter.GetClass()))return false;
-		if (formal_parameter.IsRef() && !actual_parameter.GetClass()->IsNestedIn(formal_parameter.GetClass()))return false;
+		//TODO
+		//if (formal_parameter.IsRef() && !actual_parameter.GetClass()->IsNestedIn(formal_parameter.GetClass()))return false;
 		need_conv+=1;	
 	}
 	if (actual_parameter.IsRef() && !formal_parameter.IsRef())need_conv += 1;
 	return true;
 }
 
-TSMethod* FindMethod(TTokenPos* source, std::vector<TSMethod*> &methods_to_call, const std::vector<TExpressionResult> &actual_params, int& conv_needed)
+TSMethod* FindMethod(TTokenPos* source, std::vector<TSMethod*> &methods_to_call, const std::vector<TExpressionResult> &actual_params)
 {
+	int conv_needed;
 	for (size_t k = 0; k<actual_params.size(); k++){
 		if (actual_params[k].IsVoid())
 			source->Error("Параметр метода должен иметь тип отличный от void!");

@@ -85,8 +85,9 @@ void TSLocalVar::Run(std::vector<TStaticValue> &static_fields, std::vector<TStac
 	if (!IsStatic())
 		local_variables.push_back(TStackValue(false, type.GetClass()));
 
-	if (!IsStatic())
-		assert(GetOffset() == local_variables.size() - 1);//иначе ошибка Build локальных переменных
+	//TODO т.к. в GetClassMember создаются временные объекты
+	//if (!IsStatic())
+	//	assert(GetOffset() == local_variables.size() - 1);//иначе ошибка Build локальных переменных
 
 	if (IsStatic() && static_fields[GetOffset()].IsInitialized())
 	{

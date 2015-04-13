@@ -87,6 +87,7 @@ public:
 	void CalculateMethodsSizes();
 	void InitAutoMethods();
 
+	//TODO добавить в дальнейшем проверку - можно ли заменить на memcpy операторы copy и assign
 	void RunAutoDefConstr(std::vector<TStaticValue> &static_fields, TStackValue& object);
 	void RunAutoDestr(std::vector<TStaticValue> &static_fields, TStackValue& object);
 	void RunAutoCopyConstr(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object);

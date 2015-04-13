@@ -17,8 +17,6 @@ class TSConstructObject
 	TSMethod* method;
 	TSStatements* parent;
 	TSClass* owner;
-
-	bool constr_copy_memcpy;
 public:
 	TSConstructObject(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TSClass* object_type);
 	void Build(TTokenPos* source, std::vector<TExpressionResult>& exp_results, std::vector<TSOperation*>& params, std::vector<TFormalParameter>& params_formals, std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);

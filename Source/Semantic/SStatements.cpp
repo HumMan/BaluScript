@@ -149,8 +149,10 @@ void TSStatements::Run(std::vector<TStaticValue> &static_fields, std::vector<TSt
 		if (result_returned)
 			break;
 	}
-	for (TSStatements::TVarDecl& var_decl : var_declarations)
+	//for (TSStatements::TVarDecl& var_decl : var_declarations)
+	for (int i = var_declarations.size() - 1; i >= 0;i--)
 	{
+		auto& var_decl = var_declarations[i];
 		var_decl.pointer->Destruct(static_fields,local_variables);
 		if(!var_decl.pointer->IsStatic())
 			local_variables.pop_back();

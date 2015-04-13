@@ -35,7 +35,7 @@ void TLocalVar::AnalyzeSyntax(TLexer& source) {
 			source.GetToken();
 			if (source.TestAndGet(TTokenType::LParenth)) 
 			{
-				while (!source.Test(TTokenType::LParenth)) 
+				while (!source.Test(TTokenType::RParenth)) 
 				{
 					TExpression* expr = new TExpression(owner, method, parent,
 							curr_var->stmt_id);

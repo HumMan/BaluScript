@@ -668,59 +668,54 @@ void TSClass::InitAutoMethods()
 		return;
 	if (IsAutoMethodsInitialized())
 		return;
+
 	for (TSClassField& field : fields)
 	{
 		field.GetClass()->InitAutoMethods();
 	}
 
-	bool has_def_constr = false;
-	bool has_copy_constr = false;
-	bool has_destr = false;
-	bool has_assign_op = false;
+	//bool has_def_constr = false;
+	//bool has_copy_constr = false;
+	//bool has_destr = false;
+	//bool has_assign_op = false;
 
-	for (TSClassField& field : fields)
-	{
-		TSClass* field_class = field.GetClass();
-		if (field_class->GetDefConstr() != NULL)
-			has_def_constr = true;
-		if (field_class->GetCopyConstr() != NULL)
-			has_copy_constr = true;
-		if (field_class->GetDestructor() != NULL)
-			has_destr = true;
-		if (field_class->GetAssignOperator() != NULL)
-			has_assign_op = true;
-	}
+	//for (TSClassField& field : fields)
+	//{
+	//	TSClass* field_class = field.GetClass();
+	//	if (field_class->GetDefConstr() != NULL)
+	//		has_def_constr = true;
+	//	if (field_class->GetCopyConstr() != NULL)
+	//		has_copy_constr = true;
+	//	if (field_class->GetDestructor() != NULL)
+	//		has_destr = true;
+	//	if (field_class->GetAssignOperator() != NULL)
+	//		has_assign_op = true;
+	//}
 
 	//TODO проверка наследуемых классов на наличие конструктора, деструктора и т.д.
 
 	assert(!auto_def_constr);
 	assert(!auto_copy_constr);
 	assert(!auto_destr);
+	assert(!auto_assign_operator);
 
-	if (has_def_constr)
+	//if (has_def_constr)
 	{
 		auto_def_constr.reset(new TSMethod(this, TSpecialClassMethod::AutoDefConstr));
 	}
-	if (has_copy_constr)
+	//if (has_copy_constr)
 	{
 		auto_copy_constr.reset(new TSMethod(this, TSpecialClassMethod::AutoCopyConstr));
 		TSParameter* p = new TSParameter(this, auto_copy_constr.get(), this, true);
 		auto_copy_constr->AddParameter(p);
 		
 	}
-	if (has_destr)
+	//if (has_destr)
 	{
 		auto_destr.reset(new TSMethod(this, TSpecialClassMethod::AutoDestructor));
 	}
 
-	if (has_copy_constr)
-	{
-		auto_copy_constr.reset(new TSMethod(this, TSpecialClassMethod::AutoCopyConstr));
-		TSParameter* p = new TSParameter(this, auto_copy_constr.get(), this, true);
-		auto_copy_constr->AddParameter(p);
-	}
-
-	if (has_assign_op)
+	//if (has_assign_op)
 	{
 		auto_assign_operator.reset(new TSMethod(this, TSpecialClassMethod::AutoAssignOperator));
 		TSParameter* p = new TSParameter(this, auto_assign_operator.get(), this, true);
@@ -830,54 +825,62 @@ void TSClass::RunAutoCopyConstr(std::vector<TStaticValue> &static_fields, std::v
 	
 	TStackValue result;
 
-	for (TSClassField& field : fields)
+	if (fields.size() > 0)
 	{
-		assert(field.GetClass()->IsAutoMethodsInitialized());
-		TSMethod* field_copy_constr = field.GetClass()->GetCopyConstr();
-		if (!field.GetSyntax()->IsStatic())
+
+		for (TSClassField& field : fields)
 		{
-			TSClass* field_class = field.GetClass();
-			//если у поля имеется конструктор копии - вызываем его
-			if (field_copy_constr != NULL)
+			assert(field.GetClass()->IsAutoMethodsInitialized());
+			TSMethod* field_copy_constr = field.GetClass()->GetCopyConstr();
+			if (!field.GetSyntax()->IsStatic())
 			{
-				ValidateAccess(field.GetSyntax(), this, field_copy_constr);
-				TStackValue field_object(true, field_class);
-				if (field.HasSizeMultiplier())
+				TSClass* field_class = field.GetClass();
+				//если у поля имеется конструктор копии - вызываем его
+				if (field_copy_constr != NULL)
 				{
-					for (int i = 0; i < field.GetSizeMultiplier(); i++)
+					ValidateAccess(field.GetSyntax(), this, field_copy_constr);
+					TStackValue field_object(true, field_class);
+					if (field.HasSizeMultiplier())
+					{
+						for (int i = 0; i < field.GetSizeMultiplier(); i++)
+						{
+							//настраиваем указатель this - инициализируемый объект
+							field_object.SetAsReference(&(((int*)object.get())[field.GetOffset() + i*field.GetClass()->GetSize()]));
+							std::vector<TStackValue> field_formal_params;
+
+							//передаем в качестве параметра ссылку на копируемый объект
+							field_formal_params.push_back(TStackValue(true, field_class));
+							field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field.GetOffset() + i*field.GetClass()->GetSize()]);
+							field_copy_constr->Run(static_fields, field_formal_params, result, field_object);
+						}
+					}
+					else
 					{
 						//настраиваем указатель this - инициализируемый объект
-						field_object.SetAsReference(&(((int*)object.get())[field.GetOffset() + i*field.GetClass()->GetSize()]));
+						field_object.SetAsReference(&(((int*)object.get())[field.GetOffset()]));
 						std::vector<TStackValue> field_formal_params;
 
 						//передаем в качестве параметра ссылку на копируемый объект
 						field_formal_params.push_back(TStackValue(true, field_class));
-						field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field.GetOffset() + i*field.GetClass()->GetSize()]);
+						field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field.GetOffset()]);
 						field_copy_constr->Run(static_fields, field_formal_params, result, field_object);
 					}
 				}
-				else
-				{
-					//настраиваем указатель this - инициализируемый объект
-					field_object.SetAsReference(&(((int*)object.get())[field.GetOffset()]));
-					std::vector<TStackValue> field_formal_params;
-
-					//передаем в качестве параметра ссылку на копируемый объект
-					field_formal_params.push_back(TStackValue(true, field_class));
-					field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field.GetOffset()]);
-					field_copy_constr->Run(static_fields, field_formal_params, result, field_object);
-				}
-			}
-			//иначе просто копируем поле объекта
-			else
-			{
-				if (field.HasSizeMultiplier())
-				{
-					memcpy(&(((int*)object.get())[field.GetOffset()]), &(((int*)formal_params[0].get())[field.GetOffset()]), field_class->GetSize()*sizeof(int)*field.GetSizeMultiplier());
-				}else
-					memcpy(&(((int*)object.get())[field.GetOffset()]), &(((int*)formal_params[0].get())[field.GetOffset()]), field_class->GetSize()*sizeof(int));
+				//иначе просто копируем поле объекта
+				//else
+				//{
+				//	if (field.HasSizeMultiplier())
+				//	{
+				//		memcpy(&(((int*)object.get())[field.GetOffset()]), &(((int*)formal_params[0].get())[field.GetOffset()]), field_class->GetSize()*sizeof(int)*field.GetSizeMultiplier());
+				//	}else
+				//		memcpy(&(((int*)object.get())[field.GetOffset()]), &(((int*)formal_params[0].get())[field.GetOffset()]), field_class->GetSize()*sizeof(int));
+				//}
 			}
 		}
+	}
+	else
+	{
+		memcpy((int*)object.get(), (int*)formal_params[0].get(), object.GetSize()*sizeof(int));
 	}
 }
 
@@ -885,71 +888,77 @@ void TSClass::RunAutoCopyConstr(std::vector<TStaticValue> &static_fields, std::v
 void TSClass::RunAutoAssign(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object)
 {
 	assert(IsAutoMethodsInitialized());
-	assert(auto_copy_constr);
+	assert(auto_assign_operator);
 
 	//оператор присваиваиня должен принимать два аргумента с тем же типом что и данный класс по ссылке
 	assert(formal_params.size() == 2);
 	assert(formal_params[0].GetClass() == this);
 	assert(formal_params[1].GetClass() == this);
 
-	TStackValue result;
-
-	for (TSClassField& field : fields)
+	if (fields.size() > 0)
 	{
-		assert(field.GetClass()->IsAutoMethodsInitialized());
-		TSMethod* field_assign_op = field.GetClass()->GetAssignOperator();
-		if (!field.GetSyntax()->IsStatic())
+		TStackValue result;
+		for (TSClassField& field : fields)
 		{
-			TSClass* field_class = field.GetClass();
-			//если у поля имеется конструктор копии - вызываем его
-			if (field_assign_op != NULL)
+			assert(field.GetClass()->IsAutoMethodsInitialized());
+			TSMethod* field_assign_op = field.GetClass()->GetAssignOperator();
+			if (!field.GetSyntax()->IsStatic())
 			{
-				ValidateAccess(field.GetSyntax(), this, field_assign_op);
-				TStackValue field_object(true, field_class);
-				if (field.HasSizeMultiplier())
+				TSClass* field_class = field.GetClass();
+				//если у поля имеется конструктор копии - вызываем его
+				if (field_assign_op != NULL)
 				{
-					for (int i = 0; i < field.GetSizeMultiplier(); i++)
+					ValidateAccess(field.GetSyntax(), this, field_assign_op);
+					TStackValue field_object(true, field_class);
+					if (field.HasSizeMultiplier())
+					{
+						for (int i = 0; i < field.GetSizeMultiplier(); i++)
+						{
+							//настраиваем указатель this - инициализируемый объект
+							field_object.SetAsReference(&(((int*)object.get())[field.GetOffset() + i*field.GetClass()->GetSize()]));
+							std::vector<TStackValue> field_formal_params;
+
+							//передаем в качестве параметра ссылку на копируемый объект
+							field_formal_params.push_back(TStackValue(true, field_class));
+							field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field.GetOffset() + i*field.GetClass()->GetSize()]);
+
+							field_formal_params.push_back(TStackValue(true, field_class));
+							field_formal_params.back().SetAsReference(&((int*)formal_params[1].get())[field.GetOffset() + i*field.GetClass()->GetSize()]);
+
+							field_assign_op->Run(static_fields, field_formal_params, result, field_object);
+						}
+					}
+					else
 					{
 						//настраиваем указатель this - инициализируемый объект
-						field_object.SetAsReference(&(((int*)object.get())[field.GetOffset() + i*field.GetClass()->GetSize()]));
+						field_object.SetAsReference(&(((int*)object.get())[field.GetOffset()]));
 						std::vector<TStackValue> field_formal_params;
 
 						//передаем в качестве параметра ссылку на копируемый объект
 						field_formal_params.push_back(TStackValue(true, field_class));
-						field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field.GetOffset() + i*field.GetClass()->GetSize()]);
+						field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field.GetOffset()]);
 
 						field_formal_params.push_back(TStackValue(true, field_class));
-						field_formal_params.back().SetAsReference(&((int*)formal_params[1].get())[field.GetOffset() + i*field.GetClass()->GetSize()]);
+						field_formal_params.back().SetAsReference(&((int*)formal_params[1].get())[field.GetOffset()]);
 
 						field_assign_op->Run(static_fields, field_formal_params, result, field_object);
 					}
 				}
-				else
-				{
-					//настраиваем указатель this - инициализируемый объект
-					field_object.SetAsReference(&(((int*)object.get())[field.GetOffset()]));
-					std::vector<TStackValue> field_formal_params;
-
-					//передаем в качестве параметра ссылку на копируемый объект
-					field_formal_params.push_back(TStackValue(true, field_class));
-					field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field.GetOffset()]);
-
-					field_formal_params.push_back(TStackValue(true, field_class));
-					field_formal_params.back().SetAsReference(&((int*)formal_params[1].get())[field.GetOffset()]);
-
-					field_assign_op->Run(static_fields, field_formal_params, result, field_object);
-				}
-			}
-			//иначе просто копируем поле объекта
-			else
-			{
-				if (field.HasSizeMultiplier())
-				{
-					memcpy(&(((int*)object.get())[field.GetOffset()]), &(((int*)formal_params[0].get())[field.GetOffset()]), field_class->GetSize()*sizeof(int)*field.GetSizeMultiplier());
-				}
-				else
-					memcpy(&(((int*)object.get())[field.GetOffset()]), &(((int*)formal_params[0].get())[field.GetOffset()]), field_class->GetSize()*sizeof(int));
+				//иначе просто копируем поле объекта
+				//else
+				//{
+				//	if (field.HasSizeMultiplier())
+				//	{
+				//		memcpy(&(((int*)object.get())[field.GetOffset()]), &(((int*)formal_params[0].get())[field.GetOffset()]), field_class->GetSize()*sizeof(int)*field.GetSizeMultiplier());
+				//	}
+				//	else
+				//		memcpy(&(((int*)object.get())[field.GetOffset()]), &(((int*)formal_params[0].get())[field.GetOffset()]), field_class->GetSize()*sizeof(int));
+				//}
 			}
 		}
+	}
+	else
+	{
+		memcpy((int*)formal_params[0].get(), (int*)formal_params[1].get(), object.GetSize()*sizeof(int));
 	}
 }

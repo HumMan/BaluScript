@@ -120,15 +120,11 @@ void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 		"{\n"
 		"default();\n"
 		"copy(string& copy_from);\n"
-		"copy(string copy_from);\n"
 		"destr();\n"
 		"operator static [](string& v,int id):&char;\n"
 		"operator static =(string& v,string& l);\n"
-		"operator static =(string& v,string l);\n"
 		"operator static +=(string& v,string& l);\n"
-		"operator static +=(string& v,string l);\n"
 		"operator static +(string& v,string& l):string;\n"
-		"operator static +(string v,string l):string;\n"
 		"func length:int;\n"
 		"}\n"
 		);
@@ -148,7 +144,6 @@ void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 	m.clear();
 	scl->GetCopyConstructors(m);
 	m[0]->SetAsExternal(TString::copy_constr);
-	m[1]->SetAsExternal(TString::copy_constr);
 
 	scl->GetDestructor()->SetAsExternal(TString::destructor);
 
@@ -160,19 +155,16 @@ void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 	scl->GetOperators(m, TOperator::Assign);
 	//TODO ввести использование ссылки на временный объект
 	m[0]->SetAsExternal(TString::assign_op);
-	m[1]->SetAsExternal(TString::assign_op);
 
 	m.clear();
 	scl->GetOperators(m, TOperator::PlusA);
 	//TODO ввести использование ссылки на временный объект
 	m[0]->SetAsExternal(TString::assign_plus_op);
-	m[1]->SetAsExternal(TString::assign_plus_op);
 
 	m.clear();
 	scl->GetOperators(m, TOperator::Plus);
 	//TODO ввести использование ссылки на временный объект
 	m[0]->SetAsExternal(TString::plus_op);
-	m[1]->SetAsExternal(TString::plus_op);
 
 	m.clear();
 	scl->GetMethods(m, syntax->lexer.GetIdFromName("length"));
