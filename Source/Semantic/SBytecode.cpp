@@ -64,16 +64,18 @@ void TSBytecode::Run(TStatementRunContext run_context)
 	int* sp = stack;
 	PackToStack(*run_context.formal_params, sp);
 
+	auto object = (run_context.object!=nullptr)?(int*)run_context.object->get():nullptr;
+
 	for (TBytecode::TBytecodeOp& op : GetSyntax()->code)
 	{
 		
 		if (
-			TVirtualMachine::ExecuteIntOps(&op.op, sp, (int*)run_context.object->get()) ||
-			TVirtualMachine::ExecuteFloatOps(&op.op, sp, (int*)run_context.object->get()) ||
-			TVirtualMachine::ExecuteBoolOps(&op.op, sp, (int*)run_context.object->get()) ||
-			TVirtualMachine::ExecuteBaseOps(&op.op, sp, (int*)run_context.object->get()) ||
-			TVirtualMachine::ExecuteVec2Ops(&op.op, sp, (int*)run_context.object->get()) ||
-			TVirtualMachine::ExecuteVec2iOps(&op.op, sp, (int*)run_context.object->get()))
+			TVirtualMachine::ExecuteIntOps(&op.op, sp, object) ||
+			TVirtualMachine::ExecuteFloatOps(&op.op, sp, object) ||
+			TVirtualMachine::ExecuteBoolOps(&op.op, sp, object) ||
+			TVirtualMachine::ExecuteBaseOps(&op.op, sp, object) ||
+			TVirtualMachine::ExecuteVec2Ops(&op.op, sp, object) ||
+			TVirtualMachine::ExecuteVec2iOps(&op.op, sp, object))
 		{
 
 		}

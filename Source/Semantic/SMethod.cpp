@@ -209,7 +209,7 @@ void TSMethod::Run(TMethodRunContext method_run_context)
 			}break;
 			case TSpecialClassMethod::AutoAssignOperator:
 			{
-				owner->RunAutoAssign(*run_context.static_fields, *run_context.formal_params, *run_context.object);
+				owner->RunAutoAssign(*run_context.static_fields, *run_context.formal_params);
 			}break;
 			default:
 				assert(false);

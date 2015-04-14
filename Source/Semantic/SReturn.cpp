@@ -41,9 +41,7 @@ TSReturn::TSReturn(TSClass* use_owner, TSMethod* use_method, TSStatements* use_p
 void TSReturn::Run(TStatementRunContext run_context)
 {
 	TStackValue return_value;
-	auto return_run_context = run_context;
-	return_run_context.result = &return_value;
-	result->Run(return_run_context);
+	result->Run(TExpressionRunContext(run_context, &return_value));
 	*run_context.result_returned = true;
 	conversions->RunConversion(*run_context.static_fields, return_value);
 	*run_context.result = return_value;

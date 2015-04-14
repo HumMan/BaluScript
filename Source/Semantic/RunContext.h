@@ -13,6 +13,10 @@ public:
 	{
 		static_fields = nullptr;
 	}
+	TGlobalRunContext(std::vector<TStaticValue>* static_fields)
+	{
+		this->static_fields = static_fields;
+	}
 };
 
 class TMethodRunContext : public TGlobalRunContext

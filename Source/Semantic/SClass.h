@@ -91,5 +91,5 @@ public:
 	void RunAutoDefConstr(std::vector<TStaticValue> &static_fields, TStackValue& object);
 	void RunAutoDestr(std::vector<TStaticValue> &static_fields, TStackValue& object);
 	void RunAutoCopyConstr(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object);
-	void RunAutoAssign(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object);
+	void RunAutoAssign(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params);
 };

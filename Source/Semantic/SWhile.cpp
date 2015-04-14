@@ -28,8 +28,7 @@ void TSWhile::Run(TStatementRunContext run_context)
 	TStackValue compare_result;
 	while (true)
 	{
-		auto while_run_context = run_context;
-		while_run_context.result = &compare_result;
+		TExpressionRunContext while_run_context(run_context, &compare_result);
 		compare->Run(while_run_context);
 		compare_conversion->RunConversion(*run_context.static_fields, compare_result);
 		if (*(bool*)compare_result.get())

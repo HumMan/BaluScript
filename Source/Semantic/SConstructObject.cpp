@@ -70,7 +70,9 @@ void TSConstructObject::Construct(TStackValue& constructed_object, TStatementRun
 {
 	if (constructor_call)
 	{
-		constructor_call->Run(TExpressionRunContext(run_context, nullptr));
+		TStatementRunContext constr_run_context(run_context);
+		constr_run_context.object = &constructed_object;
+		constructor_call->Run(TExpressionRunContext(constr_run_context, nullptr));
 	}
 }
 
@@ -79,8 +81,6 @@ void TSConstructObject::Destruct(TStackValue& constructed_object, TGlobalRunCont
 	TSMethod* destr = object_type->GetDestructor();
 	if (destr != NULL)
 	{
-		TMethodRunContext destructor_run_context;
-		*(TGlobalRunContext*)&destructor_run_context = run_context;
-		destr->Run(destructor_run_context);
+		destr->Run(TMethodRunContext(run_context.static_fields, nullptr, nullptr, &constructed_object));
 	}
 }

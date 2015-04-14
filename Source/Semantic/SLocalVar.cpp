@@ -116,6 +116,6 @@ void TSLocalVar::Destruct(std::vector<TStaticValue> &static_fields, std::vector<
 	{
 		TStackValue without_result, var_object(true, GetClass());
 		var_object.SetAsReference(local_variables.back().get());
-		construct_object->Destruct(var_object, TMethodRunContext(&static_fields, nullptr, nullptr, nullptr));
+		construct_object->Destruct(var_object, TGlobalRunContext(&static_fields));
 	}
 }

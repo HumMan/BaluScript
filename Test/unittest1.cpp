@@ -1746,26 +1746,25 @@ namespace Test
 				).get());
 		}
 
-		//TEST_METHOD(StringGetMembersFromRef)
-		//{
-		//	TSClass* cl2 = NULL;
-		//	Assert::IsNotNull(cl2 = CreateClass(
-		//		"class TestClass {\n"
-		//		//"class ITest1 { vec2 v; string abc; default { v.x = 1; v.y = 2; abc = \"zopa\";}}"
-		//		"class ITest1 { vec2 v; string abc;}"
-		//		//"class ITest2  { ITest1 v; }"
-		//		"func static ReturnResult:ITest1\n"
-		//		"{ ITest1 v; return v;}\n"
-		//		"func static Test:int\n"
-		//		"{\n"
-		//		"	vec2 test = ReturnResult().v;\n"
-		//		"	string abc = ReturnResult().abc;\n"
-		//		"	return abc.length();\n"
-		//		"}}"));
-		//	Assert::AreEqual((int)4, *(int*)RunClassMethod(cl2, "Test").get());
-		//}
-
 		TEST_METHOD(StringGetMembersFromRef)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class ITest1 { vec2 v; string abc; default { v.x = 1; v.y = 2; abc = \"zopa\";}}"
+				"class ITest2  { ITest1 v; }"
+				"func static ReturnResult:ITest2\n"
+				"{ ITest2 v; return v;}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	vec2 test = ReturnResult().v.v;\n"
+				"	string abc = ReturnResult().v.abc;\n"
+				"	return abc.length();\n"
+				"}}"));
+			Assert::AreEqual((int)4, *(int*)RunClassMethod(cl2, "Test").get());
+		}
+
+		TEST_METHOD(StringGetMembersFromRef0)
 		{
 			TSClass* cl2 = NULL;
 			Assert::IsNotNull(cl2 = CreateClass(
