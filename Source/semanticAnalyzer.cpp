@@ -99,7 +99,7 @@ void InitializeStaticClassFields(std::vector<TSClassField*> static_fields, std::
 			std::vector<TStackValue> constr_formal_params;
 			TStackValue without_result, var_object(true, v->GetClass());
 			var_object.SetAsReference(static_objects[v->GetOffset()].get());
-			def_constr->Run(static_objects, constr_formal_params, without_result, var_object);
+			def_constr->Run(TMethodRunContext(&static_objects, &constr_formal_params, &without_result, &var_object));
 		}
 		
 	}

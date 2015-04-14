@@ -81,8 +81,8 @@ public:
 	void Build();
 	///<param name = 'static_fields'>Список статических полей класса - необходим для их дальнейшей инициализации</param>
 	///<param name = 'static_fields'>Список статических локальных переменных</param>
-	void LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
-	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
+	void LinkSignature(TGlobalBuildContext build_context);
+	void LinkBody(TGlobalBuildContext build_context);
 	void CalculateSizes(std::vector<TSClass*> &owners);
 	void CalculateMethodsSizes();
 	void InitAutoMethods();

@@ -25,7 +25,7 @@ public:
 	TNameId GetName();
 	TSClass* GetClass();
 	bool IsStatic();
-	void Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
-	void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
+	void Build(TGlobalBuildContext build_context);
+	void Run(TStatementRunContext run_context);
 	void Destruct(std::vector<TStaticValue> &static_fields, std::vector<TStackValue>& local_variables);
 };

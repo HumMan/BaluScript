@@ -13,10 +13,10 @@
 #include "SParameter.h"
 #include "SClass.h"
 
-void TSReturn::Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+void TSReturn::Build(TGlobalBuildContext build_context)
 {
 	result = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, &GetSyntax()->result));
-	result->Build(static_fields, static_variables);
+	result->Build(build_context);
 	TExpressionResult result_result = result->GetFormalParameter();
 	if(method->GetRetClass()!=NULL)
 	{
@@ -38,11 +38,13 @@ TSReturn::TSReturn(TSClass* use_owner, TSMethod* use_method, TSStatements* use_p
 	:TSStatement(TStatementType::Return, use_owner, use_method, use_parent, (TStatement*)use_syntax)
 {}
 
-void TSReturn::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& method_result_value, TStackValue& object, std::vector<TStackValue>& local_variables)
+void TSReturn::Run(TStatementRunContext run_context)
 {
 	TStackValue return_value;
-	result->Run(static_fields, formal_params, result_returned, return_value, object, local_variables);
-	result_returned = true;
-	conversions->RunConversion(static_fields, return_value);
-	method_result_value = return_value;
+	auto return_run_context = run_context;
+	return_run_context.result = &return_value;
+	result->Run(return_run_context);
+	*run_context.result_returned = true;
+	conversions->RunConversion(*run_context.static_fields, return_value);
+	*run_context.result = return_value;
 }

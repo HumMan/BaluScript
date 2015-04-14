@@ -253,7 +253,7 @@ TSClassField* TSClass::GetField(TNameId name, bool is_static, bool only_in_this)
 	return NULL;
 }
 
-void TSClass::LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+void TSClass::LinkSignature(TGlobalBuildContext build_context)
 {
 	if (!IsSignatureLinked())
 		SetSignatureLinked();
@@ -261,41 +261,41 @@ void TSClass::LinkSignature(std::vector<TSClassField*>* static_fields, std::vect
 		return;
 
 
-	parent.LinkSignature(static_fields, static_variables);
+	parent.LinkSignature(build_context);
 	//определить присутствие конструктора по умолчанию, деструктора, конструктора копии
 
 	for (TSClassField& field : fields)
 	{
-		field.LinkSignature(static_fields, static_variables);
+		field.LinkSignature(build_context);
 		if (field.GetSyntax()->IsStatic())
-			static_fields->push_back(&field);
+			build_context.static_fields->push_back(&field);
 	}
 
 	//слинковать сигнатуры методов
 	for (TSOverloadedMethod& method : methods)
 	{
-		method.LinkSignature(static_fields, static_variables);
+		method.LinkSignature(build_context);
 	}
 
 	if (default_constructor)
-		default_constructor->LinkSignature(static_fields, static_variables);
+		default_constructor->LinkSignature(build_context);
 	if (copy_constructors)
-		copy_constructors->LinkSignature(static_fields, static_variables);
+		copy_constructors->LinkSignature(build_context);
 	if (move_constructors)
-		move_constructors->LinkSignature(static_fields, static_variables);
+		move_constructors->LinkSignature(build_context);
 	if (destructor)
-		destructor->LinkSignature(static_fields, static_variables);
+		destructor->LinkSignature(build_context);
 
 	for (int i = 0; i < TOperator::End; i++)
-		operators[i]->LinkSignature(static_fields, static_variables);
-	conversions->LinkSignature(static_fields, static_variables);
+		operators[i]->LinkSignature(build_context);
+	conversions->LinkSignature(build_context);
 
 	for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
 		if (!nested_class->GetSyntax()->IsTemplate())
-			nested_class->LinkSignature(static_fields, static_variables);
+			nested_class->LinkSignature(build_context);
 }
 
-void TSClass::LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+void TSClass::LinkBody(TGlobalBuildContext build_context)
 {
 	if (!IsBodyLinked())
 		SetBodyLinked();
@@ -304,35 +304,35 @@ void TSClass::LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TS
 
 	CheckForErrors();
 
-	parent.LinkBody(static_fields, static_variables);
+	parent.LinkBody(build_context);
 
 	for (TSClassField& field : fields)
 	{
-		field.LinkBody(static_fields, static_variables);
+		field.LinkBody(build_context);
 	}
 
 	//слинковать тела методов - требуется наличие инф. обо всех методах, conversion, операторах класса
 	for (TSOverloadedMethod& method : methods)
 	{
-		method.LinkBody(static_fields, static_variables);
+		method.LinkBody(build_context);
 	}
 	if (default_constructor)
-		default_constructor->LinkBody(static_fields, static_variables);
+		default_constructor->LinkBody(build_context);
 	if (copy_constructors)
-		copy_constructors->LinkBody(static_fields, static_variables);
+		copy_constructors->LinkBody(build_context);
 	if (move_constructors)
-		move_constructors->LinkBody(static_fields, static_variables);
+		move_constructors->LinkBody(build_context);
 	if (destructor)
-		destructor->LinkBody(static_fields, static_variables);
+		destructor->LinkBody(build_context);
 
 	for (int i = 0; i < TOperator::End; i++)
 		if (operators[i])
-			operators[i]->LinkBody(static_fields, static_variables);
-	conversions->LinkBody(static_fields, static_variables);
+			operators[i]->LinkBody(build_context);
+	conversions->LinkBody(build_context);
 
 	for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
 		if (!nested_class->GetSyntax()->IsTemplate())
-			nested_class->LinkBody(static_fields, static_variables);
+			nested_class->LinkBody(build_context);
 }
 
 
@@ -767,13 +767,13 @@ void TSClass::RunAutoDefConstr(std::vector<TStaticValue> &static_fields, TStackV
 				for (int i = 0; i < field.GetSizeMultiplier(); i++)
 				{
 					field_object.SetAsReference(&(((int*)object.get())[field.GetOffset()+i*field.GetClass()->GetSize()]));
-					field_def_constr->Run(static_fields, formal_params, result, field_object);
+					field_def_constr->Run(TMethodRunContext(&static_fields, &formal_params, &result, &field_object));
 				}
 			}
 			else
 			{
 				field_object.SetAsReference(&(((int*)object.get())[field.GetOffset()]));
-				field_def_constr->Run(static_fields, formal_params, result, field_object);
+				field_def_constr->Run(TMethodRunContext(&static_fields, &formal_params, &result, &field_object));
 			}
 		}
 	}
@@ -802,13 +802,13 @@ void TSClass::RunAutoDestr(std::vector<TStaticValue> &static_fields, TStackValue
 				for (int i = 0; i < field.GetSizeMultiplier(); i++)
 				{
 					field_object.SetAsReference(&(((int*)object.get())[field.GetOffset() + i*field.GetClass()->GetSize()]));
-					field_destr->Run(static_fields, formal_params, result, field_object);
+					field_destr->Run(TMethodRunContext(&static_fields, &formal_params, &result, &field_object));
 				}
 			}
 			else
 			{
 				field_object.SetAsReference(&(((int*)object.get())[field.GetOffset()]));
-				field_destr->Run(static_fields, formal_params, result, field_object);
+				field_destr->Run(TMethodRunContext(&static_fields, &formal_params, &result, &field_object));
 			}
 		}
 	}
@@ -851,7 +851,7 @@ void TSClass::RunAutoCopyConstr(std::vector<TStaticValue> &static_fields, std::v
 							//передаем в качестве параметра ссылку на копируемый объект
 							field_formal_params.push_back(TStackValue(true, field_class));
 							field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field.GetOffset() + i*field.GetClass()->GetSize()]);
-							field_copy_constr->Run(static_fields, field_formal_params, result, field_object);
+							field_copy_constr->Run(TMethodRunContext(&static_fields, &field_formal_params, &result, &field_object));
 						}
 					}
 					else
@@ -863,7 +863,7 @@ void TSClass::RunAutoCopyConstr(std::vector<TStaticValue> &static_fields, std::v
 						//передаем в качестве параметра ссылку на копируемый объект
 						field_formal_params.push_back(TStackValue(true, field_class));
 						field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field.GetOffset()]);
-						field_copy_constr->Run(static_fields, field_formal_params, result, field_object);
+						field_copy_constr->Run(TMethodRunContext(&static_fields, &field_formal_params, &result, &field_object));
 					}
 				}
 				//иначе просто копируем поле объекта
@@ -925,7 +925,7 @@ void TSClass::RunAutoAssign(std::vector<TStaticValue> &static_fields, std::vecto
 							field_formal_params.push_back(TStackValue(true, field_class));
 							field_formal_params.back().SetAsReference(&((int*)formal_params[1].get())[field.GetOffset() + i*field.GetClass()->GetSize()]);
 
-							field_assign_op->Run(static_fields, field_formal_params, result, field_object);
+							field_assign_op->Run(TMethodRunContext(&static_fields, &field_formal_params, &result, &field_object));
 						}
 					}
 					else
@@ -941,7 +941,7 @@ void TSClass::RunAutoAssign(std::vector<TStaticValue> &static_fields, std::vecto
 						field_formal_params.push_back(TStackValue(true, field_class));
 						field_formal_params.back().SetAsReference(&((int*)formal_params[1].get())[field.GetOffset()]);
 
-						field_assign_op->Run(static_fields, field_formal_params, result, field_object);
+						field_assign_op->Run(TMethodRunContext(&static_fields, &field_formal_params, &result, &field_object));
 					}
 				}
 				//иначе просто копируем поле объекта

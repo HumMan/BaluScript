@@ -7,6 +7,8 @@ class TStackValue;
 class TSyntaxAnalyzer;
 class TSClass;
 
+#include "..\Semantic\RunContext.h"
+
 struct TDynArr
 {
 	std::vector<int>* v;//можно использовать не указатель, но учитывать move конструктор вектора, который хранит backpointer
@@ -38,13 +40,13 @@ struct TDynArr
 		delete v;
 		v = NULL;
 	}
-	static void constructor(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
-	static void destructor(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
-	static void copy_constr(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
-	static void assign_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
-	static void get_element_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
-	static void resize(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
-	static void get_size(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
+	static void constructor(TMethodRunContext run_context);
+	static void destructor(TMethodRunContext run_context);
+	static void copy_constr(TMethodRunContext run_context);
+	static void assign_op(TMethodRunContext run_context);
+	static void get_element_op(TMethodRunContext run_context);
+	static void resize(TMethodRunContext run_context);
+	static void get_size(TMethodRunContext run_context);
 
 	static void DeclareExternalClass(TSyntaxAnalyzer* syntax);
 };

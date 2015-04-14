@@ -15,10 +15,10 @@
 #include "SClass.h"
 #include "SConstructObject.h"
 
-void TSLocalVar::Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+void TSLocalVar::Build(TGlobalBuildContext build_context)
 {
-	type.LinkSignature(static_fields, static_variables);
-	type.LinkBody(static_fields, static_variables);
+	type.LinkSignature(build_context);
+	type.LinkBody(build_context);
 
 	std::vector<TSMethod*> methods;
 	if (owner->GetMethods(methods, GetSyntax()->name))
@@ -42,18 +42,18 @@ void TSLocalVar::Build(std::vector<TSClassField*>* static_fields, std::vector<TS
 
 	construct_object.reset(new TSConstructObject(owner, method, parent, type.GetClass()));
 
-	construct_object->Build(GetSyntax(),GetSyntax()->params,static_fields, static_variables);
+	construct_object->Build(GetSyntax(),GetSyntax()->params, build_context);
 
 	if (GetSyntax()->is_static)
 	{
-		static_variables->push_back(this);
+		build_context.static_variables->push_back(this);
 	}
 	parent->AddVar(this, GetSyntax()->stmt_id);
 
 	if (GetSyntax()->assign_expr != NULL)
 	{
 		assign_expr.reset(new TSExpression(owner, method, parent, GetSyntax()->assign_expr.get()));
-		assign_expr->Build(static_fields, static_variables);
+		assign_expr->Build(build_context);
 	}
 }
 
@@ -80,34 +80,34 @@ bool TSLocalVar::IsStatic()
 	return GetSyntax()->IsStatic();
 }
 
-void TSLocalVar::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
+void TSLocalVar::Run(TStatementRunContext run_context)
 {
 	if (!IsStatic())
-		local_variables.push_back(TStackValue(false, type.GetClass()));
+		run_context.local_variables->push_back(TStackValue(false, type.GetClass()));
 
 	//TODO т.к. в GetClassMember создаются временные объекты
 	//if (!IsStatic())
 	//	assert(GetOffset() == local_variables.size() - 1);//иначе ошибка Build локальных переменных
 
-	if (IsStatic() && static_fields[GetOffset()].IsInitialized())
+	if (IsStatic() && (*run_context.static_fields)[GetOffset()].IsInitialized())
 	{
 		return;
 	}
 	TStackValue var_object(true, GetClass());
 	if (IsStatic())
-		var_object.SetAsReference(static_fields[GetOffset()].get());
+		var_object.SetAsReference((*run_context.static_fields)[GetOffset()].get());
 	else
-		var_object.SetAsReference(local_variables.back().get());
+		var_object.SetAsReference(run_context.local_variables->back().get());
 
-	construct_object->Construct(var_object,static_fields, formal_params, object, local_variables);
+	construct_object->Construct(var_object, run_context);
 
 	if (IsStatic())
 	{
-		static_fields[GetOffset()].Initialize();
+		(*run_context.static_fields)[GetOffset()].Initialize();
 	}
 
 	if (assign_expr)
-		assign_expr->Run(static_fields, formal_params, result_returned, result, object, local_variables);
+		assign_expr->Run(run_context);
 }
 
 void TSLocalVar::Destruct(std::vector<TStaticValue> &static_fields, std::vector<TStackValue>& local_variables)
@@ -116,6 +116,6 @@ void TSLocalVar::Destruct(std::vector<TStaticValue> &static_fields, std::vector<
 	{
 		TStackValue without_result, var_object(true, GetClass());
 		var_object.SetAsReference(local_variables.back().get());
-		construct_object->Destruct(var_object,static_fields, local_variables);
+		construct_object->Destruct(var_object, TMethodRunContext(&static_fields, nullptr, nullptr, nullptr));
 	}
 }

@@ -1,6 +1,9 @@
 
 #include "SStatement.h"
 
+#include "BuildContext.h"
+#include "RunContext.h"
+
 class TSClass;
 class TSMethod;
 class TSStatements;
@@ -17,10 +20,10 @@ class TSFor :public TSStatement
 	std::unique_ptr<TSStatements> statements;
 public:
 	TSFor(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TFor* use_syntax);
-	void Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
+	void Build(TGlobalBuildContext build_context);
 	TFor* GetSyntax()
 	{
 		return (TFor*)TSyntaxNode::GetSyntax();
 	}
-	void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
+	void Run(TStatementRunContext run_context);
 };

@@ -48,7 +48,8 @@ int main(int argc, char* argv[])
 				std::vector<TStaticValue> static_fields;
 				std::vector<TStaticValue> static_variables;
 				TStackValue result, object;
-				main_func->Run(static_fields, params, result, object);
+				TMethodRunContext method_run_context(&static_fields, &params, &result, &object);
+				main_func->Run(method_run_context);
 
 		/*		if(print_info)
 					printf("ok (%.3f ms)\n",time.TimeDiff(time.GetTime(),t0)*1000);

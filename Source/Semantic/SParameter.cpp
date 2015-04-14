@@ -21,13 +21,13 @@ TSParameter::TSParameter(TSClass* use_owner, TSMethod* use_method, TSClass* use_
 
 }
 
-void TSParameter::LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+void TSParameter::LinkBody(TGlobalBuildContext build_context)
 {
-	type.LinkBody(static_fields, static_variables);
+	type.LinkBody(build_context);
 }
-void TSParameter::LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+void TSParameter::LinkSignature(TGlobalBuildContext build_context)
 {
-	type.LinkSignature(static_fields, static_variables);
+	type.LinkSignature(build_context);
 }
 TSClass* TSParameter::GetClass()
 {
@@ -66,7 +66,7 @@ void TActualParamWithConversion::RunConversion(std::vector<TStaticValue> &static
 			constr_params.push_back(value);
 			TStackValue constr_result;
 			TStackValue constructed_object(false, value.GetClass());
-			copy_constr->Run(static_fields, constr_params, constr_result, constructed_object);
+			copy_constr->Run(TMethodRunContext(&static_fields, &constr_params, &constr_result, &constructed_object));
 			value = constructed_object;
 		}
 		//else
@@ -81,7 +81,7 @@ void TActualParamWithConversion::RunConversion(std::vector<TStaticValue> &static
 		std::vector<TStackValue> conv_params;
 		conv_params.push_back(value);
 		TStackValue result;
-		conversion->Run(static_fields, conv_params, result, value);
+		conversion->Run(TMethodRunContext(&static_fields, &conv_params, &result, &value));
 		value = result;
 	}
 }
@@ -133,19 +133,19 @@ void TActualParameters::Build(const std::vector<TSOperation*>& actual_params, co
 	}
 }
 
-void TActualParameters::Construct(std::vector<TStackValue> &method_call_formal_params, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object, std::vector<TStackValue>& local_variables)
+void TActualParameters::Construct(std::vector<TStackValue> &method_call_formal_params, TStatementRunContext run_context)
 {
 	for (TActualParamWithConversion& par : input)
 	{
 		TStackValue exp_result;
-		par.expression->Run(static_fields, formal_params, exp_result, object, local_variables);
+		par.expression->Run(TExpressionRunContext(run_context, &exp_result));
 
-		par.RunConversion(static_fields, exp_result);
+		par.RunConversion(*run_context.static_fields, exp_result);
 		method_call_formal_params.push_back(exp_result);
 	}
 }
 
-void TActualParameters::Destroy(std::vector<TStackValue> &method_call_formal_params, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &_formal_params, TStackValue& object, std::vector<TStackValue>& local_variables)
+void TActualParameters::Destroy(std::vector<TStackValue> &method_call_formal_params, TStatementRunContext run_context)
 {
 	auto it = input.begin();
 	for (size_t i = 0; i < method_call_formal_params.size(); i++)
@@ -154,7 +154,7 @@ void TActualParameters::Destroy(std::vector<TStackValue> &method_call_formal_par
 		{
 			TStackValue destructor_result;
 			std::vector<TStackValue> without_params;
-			it->result.GetClass()->GetDestructor()->Run(static_fields, without_params, destructor_result, method_call_formal_params[i]);
+			it->result.GetClass()->GetDestructor()->Run(TMethodRunContext(run_context.static_fields, &without_params, &destructor_result, &method_call_formal_params[i]));
 		}
 		it++;
 	}

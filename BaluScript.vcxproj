@@ -88,7 +88,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Source\semanticAnalyzer.h" />
+    <ClInclude Include="Source\Semantic\BuildContext.h" />
     <ClInclude Include="Source\Semantic\FormalParam.h" />
+    <ClInclude Include="Source\Semantic\RunContext.h" />
     <ClInclude Include="Source\Semantic\SBytecode.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>

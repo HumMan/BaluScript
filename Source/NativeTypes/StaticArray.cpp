@@ -8,22 +8,22 @@
 #include "Syntax/Statements.h"
 #include "Syntax/Method.h"
 
-void TStaticArr::get_element_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+void TStaticArr::get_element_op(TMethodRunContext run_context)
 {
-	TSClass* obj_class = formal_params[0].GetClass();
+	TSClass* obj_class = (*run_context.formal_params)[0].GetClass();
 	TSClass* el = obj_class->fields.begin()->GetClass();
 	int size = obj_class->fields.begin()->GetSizeMultiplier();
-	int index = (*(int*)formal_params[1].get());
+	int index = (*(int*)(*run_context.formal_params)[1].get());
 	if (index < 0 || index >= size)
 		throw std::string("Index out of range");
-	result.SetAsReference(&(((int*)(formal_params[0].get()))[el->GetSize()*index]));
+	run_context.result->SetAsReference(&(((int*)((*run_context.formal_params)[0].get()))[el->GetSize()*index]));
 }
 
-void TStaticArr::get_size(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+void TStaticArr::get_size(TMethodRunContext run_context)
 {
-	TSClass* obj_class = object.GetClass();
+	TSClass* obj_class = run_context.object->GetClass();
 	int size = obj_class->fields.begin()->GetSizeMultiplier();
-	*(int*)result.get() = size;
+	*(int*)run_context.result->get() = size;
 }
 
 void TStaticArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)

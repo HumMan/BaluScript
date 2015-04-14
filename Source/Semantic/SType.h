@@ -7,6 +7,8 @@
 
 #include "SSyntaxNode.h"
 
+#include "BuildContext.h"
+
 class TSClass;
 class TSType;
 class TSClassField;
@@ -33,8 +35,8 @@ struct TSType_TClassName :TSyntaxNode<TType_TClassName>,TNodeSignatureLinked,TNo
 		SetSignatureLinked();
 		SetBodyLinked();
 	}
-	TSClass* LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables, TSClass* use_owner, TSClass* use_curr_class);
-	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
+	TSClass* LinkSignature(TGlobalBuildContext build_context, TSClass* use_owner, TSClass* use_curr_class);
+	void LinkBody(TGlobalBuildContext build_context);
 };
 
 class TSType :public TSyntaxNode<TType>, public TNodeSignatureLinked, public TNodeBodyLinked
@@ -42,14 +44,14 @@ class TSType :public TSyntaxNode<TType>, public TNodeSignatureLinked, public TNo
 private:
 	TSClass* owner;
 	std::list<TSType_TClassName> classes;
-	void LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables, TSClass* use_curr_class);
+	void LinkSignature(TGlobalBuildContext build_context, TSClass* use_curr_class);
 public:
 	bool IsEqualTo(const TSType& use_right)const;
 	TSType(TSClass* use_owner,TType* use_syntax_node);
 	///<summary>Используется при создании автоматических методов</summary>
 	TSType(TSClass* use_owner, TSClass* use_class);
-	void LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
-	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
+	void LinkSignature(TGlobalBuildContext build_context);
+	void LinkBody(TGlobalBuildContext build_context);
 	TSClass* GetClass()const
 	{
 		if (classes.size() == 0)

@@ -16,7 +16,7 @@ TSBytecode::TSBytecode(TSClass* use_owner, TSMethod* use_method, TSStatements* u
 
 }
 
-void TSBytecode::Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+void TSBytecode::Build(TGlobalBuildContext build_context)
 {
 	for (size_t i = 0; i<GetSyntax()->code.size(); i++)
 	{
@@ -58,22 +58,22 @@ void PackToStack(std::vector<TStackValue> &formal_params, int* &sp)
 	}
 }
 
-void TSBytecode::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
+void TSBytecode::Run(TStatementRunContext run_context)
 {
 	int stack[255];
 	int* sp = stack;
-	PackToStack(formal_params, sp);
+	PackToStack(*run_context.formal_params, sp);
 
 	for (TBytecode::TBytecodeOp& op : GetSyntax()->code)
 	{
 		
 		if (
-			TVirtualMachine::ExecuteIntOps(&op.op, sp, (int*)object.get()) ||
-			TVirtualMachine::ExecuteFloatOps(&op.op, sp, (int*)object.get()) ||
-			TVirtualMachine::ExecuteBoolOps(&op.op, sp, (int*)object.get()) ||
-			TVirtualMachine::ExecuteBaseOps(&op.op, sp, (int*)object.get()) ||
-			TVirtualMachine::ExecuteVec2Ops(&op.op, sp, (int*)object.get()) ||
-			TVirtualMachine::ExecuteVec2iOps(&op.op, sp, (int*)object.get()))
+			TVirtualMachine::ExecuteIntOps(&op.op, sp, (int*)run_context.object->get()) ||
+			TVirtualMachine::ExecuteFloatOps(&op.op, sp, (int*)run_context.object->get()) ||
+			TVirtualMachine::ExecuteBoolOps(&op.op, sp, (int*)run_context.object->get()) ||
+			TVirtualMachine::ExecuteBaseOps(&op.op, sp, (int*)run_context.object->get()) ||
+			TVirtualMachine::ExecuteVec2Ops(&op.op, sp, (int*)run_context.object->get()) ||
+			TVirtualMachine::ExecuteVec2iOps(&op.op, sp, (int*)run_context.object->get()))
 		{
 
 		}
@@ -84,14 +84,14 @@ void TSBytecode::Run(std::vector<TStaticValue> &static_fields, std::vector<TStac
 	}
 	if (method->GetRetClass() != NULL)
 	{
-		result = TStackValue(method->GetSyntax()->IsReturnRef(), method->GetRetClass());
+		*run_context.result = TStackValue(method->GetSyntax()->IsReturnRef(), method->GetRetClass());
 		if (method->GetSyntax()->IsReturnRef())
 		{
-			result.SetAsReference(*(void**)stack);
+			run_context.result->SetAsReference(*(void**)stack);
 		}
 		else
 		{
-			memcpy(result.get(), stack, method->GetReturnSize()*sizeof(int));
+			memcpy(run_context.result->get(), stack, method->GetReturnSize()*sizeof(int));
 		}
 	}
 }

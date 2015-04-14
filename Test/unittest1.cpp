@@ -14,6 +14,8 @@ namespace Test
 
 	std::vector < std::unique_ptr<TSMethod>> *smethods;
 
+	
+
 	TSMethod* CreateMethod(char* code)
 	{
 		
@@ -30,9 +32,10 @@ namespace Test
 
 			std::vector<TSClassField*> static_fields;
 			std::vector<TSLocalVar*> static_variables;
+			TGlobalBuildContext build_context(&static_fields, &static_variables);
 
-			ms->LinkSignature(&static_fields, &static_variables);
-			ms->LinkBody(&static_fields, &static_variables);
+			ms->LinkSignature(build_context);
+			ms->LinkBody(build_context);
 			ms->CalculateParametersOffsets();
 
 			std::vector<TSClass*> owners;
@@ -67,9 +70,11 @@ namespace Test
 			std::vector<TSClassField*> static_fields;
 			std::vector<TSLocalVar*> static_variables;
 
-			scl->LinkSignature(&static_fields, &static_variables);
+			TGlobalBuildContext build_context(&static_fields, &static_variables);
+
+			scl->LinkSignature(build_context);
 			scl->InitAutoMethods();
-			scl->LinkBody(&static_fields, &static_variables);
+			scl->LinkBody(build_context);
 			scl->CheckForErrors();
 
 			std::vector<TSClass*> owners;
@@ -96,14 +101,16 @@ namespace Test
 		TSMethod* ms = CreateMethod(code);
 		std::vector<TStackValue> params;
 		TStackValue result, object;
-		ms->Run(*static_objects, params, result, object);
+		TMethodRunContext method_run_context(static_objects, &params, &result, &object);
+		ms->Run(method_run_context);
 		return result;
 	}
 	TStackValue RunMethod(TSMethod* ms)
 	{
 		std::vector<TStackValue> params;
 		TStackValue result, object;
-		ms->Run(*static_objects, params, result, object);
+		TMethodRunContext method_run_context(static_objects, &params, &result, &object);
+		ms->Run(method_run_context);
 		return result;
 	}
 	TStackValue RunClassMethod(TSClass* scl, char* method_name)
@@ -114,7 +121,8 @@ namespace Test
 
 		std::vector<TStackValue> params;
 		TStackValue result, object;
-		ms->Run(*static_objects, params, result, object);
+		TMethodRunContext method_run_context(static_objects, &params, &result, &object);
+		ms->Run(method_run_context);
 		return result;
 	}
 	TEST_MODULE_INITIALIZE(BaseTypesTestsInitialize)

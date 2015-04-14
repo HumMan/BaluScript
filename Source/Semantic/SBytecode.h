@@ -1,5 +1,8 @@
 #include "SStatement.h"
 
+#include "BuildContext.h"
+#include "RunContext.h"
+
 class TExpressionResult;
 class TBytecode;
 class TSClassField;
@@ -15,6 +18,6 @@ public:
 	{
 		return (TBytecode*)TSyntaxNode::GetSyntax();
 	}
-	void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables);
-	void Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
+	void Run(TStatementRunContext run_context);
+	void Build(TGlobalBuildContext build_context);
 };

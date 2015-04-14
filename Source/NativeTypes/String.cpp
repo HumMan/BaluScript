@@ -50,65 +50,65 @@
 #include "Syntax/Statements.h"
 #include "Syntax/Method.h"
 
-void TString::constructor(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+void TString::constructor(TMethodRunContext run_context)
 {
-	object.get_as<TString>().Init();
+	run_context.object->get_as<TString>().Init();
 }
 
-void TString::destructor(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+void TString::destructor(TMethodRunContext run_context)
 {
 	//TODO не должен вызываться конструктор для ссылочного типа
 	//if (object.IsRef())
 	//	return;
 
-	TString* obj = ((TString*)object.get());
+	TString* obj = ((TString*)run_context.object->get());
 	obj->~TString();
 }
 
-void TString::copy_constr(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+void TString::copy_constr(TMethodRunContext run_context)
 {
-	TString* obj = ((TString*)object.get());
-	TString* copy_from = (TString*)formal_params[0].get();
+	TString* obj = ((TString*)run_context.object->get());
+	TString* copy_from = (TString*)(*run_context.formal_params)[0].get();
 	obj->Init(*copy_from->v);
 }
 
-void TString::assign_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+void TString::assign_op(TMethodRunContext run_context)
 {
-	TString* left = ((TString*)formal_params[0].get());
-	TString* right = ((TString*)formal_params[1].get());
+	TString* left = ((TString*)(*run_context.formal_params)[0].get());
+	TString* right = ((TString*)(*run_context.formal_params)[1].get());
 
 	*(left->v) = *right->v;
 }
 
-void TString::assign_plus_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+void TString::assign_plus_op(TMethodRunContext run_context)
 {
-	TString* left = ((TString*)formal_params[0].get());
-	TString* right = ((TString*)formal_params[1].get());
+	TString* left = ((TString*)(*run_context.formal_params)[0].get());
+	TString* right = ((TString*)(*run_context.formal_params)[1].get());
 
 	*(left->v) += *right->v;
 }
 
-void TString::plus_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+void TString::plus_op(TMethodRunContext run_context)
 {
-	TString* left = ((TString*)formal_params[0].get());
-	TString* right = ((TString*)formal_params[1].get());
+	TString* left = ((TString*)(*run_context.formal_params)[0].get());
+	TString* right = ((TString*)(*run_context.formal_params)[1].get());
 
 	auto temp = (*left->v + *right->v);
 
-	result.get_as<TString>().Init(temp);
+	run_context.result->get_as<TString>().Init(temp);
 }
 
-void TString::get_char_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+void TString::get_char_op(TMethodRunContext run_context)
 {
-	TString* obj = ((TString*)formal_params[0].get());
-	int index = *((int*)formal_params[1].get());
-	result.SetAsReference(&(*(obj->v))[index]);
+	TString* obj = ((TString*)(*run_context.formal_params)[0].get());
+	int index = *((int*)(*run_context.formal_params)[1].get());
+	run_context.result->SetAsReference(&(*(obj->v))[index]);
 }
 
-void TString::get_length(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+void TString::get_length(TMethodRunContext run_context)
 {
-	TString* obj = ((TString*)object.get());
-	*(int*)result.get() = obj->GetLength();
+	TString* obj = ((TString*)run_context.object->get());
+	*(int*)run_context.result->get() = obj->GetLength();
 }
 
 void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)

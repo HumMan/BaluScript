@@ -9,6 +9,9 @@
 
 #include "../Syntax/Parameter.h"
 
+#include "BuildContext.h"
+#include "RunContext.h"
+
 class TSMethod;
 class TSLocalVar;
 
@@ -51,8 +54,8 @@ class TSParameter :public TSyntaxNode<TParameter>, public TVariable,public TNode
 public:
 	TSParameter(TSClass* use_owner, TSMethod* use_method, TParameter* use_syntax_node, TType* use_type_syntax_node);
 	TSParameter(TSClass* use_owner, TSMethod* use_method, TSClass* use_class, bool use_is_ref);
-	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
-	void LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
+	void LinkBody(TGlobalBuildContext build_context);
+	void LinkSignature(TGlobalBuildContext build_context);
 	TSClass* GetClass();
 	bool IsEqualTo(const TSParameter& right)const;
 	void CalculateSize();
@@ -82,6 +85,6 @@ class TActualParameters
 	std::list<TActualParamWithConversion> input;
 public:
 	void Build(const std::vector<TSOperation*>& actual_params, const std::vector<TFormalParameter>& formal_params);
-	void Construct(std::vector<TStackValue> &method_call_formal_params, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object, std::vector<TStackValue>& local_variables);
-	void Destroy(std::vector<TStackValue> &method_call_formal_params, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object, std::vector<TStackValue>& local_variables);
+	void Construct(std::vector<TStackValue> &method_call_formal_params, TStatementRunContext run_context);
+	void Destroy(std::vector<TStackValue> &method_call_formal_params, TStatementRunContext run_context);
 };

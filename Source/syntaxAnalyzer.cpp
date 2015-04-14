@@ -40,9 +40,9 @@ void TSyntaxAnalyzer::Compile(char* use_source, TTime& time)
 	TString::DeclareExternalClass(this);
 
 	CreateInternalClasses();
-	sem_base_class->LinkSignature(&static_fields, &static_variables);
+	sem_base_class->LinkSignature(TGlobalBuildContext(&static_fields, &static_variables));
 	sem_base_class->InitAutoMethods();
-	sem_base_class->LinkBody(&static_fields, &static_variables);
+	sem_base_class->LinkBody(TGlobalBuildContext(&static_fields, &static_variables));
 
 	std::vector<TSClass*> owners;
 	sem_base_class->CalculateSizes(owners);

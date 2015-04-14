@@ -8,10 +8,10 @@
 #include "Syntax/Statements.h"
 #include "Syntax/Method.h"
 
-void TDynArr::constructor(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+void TDynArr::constructor(TMethodRunContext run_context)
 {
-	object.get_as<TDynArr>().Init();
-	object.get_as<TDynArr>().el_class = object.GetClass()->GetTemplateParam(0).type;
+	run_context.object->get_as<TDynArr>().Init();
+	run_context.object->get_as<TDynArr>().el_class = run_context.object->GetClass()->GetTemplateParam(0).type;
 }
 
 void CallMethod(std::vector<TStaticValue> &static_fields, int* v, int first_element, int el_count, int el_size, TSClass* el_class, TSMethod* method)
@@ -24,7 +24,7 @@ void CallMethod(std::vector<TStaticValue> &static_fields, int* v, int first_elem
 		
 		el_obj.SetAsReference(&v[i]);
 
-		method->Run(static_fields, without_params, without_result, el_obj);
+		method->Run(TMethodRunContext(&static_fields, &without_params, &without_result, &el_obj));
 	}
 }
 
@@ -41,7 +41,7 @@ void CallCopyConstr(std::vector<TStaticValue> &static_fields, int* v, int* copy_
 		params[0] = TStackValue(true, el_class);
 		params[0].SetAsReference(&copy_from[i]);
 		
-		method->Run(static_fields, params, without_result, el_obj);
+		method->Run(TMethodRunContext(&static_fields, &params, &without_result, &el_obj));
 	}
 }
 
@@ -57,7 +57,7 @@ void CallAssignOp(std::vector<TStaticValue> &static_fields, int* left, int* righ
 		params[0].SetAsReference(&left[i]);
 		params[1] = TStackValue(true, el_class);
 		params[1].SetAsReference(&right[i]);
-		method->Run(static_fields, params, without_result, el_obj);
+		method->Run(TMethodRunContext(&static_fields, &params, &without_result, &el_obj));
 	}
 }
 
@@ -88,26 +88,26 @@ void dyn_arr_resize(std::vector<TStaticValue> &static_fields, TDynArr* obj, int 
 	}
 }
 
-void TDynArr::destructor(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+void TDynArr::destructor(TMethodRunContext run_context)
 {
-	TDynArr* obj = ((TDynArr*)object.get());
+	TDynArr* obj = ((TDynArr*)run_context.object->get());
 	TSClass* el = obj->el_class;
 	TSMethod* el_destr = el->GetDestructor();
 	if (el_destr != NULL)
 	{
 		if (obj->v->size() > 0)
 		{
-			CallMethod(static_fields, &((*obj->v)[0]), 0, obj->v->size() / el->GetSize(), el->GetSize(), el, el_destr);
+			CallMethod(*run_context.static_fields, &((*obj->v)[0]), 0, obj->v->size() / el->GetSize(), el->GetSize(), el, el_destr);
 		}
 	}
 	obj->~TDynArr();
-	memset((TDynArr*)object.get(), 0xfeefee, sizeof(TDynArr));
+	memset((TDynArr*)run_context.object->get(), 0xfeefee, sizeof(TDynArr));
 }
 
-void TDynArr::copy_constr(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+void TDynArr::copy_constr(TMethodRunContext run_context)
 {
-	TDynArr* obj = &object.get_as<TDynArr>();
-	TDynArr* copy_from = &formal_params[0].get_as<TDynArr>();
+	TDynArr* obj = &run_context.object->get_as<TDynArr>();
+	TDynArr* copy_from = &(*run_context.formal_params)[0].get_as<TDynArr>();
 
 	TSClass* el = copy_from->el_class;
 	TSMethod* el_copy_constr = el->GetCopyConstr();
@@ -119,30 +119,30 @@ void TDynArr::copy_constr(std::vector<TStaticValue> &static_fields, std::vector<
 		if (copy_from->v->size() > 0)
 		{
 			obj->v->resize(copy_from->v->size());
-			CallCopyConstr(static_fields, &((*obj->v)[0]), &((*copy_from->v)[0]), 0, copy_from->v->size() / el->GetSize(), el->GetSize(), el, el_copy_constr);
+			CallCopyConstr(*run_context.static_fields, &((*obj->v)[0]), &((*copy_from->v)[0]), 0, copy_from->v->size() / el->GetSize(), el->GetSize(), el, el_copy_constr);
 		}
 	}
 	else
 	{
-		memset((TDynArr*)object.get(), 0xfeefee, sizeof(TDynArr));
+		memset((TDynArr*)run_context.object->get(), 0xfeefee, sizeof(TDynArr));
 		obj->Init(*copy_from);
 	}
 }
 
-void TDynArr::assign_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+void TDynArr::assign_op(TMethodRunContext run_context)
 {
-	TDynArr* left = ((TDynArr*)formal_params[0].get());
-	TDynArr* right = ((TDynArr*)formal_params[1].get());
+	TDynArr* left = ((TDynArr*)(*run_context.formal_params)[0].get());
+	TDynArr* right = ((TDynArr*)(*run_context.formal_params)[1].get());
 
 	std::vector<TSMethod*> ops;
 
 	left->el_class->GetOperators(ops, TOperator::Assign);
 	//TODO поиск нужного оператора присваивания
-	dyn_arr_resize(static_fields, left, right->v->size() / left->el_class->GetSize());
+	dyn_arr_resize(*run_context.static_fields, left, right->v->size() / left->el_class->GetSize());
 	if (left->v->size() > 0)
 	{
 		if(ops.size()>0)
-			CallAssignOp(static_fields, &((*left->v)[0]), &((*right->v)[0]), 0, left->v->size() / left->el_class->GetSize(), left->el_class->GetSize(), left->el_class, ops[0]);
+			CallAssignOp(*run_context.static_fields, &((*left->v)[0]), &((*right->v)[0]), 0, left->v->size() / left->el_class->GetSize(), left->el_class->GetSize(), left->el_class, ops[0]);
 		else
 		{
 			memcpy(&((*left->v)[0]), &((*right->v)[0]), left->v->size()*sizeof(int));
@@ -150,11 +150,11 @@ void TDynArr::assign_op(std::vector<TStaticValue> &static_fields, std::vector<TS
 	}
 }
 
-void TDynArr::get_element_op(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+void TDynArr::get_element_op(TMethodRunContext run_context)
 {
-	TDynArr* obj = ((TDynArr*)formal_params[0].get());
+	TDynArr* obj = ((TDynArr*)(*run_context.formal_params)[0].get());
 	TSClass* el = obj->el_class;
-	result.SetAsReference(&((*obj->v)[el->GetSize()*(*(int*)formal_params[1].get())]));
+	run_context.result->SetAsReference(&((*obj->v)[el->GetSize()*(*(int*)(*run_context.formal_params)[1].get())]));
 }
 
 void TDynArr::EmplaceBack(std::vector<TStaticValue> &static_fields)
@@ -171,18 +171,18 @@ int TDynArr::GetSize()
 	return v->size() / el_class->GetSize();
 }
 
-void TDynArr::resize(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+void TDynArr::resize(TMethodRunContext run_context)
 {
-	TDynArr* obj = ((TDynArr*)object.get());
-	int new_size = *(int*)formal_params[0].get();
+	TDynArr* obj = ((TDynArr*)run_context.object->get());
+	int new_size = *(int*)(*run_context.formal_params)[0].get();
 	
-	dyn_arr_resize(static_fields, obj, new_size);
+	dyn_arr_resize(*run_context.static_fields, obj, new_size);
 }
 
-void TDynArr::get_size(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+void TDynArr::get_size(TMethodRunContext run_context)
 {
-	TDynArr* obj = ((TDynArr*)object.get());
-	*(int*)result.get() = obj->v->size()/obj->el_class->GetSize();
+	TDynArr* obj = ((TDynArr*)(run_context.object->get()));
+	*(int*)run_context.result->get() = obj->v->size() / obj->el_class->GetSize();
 }
 
 void TDynArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)

@@ -4,6 +4,8 @@
 #include "Variable.h"
 #include "TemplateRealizations.h"
 
+#include "BuildContext.h"
+
 class TClassField;
 class TSLocalVar;
 
@@ -16,6 +18,6 @@ public:
 	TSClassField(TSClass* use_owner, TClassField* use_syntax);
 	TSClass* GetClass()const;
 	TSClass* GetOwner()const;
-	void LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
-	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
+	void LinkSignature(TGlobalBuildContext build_context);
+	void LinkBody(TGlobalBuildContext build_context);
 };

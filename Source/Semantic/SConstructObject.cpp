@@ -17,7 +17,7 @@ TSConstructObject::TSConstructObject(TSClass* use_owner, TSMethod* use_method, T
 {
 }
 
-void TSConstructObject::Build(TTokenPos* source, std::vector<TExpressionResult>& params_result, std::vector<TSOperation*>& params, std::vector<TFormalParameter>& params_formals, std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+void TSConstructObject::Build(TTokenPos* source, std::vector<TExpressionResult>& params_result, std::vector<TSOperation*>& params, std::vector<TFormalParameter>& params_formals, TGlobalBuildContext build_context)
 {
 	TSMethod* constructor = NULL;
 	if (params_result.size() > 0)
@@ -48,7 +48,7 @@ void TSConstructObject::Build(TTokenPos* source, std::vector<TExpressionResult>&
 	}
 }
 
-void TSConstructObject::Build(TTokenPos* source, std::vector<std::unique_ptr<TExpression>>& syntax_params, std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+void TSConstructObject::Build(TTokenPos* source, std::vector<std::unique_ptr<TExpression>>& syntax_params, TGlobalBuildContext build_context)
 {
 	std::vector<TExpressionResult> params_result;
 	std::vector<TFormalParameter> params_formals;
@@ -57,32 +57,30 @@ void TSConstructObject::Build(TTokenPos* source, std::vector<std::unique_ptr<TEx
 	for (const std::unique_ptr<TExpression>& param_syntax : syntax_params)
 	{
 		auto t = new TSExpression(owner, method, parent, param_syntax.get());
-		t->Build(static_fields, static_variables);
+		t->Build(build_context);
 		params.push_back(t);
 		params_result.push_back(params.back()->GetFormalParameter());
 		params_formals.push_back(TFormalParameter(params_result.back().GetClass(), params_result.back().IsRef()));
 	}
-	Build(source, params_result, params, params_formals, static_fields, static_variables);
+	Build(source, params_result, params, params_formals, build_context);
 }
 
 
-void TSConstructObject::Construct(TStackValue& constructed_object, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object, std::vector<TStackValue>& local_variables)
+void TSConstructObject::Construct(TStackValue& constructed_object, TStatementRunContext run_context)
 {
 	if (constructor_call)
 	{
-		TStackValue without_result;
-		constructor_call->Run(static_fields, formal_params, without_result, constructed_object, local_variables);
+		constructor_call->Run(TExpressionRunContext(run_context, nullptr));
 	}
 }
 
-void TSConstructObject::Destruct(TStackValue& constructed_object, std::vector<TStaticValue> &static_fields, std::vector<TStackValue>& local_variables)
+void TSConstructObject::Destruct(TStackValue& constructed_object, TGlobalRunContext run_context)
 {
 	TSMethod* destr = object_type->GetDestructor();
 	if (destr != NULL)
 	{
-		std::vector<TStackValue> without_params;
-		TStackValue without_result;
-
-		destr->Run(static_fields, without_params, without_result, constructed_object);
+		TMethodRunContext destructor_run_context;
+		*(TGlobalRunContext*)&destructor_run_context = run_context;
+		destr->Run(destructor_run_context);
 	}
 }

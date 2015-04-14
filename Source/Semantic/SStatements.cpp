@@ -20,67 +20,65 @@ class TSStatementBuilder :public TStatementVisitor
 	TSClass* owner;
 	TSMethod* method;
 	TSStatements* parent;
-	std::vector<TSClassField*>* static_fields;
-	std::vector<TSLocalVar*>* static_variables;
+	TGlobalBuildContext build_context;
 public:
 	TSStatement* GetResult()
 	{
 		return return_new_operation;
 	}
-	TSStatementBuilder(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables, TSClass* owner, TSMethod* method, TSStatements* parent)
+	TSStatementBuilder(TGlobalBuildContext build_context, TSClass* owner, TSMethod* method, TSStatements* parent)
 	{
 		this->owner = owner;
 		this->method = method;
 		this->parent = parent;
-		this->static_fields = static_fields;
-		this->static_variables = static_variables;
+		this->build_context = build_context;
 	}
 	void Visit(TExpression* op)
 	{
 		TSExpression* new_node = new TSExpression(owner, method, parent, op);
-		new_node->Build(static_fields, static_variables);
+		new_node->Build(build_context);
 		return_new_operation = new_node;
 	}
 	void Visit(TLocalVar* op)
 	{
 		TSLocalVar* new_node = new TSLocalVar(owner, method, parent, op);
-		new_node->Build(static_fields, static_variables);
+		new_node->Build(build_context);
 		return_new_operation = new_node;
 	}
 	void Visit(TReturn* op)
 	{
 		TSReturn* new_node = new TSReturn(owner, method, parent, op);
-		new_node->Build(static_fields, static_variables);
+		new_node->Build(build_context);
 		return_new_operation = new_node;
 	}
 	void Visit(TStatements* op)
 	{
 		TSStatements* new_node = new TSStatements(owner, method, parent, op);
-		new_node->Build(static_fields, static_variables);
+		new_node->Build(build_context);
 		return_new_operation = new_node;
 	}
 	void Visit(TBytecode* op)
 	{
 		TSBytecode* new_node = new TSBytecode(owner, method, parent, op);
-		new_node->Build(static_fields, static_variables);
+		new_node->Build(build_context);
 		return_new_operation = new_node;
 	}
 	void Visit(TWhile* op)
 	{
 		TSWhile* new_node = new TSWhile(owner, method, parent, op);
-		new_node->Build(static_fields, static_variables);
+		new_node->Build(build_context);
 		return_new_operation = new_node;
 	}
 	void Visit(TFor* op)
 	{
 		TSFor* new_node = new TSFor(owner, method, parent, op);
-		new_node->Build(static_fields, static_variables);
+		new_node->Build(build_context);
 		return_new_operation = new_node;
 	}
 	void Visit(TIf* op)
 	{
 		TSIf* new_node = new TSIf(owner, method, parent, op);
-		new_node->Build(static_fields, static_variables);
+		new_node->Build(build_context);
 		return_new_operation = new_node;
 	}
 };
@@ -110,11 +108,11 @@ int TSStatements::GetLastVariableOffset()
 	}
 }
 
-void TSStatements::Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+void TSStatements::Build(TGlobalBuildContext build_context)
 {
 	for (const std::unique_ptr<TStatement>& st : ((TStatements*)GetSyntax())->statements)
 	{
-		TSStatementBuilder b(static_fields, static_variables, owner, method, this);
+		TSStatementBuilder b(build_context, owner, method, this);
 		st->Accept(&b);
 		statements.push_back(std::unique_ptr<TSStatement>(b.GetResult()));
 	}
@@ -141,20 +139,20 @@ TVariable* TSStatements::GetVar(TNameId name, int sender_id)
 	else return NULL;
 }
 
-void TSStatements::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
+void TSStatements::Run(TStatementRunContext run_context)
 {
 	for (const std::unique_ptr<TSStatement>& statement : statements)
 	{
-		statement->Run(static_fields, formal_params, result_returned, result, object, local_variables);
-		if (result_returned)
+		statement->Run(run_context);
+		if (*run_context.result_returned)
 			break;
 	}
 	//for (TSStatements::TVarDecl& var_decl : var_declarations)
 	for (int i = var_declarations.size() - 1; i >= 0;i--)
 	{
 		auto& var_decl = var_declarations[i];
-		var_decl.pointer->Destruct(static_fields,local_variables);
+		var_decl.pointer->Destruct(*run_context.static_fields,*run_context.local_variables);
 		if(!var_decl.pointer->IsStatic())
-			local_variables.pop_back();
+			run_context.local_variables->pop_back();
 	}
 }

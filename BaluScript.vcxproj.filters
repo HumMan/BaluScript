@@ -186,6 +186,12 @@
     <ClInclude Include="Source\memleaks.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Semantic\RunContext.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Semantic\BuildContext.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\lexer.cpp">

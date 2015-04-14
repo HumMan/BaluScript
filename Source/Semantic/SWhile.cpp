@@ -12,28 +12,30 @@ TSWhile::TSWhile(TSClass* use_owner, TSMethod* use_method, TSStatements* use_par
 
 }
 
-void TSWhile::Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+void TSWhile::Build(TGlobalBuildContext build_context)
 {
 	compare = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->compare.get()));
-	compare->Build(static_fields, static_variables);
+	compare->Build(build_context);
 	TExpressionResult compare_result = compare->GetFormalParameter();
 	TestBoolExpr(compare_result, compare_conversion);
 
 	statements = std::unique_ptr<TSStatements>(new TSStatements(owner, method, parent, GetSyntax()->statements.get()));
-	statements->Build(static_fields, static_variables);
+	statements->Build(build_context);
 }
 
-void TSWhile::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
+void TSWhile::Run(TStatementRunContext run_context)
 {
 	TStackValue compare_result;
 	while (true)
 	{
-		compare->Run(static_fields, formal_params, result_returned, compare_result, object, local_variables);
-		compare_conversion->RunConversion(static_fields, compare_result);
+		auto while_run_context = run_context;
+		while_run_context.result = &compare_result;
+		compare->Run(while_run_context);
+		compare_conversion->RunConversion(*run_context.static_fields, compare_result);
 		if (*(bool*)compare_result.get())
 		{
-			statements->Run(static_fields, formal_params, result_returned, result, object, local_variables);
-			if (result_returned)
+			statements->Run(run_context);
+			if (*run_context.result_returned)
 				break;
 		}
 		else break;

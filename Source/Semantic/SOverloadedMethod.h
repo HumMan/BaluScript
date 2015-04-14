@@ -7,6 +7,8 @@
 
 #include "SSyntaxNode.h"
 
+#include "BuildContext.h"
+
 class TSParameter;
 class TSMethod;
 class TSClass;
@@ -29,8 +31,8 @@ public:
 	TSMethod* FindParams(TSMethod* use_method);
 	void GetMethods(std::vector<TSMethod*> &result);
 	void CheckForErrors(bool is_conversion = false);
-	void LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
-	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
+	void LinkSignature(TGlobalBuildContext build_context);
+	void LinkBody(TGlobalBuildContext build_context);
 	void Build();
 	void CalculateParametersOffsets();
 

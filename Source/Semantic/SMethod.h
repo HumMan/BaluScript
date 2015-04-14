@@ -4,6 +4,9 @@
 #include "SClassField.h"
 #include "Variable.h"
 
+#include "RunContext.h"
+#include "BuildContext.h"
+
 class TSClass;
 class TSStatements;
 class TMethod;
@@ -40,7 +43,7 @@ public:
 	}
 };
 
-typedef void(*TExternalSMethod)(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
+typedef void(*TExternalSMethod)(TMethodRunContext run_context);
 
 class TSMethod :public TSyntaxNode<TMethod>, public TSpecialClassMethod, public TNodeSignatureLinked, public TNodeBodyLinked
 {
@@ -98,12 +101,12 @@ public:
 
 	void Build();
 
-	void LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
-	void LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables);
+	void LinkSignature(TGlobalBuildContext build_context);
+	void LinkBody(TGlobalBuildContext build_context);
 
 	void CalculateParametersOffsets();
 
-	void Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object);
+	void Run(TMethodRunContext run_context);
 
 	~TSMethod();
 };

@@ -63,16 +63,16 @@ void TSMethod::AddParameter(TSParameter* use_par)
 	parameters.push_back(std::unique_ptr<TSParameter>(use_par));
 }
 
-void TSMethod::LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+void TSMethod::LinkSignature(TGlobalBuildContext build_context)
 {
 	if (IsSignatureLinked())
 		return;
 	SetSignatureLinked();
 	if(GetSyntax()->has_return)
-		ret.LinkSignature(static_fields, static_variables);
+		ret.LinkSignature(build_context);
 	for (const std::unique_ptr<TSParameter>& v : parameters)
 	{
-		v->LinkSignature(static_fields, static_variables);
+		v->LinkSignature(build_context);
 	}
 	
 }
@@ -105,7 +105,7 @@ bool TSMethod::HasParams(std::vector<std::unique_ptr<TSParameter>> &use_params)c
 	return true;
 }
 
-void TSMethod::LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+void TSMethod::LinkBody(TGlobalBuildContext build_context)
 {
 	if (is_external)
 		return;
@@ -113,15 +113,15 @@ void TSMethod::LinkBody(std::vector<TSClassField*>* static_fields, std::vector<T
 		return;
 	SetBodyLinked();
 	statements = std::unique_ptr<TSStatements>(new TSStatements(owner, this, NULL, GetSyntax()->statements.get()));
-	statements->Build(static_fields, static_variables);
+	statements->Build(build_context);
 	//if (!GetSyntax()->IsBytecode())
 	//	statements->Build();
 
 	if (GetSyntax()->has_return)
-		ret.LinkBody(static_fields, static_variables);
+		ret.LinkBody(build_context);
 	for (const std::unique_ptr<TSParameter>& v : parameters)
 	{
-		v->LinkBody(static_fields, static_variables);
+		v->LinkBody(build_context);
 	}
 }
 
@@ -149,11 +149,11 @@ void TSMethod::CalculateParametersOffsets()
 		ret_size = 0;
 }
 
-void TSMethod::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& result, TStackValue& object)
+void TSMethod::Run(TMethodRunContext method_run_context)
 {
 	if (is_external)
 	{
-		external_func(static_fields, formal_params, result, object);
+		external_func(method_run_context);
 	}
 	else
 	{
@@ -161,9 +161,14 @@ void TSMethod::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackV
 
 		std::vector<TStackValue> local_variables;
 
+		TStatementRunContext run_context;
+		*(TMethodRunContext*)&run_context = method_run_context;
+		run_context.result_returned = &result_returned;
+		run_context.local_variables = &local_variables;
+
 		if (GetType() == TSpecialClassMethod::NotSpecial)
 		{
-			statements->Run(static_fields, formal_params, result_returned, result, object, local_variables);
+			statements->Run(run_context);
 			//TODO заглушка для отслеживания завершения метода без возврата значения
 			//if (has_return)
 			//	assert(result_returned);
@@ -174,37 +179,37 @@ void TSMethod::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackV
 			{
 			case TSpecialClassMethod::AutoDefConstr:
 			{
-				owner->RunAutoDefConstr(static_fields, object);
+				owner->RunAutoDefConstr(*run_context.static_fields, *run_context.object);
 			}break;
 			case TSpecialClassMethod::AutoCopyConstr:
 			{
-				owner->RunAutoCopyConstr(static_fields, formal_params, object);
+				owner->RunAutoCopyConstr(*run_context.static_fields, *run_context.formal_params, *run_context.object);
 			}break;
 			case TSpecialClassMethod::AutoDestructor:
 			{
-				owner->RunAutoDestr(static_fields, object);
+				owner->RunAutoDestr(*run_context.static_fields, *run_context.object);
 			}break;
 			case TSpecialClassMethod::Default:
 			{
 				if (owner->auto_def_constr)
-					owner->RunAutoDefConstr(static_fields, object);
-				statements->Run(static_fields, formal_params, result_returned, result, object, local_variables);
+					owner->RunAutoDefConstr(*run_context.static_fields, *run_context.object);
+				statements->Run(run_context);
 			}break;
 			case TSpecialClassMethod::CopyConstr:
 			{
 				if (owner->auto_def_constr)
-					owner->RunAutoDefConstr(static_fields, object);
-				statements->Run(static_fields, formal_params, result_returned, result, object, local_variables);
+					owner->RunAutoDefConstr(*run_context.static_fields, *run_context.object);
+				statements->Run(run_context);
 			}break;
 			case TSpecialClassMethod::Destructor:
 			{
-				statements->Run(static_fields, formal_params, result_returned, result, object, local_variables);
+				statements->Run(run_context);
 				if (owner->auto_destr)
-					owner->RunAutoDestr(static_fields, object);
+					owner->RunAutoDestr(*run_context.static_fields, *run_context.object);
 			}break;
 			case TSpecialClassMethod::AutoAssignOperator:
 			{
-				owner->RunAutoAssign(static_fields, formal_params, object);
+				owner->RunAutoAssign(*run_context.static_fields, *run_context.formal_params, *run_context.object);
 			}break;
 			default:
 				assert(false);

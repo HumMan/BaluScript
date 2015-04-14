@@ -11,34 +11,34 @@ TSFor::TSFor(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent,
 
 }
 
-void TSFor::Build(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+void TSFor::Build(TGlobalBuildContext build_context)
 {
 	compare = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->compare.get()));
-	compare->Build(static_fields, static_variables);
+	compare->Build(build_context);
 	TExpressionResult compare_result = compare->GetFormalParameter();
 	TestBoolExpr(compare_result,compare_conversion);
 
 	increment = std::unique_ptr<TSStatements>(new TSStatements(owner, method, parent, GetSyntax()->increment.get()));
-	increment->Build(static_fields, static_variables);
+	increment->Build(build_context);
 	statements = std::unique_ptr<TSStatements>(new TSStatements(owner, method, parent, GetSyntax()->statements.get()));
-	statements->Build(static_fields, static_variables);
+	statements->Build(build_context);
 }
 
-void TSFor::Run(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, bool& result_returned, TStackValue& result, TStackValue& object, std::vector<TStackValue>& local_variables)
+void TSFor::Run(TStatementRunContext run_context)
 {
 	TStackValue compare_result;
 	while (true)
 	{
-		compare->Run(static_fields, formal_params, result_returned, compare_result, object, local_variables);
-		compare_conversion->RunConversion(static_fields, compare_result);
+		compare->Run(TExpressionRunContext(run_context, &compare_result));
+		compare_conversion->RunConversion(*run_context.static_fields, compare_result);
 		if (*(bool*)compare_result.get())
 		{
 
-			statements->Run(static_fields, formal_params, result_returned, result, object, local_variables);
-			if (result_returned)
+			statements->Run(run_context);
+			if (*run_context.result_returned)
 				break;
-			increment->Run(static_fields, formal_params, result_returned, result, object, local_variables);
-			if (result_returned)
+			increment->Run(run_context);
+			if (*run_context.result_returned)
 				break;
 		}
 		else break;

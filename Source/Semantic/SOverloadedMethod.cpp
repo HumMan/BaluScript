@@ -77,21 +77,21 @@ void TSOverloadedMethod::CheckForErrors(bool is_conversion)
 	}
 }
 
-void TSOverloadedMethod::LinkSignature(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+void TSOverloadedMethod::LinkSignature(TGlobalBuildContext build_context)
 {
 	if (linked_signature)
 		return;
 	for (const std::unique_ptr<TSMethod>& i : methods)
-		i->LinkSignature(static_fields, static_variables);
+		i->LinkSignature(build_context);
 	linked_signature = true;
 }
 
-void TSOverloadedMethod::LinkBody(std::vector<TSClassField*>* static_fields, std::vector<TSLocalVar*>* static_variables)
+void TSOverloadedMethod::LinkBody(TGlobalBuildContext build_context)
 {
 	if (linked_body)
 		return;
 	for (const std::unique_ptr<TSMethod>& i : methods)
-		i->LinkBody(static_fields, static_variables);
+		i->LinkBody(build_context);
 	linked_body = true;
 }
 
