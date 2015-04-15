@@ -469,12 +469,12 @@ bool TVirtualMachine::ExecuteVec2Ops(TOp* op, int*& sp, int* object)
 
 	case RV_VEC2_GET_ELEMENT:
 		if (*sp != 0 && *sp != 1)throw "Ошибка доступа к элементу вектора!";
-		*(sp - 1) = *(float*)((int*)(sp[-1]) + *sp);
+		*(float*)(sp - 1) = *((float*)(sp[-1]) + *sp);
 		sp--; break;
 
 	case VV_VEC2_GET_ELEMENT:
 		if (*sp != 0 && *sp != 1)throw "Ошибка доступа к элементу вектора!";
-		*(sp - 2) = sp[*sp - 2];
+		*(float*)(sp - 2) = ((float*)sp)[*sp - 2];
 		sp -= 2; break;
 
 	case VEC2_DISTANCE:
