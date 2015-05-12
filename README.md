@@ -58,3 +58,14 @@ class TestClass
 - [X] native static and dynamic arrays
 - [X] inheritance
 - [X] methods and fields visibility
+
+#TODO
+* lambda
+* template specialization (simple add new classes in realization)
+* default parameters like some_func(cutted_name: "tests")
+* *var* or *auto* word like in c# or c++
+* template methods
+* *const* parameters (like const by ref)
+* maybe *out* parameters
+* properties
+* 
