@@ -68,4 +68,4 @@ class TestClass
 * *const* parameters (like const by ref)
 * maybe *out* parameters
 * properties
-* 
+* multiple return values (like in Go)
