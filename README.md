@@ -69,3 +69,4 @@ class TestClass
 * maybe *out* parameters
 * properties
 * multiple return values (like in Go)
+* partial class
