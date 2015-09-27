@@ -3,7 +3,7 @@
 #include <stdarg.h>
 #include <string>
 #include <baluLib.h>
-
+using namespace BaluLib;
 //TODO русские буквы непереваривает
 namespace TTokenType
 {

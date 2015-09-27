@@ -22,6 +22,9 @@ struct TOpcodeInfo{char* name;int count;bool f1,f2,v1,v2;};\
 #undef BALU_SCRIPT_OPCODE_BEGIN
 #undef BALU_SCRIPT_OPCODE_END
 
+
+using namespace BaluLib;
+
 char* GetBytecodeString(TOpcode::Enum use_bytecode)
 {
 	return OpcodeInfo[use_bytecode].name;
