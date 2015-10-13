@@ -52,7 +52,8 @@ public:
 	template<class T>
 	T& get_as()
 	{
-		assert(GetSize() == IntSizeOf(sizeof(T)) / sizeof(int));
+		int result_size = IntSizeOf(sizeof(T));
+		assert(GetSize() == ( result_size / sizeof(int)));
 		return *reinterpret_cast<T*>(internal_buf);
 	}
 	~TStackValue();

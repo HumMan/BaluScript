@@ -9,15 +9,12 @@ class TStackValue;
 class TSyntaxAnalyzer;
 class TSClass;
 
-template<class T, class pass_as = T>
+template<class T>
 class TStringWrapper
 {
 private:
 	T* v;
 public:
-	typedef T Arg;
-	typedef T TypeForGetName;
-	typedef pass_as PassInMethodAs;
 	void Init()
 	{
 		v = new T();
