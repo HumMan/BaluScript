@@ -7,6 +7,9 @@
 #include "../Source/Syntax/Statements.h"
 #include "../Source/Syntax/Method.h"
 
+#include <fstream>
+#include <streambuf>
+
 int main(int argc, char* argv[])
 {
 	
@@ -18,17 +21,20 @@ int main(int argc, char* argv[])
 		time.Start();
 		printf("Compiling ... \n");
 
-		char* source;
+		std::string source;
 		{
-			TFileData file("../Source/NativeTypes/base_types.bscript", "rb");
-			source = file.ReadAll();
-			source[file.GetSize()] = '\0';
+			std::ifstream file("../Source/NativeTypes/base_types.bscript");
+			std::string str((std::istreambuf_iterator<char>(file)),
+				std::istreambuf_iterator<char>());
+
+			source = str;
 		}
-		char* source2;
+		std::string source2;
 		{
-			TFileData file("../Data/base_types_test.bscript", "rb");
-			source2 = file.ReadAll();
-			source2[file.GetSize()] = '\0';
+			std::ifstream file("../Data/base_types_test.bscript");
+			std::string str((std::istreambuf_iterator<char>(file)),
+				std::istreambuf_iterator<char>());
+			source2 = str;
 		}
 		{
 			
@@ -38,9 +44,7 @@ int main(int argc, char* argv[])
 			TSyntaxAnalyzer syntax;
 			try
 			{
-				syntax.Compile((char*)(("class Script{" + std::string(source) + std::string(source2) + "}").c_str()), time);
-				delete source;
-				delete source2;
+				syntax.Compile((char*)(("class Script{" + source + source2 + "}").c_str()), time);
 
 				TSMethod* main_func = syntax.GetMethod("func static Script.Main");
 				int sp[200];

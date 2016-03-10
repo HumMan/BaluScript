@@ -8,8 +8,6 @@
 #include "VirtualMachine/ArrayClassMethod.h"
 #include "VirtualMachine/Program.h"
 
-using namespace std;
-
 class TProgram;
 
 class TVirtualMachine

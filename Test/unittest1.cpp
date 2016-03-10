@@ -3,6 +3,9 @@
 
 #include "../Source/memleaks.h"
 
+#include <fstream>
+#include <streambuf>
+
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace Test
@@ -135,15 +138,16 @@ namespace Test
 		static_objects = new std::vector<TStaticValue>();
 		smethods = new std::vector<std::unique_ptr<TSMethod>>();
 
-		char* source;
+		std::string source;
 		{
-			TFileData file("../../Source/NativeTypes/base_types.bscript", "rb");
-			source = file.ReadAll();
-			source[file.GetSize()] = '\0';
+			std::ifstream file("../../Source/NativeTypes/base_types.bscript");
+			std::string str((std::istreambuf_iterator<char>(file)),
+				std::istreambuf_iterator<char>());
+
+			source = str;
 		}
 		syntax = new TSyntaxAnalyzer();
-		syntax->Compile((char*)(("class Script{"+std::string(source)+"}").c_str()), *time);
-		delete source;
+		syntax->Compile((char*)(("class Script{"+source+"}").c_str()), *time);
 	}
 	TEST_MODULE_CLEANUP(BaseTypesTestsCleanup)
 	{
