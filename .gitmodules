@@ -1,0 +1,3 @@
+[submodule "BaluLib"]
+	path = BaluLib
+	url = git://github.com/HumMan/BaluLib.git
