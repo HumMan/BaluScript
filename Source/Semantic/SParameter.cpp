@@ -4,7 +4,7 @@
 #include "../Syntax/Method.h"
 
 #include "SClass.h"
-#include "Semantic/SExpression.h"
+#include "SExpression.h"
 
 TSParameter::TSParameter(TSClass* use_owner, TSMethod* use_method, TParameter* use_syntax_node, TType* use_type_syntax_node) 
 	: TSyntaxNode(use_syntax_node)
@@ -110,7 +110,7 @@ void TActualParamWithConversion::BuildConvert(TExpressionResult from_result, TFo
 			}
 		}
 		if(conversion == NULL)
-			throw std::exception("Невозможно преобразовать тип!");
+			throw std::logic_error("Невозможно преобразовать тип!");
 	}
 	//если в стеке находится ссылка, а в качестве параметра требуется значение, то добавляем преобразование
 	else if (result.IsRef() && !to_formal_param.IsRef())

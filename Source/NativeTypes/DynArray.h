@@ -7,7 +7,7 @@ class TStackValue;
 class TSyntaxAnalyzer;
 class TSClass;
 
-#include "..\Semantic\RunContext.h"
+#include "../Semantic/RunContext.h"
 
 struct TDynArr
 {

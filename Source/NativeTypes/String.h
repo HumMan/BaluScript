@@ -2,7 +2,9 @@
 
 #include <baluLib.h>
 
-#include "..\Semantic\RunContext.h"
+#include "../Semantic/RunContext.h"
+
+#include <string>
 
 class TStaticValue;
 class TStackValue;

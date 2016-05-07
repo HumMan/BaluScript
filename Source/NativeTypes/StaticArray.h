@@ -2,9 +2,9 @@
 
 #include <baluLib.h>
 #include "../VirtualMachine/Program.h"
-#include "../VirtualMachine.h"
+#include "../virtualMachine.h"
 
-#include "..\Semantic\RunContext.h"
+#include "../Semantic/RunContext.h"
 
 class TStaticValue;
 class TStackValue;

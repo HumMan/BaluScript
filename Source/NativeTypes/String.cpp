@@ -42,19 +42,20 @@
 #include "String.h"
 #include "DynArray.h"
 
-#include "Semantic/FormalParam.h"
-#include "Semantic/SClass.h"
+#include "../Semantic/FormalParam.h"
+#include "../Semantic/SClass.h"
 
-#include "syntaxAnalyzer.h"
+#include "../syntaxAnalyzer.h"
 
-#include "Syntax/Statements.h"
-#include "Syntax/Method.h"
+#include "../Syntax/Statements.h"
+#include "../Syntax/Method.h"
 
+template<>
 void TString::constructor(TMethodRunContext run_context)
 {
 	run_context.object->get_as<TString>().Init();
 }
-
+template<>
 void TString::destructor(TMethodRunContext run_context)
 {
 	//TODO не должен вызываться конструктор для ссылочного типа
@@ -64,14 +65,14 @@ void TString::destructor(TMethodRunContext run_context)
 	TString* obj = ((TString*)run_context.object->get());
 	obj->~TString();
 }
-
+template<>
 void TString::copy_constr(TMethodRunContext run_context)
 {
 	TString* obj = ((TString*)run_context.object->get());
 	TString* copy_from = (TString*)(*run_context.formal_params)[0].get();
 	obj->Init(*copy_from->v);
 }
-
+template<>
 void TString::assign_op(TMethodRunContext run_context)
 {
 	TString* left = ((TString*)(*run_context.formal_params)[0].get());
@@ -79,7 +80,7 @@ void TString::assign_op(TMethodRunContext run_context)
 
 	*(left->v) = *right->v;
 }
-
+template<>
 void TString::assign_plus_op(TMethodRunContext run_context)
 {
 	TString* left = ((TString*)(*run_context.formal_params)[0].get());
@@ -87,7 +88,7 @@ void TString::assign_plus_op(TMethodRunContext run_context)
 
 	*(left->v) += *right->v;
 }
-
+template<>
 void TString::plus_op(TMethodRunContext run_context)
 {
 	TString* left = ((TString*)(*run_context.formal_params)[0].get());
@@ -97,20 +98,20 @@ void TString::plus_op(TMethodRunContext run_context)
 
 	run_context.result->get_as<TString>().Init(temp);
 }
-
+template<>
 void TString::get_char_op(TMethodRunContext run_context)
 {
 	TString* obj = ((TString*)(*run_context.formal_params)[0].get());
 	int index = *((int*)(*run_context.formal_params)[1].get());
 	run_context.result->SetAsReference(&(*(obj->v))[index]);
 }
-
+template<>
 void TString::get_length(TMethodRunContext run_context)
 {
 	TString* obj = ((TString*)run_context.object->get());
 	*(int*)run_context.result->get() = obj->GetLength();
 }
-
+template<>
 void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 {
 	TClass* cl = new TClass(syntax->base_class.get());

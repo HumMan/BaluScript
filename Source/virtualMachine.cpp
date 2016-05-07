@@ -84,7 +84,7 @@ void TVirtualMachine::Execute(int method_id, int* stack_top, int* this_pointer)
 	if (m->pre_event != -1)
 	{
 		assert(!m->is_static);
-		*(++sp) = (int)this_pointer;
+		*(++sp) = (intptr_t)this_pointer;
 		Execute(m->pre_event, NULL, this_pointer);
 	}
 	if (m->is_external)
@@ -102,7 +102,7 @@ void TVirtualMachine::Execute(int method_id, int* stack_top, int* this_pointer)
 		sp -= par;
 		if (m->post_event != -1)//TODO одно и то же в нескольких местах и в RETURN 
 		{
-			*(++sp) = (int)this_pointer;
+			*(++sp) = (intptr_t)this_pointer;
 			Execute(m->post_event, NULL, this_pointer);
 		}
 		return;
@@ -151,7 +151,7 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 	case PUSH:
 		*(++sp) = op->v1; break;
 	case PUSH_GLOBAL_REF:
-		*(++sp) = (int)&Get(op->v1); break;
+		*(++sp) = (intptr_t)&Get(op->v1); break;
 	case GLOBAL_TESTANDSET:
 		if (!Get(op->v2))
 		{
@@ -165,17 +165,17 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 		}
 		break;
 	case PUSH_LOCAL_REF:
-		*(++sp) = (int)&stack_top[op->v1]; break;
+		*(++sp) = (intptr_t)&stack_top[op->v1]; break;
 	case PUSH_LOCAL_REF_COPY:
 		*(++sp) = stack_top[op->v1]; break;
 	case PUSH_MEMBER_REF:
-		*(++sp) = (int)&this_pointer[op->v1]; break;
+		*(++sp) = (intptr_t)&this_pointer[op->v1]; break;
 	case PUSH_COUNT:
 		sp += op->v1; break;
 	case POP_COUNT:
 		sp -= op->v1; break;
 	case PUSH_THIS:
-		*(++sp) = (int)this_pointer; break;
+		*(++sp) = (intptr_t)this_pointer; break;
 	//case PUSH_STRING_CONST:
 	//	sp += 2;
 	//	((TString*)(sp - 1))->CopyFromConst(program->string_consts[op->v1]);
@@ -231,7 +231,7 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 	case ADD_OFFSET:
 		*sp += (unsigned int)op->v1 * 4; break;
 	case PUSH_STACK_HIGH_REF:
-		*(++sp) = (int)&sp[-op->v1];
+		*(++sp) = (intptr_t)&sp[-op->v1];
 		break;
 	case CALL_METHOD:
 	{
@@ -244,7 +244,7 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 		sp -= op->v1;
 		if (m->post_event != -1)
 		{
-			*(++sp) = (int)this_pointer;
+			*(++sp) = (intptr_t)this_pointer;
 			Execute(m->post_event, NULL, this_pointer);
 		}
 		//TODO для надежности следует заполнять неиспользуемую память 0xfeefee

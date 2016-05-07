@@ -1,6 +1,7 @@
 ﻿#include "SClass.h"
 
 #include <assert.h>
+#include <algorithm>
 
 #include "SOverloadedMethod.h"
 #include "SType.h"

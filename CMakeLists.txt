@@ -1,0 +1,18 @@
+cmake_minimum_required(VERSION 2.8)
+
+project(BaluScript)
+
+file(GLOB_RECURSE BaluScript_SRC
+    "Source/*.h"
+    "Source/*.cpp"
+)
+
+if(UNIX)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11 -Wwrite-strings")
+endif()
+
+include_directories("Include")
+add_subdirectory(BaluLib)
+include_directories(${BaluLib_SOURCE_DIR}/Include)
+
+add_library(BaluScript ${BaluScript_SRC})

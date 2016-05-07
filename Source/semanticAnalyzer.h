@@ -2,9 +2,9 @@
 
 #include "lexer.h"
 
-#include "Semantic\SMethod.h"
-#include "Semantic\SClassField.h"
-#include "Semantic\SParameter.h"
+#include "Semantic/SMethod.h"
+#include "Semantic/SClassField.h"
+#include "Semantic/SParameter.h"
 
 void ValidateAccess(TTokenPos* field_pos, TSClass* source, TSClassField* target);
 void ValidateAccess(TTokenPos* field_pos, TSClass* source, TSMethod* target);

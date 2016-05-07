@@ -1,12 +1,12 @@
-﻿	#include "DynArray.h"
+﻿#include "DynArray.h"
 
-#include "Semantic/FormalParam.h"
-#include "Semantic/SClass.h"
+#include "../Semantic/FormalParam.h"
+#include "../Semantic/SClass.h"
 
-#include "syntaxAnalyzer.h"
+#include "../syntaxAnalyzer.h"
 
-#include "Syntax/Statements.h"
-#include "Syntax/Method.h"
+#include "../Syntax/Statements.h"
+#include "../Syntax/Method.h"
 
 void TDynArr::constructor(TMethodRunContext run_context)
 {

@@ -1,4 +1,4 @@
-﻿#include "SyntaxAnalyzer.h"
+﻿#include "syntaxAnalyzer.h"
 
 #include "Syntax/Class.h"
 #include "Syntax/Method.h"
@@ -7,9 +7,9 @@
 #include "Semantic/SClass.h"
 #include "Semantic/SStatements.h"
 
-#include "NativeTypes\DynArray.h"
-#include "NativeTypes\StaticArray.h"
-#include "NativeTypes\String.h"
+#include "NativeTypes/DynArray.h"
+#include "NativeTypes/StaticArray.h"
+#include "NativeTypes/String.h"
 
 TSyntaxAnalyzer::TSyntaxAnalyzer()
 {

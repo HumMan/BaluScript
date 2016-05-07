@@ -1,12 +1,12 @@
 ﻿#include "StaticArray.h"
 
-#include "Semantic/FormalParam.h"
-#include "Semantic/SClass.h"
+#include "../Semantic/FormalParam.h"
+#include "../Semantic/SClass.h"
 
-#include "syntaxAnalyzer.h"
+#include "../syntaxAnalyzer.h"
 
-#include "Syntax/Statements.h"
-#include "Syntax/Method.h"
+#include "../Syntax/Statements.h"
+#include "../Syntax/Method.h"
 
 void TStaticArr::get_element_op(TMethodRunContext run_context)
 {

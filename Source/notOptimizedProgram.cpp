@@ -1,3 +1,5 @@
+
+#if false
 ﻿#include "notOptimizedProgram.h"
 
 #include "Syntax/Method.h"
@@ -390,3 +392,4 @@ int TNotOptimizedProgram::FindMethod(TMethod* use_method)
 		if(methods_table[i]==use_method)return i;
 	return -1;
 }
+#endif

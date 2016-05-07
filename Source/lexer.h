@@ -3,6 +3,32 @@
 #include <stdarg.h>
 #include <string>
 #include <baluLib.h>
+
+#if defined(WIN32)||defined(_WIN32)
+#else
+#include <string.h>
+template<typename... Args>
+int _snprintf_s(char* buf, int len, char* value, Args... args)
+{
+	return snprintf(buf, len, value, args...);
+}
+
+template<typename... Args>
+int _vsnprintf_s(char* buf, int len, char* value, Args... args)
+{
+	return vsnprintf(buf, len, value, args...);
+}
+void strncpy_s(
+   char *strDest,
+   size_t numberOfElements,
+   const char *strSource,
+   size_t count)
+{
+	strcpy(strDest,strSource);
+}
+#define sprintf_s sprintf
+#endif
+
 using namespace BaluLib;
 //TODO русские буквы непереваривает
 namespace TTokenType
@@ -338,7 +364,7 @@ private:
 	std::vector<TToken> tokens;
 	int curr_token;
 
-	__forceinline void NextChar()
+	inline void NextChar()
 	{
 		c=*(++curr_char);
 		col++;

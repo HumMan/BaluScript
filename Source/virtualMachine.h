@@ -92,7 +92,7 @@ public:
 		for(int i=0;i<el_count*el_size;i+=el_size)
 		{
 			int* first_par=sp+1;
-			*(++sp)=(int)&copy_to[i];
+			*(++sp)=(intptr_t)&copy_to[i];
 			int* second_par=sp+1;
 			sp+=el_size;
 			//вызываем конструктор копии для второго параметра
@@ -147,7 +147,7 @@ public:
 	}
 	void Execute(int method_id,int* this_pointer)
 	{
-		Push((int)this_pointer);
+		Push((intptr_t)this_pointer);
 		Execute(method_id,sp+1,this_pointer);
 	}
 	char buf[10000];
