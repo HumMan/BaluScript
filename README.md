@@ -1,8 +1,8 @@
 # BaluScript
 
-Platform | Windows
----------|--------
-Build status | [![Build status](https://ci.appveyor.com/api/projects/status/584yr2mob5jwnuk9?svg=true)](https://ci.appveyor.com/project/HumMan/baluscript)
+Platform | Windows | Linux
+---------|---------|------
+Build status | [![Build status](https://ci.appveyor.com/api/projects/status/584yr2mob5jwnuk9?svg=true)](https://ci.appveyor.com/project/HumMan/baluscript) | [![Build Status](https://travis-ci.org/HumMan/BaluScript.svg?branch=master)](https://travis-ci.org/HumMan/BaluScript)
 
 Simple C++ like interpreted language with static types and operators overloading
 
