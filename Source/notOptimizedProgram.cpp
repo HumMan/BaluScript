@@ -1,5 +1,5 @@
 
-#if false
+#if 0
 ﻿#include "notOptimizedProgram.h"
 
 #include "Syntax/Method.h"
