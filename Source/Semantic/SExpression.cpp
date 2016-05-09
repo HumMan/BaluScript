@@ -555,7 +555,7 @@ TSExpression::TString::TString(TSClass* owner, TType* syntax_node)
 void TSExpression::TString::Run(TExpressionRunContext run_context)
 {
 	*run_context.expression_result = TStackValue(false, type.GetClass());
-	run_context.expression_result->get_as<::TString>().Init(val);
+	run_context.expression_result->get_as< ::TString>().Init(val);
 }
 TExpressionResult TSExpression::TString::GetFormalParameter()
 {
