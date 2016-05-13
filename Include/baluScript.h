@@ -5,17 +5,17 @@
 
 #include <baluLib.h>
 
-#include "..\Source\lexer.h"
-//#include "..\Source\virtualMachine.h"
-#include "..\Source\syntaxAnalyzer.h"
-#include "..\Source\NativeTypes\StaticArray.h"
-#include "..\Source\NativeTypes\DynArray.h"
-#include "..\Source\NativeTypes\String.h"
-#include "..\Source\Syntax\ClassField.h"
-#include "..\Source\Syntax\Statements.h"
-#include "..\Source\Semantic\FormalParam.h"
-#include "..\Source\Semantic\SClass.h"
-#include "..\Source\semanticAnalyzer.h"
+#include "../Source/lexer.h"
+//#include "../Source/virtualMachine.h"
+#include "../Source/syntaxAnalyzer.h"
+#include "../Source/NativeTypes/StaticArray.h"
+#include "../Source/NativeTypes/DynArray.h"
+#include "../Source/NativeTypes/String.h"
+#include "../Source/Syntax/ClassField.h"
+#include "../Source/Syntax/Statements.h"
+#include "../Source/Semantic/FormalParam.h"
+#include "../Source/Semantic/SClass.h"
+#include "../Source/semanticAnalyzer.h"
 
 #define BSCRIPT_VOID_METHOD(class_name,name) \
 	void static name(std::vector<TStackValue> &_formal_params, TStackValue& _result, TStackValue& _obj)\
