@@ -2,6 +2,8 @@
 
 #include "Statements.h"
 
+#include <common.h>
+
 void TMethod::ParametersDecl(TLexer& source) {
 	//Считываем все параметры метода и возвращаемое значение
 	if (source.TestAndGet(TTokenType::Operator, TOperator::ParamsCall)) {
