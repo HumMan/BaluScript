@@ -7,6 +7,8 @@ class TSClass;
 
 #include "../Semantic/RunContext.h"
 
+#include <stdlib.h>
+
 struct TDynArr
 {
 	std::vector<int>* v;//можно использовать не указатель, но учитывать move конструктор вектора, который хранит backpointer
