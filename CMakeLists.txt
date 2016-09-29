@@ -12,9 +12,5 @@ if(UNIX)
 endif()
 
 include_directories("Include")
-if (NOT TARGET BaluLib)
-	add_subdirectory(BaluLib)
-endif()
-include_directories(${BaluLib_SOURCE_DIR}/Include)
 
 add_library(BaluScript ${BaluScript_SRC})
