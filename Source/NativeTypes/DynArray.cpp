@@ -208,7 +208,7 @@ void TDynArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 	syntax->sem_base_class->AddClass(scl);
 	scl->Build();
 
-	scl->SetSize(IntSizeOf(sizeof(TDynArr))/sizeof(int));
+	scl->SetSize(LexerIntSizeOf(sizeof(TDynArr)) / sizeof(int));
 	scl->SetAutoMethodsInitialized();
 
 	scl->GetDefConstr()->SetAsExternal(TDynArr::constructor);

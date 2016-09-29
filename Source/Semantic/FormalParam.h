@@ -54,7 +54,7 @@ public:
 	template<class T>
 	T& get_as()
 	{
-		int result_size = IntSizeOf(sizeof(T));
+		int result_size = LexerIntSizeOf(sizeof(T));
 		assert(GetSize() == ( result_size / sizeof(int)));
 		return *reinterpret_cast<T*>(internal_buf);
 	}

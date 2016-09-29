@@ -34,7 +34,7 @@ void TMethod::AnalyzeSyntax(TLexer& source, bool realization) {
 	InitPos(source);
 	source.TestToken(TTokenType::ResWord);
 	member_type = (TClassMember::Enum) source.Token();
-	if (!IsIn(member_type, TClassMember::Func, TClassMember::Conversion))
+	if (!LexerIsIn(member_type, TClassMember::Func, TClassMember::Conversion))
 		source.Error(
 				"Ожидалось объявление метода,конструктора,деструктора,оператора или приведения типа!");
 	source.GetToken();

@@ -148,7 +148,7 @@ namespace TOperator
 }
 
 template<class T, int block_size>
-class TAllocator
+class TLexerAllocator
 {
 private:
 	struct TBlock
@@ -162,12 +162,12 @@ private:
 	int total_count;
 #endif
 public:
-	TAllocator() :count(0), end(NULL)
+	TLexerAllocator() :count(0), end(NULL)
 #ifdef _DEBUG
 		, total_count(0)
 #endif
 	{}
-	~TAllocator()
+	~TLexerAllocator()
 	{
 		TBlock* curr = end;
 		while (curr != NULL)
@@ -217,7 +217,7 @@ private:
 		TNode* next;
 	};
 	TNode* table[table_size];
-	TAllocator<TNode, 255> nodes;
+	TLexerAllocator<TNode, 255> nodes;
 	
 public:
 	THash()

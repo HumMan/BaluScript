@@ -136,7 +136,7 @@ void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 	syntax->sem_base_class->AddClass(scl);
 	scl->Build();
 
-	scl->SetSize(IntSizeOf(sizeof(TString)) / sizeof(int));
+	scl->SetSize(LexerIntSizeOf(sizeof(TString)) / sizeof(int));
 	scl->SetAutoMethodsInitialized();
 
 	scl->GetDefConstr()->SetAsExternal(TString::constructor);

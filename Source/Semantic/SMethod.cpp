@@ -315,7 +315,7 @@ void TSMethod::CheckForErrors()
 			}
 			else if (GetSyntax()->operator_type == TOperator::UnaryMinus)
 			{
-				if (!IsIn(GetParamsCount(), 1, 2))
+				if (!LexerIsIn(GetParamsCount(), 1, 2))
 					GetSyntax()->Error("У унарного оператора ""-"" должнен быть 1 параметр!");
 				if (GetParam(0)->GetClass() != owner
 					&& (GetParamsCount() == 2 && GetParam(1)->GetClass() != owner))
