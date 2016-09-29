@@ -1,12 +1,21 @@
 ﻿#pragma once
 
-#include <baluLib.h>
 #include "Op.h"
+
+template<class T>
+class TListItem
+{
+public:
+	T value;
+	TListItem<T> *prev;
+	TListItem<T> *next;
+	TListItem<T>() : prev(NULL), next(NULL){}
+};
 
 struct TOpArray
 {
-	BaluLib::TListItem<TOp>* first;
-	BaluLib::TListItem<TOp>* last;
+	TListItem<TOp>* first;
+	TListItem<TOp>* last;
 	TOpArray();
 	bool IsNull()const;
 	TOpArray operator+(const TOpArray& use_right)const;

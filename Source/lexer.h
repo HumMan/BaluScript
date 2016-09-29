@@ -2,7 +2,8 @@
 
 #include <stdarg.h>
 #include <string>
-#include <baluLib.h>
+#include <assert.h>
+#include <vector>
 
 #if defined(WIN32)||defined(_WIN32)
 #else
@@ -29,7 +30,6 @@ void strncpy_s(
 #define sprintf_s sprintf
 #endif
 
-using namespace BaluLib;
 //TODO русские буквы непереваривает
 namespace TTokenType
 {
@@ -147,7 +147,60 @@ namespace TOperator
 	};
 }
 
-
+template<class T, int block_size>
+class TAllocator
+{
+private:
+	struct TBlock
+	{
+		T values[block_size];
+		TBlock* prev;
+	};
+	int count;
+	TBlock* end;
+#ifdef _DEBUG
+	int total_count;
+#endif
+public:
+	TAllocator() :count(0), end(NULL)
+#ifdef _DEBUG
+		, total_count(0)
+#endif
+	{}
+	~TAllocator()
+	{
+		TBlock* curr = end;
+		while (curr != NULL)
+		{
+			TBlock* temp = curr;
+			curr = curr->prev;
+			delete temp;
+		}
+	}
+	T* New()
+	{
+		if (end != NULL)
+		{
+			if (count == block_size)
+			{
+				TBlock* b = new TBlock();
+				count = 0;
+				b->prev = end;
+				end = b;
+			}
+		}
+		else
+		{
+			end = new TBlock();
+			count = 0;
+			end->prev = NULL;
+		}
+#ifdef _DEBUG
+		total_count++;
+#endif
+		return &end->values[count++];
+	}
+};
 
 template<class TKey,class TExtKey, class TData, int hash_bits_count=8>
 class THash
@@ -164,7 +217,7 @@ private:
 		TNode* next;
 	};
 	TNode* table[table_size];
-	BaluLib::TAllocator<TNode, 255> nodes;
+	TAllocator<TNode, 255> nodes;
 	
 public:
 	THash()

@@ -19,12 +19,12 @@ TSyntaxAnalyzer::~TSyntaxAnalyzer()
 {
 }
 
-void TSyntaxAnalyzer::Compile(char* use_source, TTime& time)
+void TSyntaxAnalyzer::Compile(char* use_source/*, TTime& time*/)
 {
-	unsigned long long t = time.GetTime();
+	//unsigned long long t = time.GetTime();
 	lexer.ParseSource(use_source);
-	printf("Source parsing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
-	t = time.GetTime();
+	//printf("Source parsing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
+	//t = time.GetTime();
 	base_class.reset(new TClass(NULL));
 	base_class->InitPos(lexer);
 
@@ -48,7 +48,7 @@ void TSyntaxAnalyzer::Compile(char* use_source, TTime& time)
 	sem_base_class->CalculateSizes(owners);
 	sem_base_class->CalculateMethodsSizes();
 
-	printf("Syntax analyzing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
+	//printf("Syntax analyzing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
 }
 
 

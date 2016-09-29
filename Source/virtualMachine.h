@@ -3,7 +3,6 @@
 #include <assert.h>
 #include <memory.h>
 #include <string.h>
-#include <baluLib.h>
 #include "VirtualMachine/Op.h"
 #include "VirtualMachine/ArrayClassMethod.h"
 #include "VirtualMachine/Program.h"

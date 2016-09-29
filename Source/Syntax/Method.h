@@ -44,7 +44,6 @@ private:
 	TOperator::Enum operator_type;
 	TClassMember::Enum member_type;
 public:
-
 	TMethod(TClass* use_owner, TClassMember::Enum use_member_type = TClassMember::Func);
 	~TMethod();
 	void ParametersDecl(TLexer& source);

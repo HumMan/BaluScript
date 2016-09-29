@@ -17,8 +17,8 @@ int main(int argc, char* argv[])
 		setlocale(LC_ALL, "windows");
 
 		printf("Compiling ... \n");
-		TTime time;
-		time.Start();
+		//TTime time;
+		//time.Start();
 		printf("Compiling ... \n");
 
 		std::string source;
@@ -38,13 +38,13 @@ int main(int argc, char* argv[])
 		}
 		{
 			
-			time.Start();
-			unsigned long long t0=time.GetTime();
+			//time.Start();
+			//unsigned long long t0=time.GetTime();
 
 			TSyntaxAnalyzer syntax;
 			try
 			{
-				syntax.Compile((char*)(("class Script{" + source + source2 + "}").c_str()), time);
+				syntax.Compile((char*)(("class Script{" + source + source2 + "}").c_str()));
 
 				TSMethod* main_func = syntax.GetMethod("func static Script.Main");
 				int sp[200];
@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
 					machine.Execute(main_func);
 					machine.DestructStaticVars();
 				}*/
-				printf("ok (%.3f ms)\n",time.TimeDiff(time.GetTime(),t0)*1000);
+				//printf("ok (%.3f ms)\n",time.TimeDiff(time.GetTime(),t0)*1000);
 			}
 			catch(std::string s)
 			{

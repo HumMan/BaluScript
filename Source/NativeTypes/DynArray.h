@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include <baluLib.h>
-
 class TStaticValue;
 class TStackValue;
 class TSyntaxAnalyzer;

@@ -23,7 +23,7 @@ public:
 public:
 	TSyntaxAnalyzer();
 	~TSyntaxAnalyzer();
-	void Compile(char* use_source,TTime& time);
+	void Compile(char* use_source/*,TTime& time*/);
 	void CreateInternalClasses();
 	TSMethod* GetMethod(char* use_method);
 	TSClassField* GetStaticField(char* use_var);

@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include <baluLib.h>
 #include "../VirtualMachine/Program.h"
 #include "../virtualMachine.h"
 

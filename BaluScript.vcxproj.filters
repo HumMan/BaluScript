@@ -192,6 +192,9 @@
     <ClInclude Include="Source\Semantic\BuildContext.h">
       <Filter>Source Files\Semantic</Filter>
     </ClInclude>
+    <ClInclude Include="Include\common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\lexer.cpp">

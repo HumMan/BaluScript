@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include <baluLib.h>
-
 #include "../VirtualMachine/Op.h"
 
 #include "Statement.h"

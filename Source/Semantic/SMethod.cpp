@@ -1,5 +1,6 @@
 ﻿#include "SMethod.h"
 
+#include <common.h>
 #include <assert.h>
 
 #include "SStatements.h"
