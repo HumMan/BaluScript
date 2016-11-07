@@ -9,7 +9,7 @@ public:
 	T value;
 	TListItem<T> *prev;
 	TListItem<T> *next;
-	TListItem<T>() : prev(NULL), next(NULL){}
+	TListItem<T>() : prev(nullptr), next(nullptr){}
 };
 
 struct TOpArray
