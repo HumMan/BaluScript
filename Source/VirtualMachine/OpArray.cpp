@@ -1,15 +1,15 @@
 ﻿#include "OpArray.h"
 
-TOpArray::TOpArray() :first(NULL), last(NULL){}
+TOpArray::TOpArray() :first(nullptr), last(nullptr){}
 bool TOpArray::IsNull()const
 {
-	assert((first == NULL) == (last == NULL));
-	return first == NULL;
+	assert((first == nullptr) == (last == nullptr));
+	return first == nullptr;
 }
 TOpArray TOpArray::operator+(const TOpArray& use_right)const
 {
-	if (first == NULL)return use_right;
-	if (use_right.first == NULL)return *this;
+	if (first == nullptr)return use_right;
+	if (use_right.first == nullptr)return *this;
 
 	last->next = use_right.first;
 	use_right.first->prev = last;
@@ -20,6 +20,6 @@ TOpArray TOpArray::operator+(const TOpArray& use_right)const
 }
 void TOpArray::operator+=(const TOpArray& use_right)
 {
-	assert((first == NULL) == (last == NULL));
+	assert((first == nullptr) == (last == nullptr));
 	*this = *this + use_right;
 }
