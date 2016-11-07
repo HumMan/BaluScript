@@ -15,6 +15,6 @@ class TWhile:public TStatement
 	void operator=(const TFor& use_source);
 public:
 	TWhile(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);
-	void AnalyzeSyntax(TLexer& source);
+	void AnalyzeSyntax(Lexer::ILexer* source);
 	void Accept(TStatementVisitor* visitor);
 };

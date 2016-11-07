@@ -7,7 +7,7 @@
 #include "../Syntax/Method.h"
 #include "../Syntax/Statements.h"
 
-int TNodeWithTemplates::FindTemplateIntParameter(TNameId parameter_id)
+int TNodeWithTemplates::FindTemplateIntParameter(Lexer::TNameId parameter_id)
 {
 	assert(type == Realization);
 	for (size_t i = 0; i < template_params.size(); i++)

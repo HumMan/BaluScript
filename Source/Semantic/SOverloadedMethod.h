@@ -24,7 +24,7 @@ class TSOverloadedMethod :TSyntaxNode<TOverloadedMethod>
 	TSClass* owner;
 public:
 	TSOverloadedMethod(TSClass* use_owner, TOverloadedMethod* use_syntax);
-	TNameId GetName()const;
+	Lexer::TNameId GetName()const;
 	TSMethod* FindParams(std::vector<std::unique_ptr<TSParameter>>& params);
 	TSMethod* FindConversion(std::vector<std::unique_ptr<TSParameter>>& params, TSClass* ret_class);
 	bool ParamsExists(TSMethod* use_method);

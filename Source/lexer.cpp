@@ -2,13 +2,455 @@
 
 #include "VirtualMachine/Op.h"
 
-TLexer::TLexer():source(NULL),curr_char(NULL),col(1),line(1)
+#include <math.h>
+
+
+#include <stdarg.h>
+#include <string>
+#include <assert.h>
+#include <vector>
+
+#if defined(WIN32)||defined(_WIN32)
+#else
+#include <string.h>
+template<typename... Args>
+int _snprintf_s(char* buf, int len, char* value, Args... args)
 {
+	return snprintf(buf, len, value, args...);
+}
+
+template<typename... Args>
+int _vsnprintf_s(char* buf, int len, char* value, Args... args)
+{
+	return vsnprintf(buf, len, value, args...);
+}
+void strncpy_s(
+	char *strDest,
+	size_t numberOfElements,
+	const char *strSource,
+	size_t count)
+{
+	strcpy(strDest, strSource);
+}
+#define sprintf_s sprintf
+#endif
+
+
+template<class T, int block_size>
+class TLexerAllocator
+{
+private:
+	struct TBlock
+	{
+		T values[block_size];
+		TBlock* prev;
+	};
+	int count;
+	TBlock* end;
+#ifdef _DEBUG
+	int total_count;
+#endif
+public:
+	TLexerAllocator() :count(0), end(NULL)
+#ifdef _DEBUG
+		, total_count(0)
+#endif
+	{}
+	~TLexerAllocator()
+	{
+		TBlock* curr = end;
+		while (curr != NULL)
+		{
+			TBlock* temp = curr;
+			curr = curr->prev;
+			delete temp;
+		}
+	}
+	T* New()
+	{
+		if (end != NULL)
+		{
+			if (count == block_size)
+			{
+				TBlock* b = new TBlock();
+				count = 0;
+				b->prev = end;
+				end = b;
+			}
+		}
+		else
+		{
+			end = new TBlock();
+			count = 0;
+			end->prev = NULL;
+		}
+#ifdef _DEBUG
+		total_count++;
+#endif
+		return &end->values[count++];
+	}
+};
+
+template<class TKey, class TExtKey, class TData, int hash_bits_count = 8>
+class THash
+{
+private:
+	enum
+	{
+		table_size = 1 << hash_bits_count
+	};
+	struct TNode
+	{
+		TKey key;
+		TData data;
+		TNode* next;
+	};
+	TNode* table[table_size];
+	TLexerAllocator<TNode, 255> nodes;
+
+public:
+	THash()
+	{
+		for (int i = 0; i < table_size; i++)
+			table[i] = NULL;
+	}
+	bool Find(int use_hash, TExtKey use_key, TKey* &key, TData* &data)
+	{
+		assert(use_hash >= 0 && use_hash < table_size);
+		if (table[use_hash] != NULL)
+		{
+			TNode* curr = table[use_hash];
+			TNode* last;
+			do
+			{
+				last = curr;
+				if (curr->key == use_key)
+				{
+					data = &curr->data;
+					key = &curr->key;
+					return true;
+				}
+				curr = curr->next;
+			} while (curr != NULL);
+		}
+		return false;
+	}
+	bool Add(int use_hash, TExtKey use_key, TData use_data, TKey* &key, TData* &data)
+		//use_hash - хеш для доступа к таблице
+		//use_key - ключевое поле для сравнений в ¤чейке таблицы
+		//use_data - данные которые будут добавлены если ключ отсутствует
+		//key - указатель на уже имеющееся ключевое поле
+		//data - указатель на уже имеющиеся данные
+		//return: true - данные добавлены; false - данные уже имеются
+	{
+		assert(use_hash >= 0 && use_hash < table_size);
+		TNode* curr = table[use_hash];
+		TNode* last = NULL;
+		if (curr != NULL)
+		{
+			do{
+				last = curr;
+				if (curr->key == use_key)
+				{
+					data = &curr->data;
+					key = &curr->key;
+					return false;
+				}
+				curr = curr->next;
+			} while (curr != NULL);
+		}
+		TNode* node = nodes.New();
+		node->key = use_key;
+		node->data = use_data;
+		node->next = NULL;
+		if (table[use_hash] == NULL)
+			table[use_hash] = node;
+		else
+			last->next = node;
+		key = &node->key;
+		data = &node->data;
+		return true;
+	}
+	bool Add(TExtKey use_key, TData use_data)
+	{
+		TKey* key;
+		TData* data;
+		return Add(GetHash(use_key), use_key, use_data, key, data);
+	}
+	int GetHash(const char* str)
+	{
+		assert(hash_bits_count >= 1 && hash_bits_count <= 16);
+		unsigned char h1, h2;
+		int h;
+		assert(str != NULL);
+		h1 = *str;
+		if (hash_bits_count > 8)
+			h2 = *str + 1;
+		str++;
+		while (*str)
+		{
+			h1 = h1 ^ *str;
+			if (hash_bits_count > 8)
+				h2 = h2 ^ *str;
+			str++;
+		}
+		if (hash_bits_count > 8)
+			h = int(h1 << 8) | int(h2);
+		else
+			h = h1;
+		return h % table_size;
+	}
+};
+
+namespace Lexer
+{
+	class TLexerPrivate: public ILexer
+	{
+	public :
+		THash<std::string, const char*, int, 16> ids_table;
+		THash<std::string, char*, int, 16> string_literals_table;
+		THash<std::string, char*, TToken, 8> res_words;
+
+		int curr_unique_id;
+		std::vector<std::string*> ids;
+
+		const char* source;
+		const char* curr_char;
+		int col;
+		int line;
+		char c;
+
+		std::vector<TToken> tokens;
+		int curr_token;
+
+
+		inline void NextChar()
+		{
+			c = *(++curr_char);
+			col++;
+		}
+		TNameId AddIdentifier(const char* use_name)
+		{
+			int hash = ids_table.GetHash(use_name);
+			int* d;
+			std::string* key;
+			if (ids_table.Add(hash, use_name, curr_unique_id, key, d))
+			{
+				ids.push_back(key);
+#ifdef _DEBUG
+				curr_unique_id++;
+				return TNameId(curr_unique_id - 1, ids[curr_unique_id - 1]);
+			}
+			return TNameId(*d, ids[*d]);
+#else
+				return TNameId(curr_unique_id++);
+		}
+			return TNameId(*d);
+#endif
+	}
+		TLexerPrivate();
+		int GetCurrentToken();
+		void ParseSource(const char* use_source);
+		void Error(char* s, int token_id = -1, va_list args = NULL);
+		void SetCurrentToken(int use_curr_token);
+		TNameId NameId();
+		//TODO не должно использоваться, только через lexer по name_id (т.к. много одинаковых)
+		std::string StringValue();
+		TNameId String();
+		float Float();
+		int Int();
+		bool Bool();
+		char Char();
+		int GetAttrib();//используется в байткоде чтобы не делать лишних приведений типа
+		std::string GetNameFromId(TNameId use_id);
+		TNameId GetIdFromName(const char* use_name);
+		TTokenType::Enum Type();
+		int Token();
+		bool Test(int type);
+		bool Test(int type, int token);
+		bool TestAndGet(int type, int token);
+		bool TestAndGet(int type);
+		void TestToken(int type, int token);
+		void TestToken(int type);
+		void GetToken(int type, int token);
+		void GetToken(int type);
+		void GetToken();
+};
+}
+
+using namespace Lexer;
+
+
+
+
+
+
+int TLexerPrivate::GetCurrentToken()
+{
+	return curr_token;
+}
+
+void TLexerPrivate::Error(char* s, int token_id, va_list args)
+{
+	const int err_head_length = 600;
+	const int err_length = 500;
+	char err_head[err_head_length + 1];
+	char err[err_length + 1];
+
+	if (_vsnprintf_s(err, err_length, s, args) < 0)
+		err[err_length] = '\0';
+
+	if (token_id == -1)token_id = curr_token;
+
+	if (_snprintf_s(err_head, err_head_length, "Ошибка (строка %i символ %i): %s\n", tokens[token_id].line, tokens[token_id].col, err) < 0)
+		err_head[err_head_length] = '\0';
+
+	throw std::string(err_head);
+}
+void TLexerPrivate::SetCurrentToken(int use_curr_token)
+{
+	curr_token = use_curr_token;
+}
+TNameId TLexerPrivate::NameId()
+{
+	if (!(tokens[curr_token].type == TTokenType::Identifier))
+		Error("Ожидался идентификатор!");
+#ifdef _DEBUG
+	return TNameId(tokens[curr_token].identifier, ids[tokens[curr_token].identifier]);
+#else
+	return tokens[curr_token].identifier;
+#endif
+}
+//TODO не должно использоваться, только через lexer по name_id (т.к. много одинаковых)
+std::string TLexerPrivate::StringValue()
+{
+	if (!(tokens[curr_token].type == TTokenType::Value&&tokens[curr_token].token == TValue::String))
+		Error("Ожидалась строковая константа!");
+	return std::string(*ids[tokens[curr_token].identifier]);
+}
+TNameId TLexerPrivate::String()
+{
+	if (!(tokens[curr_token].type == TTokenType::Value&&tokens[curr_token].token == TValue::String))
+		Error("Ожидалась строковая константа!");
+#ifdef _DEBUG
+	return TNameId(tokens[curr_token].identifier, ids[tokens[curr_token].identifier]);
+#else
+	return tokens[curr_token].identifier;
+#endif
+}
+float TLexerPrivate::Float()
+{
+	if (!(tokens[curr_token].type == TTokenType::Value&&tokens[curr_token].token == TValue::Float))
+		Error("Ожидалось действительное число!");
+	return tokens[curr_token].float_attrib;
+}
+int TLexerPrivate::Int()
+{
+	if (!(tokens[curr_token].type == TTokenType::Value&&tokens[curr_token].token == TValue::Int))
+		Error("Ожидалось целое число!");
+	return tokens[curr_token].int_attrib;
+}
+bool TLexerPrivate::Bool()
+{
+	//TODO возможно лишние проверки
+	if (!(tokens[curr_token].type == TTokenType::Value&&tokens[curr_token].token == TValue::Bool))
+		Error("Ожидалась булева константа!");
+	return tokens[curr_token].int_attrib != 0;
+}
+char TLexerPrivate::Char()
+{
+	if (!(tokens[curr_token].type == TTokenType::Value&&tokens[curr_token].token == TValue::Char))
+		Error("Ожидалась символьная константа!");
+	return tokens[curr_token].int_attrib;
+}
+int TLexerPrivate::GetAttrib()//используетс¤ в байткоде чтобы не делать лишних приведений типа
+{
+	if (!(tokens[curr_token].type == TTokenType::Value &&
+		(tokens[curr_token].token == TValue::Bool ||
+		tokens[curr_token].token == TValue::Int ||
+		tokens[curr_token].token == TValue::Float)))
+		Error("Ожидалось целая, булева или действительная константа!");
+	return tokens[curr_token].int_attrib;
+}
+std::string TLexerPrivate::GetNameFromId(TNameId use_id)
+{
+	return *(ids[use_id.id]);
+}
+TNameId TLexerPrivate::GetIdFromName(const char* use_name)
+{
+	return AddIdentifier(use_name);
+}
+TTokenType::Enum TLexerPrivate::Type()
+{
+	return (TTokenType::Enum)tokens[curr_token].type;
+}
+int TLexerPrivate::Token()
+{
+	return tokens[curr_token].token;
+}
+bool TLexerPrivate::Test(int type)
+{
+	return tokens[curr_token].type == type;
+}
+bool TLexerPrivate::Test(int type, int token)
+{
+	return tokens[curr_token].type == type&&tokens[curr_token].token == token;
+}
+bool TLexerPrivate::TestAndGet(int type, int token)
+{
+	if (tokens[curr_token].type == type&&tokens[curr_token].token == token)
+	{
+		curr_token++;
+		return true;
+	}
+	else return false;
+}
+bool TLexerPrivate::TestAndGet(int type)
+{
+	if (tokens[curr_token].type == type)
+	{
+		curr_token++;
+		return true;
+	}
+	else return false;
+}
+void TLexerPrivate::TestToken(int type, int token)
+{
+	if (type != tokens[curr_token].type&&token == tokens[curr_token].token)
+		Error("Ожидался другой токен!");
+}
+void TLexerPrivate::TestToken(int type)
+{
+	if (type != tokens[curr_token].type)Error("Ожидался другой токен!");
+}
+void TLexerPrivate::GetToken(int type, int token)
+{
+	if (type == tokens[curr_token].type&&token == tokens[curr_token].token)
+		curr_token++;
+	else Error("Ожидался другой токен!");
+}
+void TLexerPrivate::GetToken(int type)
+{
+	if (type == tokens[curr_token].type)
+		curr_token++;
+	else Error("Ожидался другой токен!");
+}
+void TLexerPrivate::GetToken()
+{
+	curr_token++;
+}
+
+TLexerPrivate::TLexerPrivate()
+{
+	source = nullptr;
+	curr_char = nullptr;
+	col = 1;
+	line = 1;
 	tokens.reserve(5000);
 	curr_token = 0;
 	tokens.resize(0);
-	curr_unique_id=0;
-	res_words.Add("if",			TToken(TTokenType::ResWord, TResWord::If));
+	curr_unique_id = 0;
+	res_words.Add("if", TToken(TTokenType::ResWord, TResWord::If));
 	res_words.Add("else",		TToken(TTokenType::ResWord, TResWord::Else));		
 	res_words.Add("for",		TToken(TTokenType::ResWord, TResWord::For));
 	res_words.Add("while",		TToken(TTokenType::ResWord, TResWord::While));	
@@ -33,7 +475,6 @@ TLexer::TLexer():source(NULL),curr_char(NULL),col(1),line(1)
 	res_words.Add("bytecode",	TToken(TTokenType::ResWord, TResWord::Bytecode));
 
 	res_words.Add("func",		TToken(TTokenType::ResWord, TResWord::Func));		
-	/*res_words.Add("constr",		TToken(TTokenType::ResWord, TResWord::Constr));	*/
 	res_words.Add("default", TToken(TTokenType::ResWord, TResWord::Default));
 	res_words.Add("copy", TToken(TTokenType::ResWord, TResWord::Copy));
 	res_words.Add("move", TToken(TTokenType::ResWord, TResWord::Move));
@@ -45,7 +486,7 @@ TLexer::TLexer():source(NULL),curr_char(NULL),col(1),line(1)
 		res_words.Add(GetBytecodeString((TOpcode::Enum)i),TToken(TTokenType::Bytecode, i));
 }
 
-void TLexer::ParseSource(const char* use_source)
+void TLexerPrivate::ParseSource(const char* use_source)
 {
 	source=use_source;
 	curr_char=source;
@@ -311,5 +752,23 @@ void TLexer::ParseSource(const char* use_source)
 	tokens.push_back(TToken(TTokenType::Done));
 	source=NULL;
 	curr_char=NULL;
+}
+
+
+void TTokenPos::InitPos(ILexer* use_source)
+{
+	source = use_source;
+	token_id = use_source->GetCurrentToken();
+}
+void TTokenPos::Error(char* s, ...)
+{
+	va_list args;
+	va_start(args, s);
+	source->Error(s, token_id, args);
+}
+
+ILexer* ILexer::Create()
+{
+	return new TLexerPrivate();
 }
 

@@ -5,10 +5,12 @@
 #include "Statements.h"
 #include "ClassField.h"
 
-void TLocalVar::AnalyzeSyntax(TLexer& source) {
+using namespace Lexer;
+
+void TLocalVar::AnalyzeSyntax(Lexer::ILexer* source) {
 	InitPos(source);
 	type->AnalyzeSyntax(source);
-	is_static = source.TestAndGet(TTokenType::ResWord, TResWord::Static);
+	is_static = source->TestAndGet(TTokenType::ResWord, TResWord::Static);
 	assert(parent->GetType()==TStatementType::Statements);
 	TStatements* statements = (TStatements*) parent;
 	TLocalVar* curr_var = this;
@@ -18,36 +20,36 @@ void TLocalVar::AnalyzeSyntax(TLexer& source) {
 			curr_var->is_static = is_static;
 			*(TTokenPos*) curr_var = *(TTokenPos*) this;
 		}
-		curr_var->name = source.NameId();
-		int identifier_token = source.GetCurrentToken();
-		source.SetCurrentToken(identifier_token + 1);
-		bool is_next_assign = source.Test(TTokenType::Operator,
+		curr_var->name = source->NameId();
+		int identifier_token = source->GetCurrentToken();
+		source->SetCurrentToken(identifier_token + 1);
+		bool is_next_assign = source->Test(TTokenType::Operator,
 				TOperator::Assign);
-		source.SetCurrentToken(identifier_token);
+		source->SetCurrentToken(identifier_token);
 		if (is_next_assign) 
 		{
-			//source.GetToken(TTokenType::Identifier);
-			//source.TestAndGet(TTokenType::Operator,TOperator::Assign);
+			//source->GetToken(TTokenType::Identifier);
+			//source->TestAndGet(TTokenType::Operator,TOperator::Assign);
 			curr_var->assign_expr.reset(new TExpression(owner, method, parent,
 					curr_var->stmt_id));
 			curr_var->assign_expr->AnalyzeSyntax(source);
 		} else {
-			source.GetToken();
-			if (source.TestAndGet(TTokenType::LParenth)) 
+			source->GetToken();
+			if (source->TestAndGet(TTokenType::LParenth)) 
 			{
-				while (!source.Test(TTokenType::RParenth)) 
+				while (!source->Test(TTokenType::RParenth)) 
 				{
 					TExpression* expr = new TExpression(owner, method, parent,
 							curr_var->stmt_id);
 					expr->AnalyzeSyntax(source);
 					curr_var->params.push_back(std::unique_ptr<TExpression>(expr));
-					if (!source.TestAndGet(TTokenType::Comma))
+					if (!source->TestAndGet(TTokenType::Comma))
 						break;
 				}
-				source.GetToken(TTokenType::RParenth);
+				source->GetToken(TTokenType::RParenth);
 			}
 		}
-		if ((source.Test(TTokenType::Comma) || source.Test(TTokenType::Semicolon)) && (curr_var != this))
+		if ((source->Test(TTokenType::Comma) || source->Test(TTokenType::Semicolon)) && (curr_var != this))
 		{
 			statements->AddVar(curr_var);
 			if (curr_var->assign_expr)
@@ -58,11 +60,11 @@ void TLocalVar::AnalyzeSyntax(TLexer& source) {
 					v->SetStmtId(curr_var->stmt_id);
 			}
 		}
-		if (source.Test(TTokenType::Comma))
+		if (source->Test(TTokenType::Comma))
 		{
 			curr_var = new TLocalVar(owner, method, statements, -1);
 		}
-	} while (source.TestAndGet(TTokenType::Comma));
+	} while (source->TestAndGet(TTokenType::Comma));
 }
 
 TLocalVar::TLocalVar(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id) :

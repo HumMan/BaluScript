@@ -136,7 +136,7 @@ void TDynArr::assign_op(TMethodRunContext run_context)
 
 	std::vector<TSMethod*> ops;
 
-	left->el_class->GetOperators(ops, TOperator::Assign);
+	left->el_class->GetOperators(ops, Lexer::TOperator::Assign);
 	//TODO поиск нужного оператора присваивания
 	dyn_arr_resize(*run_context.static_fields, left, right->v->size() / left->el_class->GetSize());
 	if (left->v->size() > 0)
@@ -189,7 +189,7 @@ void TDynArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 {
 	TClass* cl = new TClass(syntax->base_class.get());
 	syntax->base_class->AddNested(cl);
-	syntax->lexer.ParseSource(
+	syntax->lexer->ParseSource(
 		"class extern TDynArray<T>\n"
 		"{\n"
 		"default();\n"
@@ -201,8 +201,8 @@ void TDynArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 		"func size:int;\n"
 		"}\n"
 		);
-	cl->AnalyzeSyntax(syntax->lexer);
-	syntax->lexer.GetToken(TTokenType::Done);
+	cl->AnalyzeSyntax(syntax->lexer.get());
+	syntax->lexer->GetToken(Lexer::TTokenType::Done);
 
 	TSClass* scl = new TSClass(syntax->sem_base_class.get(), cl);
 	syntax->sem_base_class->AddClass(scl);
@@ -221,18 +221,18 @@ void TDynArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 
 	
 	m.clear();
-	scl->GetOperators(m, TOperator::GetArrayElement);
+	scl->GetOperators(m, Lexer::TOperator::GetArrayElement);
 	m[0]->SetAsExternal(TDynArr::get_element_op);
 	
 	m.clear();
-	scl->GetOperators(m, TOperator::Assign);
+	scl->GetOperators(m, Lexer::TOperator::Assign);
 	m[0]->SetAsExternal(TDynArr::assign_op);
 
 	m.clear();
-	scl->GetMethods(m, syntax->lexer.GetIdFromName("resize"));
+	scl->GetMethods(m, syntax->lexer->GetIdFromName("resize"));
 	m[0]->SetAsExternal(TDynArr::resize);
 
 	m.clear();
-	scl->GetMethods(m, syntax->lexer.GetIdFromName("size"));
+	scl->GetMethods(m, syntax->lexer->GetIdFromName("size"));
 	m[0]->SetAsExternal(TDynArr::get_size);
 }

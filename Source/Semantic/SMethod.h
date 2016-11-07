@@ -94,7 +94,7 @@ public:
 	TSClass* GetOwner()const;
 	TSClass* GetRetClass();
 	TSParameter* GetParam(int use_id);
-	TVariable* GetVar(TNameId name);
+	TVariable* GetVar(Lexer::TNameId name);
 	int GetParamsCount();
 	bool HasParams(std::vector<std::unique_ptr<TSParameter>> &use_params)const;
 	void CheckForErrors();

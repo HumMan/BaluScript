@@ -4,18 +4,20 @@
 #include "Statements.h"
 #include "Type.h"
 
+using namespace Lexer;
+
 TParameter::TParameter(TClass* use_owner, TMethod* use_method)
 	: type(new TType(use_owner)), is_ref(false)
 	, owner(use_owner), method(use_method)
 {
 }
 
-void TParameter::AnalyzeSyntax(TLexer& source) 
+void TParameter::AnalyzeSyntax(Lexer::ILexer* source) 
 {
 	InitPos(source);
 	type->AnalyzeSyntax(source);
-	is_ref = source.TestAndGet(TTokenType::Ampersand);
+	is_ref = source->TestAndGet(TTokenType::Ampersand);
 
-	name = source.NameId();
-	source.GetToken(TTokenType::Identifier);
+	name = source->NameId();
+	source->GetToken(TTokenType::Identifier);
 }

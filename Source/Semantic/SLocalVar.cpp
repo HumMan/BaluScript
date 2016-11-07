@@ -65,7 +65,7 @@ TSLocalVar::TSLocalVar(TSClass* use_owner, TSMethod* use_method, TSStatements* u
 
 }
 
-TNameId TSLocalVar::GetName()
+Lexer::TNameId TSLocalVar::GetName()
 {
 	return GetSyntax()->GetName();
 }

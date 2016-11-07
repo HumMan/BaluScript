@@ -4,16 +4,18 @@
 #include "Expression.h"
 #include "ClassField.h"
 
-void TIf::AnalyzeSyntax(TLexer& source) {
+using namespace Lexer;
+
+void TIf::AnalyzeSyntax(Lexer::ILexer* source) {
 	InitPos(source);
-	source.GetToken(TTokenType::ResWord, TResWord::If);
-	source.GetToken(TTokenType::LParenth);
+	source->GetToken(TTokenType::ResWord, TResWord::If);
+	source->GetToken(TTokenType::LParenth);
 
 	bool_expr->AnalyzeSyntax(source);
-	source.GetToken(TTokenType::RParenth);
+	source->GetToken(TTokenType::RParenth);
 	statements->AnalyzeSyntax(source);
-	if (source.Test(TTokenType::ResWord, TResWord::Else)) {
-		source.GetToken(TTokenType::ResWord, TResWord::Else);
+	if (source->Test(TTokenType::ResWord, TResWord::Else)) {
+		source->GetToken(TTokenType::ResWord, TResWord::Else);
 		else_statements->AnalyzeSyntax(source);
 	}
 }

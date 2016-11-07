@@ -11,8 +11,11 @@
 #include "NativeTypes/StaticArray.h"
 #include "NativeTypes/String.h"
 
+using namespace Lexer;
+
 TSyntaxAnalyzer::TSyntaxAnalyzer()
 {
+	lexer.reset(Lexer::ILexer::Create());
 }
 
 TSyntaxAnalyzer::~TSyntaxAnalyzer()
@@ -22,14 +25,14 @@ TSyntaxAnalyzer::~TSyntaxAnalyzer()
 void TSyntaxAnalyzer::Compile(char* use_source/*, TTime& time*/)
 {
 	//unsigned long long t = time.GetTime();
-	lexer.ParseSource(use_source);
+	lexer->ParseSource(use_source);
 	//printf("Source parsing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
 	//t = time.GetTime();
 	base_class.reset(new TClass(NULL));
-	base_class->InitPos(lexer);
+	base_class->InitPos(lexer.get());
 
-	base_class->AnalyzeSyntax(lexer);
-	lexer.GetToken(TTokenType::Done);
+	base_class->AnalyzeSyntax(lexer.get());
+	lexer->GetToken(Lexer::TTokenType::Done);
 
 	sem_base_class.reset(new TSClass(NULL,base_class.get()));
 
@@ -54,7 +57,7 @@ void TSyntaxAnalyzer::Compile(char* use_source/*, TTime& time*/)
 
 void TSyntaxAnalyzer::CreateInternalClasses()
 {
-	TNameId name_id = lexer.GetIdFromName("dword");
+	TNameId name_id = lexer->GetIdFromName("dword");
 	TClass* t_syntax = new TClass(base_class.get());
 	base_class->AddNested(t_syntax);
 	t_syntax->name = name_id;
@@ -69,10 +72,10 @@ void TSyntaxAnalyzer::CreateInternalClasses()
 
 TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 {
-	lexer.ParseSource(use_method);
+	lexer->ParseSource(use_method);
 	std::unique_ptr<TMethod> method_decl_syntax(new TMethod(base_class.get()));
-	method_decl_syntax->AnalyzeSyntax(lexer, false);
-	lexer.GetToken(TTokenType::Done);
+	method_decl_syntax->AnalyzeSyntax(lexer.get(), false);
+	lexer->GetToken(TTokenType::Done);
 	std::unique_ptr<TSMethod> method_decl(new TSMethod(sem_base_class->GetNestedByFullName(method_decl_syntax->GetOwner()->GetFullClassName(),1), method_decl_syntax.get()));
 	method_decl->Build();
 	//method_decl->LinkBody(&static_fields, &static_variables);
@@ -129,41 +132,41 @@ TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 	if (method != NULL)
 	{
 		if (method_decl->GetSyntax()->IsStatic() != method->GetSyntax()->IsStatic())
-			lexer.Error("Метод отличается по статичности!");
+			lexer->Error("Метод отличается по статичности!");
 		if (method_decl->GetSyntax()->IsExternal() != method->GetSyntax()->IsExternal())
-			lexer.Error("Несоответствует классификатор extern!");
+			lexer->Error("Несоответствует классификатор extern!");
 		if (method_decl->GetRetClass() != method->GetRetClass()
 			|| method_decl->GetSyntax()->IsReturnRef() != method->GetSyntax()->IsReturnRef())
-			lexer.Error("Метод возвращает другое значение!");
+			lexer->Error("Метод возвращает другое значение!");
 		return method;
 	}
 	else
-		lexer.Error("Такого метода не существует!");
+		lexer->Error("Такого метода не существует!");
 	return NULL;
 }
 
 TSClassField* TSyntaxAnalyzer::GetStaticField(char* use_var)
 {
-	lexer.ParseSource(use_var);
-	if (lexer.NameId() != base_class->GetName())
-		lexer.Error("Ожидалось имя класса!");
-	lexer.GetToken();
+	lexer->ParseSource(use_var);
+	if (lexer->NameId() != base_class->GetName())
+		lexer->Error("Ожидалось имя класса!");
+	lexer->GetToken();
 	TSClassField* result = NULL;
 	TSClass* curr_class = sem_base_class.get();
-	while (lexer.Test(TTokenType::Dot))
+	while (lexer->Test(TTokenType::Dot))
 	{
-		lexer.GetToken(TTokenType::Dot);
-		lexer.TestToken(TTokenType::Identifier);
-		TSClass* t = curr_class->GetNested(lexer.NameId());
+		lexer->GetToken(TTokenType::Dot);
+		lexer->TestToken(TTokenType::Identifier);
+		TSClass* t = curr_class->GetNested(lexer->NameId());
 		if (t == NULL)
 		{
-			result = curr_class->GetField(lexer.NameId(), true);
+			result = curr_class->GetField(lexer->NameId(), true);
 		}
 		else curr_class = t;
-		lexer.GetToken();
+		lexer->GetToken();
 	}
-	if (result == NULL)lexer.Error("Статического члена класса с таким именем не существует!");
-	lexer.GetToken(TTokenType::Done);
+	if (result == NULL)lexer->Error("Статического члена класса с таким именем не существует!");
+	lexer->GetToken(TTokenType::Done);
 	//if(!result->IsStatic())lexer->Error("Член класса с таким именем не является статическим!");
 	return result;
 }

@@ -28,7 +28,7 @@ bool IsEqualClasses(TExpressionResult actual_parameter, TFormalParameter formal_
 	return true;
 }
 
-TSMethod* FindMethod(TTokenPos* source, std::vector<TSMethod*> &methods_to_call, const std::vector<TExpressionResult> &actual_params)
+TSMethod* FindMethod(Lexer::TTokenPos* source, std::vector<TSMethod*> &methods_to_call, const std::vector<TExpressionResult> &actual_params)
 {
 	int conv_needed;
 	for (size_t k = 0; k<actual_params.size(); k++){
@@ -64,7 +64,7 @@ TSMethod* FindMethod(TTokenPos* source, std::vector<TSMethod*> &methods_to_call,
 }
 
 
-void ValidateAccess(TTokenPos* field_pos, TSClass* source, TSClassField* target)
+void ValidateAccess(Lexer::TTokenPos* field_pos, TSClass* source, TSClassField* target)
 {
 	if (target->GetSyntax()->GetAccess() == TTypeOfAccess::Public)return;
 	if (source == target->GetOwner())return;
@@ -74,7 +74,7 @@ void ValidateAccess(TTokenPos* field_pos, TSClass* source, TSClassField* target)
 		field_pos->Error("Данное поле класса доступно только из класса в котором оно объявлено (private)!");
 }
 
-void ValidateAccess(TTokenPos* field_pos, TSClass* source, TSMethod* target)
+void ValidateAccess(Lexer::TTokenPos* field_pos, TSClass* source, TSMethod* target)
 {
 	if (target->GetType() != TSpecialClassMethod::NotSpecial)return;
 	if (target->GetSyntax()->GetAccess() == TTypeOfAccess::Public)return;

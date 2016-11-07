@@ -4,25 +4,27 @@
 
 #include <common.h>
 
-void TMethod::ParametersDecl(TLexer& source) {
+using namespace Lexer;
+
+void TMethod::ParametersDecl(Lexer::ILexer* source) {
 	//Считываем все параметры метода и возвращаемое значение
-	if (source.TestAndGet(TTokenType::Operator, TOperator::ParamsCall)) {
-	} else if (source.Test(TTokenType::LParenth)) {
-		source.GetToken(TTokenType::LParenth);
-		while (source.Test(TTokenType::Identifier)) {
+	if (source->TestAndGet(TTokenType::Operator, TOperator::ParamsCall)) {
+	} else if (source->Test(TTokenType::LParenth)) {
+		source->GetToken(TTokenType::LParenth);
+		while (source->Test(TTokenType::Identifier)) {
 			TParameter* t = new TParameter(owner, this);
 			parameters.push_back(std::unique_ptr<TParameter>(t));
 			t->AnalyzeSyntax(source);
-			if (source.Test(TTokenType::Comma))
-				source.GetToken();
+			if (source->Test(TTokenType::Comma))
+				source->GetToken();
 			else
 				break;
 		}
-		source.GetToken(TTokenType::RParenth);
+		source->GetToken(TTokenType::RParenth);
 	}
-	if (source.TestAndGet(TTokenType::Colon))
+	if (source->TestAndGet(TTokenType::Colon))
 	{
-		ret_ref = source.TestAndGet(TTokenType::Ampersand);//TODO проверка ссылки после типа а то не понятно почему ошибка
+		ret_ref = source->TestAndGet(TTokenType::Ampersand);//TODO проверка ссылки после типа а то не понятно почему ошибка
 		ret->AnalyzeSyntax(source);
 		has_return = true;
 	}
@@ -30,19 +32,19 @@ void TMethod::ParametersDecl(TLexer& source) {
 		has_return = false;
 }
 
-void TMethod::AnalyzeSyntax(TLexer& source, bool realization) {
+void TMethod::AnalyzeSyntax(Lexer::ILexer* source, bool realization) {
 	InitPos(source);
-	source.TestToken(TTokenType::ResWord);
-	member_type = (TClassMember::Enum) source.Token();
+	source->TestToken(TTokenType::ResWord);
+	member_type = (TClassMember::Enum) source->Token();
 	if (!LexerIsIn(member_type, TClassMember::Func, TClassMember::Conversion))
-		source.Error(
+		source->Error(
 				"Ожидалось объявление метода,конструктора,деструктора,оператора или приведения типа!");
-	source.GetToken();
+	source->GetToken();
 	if(owner->IsExternal())
 		is_extern = true;
 	else
-		is_extern = source.TestAndGet(TTokenType::ResWord, TResWord::Extern);
-	is_static = source.TestAndGet(TTokenType::ResWord, TResWord::Static);
+		is_extern = source->TestAndGet(TTokenType::ResWord, TResWord::Extern);
+	is_static = source->TestAndGet(TTokenType::ResWord, TResWord::Static);
 	switch (member_type) {
 	case TResWord::Func:
 	case TResWord::Default:
@@ -53,24 +55,24 @@ void TMethod::AnalyzeSyntax(TLexer& source, bool realization) {
 	case TResWord::Conversion:
 		break;
 	default:
-		source.Error(
+		source->Error(
 				"Ожидалось объявление метода,конструктора,деструктора,оператора или приведения типа!");
 	}
 	//Если это не реализация метода, а поиск по названию, то в начале может стоять название класса
 	if (!realization) 
 	{
-		if (source.NameId() != owner->GetName())
+		if (source->NameId() != owner->GetName())
 			Error("Ожидалось имя базового класса!");
-		source.GetToken();
-		while (source.Test(TTokenType::Dot)) 
+		source->GetToken();
+		while (source->Test(TTokenType::Dot)) 
 		{
-			source.GetToken(TTokenType::Dot);
-			if (!source.Test(TTokenType::Identifier))
+			source->GetToken(TTokenType::Dot);
+			if (!source->Test(TTokenType::Identifier))
 				break;
-			TClass* t = owner->GetNested(source.NameId());
+			TClass* t = owner->GetNested(source->NameId());
 			if (t != NULL) 
 			{
-				source.GetToken();
+				source->GetToken();
 				owner = t;
 			} else
 				break;
@@ -78,13 +80,13 @@ void TMethod::AnalyzeSyntax(TLexer& source, bool realization) {
 	}
 	//
 	if (member_type == TClassMember::Func) {
-		source.TestToken(TTokenType::Identifier);
-		method_name = source.NameId();
-		source.GetToken();
+		source->TestToken(TTokenType::Identifier);
+		method_name = source->NameId();
+		source->GetToken();
 	} else if (member_type == TClassMember::Operator) {
-		source.TestToken(TTokenType::Operator);
-		operator_type = (TOperator::Enum) source.Token();
-		source.GetToken();
+		source->TestToken(TTokenType::Operator);
+		operator_type = (TOperator::Enum) source->Token();
+		source->GetToken();
 	}
 	{
 		ParametersDecl(source);
@@ -124,11 +126,11 @@ void TMethod::AnalyzeSyntax(TLexer& source, bool realization) {
 		}
 	}
 	if (is_extern && realization) {
-		if (!source.Test(TTokenType::Semicolon))
-			source.Error("Для внешнего метода тело должно отсутствовать!");
-		source.GetToken(TTokenType::Semicolon);
+		if (!source->Test(TTokenType::Semicolon))
+			source->Error("Для внешнего метода тело должно отсутствовать!");
+		source->GetToken(TTokenType::Semicolon);
 	} else if (realization) {
-		one_instruction = !source.Test(TTokenType::LBrace);
+		one_instruction = !source->Test(TTokenType::LBrace);
 		statements->AnalyzeSyntax(source);
 	}
 }

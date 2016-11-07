@@ -11,11 +11,11 @@ class TClass;
 class TOverloadedMethod
 {
 private:
-	TNameId name;
+	Lexer::TNameId name;
 public:
 	std::vector<std::unique_ptr<TMethod>> methods;
 	TOverloadedMethod(){}
-	TOverloadedMethod(TNameId use_name) :name(use_name){}
+	TOverloadedMethod(Lexer::TNameId use_name) :name(use_name){}
 	void GetMethods(std::vector<TMethod*> &result);
-	TNameId GetName()const;
+	Lexer::TNameId GetName()const;
 };	

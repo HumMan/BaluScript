@@ -30,7 +30,7 @@ void TStaticArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 {
 	TClass* cl = new TClass(syntax->base_class.get());
 	syntax->base_class->AddNested(cl);
-	syntax->lexer.ParseSource(
+	syntax->lexer->ParseSource(
 		"class TStaticArray<T,Size>\n"
 		"{\n"
 		"	multifield(Size) T value;\n"
@@ -38,8 +38,8 @@ void TStaticArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 		"	func extern size:int;\n"
 		"}\n"
 		);
-	cl->AnalyzeSyntax(syntax->lexer);
-	syntax->lexer.GetToken(TTokenType::Done);
+	cl->AnalyzeSyntax(syntax->lexer.get());
+	syntax->lexer->GetToken(Lexer::TTokenType::Done);
 
 	TSClass* scl = new TSClass(syntax->sem_base_class.get(), cl);
 	syntax->sem_base_class->AddClass(scl);
@@ -49,10 +49,10 @@ void TStaticArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 	std::vector<TSMethod*> m;
 
 	m.clear();
-	scl->GetOperators(m, TOperator::GetArrayElement);
+	scl->GetOperators(m, Lexer::TOperator::GetArrayElement);
 	m[0]->SetAsExternal(TStaticArr::get_element_op);
 
 	m.clear();
-	scl->GetMethods(m, syntax->lexer.GetIdFromName("size"));
+	scl->GetMethods(m, syntax->lexer->GetIdFromName("size"));
 	m[0]->SetAsExternal(TStaticArr::get_size);
 }

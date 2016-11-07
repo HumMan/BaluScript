@@ -8,21 +8,21 @@ class TType;
 class TClass;
 
 ///<summary>Класс описывает параметр объявления метода</summary>
-class TParameter :public TTokenPos
+class TParameter :public Lexer::TTokenPos
 {
 	friend class TSMethod;
 	std::unique_ptr<TType> type;
 	bool is_ref;
-	TNameId name;
+	Lexer::TNameId name;
 	TClass* owner;
 	TMethod* method;
 public:
 	TParameter(TClass* use_owner, TMethod* use_method);
-	void AnalyzeSyntax(TLexer& source);
-	TNameId GetName()const{
+	void AnalyzeSyntax(Lexer::ILexer* source);
+	Lexer::TNameId GetName()const{
 		return name;
 	}
-	TNameId GetClassName()const;
+	Lexer::TNameId GetClassName()const;
 
 	bool IsRef()const{
 		return is_ref;

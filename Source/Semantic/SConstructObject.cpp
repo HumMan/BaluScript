@@ -17,7 +17,7 @@ TSConstructObject::TSConstructObject(TSClass* use_owner, TSMethod* use_method, T
 {
 }
 
-void TSConstructObject::Build(TTokenPos* source, std::vector<TExpressionResult>& params_result, std::vector<TSOperation*>& params, std::vector<TFormalParameter>& params_formals, TGlobalBuildContext build_context)
+void TSConstructObject::Build(Lexer::TTokenPos* source, std::vector<TExpressionResult>& params_result, std::vector<TSOperation*>& params, std::vector<TFormalParameter>& params_formals, TGlobalBuildContext build_context)
 {
 	TSMethod* constructor = NULL;
 	if (params_result.size() > 0)
@@ -48,7 +48,7 @@ void TSConstructObject::Build(TTokenPos* source, std::vector<TExpressionResult>&
 	}
 }
 
-void TSConstructObject::Build(TTokenPos* source, std::vector<std::unique_ptr<TExpression>>& syntax_params, TGlobalBuildContext build_context)
+void TSConstructObject::Build(Lexer::TTokenPos* source, std::vector<std::unique_ptr<TExpression>>& syntax_params, TGlobalBuildContext build_context)
 {
 	std::vector<TExpressionResult> params_result;
 	std::vector<TFormalParameter> params_formals;

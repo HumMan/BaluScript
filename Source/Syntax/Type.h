@@ -10,7 +10,7 @@ struct TType_TTemplateParameter;
 struct TType_TClassName
 {
 	///<summary>Текстовый идентификатор имени класса</summary>
-	TNameId name;
+	Lexer::TNameId name;
 	///<summary>Список шаблонных параметров. Например: TestType&lt;int,TDecl&gt; s;</summary>
 	std::list<TType_TTemplateParameter> template_params;
 	///<summary>Список измерений статических массивов ((-1)-динамический массив). Например: int[2][][6] variable;</summary>
@@ -19,7 +19,7 @@ struct TType_TClassName
 	void ConvertDimensionsToTemplates();
 };
 
-class TType:public TTokenPos
+class TType:public Lexer::TTokenPos
 {
 
 private:
@@ -27,16 +27,16 @@ private:
 	
 	std::list<TType_TClassName> class_names;
 	
-	void AnalyzeClassName(TLexer& source);
-	void AnalyzeDimensions(TLexer& source);
+	void AnalyzeClassName(Lexer::ILexer* source);
+	void AnalyzeDimensions(Lexer::ILexer* source);
 public:
 	std::list<TType_TClassName>& GetClassNames()
 	{
 		return class_names;
 	}
 	TType(TClass* use_owner);
-	TType(TNameId use_class_name, TClass* use_owner);
-	void AnalyzeSyntax(TLexer& source);
+	TType(Lexer::TNameId use_class_name, TClass* use_owner);
+	void AnalyzeSyntax(Lexer::ILexer* source);
 };
 
 struct TType_TTemplateParameter

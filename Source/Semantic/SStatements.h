@@ -33,7 +33,7 @@ public:
 	int GetLastVariableOffset();
 	TSStatement* GetStatement(int i);
 	//TSStatement* CreateNode(TStatement* use_syntax_node);
-	TVariable* GetVar(TNameId name, int sender_id);
+	TVariable* GetVar(Lexer::TNameId name, int sender_id);
 	TSStatements(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TStatements* use_syntax);
 	void Build(TGlobalBuildContext build_context);
 	//void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value);

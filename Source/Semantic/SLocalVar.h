@@ -22,7 +22,7 @@ public:
 		return (TLocalVar*)TSyntaxNode::GetSyntax();
 	}
 	TSLocalVar(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TLocalVar* use_syntax);
-	TNameId GetName();
+	Lexer::TNameId GetName();
 	TSClass* GetClass();
 	bool IsStatic();
 	void Build(TGlobalBuildContext build_context);

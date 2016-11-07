@@ -8,35 +8,37 @@
 #include "ClassField.h"
 #include "Bytecode.h"
 
-bool ClassName(TLexer& source) {
-	if (!source.TestAndGet(TTokenType::Identifier))
+using namespace Lexer;
+
+bool ClassName(Lexer::ILexer* source) {
+	if (!source->TestAndGet(TTokenType::Identifier))
 		return false;
-	if (source.TestAndGet(TTokenType::Operator, TOperator::Less)) {
-		while (!source.Test(TTokenType::Operator, TOperator::Greater)) {
-			if (!(ClassName(source) || source.TestAndGet(TTokenType::Value, TValue::Int)))
+	if (source->TestAndGet(TTokenType::Operator, TOperator::Less)) {
+		while (!source->Test(TTokenType::Operator, TOperator::Greater)) {
+			if (!(ClassName(source) || source->TestAndGet(TTokenType::Value, TValue::Int)))
 				return false;
-			if (!source.Test(TTokenType::Operator, TOperator::Greater))
-				source.GetToken(TTokenType::Comma);
+			if (!source->Test(TTokenType::Operator, TOperator::Greater))
+				source->GetToken(TTokenType::Comma);
 		}
-		if (!source.TestAndGet(TTokenType::Operator, TOperator::Greater))
+		if (!source->TestAndGet(TTokenType::Operator, TOperator::Greater))
 			return false;
 	}
-	if (source.TestAndGet(TTokenType::Dot)) {
+	if (source->TestAndGet(TTokenType::Dot)) {
 		return ClassName(source);
 	}
 	return true;
 }
 
-bool ArrayDimensions(TLexer& source) {
-	if (source.Test(TTokenType::LBracket) || source.Test(TTokenType::Operator,
+bool ArrayDimensions(Lexer::ILexer* source) {
+	if (source->Test(TTokenType::LBracket) || source->Test(TTokenType::Operator,
 		TOperator::GetArrayElement)) {
 		while (true) {
-			if (source.TestAndGet(TTokenType::LBracket)) {
-				if (!source.TestAndGet(TTokenType::Value, TValue::Int))
+			if (source->TestAndGet(TTokenType::LBracket)) {
+				if (!source->TestAndGet(TTokenType::Value, TValue::Int))
 					return false;
-				source.GetToken(TTokenType::RBracket);
+				source->GetToken(TTokenType::RBracket);
 			}
-			else if (source.TestAndGet(TTokenType::Operator,
+			else if (source->TestAndGet(TTokenType::Operator,
 				TOperator::GetArrayElement)) {
 			}
 			else
@@ -46,18 +48,18 @@ bool ArrayDimensions(TLexer& source) {
 	return true;
 }
 
-bool IsVarDecl(TLexer& source) {
-	int t = source.GetCurrentToken();
+bool IsVarDecl(Lexer::ILexer* source) {
+	int t = source->GetCurrentToken();
 	bool result = ClassName(source);
 	result = result && ArrayDimensions(source);
-	source.TestAndGet(TTokenType::ResWord, TResWord::Static);
-	result = result && source.Test(TTokenType::Identifier);//после типа объявляемой переменной следует имя(имена) переменных
-	source.SetCurrentToken(t);
+	source->TestAndGet(TTokenType::ResWord, TResWord::Static);
+	result = result && source->Test(TTokenType::Identifier);//после типа объявляемой переменной следует имя(имена) переменных
+	source->SetCurrentToken(t);
 	return result;
 }
 
-void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
-	switch (source.Type()) {
+void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
+	switch (source->Type()) {
 	case TTokenType::LBrace: {
 		TStatements* s = new TStatements(owner, method, this,
 				statements.size());
@@ -66,14 +68,14 @@ void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
 		return;
 	}
 	case TTokenType::ResWord: {
-		switch (source.Token()) {
+		switch (source->Token()) {
 		case TResWord::Return: {
 			TReturn* t = new TReturn(owner, method, this, statements.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
 			if (!end_semicolon)
-				source.Error("return можно использовать только как отдельную инструкцию!");
-			source.GetToken(TTokenType::Semicolon);
+				source->Error("return можно использовать только как отдельную инструкцию!");
+			source->GetToken(TTokenType::Semicolon);
 			return;
 		}
 		case TResWord::If: {
@@ -83,8 +85,8 @@ void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
 			return;
 		}
 		case TResWord::For: {
-			source.GetToken(TTokenType::ResWord, TResWord::For);
-			source.GetToken(TTokenType::LParenth);
+			source->GetToken(TTokenType::ResWord, TResWord::For);
+			source->GetToken(TTokenType::LParenth);
 
 			TStatements* for_stmt = new TStatements(owner, method, this,
 					statements.size());
@@ -110,7 +112,7 @@ void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
 			Add(t);
 			t->AnalyzeSyntax(source);
 			if (end_semicolon)
-				source.GetToken(TTokenType::Semicolon);
+				source->GetToken(TTokenType::Semicolon);
 			return;
 		}
 		case TResWord::Bytecode: {
@@ -119,11 +121,11 @@ void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
 			Add(t);
 			t->AnalyzeSyntax(source);
 			if (end_semicolon)
-				source.GetToken(TTokenType::Semicolon);
+				source->GetToken(TTokenType::Semicolon);
 			return;
 		}
 		}
-		source.Error("Ожидался return,if,for,bytecode или this!");
+		source->Error("Ожидался return,if,for,bytecode или this!");
 	}
 	default:
 		if (IsVarDecl(source)) {
@@ -138,16 +140,16 @@ void TStatements::AnalyzeStatement(TLexer& source, bool end_semicolon) {
 			t->AnalyzeSyntax(source);
 		}
 		if (end_semicolon)
-			source.GetToken(TTokenType::Semicolon);
+			source->GetToken(TTokenType::Semicolon);
 		return;
 	}
 	assert(false);//во всех switch должен быть return 
 }
-void TStatements::AnalyzeSyntax(TLexer& source) {
+void TStatements::AnalyzeSyntax(Lexer::ILexer* source) {
 	InitPos(source);
-	if (source.Test(TTokenType::LBrace)) {
-		source.GetToken(TTokenType::LBrace);
-		while (!source.TestAndGet(TTokenType::RBrace))
+	if (source->Test(TTokenType::LBrace)) {
+		source->GetToken(TTokenType::LBrace);
+		while (!source->TestAndGet(TTokenType::RBrace))
 			AnalyzeStatement(source, true);
 	} else
 		AnalyzeStatement(source, true);

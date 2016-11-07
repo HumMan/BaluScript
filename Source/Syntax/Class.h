@@ -35,8 +35,8 @@ public:
 	{
 		return is_enum;
 	}
-	std::vector<TNameId> enums;
-	int GetEnumId(TNameId use_enum)
+	std::vector<Lexer::TNameId> enums;
+	int GetEnumId(Lexer::TNameId use_enum)
 	{
 		assert(is_enum);
 		for (size_t i = 0; i < enums.size(); i++)
@@ -46,7 +46,7 @@ public:
 	}
 };
 
-class TClass:public TTokenPos, public TCanBeEnumeration
+class TClass:public Lexer::TTokenPos, public TCanBeEnumeration
 {
 	friend class TSClass;
 	friend class TNodeWithTemplates;
@@ -54,7 +54,7 @@ class TClass:public TTokenPos, public TCanBeEnumeration
 protected:
 	bool is_template;
 
-	std::vector<TNameId> template_params;
+	std::vector<Lexer::TNameId> template_params;
 
 	std::list<TClassField> fields;
 	std::list<TOverloadedMethod> methods;
@@ -62,13 +62,13 @@ protected:
 	TOverloadedMethod constr_copy, constr_move;
 	///<summary>Пользовательский деструктор</summary>
 	std::unique_ptr<TMethod> destructor;
-	TOverloadedMethod operators[TOperator::End];
+	TOverloadedMethod operators[Lexer::TOperator::End];
 	TOverloadedMethod conversions;
 
 	std::vector<std::unique_ptr<TClass>> nested_classes;
 
 	///<summary>Название класса</summary>
-	TNameId name;
+	Lexer::TNameId name;
 	///<summary>Тип от которого унаследован данный класс</summary>
 	TType parent;
 	///<summary>От данного класса запрещено наследование</summary>
@@ -78,21 +78,21 @@ protected:
 	bool is_external;
 public:
 	TClass(TClass* use_owner);
-	void AnalyzeSyntax(TLexer& source);
-	void AccessDecl(TLexer& source,bool& readonly, TTypeOfAccess::Enum access);
+	void AnalyzeSyntax(Lexer::ILexer* source);
+	void AccessDecl(Lexer::ILexer* source,bool& readonly, TTypeOfAccess::Enum access);
 
 	void SetIsTemplate(bool use_is_template);
 	
 	bool IsTemplate();
 	bool IsExternal();
 	int GetTemplateParamsCount();
-	TClass* GetNested(TNameId name);
-	TNameId GetName();
+	TClass* GetNested(Lexer::TNameId name);
+	Lexer::TNameId GetName();
 	TClass* GetOwner();
-	std::vector<TNameId> GetFullClassName();
+	std::vector<Lexer::TNameId> GetFullClassName();
 
-	void AddMethod(TMethod* use_method, TNameId name);
-	void AddOperator(TOperator::Enum op, TMethod* use_method);
+	void AddMethod(TMethod* use_method, Lexer::TNameId name);
+	void AddOperator(Lexer::TOperator::Enum op, TMethod* use_method);
 	void AddConversion(TMethod* method);
 	//void AddConstr(TMethod* use_method);
 	void AddDefaultConstr(TMethod* use_method);

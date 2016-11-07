@@ -72,7 +72,7 @@ public:
 		//список доступных операторов получаем из левого операнда
 		param[0].GetClass()->GetOperators(operators, operation_node->op);
 		bin_operator = FindMethod(syntax_node, operators, param);
-		if (operation_node->op >= TOperator::Assign&&operation_node->op <= TOperator::OrA && !param[0].IsRef())
+		if (operation_node->op >= Lexer::TOperator::Assign&&operation_node->op <= Lexer::TOperator::OrA && !param[0].IsRef())
 			syntax_node->Error("Для присваиваниия требуется ссылка, а не значение!");
 
 		if (bin_operator != NULL)
@@ -201,7 +201,7 @@ public:
 			left = NULL;
 			TSMethod* invoke = NULL;
 			std::vector<TSMethod*> operators;
-			left_result.GetClass()->GetOperators(operators, operation_node->is_bracket ? (TOperator::GetArrayElement) : (TOperator::ParamsCall));
+			left_result.GetClass()->GetOperators(operators, operation_node->is_bracket ? (Lexer::TOperator::GetArrayElement) : (Lexer::TOperator::ParamsCall));
 			TSMethod* method = FindMethod(syntax_node, operators, params_result);
 			if (method != NULL)
 			{
@@ -492,7 +492,7 @@ void TSExpression::Build(TGlobalBuildContext build_context)
 	first_op.reset(b.GetResult());
 }
 
-TVariable* TSExpression::GetVar(TNameId name)
+TVariable* TSExpression::GetVar(Lexer::TNameId name)
 {
 	return parent->GetVar(name, GetSyntax()->stmt_id);
 }

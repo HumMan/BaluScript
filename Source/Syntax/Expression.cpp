@@ -3,53 +3,55 @@
 #include "Statements.h"
 #include "ClassField.h"
 
-TOperation* TExpression::ParamsCall(TLexer& source, TOperation* curr_operation)
+using namespace Lexer;
+
+TOperation* TExpression::ParamsCall(Lexer::ILexer* source, TOperation* curr_operation)
 {
-	bool use_brackets = source.Test(TTokenType::LBracket) || source.Test(TTokenType::Operator, TOperator::GetArrayElement);
+	bool use_brackets = source->Test(TTokenType::LBracket) || source->Test(TTokenType::Operator, TOperator::GetArrayElement);
 	TExpression::TCallParamsOp* params_call = new TCallParamsOp(curr_operation, use_brackets);
 	params_call->operation_source.InitPos(source);
 
 	if (use_brackets)
 	{
-		if (!source.TestAndGet(TTokenType::Operator, TOperator::GetArrayElement))
-			source.GetToken(TTokenType::LBracket);
+		if (!source->TestAndGet(TTokenType::Operator, TOperator::GetArrayElement))
+			source->GetToken(TTokenType::LBracket);
 		else
 			return params_call;
 	}
 	else
 	{
-		if (!source.TestAndGet(TTokenType::Operator, TOperator::ParamsCall))
-			source.GetToken(TTokenType::LParenth);
+		if (!source->TestAndGet(TTokenType::Operator, TOperator::ParamsCall))
+			source->GetToken(TTokenType::LParenth);
 		else
 			return params_call;
 	}
-	while (!source.Test(use_brackets ? (TTokenType::RBracket)
+	while (!source->Test(use_brackets ? (TTokenType::RBracket)
 		: (TTokenType::RParenth)))
 	{
 		params_call->AddParam(new TExpression(Expr(source, 0), owner, method, parent));
-		if (!source.TestAndGet(TTokenType::Comma))
+		if (!source->TestAndGet(TTokenType::Comma))
 			break;
 	}
-	source.GetToken(use_brackets ? (TTokenType::RBracket)
+	source->GetToken(use_brackets ? (TTokenType::RBracket)
 		: (TTokenType::RParenth));
 	return params_call;
 }
 
-TOperation* TExpression::SpecialPostfix(TLexer& source,
+TOperation* TExpression::SpecialPostfix(Lexer::ILexer* source,
 	TOperation* curr_operation) 
 {
-	if (source.TestAndGet(TTokenType::Dot))
+	if (source->TestAndGet(TTokenType::Dot))
 	{
-		source.TestToken(TTokenType::Identifier);
-		curr_operation = new TGetMemberOp(curr_operation, source.NameId());
+		source->TestToken(TTokenType::Identifier);
+		curr_operation = new TGetMemberOp(curr_operation, source->NameId());
 		curr_operation->operation_source.InitPos(source);
-		source.GetToken();
+		source->GetToken();
 		return curr_operation;
 	}
-	else if (source.Test(TTokenType::LBracket) ||
-		source.Test(TTokenType::LParenth) || 
-		source.Test(TTokenType::Operator, TOperator::ParamsCall) || 
-		source.Test(TTokenType::Operator, TOperator::GetArrayElement))
+	else if (source->Test(TTokenType::LBracket) ||
+		source->Test(TTokenType::LParenth) || 
+		source->Test(TTokenType::Operator, TOperator::ParamsCall) || 
+		source->Test(TTokenType::Operator, TOperator::GetArrayElement))
 	{
 		return ParamsCall(source, curr_operation);
 	}
@@ -59,77 +61,77 @@ TOperation* TExpression::SpecialPostfix(TLexer& source,
 	}
 }
 
-TOperation* TExpression::Factor(TLexer& source)
+TOperation* TExpression::Factor(Lexer::ILexer* source)
 {
 	TOperation* curr_operation = NULL;
 	TTokenPos token_pos;
 	token_pos.InitPos(source);
-	if (source.Test(TTokenType::Value))
+	if (source->Test(TTokenType::Value))
 		//Синтаксис: Value
 	{
-		switch (source.Token())
+		switch (source->Token())
 		{
 		case TValue::Int:
-			curr_operation = new TIntValue(source.Int(),
-				source.GetIdFromName("int"), owner);
+			curr_operation = new TIntValue(source->Int(),
+				source->GetIdFromName("int"), owner);
 			break;
 		case TValue::Float:
-			curr_operation = new TFloatValue(source.Float(),
-				source.GetIdFromName("float"), owner);
+			curr_operation = new TFloatValue(source->Float(),
+				source->GetIdFromName("float"), owner);
 			break;
 		case TValue::Bool:
-			curr_operation = new TBoolValue(source.Bool(),
-				source.GetIdFromName("bool"), owner);
+			curr_operation = new TBoolValue(source->Bool(),
+				source->GetIdFromName("bool"), owner);
 			break;
 		case TValue::String:
-			curr_operation = new TStringValue(source.StringValue(),
-				source.GetIdFromName("string"), owner);
+			curr_operation = new TStringValue(source->StringValue(),
+				source->GetIdFromName("string"), owner);
 			break;
 		case TValue::Char:
-			curr_operation = new TCharValue(source.Char(),
-				source.GetIdFromName("char"), owner);
+			curr_operation = new TCharValue(source->Char(),
+				source->GetIdFromName("char"), owner);
 			break;
 		default:
 			assert(false);
 		}
-		source.GetToken();
+		source->GetToken();
 	}
 	else
 	{
-		if (source.TestAndGet(TTokenType::ResWord, TResWord::This)) 
+		if (source->TestAndGet(TTokenType::ResWord, TResWord::This)) 
 		{
 			curr_operation = new TThis();
 			curr_operation->operation_source = token_pos;
 		}
-		else if (source.TestAndGet(TTokenType::ResWord, TResWord::New)) 
+		else if (source->TestAndGet(TTokenType::ResWord, TResWord::New)) 
 		{
 			TConstructTempObject* temp = new TConstructTempObject();
 			temp->type.reset(new TType(owner));
 			temp->type->AnalyzeSyntax(source);
 			return ParamsCall(source, temp);
 		}
-		else if (source.Test(TTokenType::Identifier))
+		else if (source->Test(TTokenType::Identifier))
 			//Синтаксис: Identifier
 		{
-			curr_operation = new TId(source.NameId());
+			curr_operation = new TId(source->NameId());
 			curr_operation->operation_source = token_pos;
-			source.GetToken();
+			source->GetToken();
 		}
-		else if (source.TestAndGet(TTokenType::LParenth))
+		else if (source->TestAndGet(TTokenType::LParenth))
 			//Синтаксис: Expr
 		{
 			curr_operation = Expr(source, 0);
-			source.GetToken(TTokenType::RParenth);
+			source->GetToken(TTokenType::RParenth);
 		}
 		if (curr_operation == NULL)
-			source.Error("Ошибка в выражении!");
+			source->Error("Ошибка в выражении!");
 		//Синтаксис: SpecialPostfixOp*
 		do
 		{
 			curr_operation = SpecialPostfix(source, curr_operation);
-		} while (source.Test(TTokenType::LParenth) || source.Test(
-			TTokenType::Operator, TOperator::ParamsCall) || source.Test(
-			TTokenType::LBracket) || source.Test(TTokenType::Dot));
+		} while (source->Test(TTokenType::LParenth) || source->Test(
+			TTokenType::Operator, TOperator::ParamsCall) || source->Test(
+			TTokenType::LBracket) || source->Test(TTokenType::Dot));
 	}
 	curr_operation->operation_source = token_pos;
 	return curr_operation;
@@ -171,7 +173,7 @@ const int operators_priority[TOperator::End] =
 
 };
 
-TOperation* TExpression::Expr(TLexer& source, int curr_prior_level) {
+TOperation* TExpression::Expr(Lexer::ILexer* source, int curr_prior_level) {
 
 	const int operators_priority_max = 8;
 
@@ -184,17 +186,17 @@ TOperation* TExpression::Expr(TLexer& source, int curr_prior_level) {
 	{
 		return Factor(source);
 	}
-	if (source.Test(TTokenType::Operator) &&
-		(source.Token() == TOperator::UnaryMinus || source.Token() == TOperator::Not)
-		&& operators_priority[source.Token()] == curr_prior_level)
+	if (source->Test(TTokenType::Operator) &&
+		(source->Token() == TOperator::UnaryMinus || source->Token() == TOperator::Not)
+		&& operators_priority[source->Token()] == curr_prior_level)
 	{
 		TTokenPos temp;
 		temp.InitPos(source);
-		if (source.Token() == TOperator::Minus)
+		if (source->Token() == TOperator::Minus)
 			curr_unary_op = TOperator::UnaryMinus;
 		else
-			curr_unary_op = TOperator::Enum(source.Token());
-		source.GetToken();
+			curr_unary_op = TOperator::Enum(source->Token());
+		source->GetToken();
 		TOperation* t = new TUnaryOp(Expr(source, curr_prior_level),
 			curr_unary_op);
 		t->operation_source = temp;
@@ -202,20 +204,20 @@ TOperation* TExpression::Expr(TLexer& source, int curr_prior_level) {
 	}
 	else
 		left = Expr(source, curr_prior_level + 1);
-	while (source.Test(TTokenType::Operator)
-		&& operators_priority[source.Token()] == curr_prior_level)
+	while (source->Test(TTokenType::Operator)
+		&& operators_priority[source->Token()] == curr_prior_level)
 	{
 		TTokenPos temp;
 		temp.InitPos(source);
-		curr_op = TOperator::Enum(source.Token());
-		source.GetToken();
+		curr_op = TOperator::Enum(source->Token());
+		source->GetToken();
 		left = new TBinOp(left, Expr(source, curr_prior_level + 1), curr_op);
 		left->operation_source = temp;
 	}
 	return left;
 }
 
-void TExpression::AnalyzeSyntax(TLexer& source)
+void TExpression::AnalyzeSyntax(Lexer::ILexer* source)
 {
 	InitPos(source);
 	first_op = std::unique_ptr<TOperation>(Expr(source, 0));

@@ -16,7 +16,7 @@ class TSParameter;
 class TSLocalVar;
 class TSConstructObject;
 
-class TSOperation : public TTokenPos
+class TSOperation : public Lexer::TTokenPos
 {
 public:
 	///<summary>Получить тип возвращаемого подвыражением значения</summary>
@@ -180,7 +180,7 @@ public:
 	TSExpression(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TExpression* syntax_node)
 		:TSStatement(TStatementType::Expression, use_owner, use_method, use_parent, (TStatement*)(syntax_node)){}
 	void Build(TGlobalBuildContext build_context);
-	TVariable* GetVar(TNameId name);
+	TVariable* GetVar(Lexer::TNameId name);
 	TExpression* GetSyntax();
 	TExpressionResult GetFormalParameter()
 	{

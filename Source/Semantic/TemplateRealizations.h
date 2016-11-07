@@ -42,7 +42,7 @@ public:
 	~TNodeWithTemplates();
 
 	TSClass* FindTemplateRealization(const std::list<TSType_TTemplateParameter>& params_to_find);
-	int FindTemplateIntParameter(TNameId parameter_id);
+	int FindTemplateIntParameter(Lexer::TNameId parameter_id);
 	const std::vector<std::unique_ptr<TSClass>>& GetRealizations();
 	TSClass* GetTemplateClass();
 	std::vector<TTemplateParameter> GetTemplateParams();

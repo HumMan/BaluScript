@@ -12,7 +12,7 @@ namespace TClassMember
 {
 	enum Enum
 	{
-		Func=TResWord::Func,
+		Func = Lexer::TResWord::Func,
 		DefaultConstr,
 		CopyConstr,
 		MoveConstr,
@@ -22,7 +22,7 @@ namespace TClassMember
 	};
 }
 
-class TMethod:public TTokenPos,public TAccessible
+class TMethod:public Lexer::TTokenPos,public TAccessible
 {
 	friend class TOverloadedMethod;
 	friend class TSMethod;
@@ -40,19 +40,19 @@ private:
 	
 	bool one_instruction; //метод состоит из одной инструкции(без операторных скобок, напр.: "func M:int return 5;"
 
-	TNameId method_name;
-	TOperator::Enum operator_type;
+	Lexer::TNameId method_name;
+	Lexer::TOperator::Enum operator_type;
 	TClassMember::Enum member_type;
 public:
 	TMethod(TClass* use_owner, TClassMember::Enum use_member_type = TClassMember::Func);
 	~TMethod();
-	void ParametersDecl(TLexer& source);
-	void AnalyzeSyntax(TLexer& source,bool realization=true);//realization - используется при получении идентификатора метода (т.к. только прототип без тела метода)
+	void ParametersDecl(Lexer::ILexer* source);
+	void AnalyzeSyntax(Lexer::ILexer* source,bool realization=true);//realization - используется при получении идентификатора метода (т.к. только прототип без тела метода)
 
 	void SetHasReturn(bool use_has_return);
-	TNameId GetName();
+	Lexer::TNameId GetName();
 	TClass* GetOwner()const;
-	TOperator::Enum GetOperatorType();
+	Lexer::TOperator::Enum GetOperatorType();
 	TClassMember::Enum GetMemberType()const;
 	int GetParamsSize();
 	TParameter* GetParam(int use_id);

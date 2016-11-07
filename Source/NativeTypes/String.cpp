@@ -116,7 +116,7 @@ void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 {
 	TClass* cl = new TClass(syntax->base_class.get());
 	syntax->base_class->AddNested(cl);
-	syntax->lexer.ParseSource(
+	syntax->lexer->ParseSource(
 		"class extern string\n"
 		"{\n"
 		"default();\n"
@@ -129,8 +129,8 @@ void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 		"func length:int;\n"
 		"}\n"
 		);
-	cl->AnalyzeSyntax(syntax->lexer);
-	syntax->lexer.GetToken(TTokenType::Done);
+	cl->AnalyzeSyntax(syntax->lexer.get());
+	syntax->lexer->GetToken(Lexer::TTokenType::Done);
 
 	TSClass* scl = new TSClass(syntax->sem_base_class.get(), cl);
 	syntax->sem_base_class->AddClass(scl);
@@ -149,25 +149,25 @@ void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 	scl->GetDestructor()->SetAsExternal(TString::destructor);
 
 	m.clear();
-	scl->GetOperators(m, TOperator::GetArrayElement);
+	scl->GetOperators(m, Lexer::TOperator::GetArrayElement);
 	m[0]->SetAsExternal(TString::get_char_op);
 
 	m.clear();
-	scl->GetOperators(m, TOperator::Assign);
+	scl->GetOperators(m, Lexer::TOperator::Assign);
 	//TODO ввести использование ссылки на временный объект
 	m[0]->SetAsExternal(TString::assign_op);
 
 	m.clear();
-	scl->GetOperators(m, TOperator::PlusA);
+	scl->GetOperators(m, Lexer::TOperator::PlusA);
 	//TODO ввести использование ссылки на временный объект
 	m[0]->SetAsExternal(TString::assign_plus_op);
 
 	m.clear();
-	scl->GetOperators(m, TOperator::Plus);
+	scl->GetOperators(m, Lexer::TOperator::Plus);
 	//TODO ввести использование ссылки на временный объект
 	m[0]->SetAsExternal(TString::plus_op);
 
 	m.clear();
-	scl->GetMethods(m, syntax->lexer.GetIdFromName("length"));
+	scl->GetMethods(m, syntax->lexer->GetIdFromName("length"));
 	m[0]->SetAsExternal(TString::get_length);
 }

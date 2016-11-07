@@ -27,7 +27,7 @@ TSMethod* TSOverloadedMethod::FindConversion(std::vector<std::unique_ptr<TSParam
 	return NULL;
 }
 
-TNameId TSOverloadedMethod::GetName()const
+Lexer::TNameId TSOverloadedMethod::GetName()const
 {
 	return GetSyntax()->GetName();
 }

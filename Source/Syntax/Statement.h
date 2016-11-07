@@ -23,7 +23,7 @@ namespace TStatementType
 	};
 }
 
-class TStatement:public TTokenPos
+class TStatement:public Lexer::TTokenPos
 {
 protected:
 	TMethod* method;

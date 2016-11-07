@@ -5,6 +5,8 @@
 #include "Method.h"
 #include "Statements.h"
 
+using namespace Lexer;
+
 TType::TType(TNameId use_class_name, TClass *use_owner) :
 	owner(use_owner) 
 {
@@ -32,27 +34,27 @@ void TType_TClassName::ConvertDimensionsToTemplates()
 	//}
 }
 
-void TType::AnalyzeClassName(TLexer& source)
+void TType::AnalyzeClassName(Lexer::ILexer* source)
 {
 	//любое объявление типа начинается с идентификатора класса
-	source.TestToken(TTokenType::Identifier);
+	source->TestToken(TTokenType::Identifier);
 	class_names.emplace_back();
-	class_names.back().name = source.NameId();
-	source.GetToken(TTokenType::Identifier);
+	class_names.back().name = source->NameId();
+	source->GetToken(TTokenType::Identifier);
 
 	//далее могут следовать шаблонные параметры
-	if (source.Test(TTokenType::Operator, TOperator::Less)) 
+	if (source->Test(TTokenType::Operator, TOperator::Less)) 
 	{
-		source.GetToken();
-		while (!source.TestAndGet(TTokenType::Operator, TOperator::Greater)) 
+		source->GetToken();
+		while (!source->TestAndGet(TTokenType::Operator, TOperator::Greater)) 
 		{
 			class_names.back().template_params.emplace_back();
 			//в качестве шаблонного параметра можно использовать целые числа
-			if (source.Test(TTokenType::Value, TValue::Int))
+			if (source->Test(TTokenType::Value, TValue::Int))
 			{
 				class_names.back().template_params.back().is_value = true;
-				class_names.back().template_params.back().value = source.Int();
-				source.GetToken();
+				class_names.back().template_params.back().value = source->Int();
+				source->GetToken();
 			}
 			else
 			{
@@ -63,8 +65,8 @@ void TType::AnalyzeClassName(TLexer& source)
 				//рекурсивно разбираем шаблонный параметр
 				template_param->AnalyzeSyntax(source);
 			}
-			if (!source.Test(TTokenType::Operator, TOperator::Greater))
-				source.GetToken(TTokenType::Comma);
+			if (!source->Test(TTokenType::Operator, TOperator::Greater))
+				source->GetToken(TTokenType::Comma);
 		}
 	}
 	//после этого следуют измерения массивов
@@ -72,34 +74,34 @@ void TType::AnalyzeClassName(TLexer& source)
 	class_names.back().ConvertDimensionsToTemplates();
 }
 
-void TType::AnalyzeSyntax(TLexer& source) 
+void TType::AnalyzeSyntax(Lexer::ILexer* source) 
 {	
 	InitPos(source);
 	AnalyzeClassName(source);
 	//после точки может следовать указание вложенного класса
-	if (source.Test(TTokenType::Dot)) 
+	if (source->Test(TTokenType::Dot)) 
 	{
-		source.GetToken();
+		source->GetToken();
 		AnalyzeClassName(source);
 	}
 }
 
-void TType::AnalyzeDimensions(TLexer& source) 
+void TType::AnalyzeDimensions(Lexer::ILexer* source) 
 {
-	if (source.Test(TTokenType::LBracket) || source.Test(TTokenType::Operator, TOperator::GetArrayElement)) 
+	if (source->Test(TTokenType::LBracket) || source->Test(TTokenType::Operator, TOperator::GetArrayElement)) 
 	{
 		while (true) 
 		{
-			if (source.TestAndGet(TTokenType::LBracket)) 
+			if (source->TestAndGet(TTokenType::LBracket)) 
 			{
-				if (source.Test(TTokenType::Value, TValue::Int)) 
+				if (source->Test(TTokenType::Value, TValue::Int)) 
 				{
-					class_names.back().dimensions.push_back(source.Int());
-					source.GetToken();
+					class_names.back().dimensions.push_back(source->Int());
+					source->GetToken();
 				}
-				source.GetToken(TTokenType::RBracket);
+				source->GetToken(TTokenType::RBracket);
 			}
-			else if (source.TestAndGet(TTokenType::Operator, TOperator::GetArrayElement)) 
+			else if (source->TestAndGet(TTokenType::Operator, TOperator::GetArrayElement)) 
 			{
 				class_names.back().dimensions.push_back(-1);
 			} 

@@ -5,10 +5,12 @@
 #include "Statements.h"
 #include "Type.h"
 
-void TClassField::AnalyzeSyntax(TLexer& source) {
+using namespace Lexer;
+
+void TClassField::AnalyzeSyntax(Lexer::ILexer* source) {
 	InitPos(source);
 	type->AnalyzeSyntax(source);
-	is_static = source.TestAndGet(TTokenType::ResWord, TResWord::Static);
+	is_static = source->TestAndGet(TTokenType::ResWord, TResWord::Static);
 	TClassField* curr_field = this;
 	do {
 		if (curr_field != this) {
@@ -16,15 +18,15 @@ void TClassField::AnalyzeSyntax(TLexer& source) {
 			curr_field->is_static = is_static;
 			*(TTokenPos*) curr_field = *(TTokenPos*) this;
 		}
-		curr_field->name = source.NameId();
-		source.GetToken(TTokenType::Identifier);
-		if (source.Test(TTokenType::Comma)) {
+		curr_field->name = source->NameId();
+		source->GetToken(TTokenType::Identifier);
+		if (source->Test(TTokenType::Comma)) {
 			//curr_field = new TClassField(owner);
 			//owner->AddField(curr_field);
 			curr_field = owner->EmplaceField(owner);
 		}
-	} while (source.TestAndGet(TTokenType::Comma));
-	source.GetToken(TTokenType::Semicolon);
+	} while (source->TestAndGet(TTokenType::Comma));
+	source->GetToken(TTokenType::Semicolon);
 }
 
 bool TClassField::IsReadOnly()const

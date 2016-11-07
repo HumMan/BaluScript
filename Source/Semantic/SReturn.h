@@ -21,7 +21,7 @@ public:
 	{
 		return (TReturn*)TSyntaxNode::GetSyntax();
 	}
-	TNameId GetName();
+	Lexer::TNameId GetName();
 	TSClass* GetClass();
 	bool IsStatic();
 	void Build(TGlobalBuildContext build_context);

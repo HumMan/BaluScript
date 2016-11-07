@@ -268,21 +268,21 @@ void TSMethod::CheckForErrors()
 	}
 	switch (GetSyntax()->member_type)
 	{
-	case TResWord::Func:
+	case Lexer::TResWord::Func:
 		assert(!GetSyntax()->method_name.IsNull());
 		break;
-	case TResWord::Default:
-	case TResWord::Copy:
-	case TResWord::Move:
+	case Lexer::TResWord::Default:
+	case Lexer::TResWord::Copy:
+	case Lexer::TResWord::Move:
 		if (GetSyntax()->is_static)GetSyntax()->Error("Конструктор должен быть не статичным!");
 		break;
-	case TResWord::Destr:
+	case Lexer::TResWord::Destr:
 		if (GetSyntax()->is_static)GetSyntax()->Error("Деструктор должен быть не статичным!");
 		break;
-	case TResWord::Operator:
+	case Lexer::TResWord::Operator:
 		if (!GetSyntax()->is_static)GetSyntax()->Error("Оператор должен быть статичным!");
 		break;
-	case TResWord::Conversion:
+	case Lexer::TResWord::Conversion:
 		if (!GetSyntax()->is_static)GetSyntax()->Error("Оператор приведения типа должен быть статичным!");
 		break;
 	default:assert(false);
@@ -293,12 +293,12 @@ void TSMethod::CheckForErrors()
 		{
 		case TClassMember::Func:
 			break;
-		case TResWord::Default:
+		case Lexer::TResWord::Default:
 			if (ret.GetClass() != NULL)GetSyntax()->Error("Конструктор по умолчанию не должен возвращать значение!");
 			if (parameters.size() != 0)GetSyntax()->Error("Конструктор по умолчанию не имеет параметров!");
 			break;
-		case TResWord::Copy:
-		case TResWord::Move:
+		case Lexer::TResWord::Copy:
+		case Lexer::TResWord::Move:
 			if (ret.GetClass() != NULL)GetSyntax()->Error("Конструктор не должен возвращать значение!");
 			break;
 		case TClassMember::Destr:
@@ -306,14 +306,14 @@ void TSMethod::CheckForErrors()
 			if (parameters.size() != 0)GetSyntax()->Error("Деструктор не имеет параметров!");
 			break;
 		case TClassMember::Operator:
-			if (GetSyntax()->operator_type == TOperator::Not)//унарные операторы
+			if (GetSyntax()->operator_type == Lexer::TOperator::Not)//унарные операторы
 			{
 				if (GetParamsCount() != 1)
 					GetSyntax()->Error("Унарный оператор должен иметь один параметр!");
 				if (GetParam(0)->GetClass() != owner)
 					GetSyntax()->Error("Хотя бы один из параметров оператора должен быть классом для которого он используется!");
 			}
-			else if (GetSyntax()->operator_type == TOperator::UnaryMinus)
+			else if (GetSyntax()->operator_type == Lexer::TOperator::UnaryMinus)
 			{
 				if (!LexerIsIn(GetParamsCount(), 1, 2))
 					GetSyntax()->Error("У унарного оператора ""-"" должнен быть 1 параметр!");
@@ -321,7 +321,7 @@ void TSMethod::CheckForErrors()
 					&& (GetParamsCount() == 2 && GetParam(1)->GetClass() != owner))
 					GetSyntax()->Error("Параметром унарного оператора должен быть класс для которого он используется!");
 			}
-			else if (GetSyntax()->operator_type == TOperator::ParamsCall || GetSyntax()->operator_type == TOperator::GetArrayElement)
+			else if (GetSyntax()->operator_type == Lexer::TOperator::ParamsCall || GetSyntax()->operator_type == Lexer::TOperator::GetArrayElement)
 			{
 				if (GetParamsCount()<2)
 					GetSyntax()->Error("Оператор вызова параметров должен иметь минимум 2 операнда!");
@@ -330,7 +330,7 @@ void TSMethod::CheckForErrors()
 			}
 			else //остальные бинарные операторы
 			{
-				if ((GetSyntax()->operator_type == TOperator::Equal || GetSyntax()->operator_type == TOperator::NotEqual)
+				if ((GetSyntax()->operator_type == Lexer::TOperator::Equal || GetSyntax()->operator_type == Lexer::TOperator::NotEqual)
 					&& ret.GetClass() != owner->GetClass(GetSyntax()->source->GetIdFromName("bool")))
 					GetSyntax()->Error("Оператор сравнения должен возвращать логическое значение!");
 				if (GetParamsCount() != 2)
@@ -350,7 +350,7 @@ void TSMethod::CheckForErrors()
 	}
 }
 
-TVariable* TSMethod::GetVar(TNameId name)
+TVariable* TSMethod::GetVar(Lexer::TNameId name)
 {
 	for (size_t i = 0; i<parameters.size(); i++)
 		if (parameters[i]->GetSyntax()->GetName() == name)

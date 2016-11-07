@@ -26,9 +26,9 @@ namespace Test
 		try
 		{
 			TMethod* m = new TMethod(syntax->base_class.get());
-			syntax->lexer.ParseSource(code);
-			m->AnalyzeSyntax(syntax->lexer);
-			syntax->lexer.GetToken(TTokenType::Done);
+			syntax->lexer->ParseSource(code);
+			m->AnalyzeSyntax(syntax->lexer.get());
+			syntax->lexer->GetToken(Lexer::TTokenType::Done);
 
 			TSMethod* ms = new TSMethod(syntax->sem_base_class.get(), m);
 			smethods->push_back(std::unique_ptr<TSMethod>(ms));
@@ -63,9 +63,9 @@ namespace Test
 		{
 			TClass* cl = new TClass(syntax->base_class.get());
 			syntax->base_class->AddNested(cl);
-			syntax->lexer.ParseSource(code);
-			cl->AnalyzeSyntax(syntax->lexer);
-			syntax->lexer.GetToken(TTokenType::Done);
+			syntax->lexer->ParseSource(code);
+			cl->AnalyzeSyntax(syntax->lexer.get());
+			syntax->lexer->GetToken(Lexer::TTokenType::Done);
 
 			TSClass* scl = new TSClass(syntax->sem_base_class.get(), cl);
 			syntax->sem_base_class->AddClass(scl);
@@ -120,7 +120,7 @@ namespace Test
 	TStackValue RunClassMethod(TSClass* scl, char* method_name)
 	{
 		std::vector<TSMethod*> methods;
-		scl->GetMethods(methods, syntax->lexer.GetIdFromName(method_name));
+		scl->GetMethods(methods, syntax->lexer->GetIdFromName(method_name));
 		TSMethod* ms = methods[0];
 
 		std::vector<TStackValue> params;

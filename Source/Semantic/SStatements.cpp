@@ -118,7 +118,7 @@ void TSStatements::Build(TGlobalBuildContext build_context)
 	}
 }
 
-TVariable* TSStatements::GetVar(TNameId name, int sender_id)
+TVariable* TSStatements::GetVar(Lexer::TNameId name, int sender_id)
 {
 	for (size_t i = 0; i < var_declarations.size(); i++)
 	{

@@ -1,5 +1,7 @@
 ﻿#include "Class.h"
 
+using namespace Lexer;
+
 bool TClass::IsTemplate()
 {
 	return is_template;
@@ -20,7 +22,7 @@ int TClass::GetTemplateParamsCount()
 	return template_params.size();
 }
 
-TNameId TClass::GetName()
+Lexer::TNameId TClass::GetName()
 {
 	return name;
 }
@@ -30,9 +32,9 @@ TClass* TClass::GetOwner()
 	return owner;
 }
 
-std::vector<TNameId> TClass::GetFullClassName()
+std::vector<Lexer::TNameId> TClass::GetFullClassName()
 {
-	std::vector<TNameId> result;
+	std::vector<Lexer::TNameId> result;
 	if (owner != NULL)
 		result = owner->GetFullClassName();
 	result.push_back(name);
@@ -47,7 +49,7 @@ TClass::TClass(TClass* use_owner) :parent(this)
 	owner = use_owner;
 }
 
-void TClass::AddMethod(TMethod* use_method, TNameId name) {
+void TClass::AddMethod(TMethod* use_method, Lexer::TNameId name) {
 	//»щем перегруженные методы с таким же именем, иначе добавл¤ем новый
 	TOverloadedMethod* temp = NULL;
 	for (TOverloadedMethod& method : methods)
@@ -61,7 +63,7 @@ void TClass::AddMethod(TMethod* use_method, TNameId name) {
 	temp->methods.push_back(std::unique_ptr<TMethod>(use_method));
 }
 
-void TClass::AddOperator(TOperator::Enum op, TMethod* use_method) 
+void TClass::AddOperator(Lexer::TOperator::Enum op, TMethod* use_method)
 {
 	operators[op].methods.push_back(std::unique_ptr<TMethod>(use_method));
 }
@@ -110,7 +112,7 @@ TClassField* TClass::EmplaceField(TClass* use_field_owner)
 	return &fields.back();
 }
 
-TClass* TClass::GetNested(TNameId name)
+TClass* TClass::GetNested(Lexer::TNameId name)
 {
 	for (const std::unique_ptr<TClass>& nested_class : nested_classes)
 		if (nested_class->name == name)
@@ -118,33 +120,33 @@ TClass* TClass::GetNested(TNameId name)
 	return NULL;
 }
 
-void TClass::AccessDecl(TLexer& source, bool& readonly,
+void TClass::AccessDecl(Lexer::ILexer* source, bool& readonly,
 		TTypeOfAccess::Enum access) {
-	if (source.Type() == TTokenType::ResWord)
+	if (source->Type() == Lexer::TTokenType::ResWord)
 	{
-		switch (source.Token())
+		switch (source->Token())
 		{
 		case TResWord::Readonly:
-			source.GetToken();
-			source.GetToken(TTokenType::Colon);
+			source->GetToken();
+			source->GetToken(TTokenType::Colon);
 			readonly = true;
 			access = TTypeOfAccess::Public;
 			break;
 		case TResWord::Public:
-			source.GetToken();
-			source.GetToken(TTokenType::Colon);
+			source->GetToken();
+			source->GetToken(TTokenType::Colon);
 			readonly = false;
 			access = TTypeOfAccess::Public;
 			break;
 		case TResWord::Protected:
-			source.GetToken();
-			source.GetToken(TTokenType::Colon);
+			source->GetToken();
+			source->GetToken(TTokenType::Colon);
 			readonly = false;
 			access = TTypeOfAccess::Protected;
 			break;
 		case TResWord::Private:
-			source.GetToken();
-			source.GetToken(TTokenType::Colon);
+			source->GetToken();
+			source->GetToken(TTokenType::Colon);
 			readonly = false;
 			access = TTypeOfAccess::Private;
 			break;
@@ -152,60 +154,60 @@ void TClass::AccessDecl(TLexer& source, bool& readonly,
 	}
 }
 
-void TClass::AnalyzeSyntax(TLexer& source) 
+void TClass::AnalyzeSyntax(Lexer::ILexer* source) 
 {
 	InitPos(source);
 
-	if (source.TestAndGet(TTokenType::ResWord, TResWord::Enum))
+	if (source->TestAndGet(TTokenType::ResWord, TResWord::Enum))
 	{
 		SetAsEnumeration();
-		source.TestToken(TTokenType::Identifier);
-		name = source.NameId();
-		source.GetToken();
-		source.GetToken(TTokenType::LBrace);
+		source->TestToken(TTokenType::Identifier);
+		name = source->NameId();
+		source->GetToken();
+		source->GetToken(TTokenType::LBrace);
 		do
 		{
-			if (source.Test(TTokenType::Identifier))
+			if (source->Test(TTokenType::Identifier))
 			{
 				for (size_t i = 0; i < enums.size(); i++)
-					if (enums[i] == source.NameId())
-						source.Error("Значение перечисления с таким именем уже существует!");
-				enums.push_back(source.NameId());
-				source.GetToken();
+					if (enums[i] == source->NameId())
+						source->Error("Значение перечисления с таким именем уже существует!");
+				enums.push_back(source->NameId());
+				source->GetToken();
 			}
 			else
 				break;
-		} while (source.TestAndGet(TTokenType::Comma));
-		source.GetToken(TTokenType::RBrace);
+		} while (source->TestAndGet(TTokenType::Comma));
+		source->GetToken(TTokenType::RBrace);
 		return;
 	}
 	else
 	{
 
-		source.GetToken(TTokenType::ResWord, TResWord::Class);
-		is_sealed = source.TestAndGet(TTokenType::ResWord, TResWord::Sealed);
-		is_external = source.TestAndGet(TTokenType::ResWord, TResWord::Extern);
-		source.TestToken(TTokenType::Identifier);
-		name = source.NameId();
-		source.GetToken();
-		if (source.TestAndGet(TTokenType::Operator, TOperator::Less)) 
+		source->GetToken(TTokenType::ResWord, TResWord::Class);
+		is_sealed = source->TestAndGet(TTokenType::ResWord, TResWord::Sealed);
+		is_external = source->TestAndGet(TTokenType::ResWord, TResWord::Extern);
+		source->TestToken(TTokenType::Identifier);
+		name = source->NameId();
+		source->GetToken();
+		if (source->TestAndGet(TTokenType::Operator, TOperator::Less)) 
 		{
 			is_template = true;
 			do {
-				source.TestToken(TTokenType::Identifier);
-				template_params.push_back(source.NameId());
-				source.GetToken();
-				if (!source.TestAndGet(TTokenType::Comma))
+				source->TestToken(TTokenType::Identifier);
+				template_params.push_back(source->NameId());
+				source->GetToken();
+				if (!source->TestAndGet(TTokenType::Comma))
 					break;
 			} while (true);
-			source.GetToken(TTokenType::Operator, TOperator::Greater);
+			source->GetToken(TTokenType::Operator, TOperator::Greater);
 		}
-		if (source.TestAndGet(TTokenType::Colon)) 
+		if (source->TestAndGet(TTokenType::Colon)) 
 		{
-			source.TestToken(TTokenType::Identifier);
+			source->TestToken(TTokenType::Identifier);
 			parent.AnalyzeSyntax(source);
 		}
-		source.GetToken(TTokenType::LBrace);
+		source->GetToken(TTokenType::LBrace);
 
 		bool readonly = false;
 		TTypeOfAccess::Enum access = TTypeOfAccess::Public;
@@ -214,8 +216,8 @@ void TClass::AnalyzeSyntax(TLexer& source)
 		{
 			bool end_while = false;
 			AccessDecl(source, readonly, access);
-			if (source.Type() == TTokenType::ResWord)
-				switch (source.Token())
+			if (source->Type() == TTokenType::ResWord)
+				switch (source->Token())
 			{
 				case TResWord::Class: 
 				{
@@ -247,11 +249,11 @@ void TClass::AnalyzeSyntax(TLexer& source)
 					break;
 				case TResWord::Multifield:
 				{
-					source.GetToken(TTokenType::ResWord, TResWord::Multifield);
-					source.GetToken(TTokenType::LParenth);
-					TNameId factor = source.NameId();
-					source.GetToken();
-					source.GetToken(TTokenType::RParenth);
+					source->GetToken(TTokenType::ResWord, TResWord::Multifield);
+					source->GetToken(TTokenType::LParenth);
+					TNameId factor = source->NameId();
+					source->GetToken();
+					source->GetToken(TTokenType::RParenth);
 					fields.emplace_back(this);
 					fields.back().SetFactorId(factor);
 					fields.back().SetAccess(access);
@@ -262,7 +264,7 @@ void TClass::AnalyzeSyntax(TLexer& source)
 				default:
 					end_while = true;
 			}
-			else if (source.Type() == TTokenType::Identifier) 
+			else if (source->Type() == TTokenType::Identifier) 
 			{
 				fields.emplace_back(this);
 				fields.back().SetAccess(access);
@@ -274,6 +276,6 @@ void TClass::AnalyzeSyntax(TLexer& source)
 			if (end_while)
 				break;
 		}
-		source.GetToken(TTokenType::RBrace);
+		source->GetToken(TTokenType::RBrace);
 	}
 }

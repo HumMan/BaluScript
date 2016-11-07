@@ -1,5 +1,7 @@
 ﻿#include "Accessible.h"
 
+using namespace Lexer;
+
 TAccessible::TAccessible()
 	:access(TTypeOfAccess::Public)
 {

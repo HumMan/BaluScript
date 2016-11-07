@@ -23,7 +23,7 @@ class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize,public TNodeSigna
 	std::unique_ptr<TSOverloadedMethod> copy_constructors,move_constructors;
 	///<summary>ѕользовательский деструктор (автоматический деструктор, если существует, будет добавлен как PostEvent)</summary>
 	std::unique_ptr<TSMethod> destructor;
-	std::unique_ptr<TSOverloadedMethod> operators[TOperator::End];
+	std::unique_ptr<TSOverloadedMethod> operators[Lexer::TOperator::End];
 	std::unique_ptr<TSOverloadedMethod> conversions;
 
 	std::vector<std::unique_ptr<TSClass>> nested_classes;
@@ -46,16 +46,16 @@ public:
 	void AddClass(TSClass* use_class);
 	void CopyExternalMethodBindingsFrom(TSClass* source);
 	TSClass(TSClass* use_owner, TClass* use_syntax_node, TNodeWithTemplates::Type type = TNodeWithTemplates::Unknown);
-	TSClass* GetClass(TNameId use_name);
+	TSClass* GetClass(Lexer::TNameId use_name);
 	void CheckForErrors();
 	TSClass* GetOwner();
 	TSClass* GetParent()
 	{
 		return parent.GetClass();
 	}
-	TSClass* GetNestedByFullName(std::vector<TNameId> full_name, int curr_id);
-	TSClassField* GetField(TNameId name, bool only_in_this);
-	TSClassField* GetField(TNameId name, bool is_static, bool only_in_this);
+	TSClass* GetNestedByFullName(std::vector<Lexer::TNameId> full_name, int curr_id);
+	TSClassField* GetField(Lexer::TNameId name, bool only_in_this);
+	TSClassField* GetField(Lexer::TNameId name, bool is_static, bool only_in_this);
 	bool HasConversion(TSClass* target_type);
 	bool IsNestedIn(TSClass* use_parent);
 	
@@ -68,15 +68,15 @@ public:
 	//
 	bool GetCopyConstructors(std::vector<TSMethod*> &result);
 	bool GetMoveConstructors(std::vector<TSMethod*> &result);
-	bool GetOperators(std::vector<TSMethod*> &result, TOperator::Enum op);
-	bool GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name);
-	bool GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name, bool is_static);
+	bool GetOperators(std::vector<TSMethod*> &result, Lexer::TOperator::Enum op);
+	bool GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_method_name);
+	bool GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_method_name, bool is_static);
 	TSMethod* GetConversion(bool source_ref, TSClass* target_type);
 
-	TSClass* GetNested(TNameId name);
+	TSClass* GetNested(Lexer::TNameId name);
 
-	bool GetTemplateParameter(TNameId name, TNodeWithTemplates::TTemplateParameter& result);
-	bool HasTemplateParameter(TNameId name);
+	bool GetTemplateParameter(Lexer::TNameId name, TNodeWithTemplates::TTemplateParameter& result);
+	bool HasTemplateParameter(Lexer::TNameId name);
 	///<summary>ѕостоение семанитческого дерева по синтаксическому(дл€ всех кроме тел методов) без какого либо анализа типов</summary>
 	void Build();
 	///<param name = 'static_fields'>—писок статических полей класса - необходим дл€ их дальнейшей инициализации</param>

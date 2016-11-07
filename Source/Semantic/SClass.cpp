@@ -34,11 +34,11 @@ TSClass* TSClass::GetOwner()
 	return owner;
 }
 
-TSClass* TSClass::GetNestedByFullName(std::vector<TNameId> full_name, int curr_id)
+TSClass* TSClass::GetNestedByFullName(std::vector<Lexer::TNameId> full_name, int curr_id)
 {
 	if (curr_id == full_name.size())
 		return this;
-	TNameId curr = full_name[curr_id];
+	Lexer::TNameId curr = full_name[curr_id];
 	TSClass* child = GetNested(full_name[curr_id]);
 	if (child!=NULL)
 	{
@@ -83,7 +83,7 @@ void TSClass::Build()
 		destructor->Build();
 	}
 
-	for (int i = 0; i < TOperator::End; i++)
+	for (int i = 0; i < Lexer::TOperator::End; i++)
 	{
 		operators[i] = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, &GetSyntax()->operators[i]));
 		operators[i]->Build();
@@ -99,19 +99,19 @@ void TSClass::Build()
 	}
 }
 
-TSClass* TSClass::GetNested(TNameId name) {
+TSClass* TSClass::GetNested(Lexer::TNameId name) {
 	for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
 		if (nested_class->GetSyntax()->GetName() == name)
 			return nested_class.get();
 	return NULL;
 }
 
-bool TSClass::GetTemplateParameter(TNameId name, TNodeWithTemplates::TTemplateParameter& result)
+bool TSClass::GetTemplateParameter(Lexer::TNameId name, TNodeWithTemplates::TTemplateParameter& result)
 {
 	assert(GetType() == TNodeWithTemplates::Realization);
 	int par_count = GetTemplateClass()->GetSyntax()->GetTemplateParamsCount();
 	int i = 0;
-	for (TNameId& n : GetTemplateClass()->GetSyntax()->template_params)
+	for (Lexer::TNameId& n : GetTemplateClass()->GetSyntax()->template_params)
 	{
 		if (n == name)
 		{
@@ -124,12 +124,12 @@ bool TSClass::GetTemplateParameter(TNameId name, TNodeWithTemplates::TTemplatePa
 	assert(false);
 }
 
-bool TSClass::HasTemplateParameter(TNameId name)
+bool TSClass::HasTemplateParameter(Lexer::TNameId name)
 {
 	assert(GetType() == TNodeWithTemplates::Realization);
 	int par_count = GetTemplateClass()->GetSyntax()->GetTemplateParamsCount();
 	int i = 0;
-	for (TNameId& n : GetTemplateClass()->GetSyntax()->template_params)
+	for (Lexer::TNameId& n : GetTemplateClass()->GetSyntax()->template_params)
 	{
 		if (n == name)
 		{
@@ -197,7 +197,7 @@ void TSClass::CheckForErrors()
 	//		nested_classes[i]->DeclareMethods();
 }
 
-TSClass* TSClass::GetClass(TNameId use_name)
+TSClass* TSClass::GetClass(Lexer::TNameId use_name)
 {
 	//мы должны возвращать шаблонный класс, а не его реализацию
 	if (GetType() == TNodeWithTemplates::Class || GetType() == TNodeWithTemplates::Template)
@@ -226,7 +226,7 @@ TSClass* TSClass::GetClass(TNameId use_name)
 	return NULL;
 }
 
-TSClassField* TSClass::GetField(TNameId name, bool only_in_this)
+TSClassField* TSClass::GetField(Lexer::TNameId name, bool only_in_this)
 {
 	TSClassField* result_ns = GetField(name, false, only_in_this);
 	TSClassField* result_s = GetField(name, true, only_in_this);
@@ -236,7 +236,7 @@ TSClassField* TSClass::GetField(TNameId name, bool only_in_this)
 		return result_s;
 }
 
-TSClassField* TSClass::GetField(TNameId name, bool is_static, bool only_in_this)
+TSClassField* TSClass::GetField(Lexer::TNameId name, bool is_static, bool only_in_this)
 {
 	TSClassField* result_parent = NULL;
 	if (parent.GetClass() != NULL)
@@ -287,7 +287,7 @@ void TSClass::LinkSignature(TGlobalBuildContext build_context)
 	if (destructor)
 		destructor->LinkSignature(build_context);
 
-	for (int i = 0; i < TOperator::End; i++)
+	for (int i = 0; i < Lexer::TOperator::End; i++)
 		operators[i]->LinkSignature(build_context);
 	conversions->LinkSignature(build_context);
 
@@ -326,7 +326,7 @@ void TSClass::LinkBody(TGlobalBuildContext build_context)
 	if (destructor)
 		destructor->LinkBody(build_context);
 
-	for (int i = 0; i < TOperator::End; i++)
+	for (int i = 0; i < Lexer::TOperator::End; i++)
 		if (operators[i])
 			operators[i]->LinkBody(build_context);
 	conversions->LinkBody(build_context);
@@ -337,7 +337,7 @@ void TSClass::LinkBody(TGlobalBuildContext build_context)
 }
 
 
-bool TSClass::GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name)
+bool TSClass::GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_method_name)
 {
 	//assert(IsSignatureLinked());
 	for (TSOverloadedMethod& ov_method : methods)
@@ -355,7 +355,7 @@ bool TSClass::GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name
 	return result.size() > 0;
 }
 
-bool TSClass::GetMethods(std::vector<TSMethod*> &result, TNameId use_method_name, bool is_static)
+bool TSClass::GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_method_name, bool is_static)
 {
 	//assert(IsSignatureLinked());
 	for (TSOverloadedMethod& ov_method : methods)
@@ -464,9 +464,9 @@ TSMethod* TSClass::GetMoveConstr()
 TSMethod* TSClass::GetAssignOperator()
 {
 	assert(IsAutoMethodsInitialized());
-	if (operators[TOperator::Assign])
+	if (operators[Lexer::TOperator::Assign])
 	{
-		for (const std::unique_ptr<TSMethod>& assign_op : operators[TOperator::Assign]->methods)
+		for (const std::unique_ptr<TSMethod>& assign_op : operators[Lexer::TOperator::Assign]->methods)
 		{
 			if (assign_op->GetParamsCount() == 2
 				&& assign_op->GetParam(0)->GetClass() == this
@@ -506,11 +506,11 @@ bool TSClass::IsNestedIn(TSClass* use_parent)
 		return true;
 	return parent.GetClass()->IsNestedIn(use_parent);
 }
-bool TSClass::GetOperators(std::vector<TSMethod*> &result, TOperator::Enum op)
+bool TSClass::GetOperators(std::vector<TSMethod*> &result, Lexer::TOperator::Enum op)
 {
 	assert(IsAutoMethodsInitialized());
 	operators[op]->GetMethods(result);
-	if (result.size() == 0 && op == TOperator::Assign)
+	if (result.size() == 0 && op == Lexer::TOperator::Assign)
 		if (auto_assign_operator)
 			result.push_back(auto_assign_operator.get());
 	return result.size() > 0;
@@ -541,7 +541,7 @@ void TSClass::CopyExternalMethodBindingsFrom(TSClass* source)
 	if (destructor)
 		destructor->CopyExternalMethodBindingsFrom(source->destructor.get());
 
-	for (int i = 0; i < TOperator::End; i++)
+	for (int i = 0; i < Lexer::TOperator::End; i++)
 		operators[i]->CopyExternalMethodBindingsFrom(source->operators[i].get());
 	conversions->CopyExternalMethodBindingsFrom(source->conversions.get());
 
@@ -602,7 +602,7 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 							field.SetOffset(class_size);
 							if (field.GetSyntax()->HasSizeMultiplierId())
 							{
-								TNameId multiplier_id = field.GetSyntax()->GetFactorId();
+								Lexer::TNameId multiplier_id = field.GetSyntax()->GetFactorId();
 								int multiplier = this->FindTemplateIntParameter(multiplier_id);
 								field.SetSizeMultiplier(multiplier);
 							}
@@ -649,7 +649,7 @@ void TSClass::CalculateMethodsSizes()
 		if (destructor)
 			destructor->CalculateParametersOffsets();
 
-		for (int i = 0; i < TOperator::End; i++)
+		for (int i = 0; i < Lexer::TOperator::End; i++)
 			if (operators[i])
 				operators[i]->CalculateParametersOffsets();
 		if (conversions)

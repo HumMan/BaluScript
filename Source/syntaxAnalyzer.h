@@ -15,7 +15,7 @@ class TSLocalVar;
 class TSyntaxAnalyzer
 {
 public:
-	TLexer lexer;
+	std::unique_ptr<Lexer::ILexer> lexer;
 	std::unique_ptr<TClass> base_class;
 	std::unique_ptr<TSClass> sem_base_class;
 	std::vector<TSClassField*> static_fields;

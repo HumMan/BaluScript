@@ -4,13 +4,15 @@
 #include "Statements.h"
 #include "ClassField.h"
 
-void TFor::AnalyzeSyntax(TLexer& source) {
+using namespace Lexer;
+
+void TFor::AnalyzeSyntax(Lexer::ILexer* source) {
 	InitPos(source);
 
 	compare->AnalyzeSyntax(source);
-	source.GetToken(TTokenType::Semicolon);
+	source->GetToken(TTokenType::Semicolon);
 	increment->AnalyzeStatement(source, false);
-	source.GetToken(TTokenType::RParenth);
+	source->GetToken(TTokenType::RParenth);
 	statements->AnalyzeSyntax(source);
 }
 TFor::TFor(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id)

@@ -20,7 +20,7 @@ protected:
 			GET_ARR_ELEMENT_CLASS_ID
 		};
 		TOpParamType f[2];
-		TNameId id[2];
+		Lexer::TNameId id[2];
 		TOp op;
 		TBytecodeOp()
 		{
@@ -33,5 +33,5 @@ protected:
 public:
 	TBytecode(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);
 	void Accept(TStatementVisitor* visitor);
-	void AnalyzeSyntax(TLexer& source);
+	void AnalyzeSyntax(Lexer::ILexer* source);
 };

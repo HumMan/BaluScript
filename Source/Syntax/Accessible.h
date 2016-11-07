@@ -28,14 +28,14 @@ class TMultifield
 {
 	int size_multiplier;
 	bool size_multiplier_set;
-	TNameId factor_id;
+	Lexer::TNameId factor_id;
 public:
-	void SetFactorId(TNameId id)
+	void SetFactorId(Lexer::TNameId id)
 	{
 		assert(factor_id.IsNull());
 		factor_id = id;
 	}
-	TNameId GetFactorId()
+	Lexer::TNameId GetFactorId()
 	{
 		assert(!factor_id.IsNull());
 		return factor_id;

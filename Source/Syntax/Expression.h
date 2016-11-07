@@ -11,7 +11,7 @@ class TExpressionTreeVisitor;
 class TOperation
 {
 public:
-	TTokenPos operation_source;
+	Lexer::TTokenPos operation_source;
 	virtual ~TOperation(){}
 	virtual void Accept(TExpressionTreeVisitor* visitor) = 0;
 };
@@ -39,7 +39,7 @@ class TExpression:public TStatement, public TOperation
 		};
 		Type type;
 		int operator_type;
-		TNameId id;
+		Lexer::TNameId id;
 		int int_val;
 		float float_val;
 	};
@@ -53,18 +53,18 @@ public:
 	{
 		friend class TSemanticTreeBuilder;
 		std::unique_ptr<TOperation> left, right;
-		TOperator::Enum op;
+		Lexer::TOperator::Enum op;
 	public:
-		TBinOp(TOperation *use_left,TOperation *use_right,TOperator::Enum use_op):left(use_left),right(use_right),op(use_op){}
+		TBinOp(TOperation *use_left, TOperation *use_right, Lexer::TOperator::Enum use_op) :left(use_left), right(use_right), op(use_op){}
 		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TUnaryOp:public TOperation
 	{
 		friend class TSemanticTreeBuilder;
 		std::unique_ptr<TOperation> left;
-		TOperator::Enum op;
+		Lexer::TOperator::Enum op;
 	public:
-		TUnaryOp(TOperation *use_left,TOperator::Enum use_op):left(use_left),op(use_op){}
+		TUnaryOp(TOperation *use_left, Lexer::TOperator::Enum use_op) :left(use_left), op(use_op){}
 		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TIntValue:public TOperation
@@ -73,7 +73,7 @@ public:
 		int val;
 		TType type;
 	public:
-		TIntValue(int use_val, TNameId int_class_name, TClass* use_owner) :val(use_val), type(int_class_name, use_owner){}
+		TIntValue(int use_val, Lexer::TNameId int_class_name, TClass* use_owner) :val(use_val), type(int_class_name, use_owner){}
 		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TFloatValue:public TOperation
@@ -82,7 +82,7 @@ public:
 		float val;
 		TType type;
 	public:
-		TFloatValue(float use_val, TNameId float_class_name, TClass* use_owner) :val(use_val), type(float_class_name, use_owner){}
+		TFloatValue(float use_val, Lexer::TNameId float_class_name, TClass* use_owner) :val(use_val), type(float_class_name, use_owner){}
 		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TBoolValue:public TOperation
@@ -91,7 +91,7 @@ public:
 		bool val;
 		TType type;
 	public:
-		TBoolValue(bool use_val, TNameId bool_class_name, TClass* use_owner) :val(use_val), type(bool_class_name, use_owner){}
+		TBoolValue(bool use_val, Lexer::TNameId bool_class_name, TClass* use_owner) :val(use_val), type(bool_class_name, use_owner){}
 		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TStringValue:public TOperation
@@ -100,7 +100,7 @@ public:
 		std::string val;
 		TType type;
 	public:
-		TStringValue(std::string use_val, TNameId string_class_name, TClass* use_owner) :val(use_val), type(string_class_name, use_owner){}
+		TStringValue(std::string use_val, Lexer::TNameId string_class_name, TClass* use_owner) :val(use_val), type(string_class_name, use_owner){}
 		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TCharValue:public TOperation
@@ -109,16 +109,16 @@ public:
 		char val;
 		TType type;
 	public:
-		TCharValue(char use_val, TNameId char_class_name, TClass* use_owner) :val(use_val), type(char_class_name, use_owner){}
+		TCharValue(char use_val, Lexer::TNameId char_class_name, TClass* use_owner) :val(use_val), type(char_class_name, use_owner){}
 		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TGetMemberOp:public TOperation
 	{
 		friend class TSemanticTreeBuilder;
 		std::unique_ptr<TOperation> left;
-		TNameId name;
+		Lexer::TNameId name;
 	public:
-		TGetMemberOp(TOperation *use_left,TNameId use_member):left(use_left),name(use_member){}
+		TGetMemberOp(TOperation *use_left, Lexer::TNameId use_member) :left(use_left), name(use_member){}
 		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TConstructTempObject :public TOperation
@@ -150,8 +150,8 @@ public:
 	class TId:public TOperation
 	{
 	public:
-		TNameId name;
-		TId(TNameId use_name) :name(use_name){}
+		Lexer::TNameId name;
+		TId(Lexer::TNameId use_name) :name(use_name){}
 		void Accept(TExpressionTreeVisitor* visitor);
 	};
 
@@ -163,13 +163,13 @@ public:
 
 	std::unique_ptr<TOperation> first_op;
 
-	TOperation* ParamsCall(TLexer& source,TOperation* curr_operation);
-	TOperation* Factor(TLexer& source);
-	TOperation* SpecialPostfix(TLexer& source,TOperation* curr_operation);
-	TOperation* Expr(TLexer& source,int curr_prior_level);
+	TOperation* ParamsCall(Lexer::ILexer* source,TOperation* curr_operation);
+	TOperation* Factor(Lexer::ILexer* source);
+	TOperation* SpecialPostfix(Lexer::ILexer* source,TOperation* curr_operation);
+	TOperation* Expr(Lexer::ILexer* source,int curr_prior_level);
 	void operator=(const TExpression& use_source);
 public:
-	void AnalyzeSyntax(TLexer& source);
+	void AnalyzeSyntax(Lexer::ILexer* source);
 	TExpression(const TExpression &use_source) :TStatement(use_source)
 	{
 	}
