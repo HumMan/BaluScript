@@ -1,10 +1,5 @@
 ﻿#include "Class.h"
 
-#include "../NativeTypes/DynArray.h"
-#include "OverloadedMethod.h"
-#include "Method.h"
-#include "Statements.h"
-
 bool TClass::IsTemplate()
 {
 	return is_template;

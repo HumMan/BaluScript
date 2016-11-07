@@ -195,6 +195,12 @@
     <ClInclude Include="Include\common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\NativeTypes\vec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NativeTypes\stdfuncs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\lexer.cpp">
