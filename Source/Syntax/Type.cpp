@@ -43,14 +43,14 @@ void TType::AnalyzeClassName(Lexer::ILexer* source)
 	source->GetToken(TTokenType::Identifier);
 
 	//далее могут следовать шаблонные параметры
-	if (source->Test(TTokenType::Operator, TOperator::Less)) 
+	if (source->Test(TOperator::Less)) 
 	{
 		source->GetToken();
-		while (!source->TestAndGet(TTokenType::Operator, TOperator::Greater)) 
+		while (!source->TestAndGet(TOperator::Greater)) 
 		{
 			class_names.back().template_params.emplace_back();
 			//в качестве шаблонного параметра можно использовать целые числа
-			if (source->Test(TTokenType::Value, TValue::Int))
+			if (source->Test(TValue::Int))
 			{
 				class_names.back().template_params.back().is_value = true;
 				class_names.back().template_params.back().value = source->Int();
@@ -65,7 +65,7 @@ void TType::AnalyzeClassName(Lexer::ILexer* source)
 				//рекурсивно разбираем шаблонный параметр
 				template_param->AnalyzeSyntax(source);
 			}
-			if (!source->Test(TTokenType::Operator, TOperator::Greater))
+			if (!source->Test(TOperator::Greater))
 				source->GetToken(TTokenType::Comma);
 		}
 	}
@@ -88,20 +88,20 @@ void TType::AnalyzeSyntax(Lexer::ILexer* source)
 
 void TType::AnalyzeDimensions(Lexer::ILexer* source) 
 {
-	if (source->Test(TTokenType::LBracket) || source->Test(TTokenType::Operator, TOperator::GetArrayElement)) 
+	if (source->Test(TTokenType::LBracket) || source->Test(TOperator::GetArrayElement)) 
 	{
 		while (true) 
 		{
 			if (source->TestAndGet(TTokenType::LBracket)) 
 			{
-				if (source->Test(TTokenType::Value, TValue::Int)) 
+				if (source->Test(TValue::Int)) 
 				{
 					class_names.back().dimensions.push_back(source->Int());
 					source->GetToken();
 				}
 				source->GetToken(TTokenType::RBracket);
 			}
-			else if (source->TestAndGet(TTokenType::Operator, TOperator::GetArrayElement)) 
+			else if (source->TestAndGet(TOperator::GetArrayElement)) 
 			{
 				class_names.back().dimensions.push_back(-1);
 			} 

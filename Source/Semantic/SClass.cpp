@@ -83,7 +83,7 @@ void TSClass::Build()
 		destructor->Build();
 	}
 
-	for (int i = 0; i < Lexer::TOperator::End; i++)
+	for (int i = 0; i < (short)Lexer::TOperator::End; i++)
 	{
 		operators[i] = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, &GetSyntax()->operators[i]));
 		operators[i]->Build();
@@ -287,7 +287,7 @@ void TSClass::LinkSignature(TGlobalBuildContext build_context)
 	if (destructor)
 		destructor->LinkSignature(build_context);
 
-	for (int i = 0; i < Lexer::TOperator::End; i++)
+	for (int i = 0; i < (short)Lexer::TOperator::End; i++)
 		operators[i]->LinkSignature(build_context);
 	conversions->LinkSignature(build_context);
 
@@ -326,7 +326,7 @@ void TSClass::LinkBody(TGlobalBuildContext build_context)
 	if (destructor)
 		destructor->LinkBody(build_context);
 
-	for (int i = 0; i < Lexer::TOperator::End; i++)
+	for (int i = 0; i < (short)Lexer::TOperator::End; i++)
 		if (operators[i])
 			operators[i]->LinkBody(build_context);
 	conversions->LinkBody(build_context);
@@ -464,9 +464,9 @@ TSMethod* TSClass::GetMoveConstr()
 TSMethod* TSClass::GetAssignOperator()
 {
 	assert(IsAutoMethodsInitialized());
-	if (operators[Lexer::TOperator::Assign])
+	if (operators[(short)Lexer::TOperator::Assign])
 	{
-		for (const std::unique_ptr<TSMethod>& assign_op : operators[Lexer::TOperator::Assign]->methods)
+		for (const std::unique_ptr<TSMethod>& assign_op : operators[(short)Lexer::TOperator::Assign]->methods)
 		{
 			if (assign_op->GetParamsCount() == 2
 				&& assign_op->GetParam(0)->GetClass() == this
@@ -506,10 +506,10 @@ bool TSClass::IsNestedIn(TSClass* use_parent)
 		return true;
 	return parent.GetClass()->IsNestedIn(use_parent);
 }
-bool TSClass::GetOperators(std::vector<TSMethod*> &result, Lexer::TOperator::Enum op)
+bool TSClass::GetOperators(std::vector<TSMethod*> &result, Lexer::TOperator op)
 {
 	assert(IsAutoMethodsInitialized());
-	operators[op]->GetMethods(result);
+	operators[(short)op]->GetMethods(result);
 	if (result.size() == 0 && op == Lexer::TOperator::Assign)
 		if (auto_assign_operator)
 			result.push_back(auto_assign_operator.get());
@@ -541,7 +541,7 @@ void TSClass::CopyExternalMethodBindingsFrom(TSClass* source)
 	if (destructor)
 		destructor->CopyExternalMethodBindingsFrom(source->destructor.get());
 
-	for (int i = 0; i < Lexer::TOperator::End; i++)
+	for (int i = 0; i < (short)Lexer::TOperator::End; i++)
 		operators[i]->CopyExternalMethodBindingsFrom(source->operators[i].get());
 	conversions->CopyExternalMethodBindingsFrom(source->conversions.get());
 
@@ -649,7 +649,7 @@ void TSClass::CalculateMethodsSizes()
 		if (destructor)
 			destructor->CalculateParametersOffsets();
 
-		for (int i = 0; i < Lexer::TOperator::End; i++)
+		for (int i = 0; i < (short)Lexer::TOperator::End; i++)
 			if (operators[i])
 				operators[i]->CalculateParametersOffsets();
 		if (conversions)

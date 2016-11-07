@@ -8,7 +8,7 @@ using namespace Lexer;
 
 void TMethod::ParametersDecl(Lexer::ILexer* source) {
 	//Считываем все параметры метода и возвращаемое значение
-	if (source->TestAndGet(TTokenType::Operator, TOperator::ParamsCall)) {
+	if (source->TestAndGet(TOperator::ParamsCall)) {
 	} else if (source->Test(TTokenType::LParenth)) {
 		source->GetToken(TTokenType::LParenth);
 		while (source->Test(TTokenType::Identifier)) {
@@ -35,7 +35,7 @@ void TMethod::ParametersDecl(Lexer::ILexer* source) {
 void TMethod::AnalyzeSyntax(Lexer::ILexer* source, bool realization) {
 	InitPos(source);
 	source->TestToken(TTokenType::ResWord);
-	member_type = (TClassMember::Enum) source->Token();
+	member_type = (TClassMember) source->Token();
 	if (!LexerIsIn(member_type, TClassMember::Func, TClassMember::Conversion))
 		source->Error(
 				"Ожидалось объявление метода,конструктора,деструктора,оператора или приведения типа!");
@@ -43,16 +43,16 @@ void TMethod::AnalyzeSyntax(Lexer::ILexer* source, bool realization) {
 	if(owner->IsExternal())
 		is_extern = true;
 	else
-		is_extern = source->TestAndGet(TTokenType::ResWord, TResWord::Extern);
-	is_static = source->TestAndGet(TTokenType::ResWord, TResWord::Static);
+		is_extern = source->TestAndGet(TResWord::Extern);
+	is_static = source->TestAndGet(TResWord::Static);
 	switch (member_type) {
-	case TResWord::Func:
-	case TResWord::Default:
-	case TResWord::Copy:
-	case TResWord::Move:
-	case TResWord::Destr:
-	case TResWord::Operator:
-	case TResWord::Conversion:
+	case TClassMember::Func:
+	case TClassMember::DefaultConstr:
+	case TClassMember::CopyConstr:
+	case TClassMember::MoveConstr:
+	case TClassMember::Destr:
+	case TClassMember::Operator:
+	case TClassMember::Conversion:
 		break;
 	default:
 		source->Error(
@@ -85,7 +85,7 @@ void TMethod::AnalyzeSyntax(Lexer::ILexer* source, bool realization) {
 		source->GetToken();
 	} else if (member_type == TClassMember::Operator) {
 		source->TestToken(TTokenType::Operator);
-		operator_type = (TOperator::Enum) source->Token();
+		operator_type = (TOperator) source->Token();
 		source->GetToken();
 	}
 	{
@@ -95,13 +95,13 @@ void TMethod::AnalyzeSyntax(Lexer::ILexer* source, bool realization) {
 			case TClassMember::Func:
 				owner->AddMethod(this, method_name);
 				break;
-			case TResWord::Default:
+			case TClassMember::DefaultConstr:
 				owner->AddDefaultConstr(this);
 				break;
-			case TResWord::Copy:
+			case TClassMember::CopyConstr:
 				owner->AddCopyConstr(this);
 				break;
-			case TResWord::Move:
+			case TClassMember::MoveConstr:
 				owner->AddMoveConstr(this);
 				break;
 			case TClassMember::Destr:
@@ -135,7 +135,7 @@ void TMethod::AnalyzeSyntax(Lexer::ILexer* source, bool realization) {
 	}
 }
 
-TMethod::TMethod(TClass* use_owner, TClassMember::Enum use_member_type)
+TMethod::TMethod(TClass* use_owner, TClassMember use_member_type)
 	:ret(new TType(use_owner)), ret_ref(false), owner(use_owner)
 	, is_static(false), is_extern(false)
 	, statements(new TStatements(use_owner, this, NULL, -1))
@@ -160,12 +160,12 @@ TNameId TMethod::GetName(){
 TClass* TMethod::GetOwner()const{
 	return owner;
 }
-TOperator::Enum TMethod::GetOperatorType()
+TOperator TMethod::GetOperatorType()
 {
 	assert(member_type == TClassMember::Operator);
 	return operator_type;
 }
-TClassMember::Enum TMethod::GetMemberType()const
+TClassMember TMethod::GetMemberType()const
 {
 	return member_type;
 }

@@ -16,7 +16,6 @@ struct TOpcodeInfo{char* name;int count;bool f1,f2,v1,v2;};\
 #define BALU_SCRIPT_OPCODE_ELEM4( element ,p0,p1,p2,p3) {"ASM_"#element,p0+p1+p2+p3,p0,p1,p2,p3}
 #define BALU_SCRIPT_OPCODE_ELEM2( element ,p2,p3) {"ASM_"#element,p2+p3,0,0,p2,p3}
 #define BALU_SCRIPT_OPCODE_ELEM0( element ) {"ASM_"#element,0,0,0,0,0}
-#define BALU_SCRIPT_OPCODE_END() ;
 
 #include "VirtualMachine/opcodes.h"
 
@@ -24,7 +23,6 @@ struct TOpcodeInfo{char* name;int count;bool f1,f2,v1,v2;};\
 #undef BALU_SCRIPT_OPCODE_ELEM2
 #undef BALU_SCRIPT_OPCODE_ELEM0
 #undef BALU_SCRIPT_OPCODE_BEGIN
-#undef BALU_SCRIPT_OPCODE_END
 
 char* GetBytecodeString(TOpcode::Enum use_bytecode)
 {
@@ -177,10 +175,6 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 		sp -= op->v1; break;
 	case PUSH_THIS:
 		*(++sp) = (intptr_t)this_pointer; break;
-	//case PUSH_STRING_CONST:
-	//	sp += 2;
-	//	((TString*)(sp - 1))->CopyFromConst(program->string_consts[op->v1]);
-	//	break;
 	case RVALUE:
 	{
 		int *s, *d;
@@ -250,147 +244,6 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 		}
 		//TODO для надежности следует заполнять неиспользуемую память 0xfeefee
 		return;
-
-		//////////////////////////////////////////////////
-		//static array
-
-	//case R_STATIC_ARR_DEF_CONSTR:
-	//	((TStaticArr*)this_pointer)->DefConstr(this, op->v1);
-	//	break;
-	//case RR_STATIC_ARR_COPY_CONSTR:
-	//	((TStaticArr*)this_pointer)->RCopyConstr(this, sp);
-	//	break;
-	//case R_STATIC_ARR_DESTR:
-	//	((TStaticArr*)this_pointer)->Destr(this);
-	//	break;
-	//case RV_STATIC_ARR_GET_ELEMENT:
-	//{
-	//	int temp = *(sp--);
-	//	TStaticArr* s_arr = (TStaticArr*)*sp;
-	//	if (temp > s_arr->methods->el_count - 1 || temp < -1)throw "Ошибка доступа к элементу массива!";
-	//	*sp = (int)&s_arr->data[temp*s_arr->methods->el_size];
-	//	break;
-	//}
-	//case STATIC_ARR_ASSIGN:
-	//{
-	//	int *s, *d;
-	//	s = sp - (unsigned int)(op->f1 ? 0 : (op->v1 - 1));
-	//	d = s - 1;
-	//	((TStaticArr*)*d)->AssignOp(this, (TStaticArr*)(op->f1 ? (int*)*s : s));
-	//	if (!op->f1)((TStaticArr*)s)->Destr(this);
-	//}break;
-	//case STATIC_ARR_EQUAL:
-	//{
-	//	int *s, *d;
-	//	s = sp - (unsigned int)(op->f2 ? 0 : (op->v1 - 1));
-	//	d = s - (unsigned int)(op->f1 ? 1 : op->v1);
-	//	int temp = ((TStaticArr*)(op->f1 ? (int*)*d : d))->EqualOp(this, (TStaticArr*)(op->f2 ? (int*)*s : s));
-	//	*(++sp) = temp;
-	//	if (!op->f1)((TStaticArr*)d)->Destr(this);
-	//	if (!op->f2)((TStaticArr*)s)->Destr(this);
-	//}break;
-	//////////////////////////////////////////////////
-	//dynamic array
-
-	//case R_DYN_ARR_DEF_CONSTR:
-	//	((TDynArr*)this_pointer)->DefConstr(this, op->v1);
-	//	break;
-	//case RR_DYN_ARR_COPY_CONSTR:
-	//	((TDynArr*)this_pointer)->CopyConstr(this, (TDynArr*)*sp);
-	//	break;
-	//case R_DYN_ARR_DESTR:
-	//	((TDynArr*)this_pointer)->Destr(this);
-	//	break;
-	//case RV_DYN_ARR_GET_ELEMENT:
-	//{
-	//	int temp = *(sp--);
-	//	TDynArr* d_arr = (TDynArr*)*sp;
-	//	if (temp > d_arr->v.GetHigh() || temp < -1)throw "Ошибка доступа к элементу массива!";//TODO вывод инфы где и что
-	//	*sp = (int)&d_arr->v[temp*d_arr->el_size];
-	//	break;
-	//}
-	//case DYN_ARR_ASSIGN:
-	//{
-	//	int *s, *d;
-	//	s = sp - (unsigned int)(op->f1 ? 0 : (_INTSIZEOF(TDynArr) / 4 - 1));
-	//	d = s - 1;
-	//	((TDynArr*)*d)->AssignOp(this, (TDynArr*)(op->f1 ? (int*)*s : s));
-	//	if (!op->f1)((TDynArr*)s)->Destr(this);
-	//}break;
-
-	//case DYN_ARR_EQUAL:
-	//{
-	//	int *s, *d;
-	//	s = sp - (unsigned int)(op->f2 ? 0 : (_INTSIZEOF(TDynArr) / 4 - 1));
-	//	d = s - (unsigned int)(op->f1 ? 1 : (_INTSIZEOF(TDynArr) / 4));
-	//	int temp = ((TDynArr*)(op->f1 ? (int*)*d : d))->EqualOp(this, (TDynArr*)(op->f2 ? (int*)*s : s));
-	//	*(++sp) = temp;
-	//	if (!op->f1)((TDynArr*)d)->Destr(this);
-	//	if (!op->f2)((TDynArr*)s)->Destr(this);
-	//}break;
-	//case RV_DYN_ARR_SET_HIGH:
-	//	((TDynArr*)(sp[-1]))->SetHigh(this, sp[0]);
-	//	sp -= 2;
-	//	break;
-
-	//case R_DYN_ARR_GET_HIGH:
-	//	*(sp) = (*(TDynArr**)sp)->v.GetHigh();
-	//	break;
-
-		//////////////////////////////////////////////////
-		//string
-
-	//case R_STRING_DEF_CONSTR:
-	//	((TString*)this_pointer)->Init();
-	//	break;
-	//case RR_STRING_COPY_CONSTR:
-	//	((TString*)this_pointer)->Copy((TString*)*sp);
-	//	break;
-	//case R_STRING_DESTR:
-	//	((TString*)this_pointer)->Destr();
-	//	break;
-	//case STRING_ASSIGN:
-	//{
-	//	int *s, *d;
-	//	s = sp - (unsigned int)(op->f2 ? 0 : (_INTSIZEOF(TString) / 4 - 1));
-	//	d = s - 1;
-	//	((TString*)(op->f1 ? (int*)*d : d))->AssignOp((TString*)(op->f2 ? (int*)*s : s));
-	//	sp = d - 1;
-	//	if (!op->f2)((TString*)s)->Destr();
-	//}break;
-	////case VV_STRING_PLUS:
-	////	break;
-	////case RV_STRING_PLUS_ASSIGN:
-	////	break;
-	//case STRING_EQUAL:
-	//{
-	//	int *s, *d;
-	//	s = sp - (unsigned int)(op->f2 ? 0 : (_INTSIZEOF(TString) / 4 - 1));//TODO заменить все sizeof()/4 на _INT_SIZE
-	//	d = s - (unsigned int)(op->f1 ? 1 : (_INTSIZEOF(TString) / 4));
-	//	int temp = ((TString*)(op->f1 ? (int*)*d : d))->EqualOp((TString*)(op->f2 ? (int*)*s : s));
-	//	sp = d;
-	//	*sp = temp;
-	//	if (!op->f1)((TString*)d)->Destr();
-	//	if (!op->f2)((TString*)s)->Destr();
-	//}break;
-	//case R_STRING_PRINT:
-	//	//CharToOem(((TString*)sp[0])->chars,buf);
-	//	//printf(buf);
-	//	printf(((TString*)sp[0])->chars);
-	//	sp--;
-	//	break;
-	//case V_STRING_PRINT:
-	//	//CharToOem(((TString*)(sp-1))->chars,buf);
-	//	printf(buf);
-	//	printf(((TString*)(sp - 1))->chars);
-	//	((TString*)(sp - 1))->Destr();
-	//	sp -= 2;
-	//	break;
-
-
-
-
-		
 	default:
 		assert(0);
 	}

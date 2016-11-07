@@ -8,20 +8,17 @@ class TStatements;
 class TClass;
 class TStatementVisitor;
 
-namespace TStatementType
+enum class TStatementType
 {
-	enum Enum
-	{
-		VarDecl,
-		For,
-		If,
-		While,
-		Return,
-		Expression,
-		Bytecode,
-		Statements
-	};
-}
+	VarDecl,
+	For,
+	If,
+	While,
+	Return,
+	Expression,
+	Bytecode,
+	Statements
+};
 
 class TStatement:public Lexer::TTokenPos
 {
@@ -30,11 +27,11 @@ protected:
 	TStatements* parent;
 	TClass* owner;
 	int stmt_id;//порядковый номер блока в родительском блоке
-	TStatementType::Enum stmt_type;
+	TStatementType stmt_type;
 public:
 	void SetStmtId(int use_id);
-	TStatement(TStatementType::Enum use_stmt_type, TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);
-	TStatementType::Enum GetType();
+	TStatement(TStatementType use_stmt_type, TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);
+	TStatementType GetType();
 	virtual void Accept(TStatementVisitor* visitor) = 0;
 	virtual ~TStatement()
 	{

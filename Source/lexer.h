@@ -8,121 +8,110 @@ namespace Lexer
 {
 
 	//TODO русские буквы непереваривает
-	namespace TTokenType
+	enum class TTokenType
 	{
-		enum Enum
-		{
-			ResWord,
-			Operator,
-			Value,
-			Identifier,
-			Bytecode,
-			Done,
+		ResWord,
+		Operator,
+		Value,
+		Identifier,
+		Bytecode,
+		Done,
 
-			LBracket,
-			RBracket,
-			LParenth,
-			RParenth,
-			LBrace,
-			RBrace,
-			Semicolon,
-			Colon,
-			Vertical,
-			Question,
-			Comma,
-			Ampersand,
-			Dot
-		};
-	}
+		LBracket,
+		RBracket,
+		LParenth,
+		RParenth,
+		LBrace,
+		RBrace,
+		Semicolon,
+		Colon,
+		Vertical,
+		Question,
+		Comma,
+		Ampersand,
+		Dot
+	};
 
-	namespace TResWord
+	enum class TResWord
 	{
-		enum _Enum
-		{
-			If,
-			Else,
-			For,
-			While,
-			Class,
-			Enum,
-			Sealed,
-			Return,
-			True,
-			False,
-			Static,
-			Extern,
-			Private,
-			Protected,
-			Public,
-			Readonly,
-			This,
-			Bytecode,
-			Multifield,
-			New,
+		If,
+		Else,
+		For,
+		While,
+		Class,
+		Enum,
+		Sealed,
+		Return,
+		True,
+		False,
+		Static,
+		Extern,
+		Private,
+		Protected,
+		Public,
+		Readonly,
+		This,
+		Bytecode,
+		Multifield,
+		New,
 
-			Func,
-			/*Constr,*/
-			Default,
-			Copy,
-			Move,
-			Destr,
-			Operator,
-			Conversion,
+		Func,
+		/*Constr,*/
+		Default,
+		Copy,
+		Move,
+		Destr,
+		Operator,
+		Conversion,
 
-			End //используется для получения количества зарезервированных слов
-		};
-	}
-	namespace TValue
+		End //используется для получения количества зарезервированных слов
+	};
+
+	enum class TValue
 	{
-		enum Enum
-		{
-			Int,
-			Float,
-			Bool,
-			String,
-			Char
-		};
-	}
+		Int,
+		Float,
+		Bool,
+		String,
+		Char
+	};
 
-	namespace TOperator
+	enum class TOperator
 	{
-		enum Enum
-		{
-			Plus,
-			Minus,
-			Mul,
-			Div,
-			Percent,
+		Plus,
+		Minus,
+		Mul,
+		Div,
+		Percent,
 
-			And,
-			Or,
-			Not,   //унарное логическое не
+		And,
+		Or,
+		Not,   //унарное логическое не
 
-			Assign,
-			PlusA,
-			MinusA,
-			MulA,
-			DivA,
-			PercentA,
-			AndA,
-			OrA,
+		Assign,
+		PlusA,
+		MinusA,
+		MulA,
+		DivA,
+		PercentA,
+		AndA,
+		OrA,
 
-			Less,
-			LessEqual,
-			Equal,
-			NotEqual,
-			Greater,
-			GreaterEqual,
+		Less,
+		LessEqual,
+		Equal,
+		NotEqual,
+		Greater,
+		GreaterEqual,
 
-			ParamsCall,
-			GetArrayElement,
-			GetByReference, //оператор -> доступа к значению по указателю (shared_ptr)
+		ParamsCall,
+		GetArrayElement,
+		GetByReference, //оператор -> доступа к значению по указателю (shared_ptr)
 
-			UnaryMinus,
+		UnaryMinus,
 
-			End //используется для получения количества операторов
-		};
-	}
+		End //используется для получения количества операторов
+	};
 
 	class TNameId
 	{
@@ -176,7 +165,7 @@ namespace Lexer
 
 	struct TToken
 	{
-		short type;
+		TTokenType type;
 		short token;
 		union
 		{
@@ -187,11 +176,11 @@ namespace Lexer
 		int line, col;
 		TToken(){}
 
-		TToken(TTokenType::Enum use_type) :type(use_type){}
-		TToken(TTokenType::Enum use_type, short use_token) :type(use_type), token(use_token){}
-		TToken(TTokenType::Enum use_type, short use_token, int use_att) :type(use_type), token(use_token), int_attrib(use_att){}
-		TToken(TTokenType::Enum use_type, short use_token, float use_att) :type(use_type), token(use_token), float_attrib(use_att){}
-		TToken(TTokenType::Enum use_type, short use_token, TNameId use_identifier)
+		TToken(TTokenType use_type) :type(use_type){}
+		TToken(TTokenType use_type, short use_token) :type(use_type), token(use_token){}
+		TToken(TTokenType use_type, short use_token, int use_att) :type(use_type), token(use_token), int_attrib(use_att){}
+		TToken(TTokenType use_type, short use_token, float use_att) :type(use_type), token(use_token), float_attrib(use_att){}
+		TToken(TTokenType use_type, short use_token, TNameId use_identifier)
 			:type(use_type), token(use_token), identifier(use_identifier.GetId()){}
 
 		void SetLineCol(int use_line, int use_col)
@@ -223,16 +212,70 @@ namespace Lexer
 		virtual int GetAttrib() = 0;//используется в байткоде чтобы не делать лишних приведений типа
 		virtual std::string GetNameFromId(TNameId use_id) = 0;
 		virtual TNameId GetIdFromName(const char* use_name) = 0;
-		virtual TTokenType::Enum Type() = 0;
+
+		virtual TTokenType Type() = 0;
 		virtual int Token() = 0;
-		virtual bool Test(int type) = 0;
-		virtual bool Test(int type, int token) = 0;
-		virtual bool TestAndGet(int type, int token) = 0;
-		virtual bool TestAndGet(int type) = 0;
-		virtual void TestToken(int type, int token) = 0;
-		virtual void TestToken(int type) = 0;
-		virtual void GetToken(int type, int token) = 0;
-		virtual void GetToken(int type) = 0;
+
+		virtual bool Test(TTokenType type) = 0;
+		virtual bool Test(TTokenType type, int token) = 0;
+		bool Test(TResWord token)
+		{
+			return Test(TTokenType::ResWord, (short)token);
+		}
+		bool Test(TOperator token)
+		{
+			return Test(TTokenType::Operator, (short)token);
+		}
+		bool Test(TValue token)
+		{
+			return Test(TTokenType::Value, (short)token);
+		}
+		
+		virtual bool TestAndGet(TTokenType type) = 0;
+		virtual bool TestAndGet(TTokenType type, int token) = 0;
+		bool TestAndGet(TResWord token)
+		{
+			return TestAndGet(TTokenType::ResWord, (short)token);
+		}
+		bool TestAndGet(TOperator token)
+		{
+			return TestAndGet(TTokenType::Operator, (short)token);
+		}
+		bool TestAndGet(TValue token)
+		{
+			return TestAndGet(TTokenType::Value, (short)token);
+		}
+
+		virtual void TestToken(TTokenType type) = 0;
+		virtual void TestToken(TTokenType type, int token) = 0;
+		void TestToken(TResWord token)
+		{
+			TestToken(TTokenType::ResWord, (short)token);
+		}
+		void TestToken(TOperator token)
+		{
+			TestToken(TTokenType::Operator, (short)token);
+		}
+		void TestToken(TValue token)
+		{
+			TestToken(TTokenType::Value, (short)token);
+		}
+
+		virtual void GetToken(TTokenType type) = 0;
+		virtual void GetToken(TTokenType type, int token) = 0;
+		void GetToken(TResWord token)
+		{
+			GetToken(TTokenType::ResWord, (short)token);
+		}
+		void GetToken(TOperator token)
+		{
+			GetToken(TTokenType::Operator, (short)token);
+		}
+		void GetToken(TValue token)
+		{
+			GetToken(TTokenType::Value, (short)token);
+		}
+
 		virtual void GetToken() = 0;
 		static ILexer* Create();
 		virtual ~ILexer(){};

@@ -13,14 +13,14 @@ using namespace Lexer;
 bool ClassName(Lexer::ILexer* source) {
 	if (!source->TestAndGet(TTokenType::Identifier))
 		return false;
-	if (source->TestAndGet(TTokenType::Operator, TOperator::Less)) {
-		while (!source->Test(TTokenType::Operator, TOperator::Greater)) {
-			if (!(ClassName(source) || source->TestAndGet(TTokenType::Value, TValue::Int)))
+	if (source->TestAndGet(TOperator::Less)) {
+		while (!source->Test(TOperator::Greater)) {
+			if (!(ClassName(source) || source->TestAndGet(TValue::Int)))
 				return false;
-			if (!source->Test(TTokenType::Operator, TOperator::Greater))
+			if (!source->Test(TOperator::Greater))
 				source->GetToken(TTokenType::Comma);
 		}
-		if (!source->TestAndGet(TTokenType::Operator, TOperator::Greater))
+		if (!source->TestAndGet(TOperator::Greater))
 			return false;
 	}
 	if (source->TestAndGet(TTokenType::Dot)) {
@@ -30,15 +30,15 @@ bool ClassName(Lexer::ILexer* source) {
 }
 
 bool ArrayDimensions(Lexer::ILexer* source) {
-	if (source->Test(TTokenType::LBracket) || source->Test(TTokenType::Operator,
+	if (source->Test(TTokenType::LBracket) || source->Test(
 		TOperator::GetArrayElement)) {
 		while (true) {
 			if (source->TestAndGet(TTokenType::LBracket)) {
-				if (!source->TestAndGet(TTokenType::Value, TValue::Int))
+				if (!source->TestAndGet(TValue::Int))
 					return false;
 				source->GetToken(TTokenType::RBracket);
 			}
-			else if (source->TestAndGet(TTokenType::Operator,
+			else if (source->TestAndGet(
 				TOperator::GetArrayElement)) {
 			}
 			else
@@ -52,7 +52,7 @@ bool IsVarDecl(Lexer::ILexer* source) {
 	int t = source->GetCurrentToken();
 	bool result = ClassName(source);
 	result = result && ArrayDimensions(source);
-	source->TestAndGet(TTokenType::ResWord, TResWord::Static);
+	source->TestAndGet(TResWord::Static);
 	result = result && source->Test(TTokenType::Identifier);//после типа объявляемой переменной следует имя(имена) переменных
 	source->SetCurrentToken(t);
 	return result;
@@ -85,7 +85,7 @@ void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
 			return;
 		}
 		case TResWord::For: {
-			source->GetToken(TTokenType::ResWord, TResWord::For);
+			source->GetToken(TResWord::For);
 			source->GetToken(TTokenType::LParenth);
 
 			TStatements* for_stmt = new TStatements(owner, method, this,

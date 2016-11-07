@@ -11,7 +11,7 @@ using namespace Lexer;
 
 void TWhile::AnalyzeSyntax(Lexer::ILexer* source) {
 	InitPos(source);
-	source->GetToken(TTokenType::ResWord, TResWord::While);
+	source->GetToken(TResWord::While);
 	source->GetToken(TTokenType::LParenth);
 
 	compare->AnalyzeSyntax(source);

@@ -7,11 +7,11 @@ TAccessible::TAccessible()
 {
 }
 
-TTypeOfAccess::Enum TAccessible::GetAccess()const
+TTypeOfAccess TAccessible::GetAccess()const
 {
 	return access;
 }
 
-void TAccessible::SetAccess(TTypeOfAccess::Enum use_access){
+void TAccessible::SetAccess(TTypeOfAccess use_access){
 	access = use_access;
 }

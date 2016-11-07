@@ -62,7 +62,7 @@ protected:
 	TOverloadedMethod constr_copy, constr_move;
 	///<summary>Пользовательский деструктор</summary>
 	std::unique_ptr<TMethod> destructor;
-	TOverloadedMethod operators[Lexer::TOperator::End];
+	TOverloadedMethod operators[(short)Lexer::TOperator::End];
 	TOverloadedMethod conversions;
 
 	std::vector<std::unique_ptr<TClass>> nested_classes;
@@ -79,7 +79,7 @@ protected:
 public:
 	TClass(TClass* use_owner);
 	void AnalyzeSyntax(Lexer::ILexer* source);
-	void AccessDecl(Lexer::ILexer* source,bool& readonly, TTypeOfAccess::Enum access);
+	void AccessDecl(Lexer::ILexer* source,bool& readonly, TTypeOfAccess access);
 
 	void SetIsTemplate(bool use_is_template);
 	
@@ -92,7 +92,7 @@ public:
 	std::vector<Lexer::TNameId> GetFullClassName();
 
 	void AddMethod(TMethod* use_method, Lexer::TNameId name);
-	void AddOperator(Lexer::TOperator::Enum op, TMethod* use_method);
+	void AddOperator(Lexer::TOperator op, TMethod* use_method);
 	void AddConversion(TMethod* method);
 	//void AddConstr(TMethod* use_method);
 	void AddDefaultConstr(TMethod* use_method);

@@ -10,7 +10,7 @@ using namespace Lexer;
 void TClassField::AnalyzeSyntax(Lexer::ILexer* source) {
 	InitPos(source);
 	type->AnalyzeSyntax(source);
-	is_static = source->TestAndGet(TTokenType::ResWord, TResWord::Static);
+	is_static = source->TestAndGet(TResWord::Static);
 	TClassField* curr_field = this;
 	do {
 		if (curr_field != this) {

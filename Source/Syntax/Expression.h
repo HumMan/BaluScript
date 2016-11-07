@@ -53,18 +53,18 @@ public:
 	{
 		friend class TSemanticTreeBuilder;
 		std::unique_ptr<TOperation> left, right;
-		Lexer::TOperator::Enum op;
+		Lexer::TOperator op;
 	public:
-		TBinOp(TOperation *use_left, TOperation *use_right, Lexer::TOperator::Enum use_op) :left(use_left), right(use_right), op(use_op){}
+		TBinOp(TOperation *use_left, TOperation *use_right, Lexer::TOperator use_op) :left(use_left), right(use_right), op(use_op){}
 		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TUnaryOp:public TOperation
 	{
 		friend class TSemanticTreeBuilder;
 		std::unique_ptr<TOperation> left;
-		Lexer::TOperator::Enum op;
+		Lexer::TOperator op;
 	public:
-		TUnaryOp(TOperation *use_left, Lexer::TOperator::Enum use_op) :left(use_left), op(use_op){}
+		TUnaryOp(TOperation *use_left, Lexer::TOperator use_op) :left(use_left), op(use_op){}
 		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TIntValue:public TOperation

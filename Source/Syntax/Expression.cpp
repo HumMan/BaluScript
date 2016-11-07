@@ -7,20 +7,20 @@ using namespace Lexer;
 
 TOperation* TExpression::ParamsCall(Lexer::ILexer* source, TOperation* curr_operation)
 {
-	bool use_brackets = source->Test(TTokenType::LBracket) || source->Test(TTokenType::Operator, TOperator::GetArrayElement);
+	bool use_brackets = source->Test(TTokenType::LBracket) || source->Test(TOperator::GetArrayElement);
 	TExpression::TCallParamsOp* params_call = new TCallParamsOp(curr_operation, use_brackets);
 	params_call->operation_source.InitPos(source);
 
 	if (use_brackets)
 	{
-		if (!source->TestAndGet(TTokenType::Operator, TOperator::GetArrayElement))
+		if (!source->TestAndGet(TOperator::GetArrayElement))
 			source->GetToken(TTokenType::LBracket);
 		else
 			return params_call;
 	}
 	else
 	{
-		if (!source->TestAndGet(TTokenType::Operator, TOperator::ParamsCall))
+		if (!source->TestAndGet(TOperator::ParamsCall))
 			source->GetToken(TTokenType::LParenth);
 		else
 			return params_call;
@@ -50,8 +50,8 @@ TOperation* TExpression::SpecialPostfix(Lexer::ILexer* source,
 	}
 	else if (source->Test(TTokenType::LBracket) ||
 		source->Test(TTokenType::LParenth) || 
-		source->Test(TTokenType::Operator, TOperator::ParamsCall) || 
-		source->Test(TTokenType::Operator, TOperator::GetArrayElement))
+		source->Test(TOperator::ParamsCall) || 
+		source->Test(TOperator::GetArrayElement))
 	{
 		return ParamsCall(source, curr_operation);
 	}
@@ -69,7 +69,7 @@ TOperation* TExpression::Factor(Lexer::ILexer* source)
 	if (source->Test(TTokenType::Value))
 		//Синтаксис: Value
 	{
-		switch (source->Token())
+		switch ((TValue)source->Token())
 		{
 		case TValue::Int:
 			curr_operation = new TIntValue(source->Int(),
@@ -98,12 +98,12 @@ TOperation* TExpression::Factor(Lexer::ILexer* source)
 	}
 	else
 	{
-		if (source->TestAndGet(TTokenType::ResWord, TResWord::This)) 
+		if (source->TestAndGet(TResWord::This)) 
 		{
 			curr_operation = new TThis();
 			curr_operation->operation_source = token_pos;
 		}
-		else if (source->TestAndGet(TTokenType::ResWord, TResWord::New)) 
+		else if (source->TestAndGet(TResWord::New)) 
 		{
 			TConstructTempObject* temp = new TConstructTempObject();
 			temp->type.reset(new TType(owner));
@@ -130,14 +130,14 @@ TOperation* TExpression::Factor(Lexer::ILexer* source)
 		{
 			curr_operation = SpecialPostfix(source, curr_operation);
 		} while (source->Test(TTokenType::LParenth) || source->Test(
-			TTokenType::Operator, TOperator::ParamsCall) || source->Test(
+			TOperator::ParamsCall) || source->Test(
 			TTokenType::LBracket) || source->Test(TTokenType::Dot));
 	}
 	curr_operation->operation_source = token_pos;
 	return curr_operation;
 }
 
-const int operators_priority[TOperator::End] = 
+const int operators_priority[(short)TOperator::End] = 
 {
 	/*OP_PLUS*/6,
 	/*TOperator::Minus*/6,
@@ -181,21 +181,21 @@ TOperation* TExpression::Expr(Lexer::ILexer* source, int curr_prior_level) {
 	//dyn_test2=dyn_test1; если dyn_test1 не объявлен то в ошибке неправильно указывается символ
 
 	TOperation *left;
-	TOperator::Enum curr_op, curr_unary_op;
+	TOperator curr_op, curr_unary_op;
 	if (curr_prior_level > operators_priority_max) 
 	{
 		return Factor(source);
 	}
 	if (source->Test(TTokenType::Operator) &&
-		(source->Token() == TOperator::UnaryMinus || source->Token() == TOperator::Not)
+		(source->Token() == (short)TOperator::UnaryMinus || source->Token() == (short)TOperator::Not)
 		&& operators_priority[source->Token()] == curr_prior_level)
 	{
 		TTokenPos temp;
 		temp.InitPos(source);
-		if (source->Token() == TOperator::Minus)
+		if (source->Token() == (short)TOperator::Minus)
 			curr_unary_op = TOperator::UnaryMinus;
 		else
-			curr_unary_op = TOperator::Enum(source->Token());
+			curr_unary_op = TOperator(source->Token());
 		source->GetToken();
 		TOperation* t = new TUnaryOp(Expr(source, curr_prior_level),
 			curr_unary_op);
@@ -209,7 +209,7 @@ TOperation* TExpression::Expr(Lexer::ILexer* source, int curr_prior_level) {
 	{
 		TTokenPos temp;
 		temp.InitPos(source);
-		curr_op = TOperator::Enum(source->Token());
+		curr_op = TOperator(source->Token());
 		source->GetToken();
 		left = new TBinOp(left, Expr(source, curr_prior_level + 1), curr_op);
 		left->operation_source = temp;
@@ -229,7 +229,7 @@ void TExpression::BuildPostfix()
 	while (true) 
 	{
 		TPostfixOp temp;
-		TTokenType::Enum token = source->Type();
+		TTokenType token = source->Type();
 		switch (token) 
 		{
 		case TTokenType::Identifier:
@@ -239,7 +239,7 @@ void TExpression::BuildPostfix()
 			source->GetToken();
 			break;
 		case TTokenType::Value:
-			switch (source->Token())
+			switch ((TValue)source->Token())
 			{
 			case TValue::Int:
 				temp.type = TPostfixOp::OP_INT;

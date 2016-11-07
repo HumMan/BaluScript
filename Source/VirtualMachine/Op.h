@@ -6,7 +6,6 @@
 #define BALU_SCRIPT_OPCODE_ELEM4( element ,p0,p1,p2,p3) element
 #define BALU_SCRIPT_OPCODE_ELEM2( element ,p2,p3) element
 #define BALU_SCRIPT_OPCODE_ELEM0( element ) element
-#define BALU_SCRIPT_OPCODE_END() ;
 
 namespace TOpcode{
 #include "opcodes.h"
@@ -16,7 +15,6 @@ namespace TOpcode{
 #undef BALU_SCRIPT_OPCODE_ELEM2
 #undef BALU_SCRIPT_OPCODE_ELEM0
 #undef BALU_SCRIPT_OPCODE_BEGIN
-#undef BALU_SCRIPT_OPCODE_END
 
 extern bool ValidateOpParams(TOpcode::Enum op, bool f1, bool f2, bool v1, bool v2);
 extern char* GetBytecodeString(TOpcode::Enum use_bytecode);

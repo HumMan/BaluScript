@@ -8,19 +8,16 @@ class TStatements;
 class TParameter;
 class TType;
 
-namespace TClassMember
+enum class TClassMember
 {
-	enum Enum
-	{
-		Func = Lexer::TResWord::Func,
-		DefaultConstr,
-		CopyConstr,
-		MoveConstr,
-		Destr,
-		Operator,
-		Conversion
-	};
-}
+	Func = (short)Lexer::TResWord::Func,
+	DefaultConstr,
+	CopyConstr,
+	MoveConstr,
+	Destr,
+	Operator,
+	Conversion
+};
 
 class TMethod:public Lexer::TTokenPos,public TAccessible
 {
@@ -41,10 +38,10 @@ private:
 	bool one_instruction; //метод состоит из одной инструкции(без операторных скобок, напр.: "func M:int return 5;"
 
 	Lexer::TNameId method_name;
-	Lexer::TOperator::Enum operator_type;
-	TClassMember::Enum member_type;
+	Lexer::TOperator operator_type;
+	TClassMember member_type;
 public:
-	TMethod(TClass* use_owner, TClassMember::Enum use_member_type = TClassMember::Func);
+	TMethod(TClass* use_owner, TClassMember use_member_type = TClassMember::Func);
 	~TMethod();
 	void ParametersDecl(Lexer::ILexer* source);
 	void AnalyzeSyntax(Lexer::ILexer* source,bool realization=true);//realization - используется при получении идентификатора метода (т.к. только прототип без тела метода)
@@ -52,8 +49,8 @@ public:
 	void SetHasReturn(bool use_has_return);
 	Lexer::TNameId GetName();
 	TClass* GetOwner()const;
-	Lexer::TOperator::Enum GetOperatorType();
-	TClassMember::Enum GetMemberType()const;
+	Lexer::TOperator GetOperatorType();
+	TClassMember GetMemberType()const;
 	int GetParamsSize();
 	TParameter* GetParam(int use_id);
 	int GetParamsCount();

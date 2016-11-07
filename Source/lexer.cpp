@@ -35,7 +35,6 @@ void strncpy_s(
 #define sprintf_s sprintf
 #endif
 
-
 template<class T, int block_size>
 class TLexerAllocator
 {
@@ -204,9 +203,9 @@ public:
 
 namespace Lexer
 {
-	class TLexerPrivate: public ILexer
+	class TLexerPrivate : public ILexer
 	{
-	public :
+	public:
 		THash<std::string, const char*, int, 16> ids_table;
 		THash<std::string, char*, int, 16> string_literals_table;
 		THash<std::string, char*, TToken, 8> res_words;
@@ -247,7 +246,7 @@ namespace Lexer
 		}
 			return TNameId(*d);
 #endif
-	}
+		}
 		TLexerPrivate();
 		int GetCurrentToken();
 		void ParseSource(const char* use_source);
@@ -264,26 +263,21 @@ namespace Lexer
 		int GetAttrib();//используется в байткоде чтобы не делать лишних приведений типа
 		std::string GetNameFromId(TNameId use_id);
 		TNameId GetIdFromName(const char* use_name);
-		TTokenType::Enum Type();
+		TTokenType Type();
 		int Token();
-		bool Test(int type);
-		bool Test(int type, int token);
-		bool TestAndGet(int type, int token);
-		bool TestAndGet(int type);
-		void TestToken(int type, int token);
-		void TestToken(int type);
-		void GetToken(int type, int token);
-		void GetToken(int type);
+		bool Test(TTokenType type);
+		bool Test(TTokenType type, int token);
+		bool TestAndGet(TTokenType type, int token);
+		bool TestAndGet(TTokenType type);
+		void TestToken(TTokenType type, int token);
+		void TestToken(TTokenType type);
+		void GetToken(TTokenType type, int token);
+		void GetToken(TTokenType type);
 		void GetToken();
-};
+	};
 }
 
 using namespace Lexer;
-
-
-
-
-
 
 int TLexerPrivate::GetCurrentToken()
 {
@@ -324,13 +318,13 @@ TNameId TLexerPrivate::NameId()
 //TODO не должно использоваться, только через lexer по name_id (т.к. много одинаковых)
 std::string TLexerPrivate::StringValue()
 {
-	if (!(tokens[curr_token].type == TTokenType::Value&&tokens[curr_token].token == TValue::String))
+	if (!(tokens[curr_token].type == TTokenType::Value && tokens[curr_token].token == (short)TValue::String))
 		Error("Ожидалась строковая константа!");
 	return std::string(*ids[tokens[curr_token].identifier]);
 }
 TNameId TLexerPrivate::String()
 {
-	if (!(tokens[curr_token].type == TTokenType::Value&&tokens[curr_token].token == TValue::String))
+	if (!(tokens[curr_token].type == TTokenType::Value&&tokens[curr_token].token == (short)TValue::String))
 		Error("Ожидалась строковая константа!");
 #ifdef _DEBUG
 	return TNameId(tokens[curr_token].identifier, ids[tokens[curr_token].identifier]);
@@ -340,35 +334,35 @@ TNameId TLexerPrivate::String()
 }
 float TLexerPrivate::Float()
 {
-	if (!(tokens[curr_token].type == TTokenType::Value&&tokens[curr_token].token == TValue::Float))
+	if (!(tokens[curr_token].type == TTokenType::Value&&tokens[curr_token].token == (short)TValue::Float))
 		Error("Ожидалось действительное число!");
 	return tokens[curr_token].float_attrib;
 }
 int TLexerPrivate::Int()
 {
-	if (!(tokens[curr_token].type == TTokenType::Value&&tokens[curr_token].token == TValue::Int))
+	if (!(tokens[curr_token].type == TTokenType::Value&&tokens[curr_token].token == (short)TValue::Int))
 		Error("Ожидалось целое число!");
 	return tokens[curr_token].int_attrib;
 }
 bool TLexerPrivate::Bool()
 {
 	//TODO возможно лишние проверки
-	if (!(tokens[curr_token].type == TTokenType::Value&&tokens[curr_token].token == TValue::Bool))
+	if (!(tokens[curr_token].type == TTokenType::Value&&tokens[curr_token].token == (short)TValue::Bool))
 		Error("Ожидалась булева константа!");
 	return tokens[curr_token].int_attrib != 0;
 }
 char TLexerPrivate::Char()
 {
-	if (!(tokens[curr_token].type == TTokenType::Value&&tokens[curr_token].token == TValue::Char))
+	if (!(tokens[curr_token].type == TTokenType::Value&&tokens[curr_token].token == (short)TValue::Char))
 		Error("Ожидалась символьная константа!");
 	return tokens[curr_token].int_attrib;
 }
 int TLexerPrivate::GetAttrib()//используетс¤ в байткоде чтобы не делать лишних приведений типа
 {
 	if (!(tokens[curr_token].type == TTokenType::Value &&
-		(tokens[curr_token].token == TValue::Bool ||
-		tokens[curr_token].token == TValue::Int ||
-		tokens[curr_token].token == TValue::Float)))
+		(tokens[curr_token].token == (short)TValue::Bool ||
+		tokens[curr_token].token == (short)TValue::Int ||
+		tokens[curr_token].token == (short)TValue::Float)))
 		Error("Ожидалось целая, булева или действительная константа!");
 	return tokens[curr_token].int_attrib;
 }
@@ -380,23 +374,23 @@ TNameId TLexerPrivate::GetIdFromName(const char* use_name)
 {
 	return AddIdentifier(use_name);
 }
-TTokenType::Enum TLexerPrivate::Type()
+TTokenType TLexerPrivate::Type()
 {
-	return (TTokenType::Enum)tokens[curr_token].type;
+	return (TTokenType)tokens[curr_token].type;
 }
 int TLexerPrivate::Token()
 {
 	return tokens[curr_token].token;
 }
-bool TLexerPrivate::Test(int type)
+bool TLexerPrivate::Test(TTokenType type)
 {
 	return tokens[curr_token].type == type;
 }
-bool TLexerPrivate::Test(int type, int token)
+bool TLexerPrivate::Test(TTokenType type, int token)
 {
 	return tokens[curr_token].type == type&&tokens[curr_token].token == token;
 }
-bool TLexerPrivate::TestAndGet(int type, int token)
+bool TLexerPrivate::TestAndGet(TTokenType type, int token)
 {
 	if (tokens[curr_token].type == type&&tokens[curr_token].token == token)
 	{
@@ -405,7 +399,7 @@ bool TLexerPrivate::TestAndGet(int type, int token)
 	}
 	else return false;
 }
-bool TLexerPrivate::TestAndGet(int type)
+bool TLexerPrivate::TestAndGet(TTokenType type)
 {
 	if (tokens[curr_token].type == type)
 	{
@@ -414,22 +408,22 @@ bool TLexerPrivate::TestAndGet(int type)
 	}
 	else return false;
 }
-void TLexerPrivate::TestToken(int type, int token)
+void TLexerPrivate::TestToken(TTokenType type, int token)
 {
 	if (type != tokens[curr_token].type&&token == tokens[curr_token].token)
 		Error("Ожидался другой токен!");
 }
-void TLexerPrivate::TestToken(int type)
+void TLexerPrivate::TestToken(TTokenType type)
 {
-	if (type != tokens[curr_token].type)Error("Ожидался другой токен!");
+	if (type !=tokens[curr_token].type)Error("Ожидался другой токен!");
 }
-void TLexerPrivate::GetToken(int type, int token)
+void TLexerPrivate::GetToken(TTokenType type, int token)
 {
 	if (type == tokens[curr_token].type&&token == tokens[curr_token].token)
 		curr_token++;
 	else Error("Ожидался другой токен!");
 }
-void TLexerPrivate::GetToken(int type)
+void TLexerPrivate::GetToken(TTokenType type)
 {
 	if (type == tokens[curr_token].type)
 		curr_token++;
@@ -450,310 +444,312 @@ TLexerPrivate::TLexerPrivate()
 	curr_token = 0;
 	tokens.resize(0);
 	curr_unique_id = 0;
-	res_words.Add("if", TToken(TTokenType::ResWord, TResWord::If));
-	res_words.Add("else",		TToken(TTokenType::ResWord, TResWord::Else));		
-	res_words.Add("for",		TToken(TTokenType::ResWord, TResWord::For));
-	res_words.Add("while",		TToken(TTokenType::ResWord, TResWord::While));	
+	res_words.Add("if", TToken(TTokenType::ResWord, (short)TResWord::If));
+	res_words.Add("else", TToken(TTokenType::ResWord, (short)TResWord::Else));
+	res_words.Add("for", TToken(TTokenType::ResWord, (short)TResWord::For));
+	res_words.Add("while", TToken(TTokenType::ResWord, (short)TResWord::While));
 
-	res_words.Add("class",		TToken(TTokenType::ResWord, TResWord::Class));
-	res_words.Add("enum",		TToken(TTokenType::ResWord, TResWord::Enum));
-	res_words.Add("sealed",		TToken(TTokenType::ResWord, TResWord::Sealed));
-	res_words.Add("return",		TToken(TTokenType::ResWord, TResWord::Return));
-	res_words.Add("multifield", TToken(TTokenType::ResWord, TResWord::Multifield));
-	res_words.Add("new",		TToken(TTokenType::ResWord, TResWord::New));
+	res_words.Add("class", TToken(TTokenType::ResWord, (short)TResWord::Class));
+	res_words.Add("enum", TToken(TTokenType::ResWord, (short)TResWord::Enum));
+	res_words.Add("sealed", TToken(TTokenType::ResWord, (short)TResWord::Sealed));
+	res_words.Add("return", TToken(TTokenType::ResWord, (short)TResWord::Return));
+	res_words.Add("multifield", TToken(TTokenType::ResWord, (short)TResWord::Multifield));
+	res_words.Add("new", TToken(TTokenType::ResWord, (short)TResWord::New));
 
-	res_words.Add("true",		TToken(TTokenType::Value, TValue::Bool, 1));
-	res_words.Add("false",		TToken(TTokenType::Value, TValue::Bool, 0));
+	res_words.Add("true", TToken(TTokenType::Value, (short)TValue::Bool, 1));
+	res_words.Add("false", TToken(TTokenType::Value, (short)TValue::Bool, 0));
 
-	res_words.Add("static",		TToken(TTokenType::ResWord, TResWord::Static));
-	res_words.Add("extern",		TToken(TTokenType::ResWord, TResWord::Extern));
-	res_words.Add("private",	TToken(TTokenType::ResWord, TResWord::Private));
-	res_words.Add("protected",	TToken(TTokenType::ResWord, TResWord::Protected));
-	res_words.Add("public",		TToken(TTokenType::ResWord, TResWord::Public));	
-	res_words.Add("readonly",	TToken(TTokenType::ResWord, TResWord::Readonly));
-	res_words.Add("this",		TToken(TTokenType::ResWord, TResWord::This));
-	res_words.Add("bytecode",	TToken(TTokenType::ResWord, TResWord::Bytecode));
+	res_words.Add("static", TToken(TTokenType::ResWord, (short)TResWord::Static));
+	res_words.Add("extern", TToken(TTokenType::ResWord, (short)TResWord::Extern));
+	res_words.Add("private", TToken(TTokenType::ResWord, (short)TResWord::Private));
+	res_words.Add("protected", TToken(TTokenType::ResWord, (short)TResWord::Protected));
+	res_words.Add("public", TToken(TTokenType::ResWord, (short)TResWord::Public));
+	res_words.Add("readonly", TToken(TTokenType::ResWord, (short)TResWord::Readonly));
+	res_words.Add("this", TToken(TTokenType::ResWord, (short)TResWord::This));
+	res_words.Add("bytecode", TToken(TTokenType::ResWord, (short)TResWord::Bytecode));
 
-	res_words.Add("func",		TToken(TTokenType::ResWord, TResWord::Func));		
-	res_words.Add("default", TToken(TTokenType::ResWord, TResWord::Default));
-	res_words.Add("copy", TToken(TTokenType::ResWord, TResWord::Copy));
-	res_words.Add("move", TToken(TTokenType::ResWord, TResWord::Move));
-	res_words.Add("destr",		TToken(TTokenType::ResWord, TResWord::Destr));		
-	res_words.Add("operator",	TToken(TTokenType::ResWord, TResWord::Operator));
-	res_words.Add("conversion",	TToken(TTokenType::ResWord, TResWord::Conversion));
-	
-	for(int i=1;i<TOpcode::OP_END;i++)
-		res_words.Add(GetBytecodeString((TOpcode::Enum)i),TToken(TTokenType::Bytecode, i));
+	res_words.Add("func", TToken(TTokenType::ResWord, (short)TResWord::Func));
+	res_words.Add("default", TToken(TTokenType::ResWord, (short)TResWord::Default));
+	res_words.Add("copy", TToken(TTokenType::ResWord, (short)TResWord::Copy));
+	res_words.Add("move", TToken(TTokenType::ResWord, (short)TResWord::Move));
+	res_words.Add("destr", TToken(TTokenType::ResWord, (short)TResWord::Destr));
+	res_words.Add("operator", TToken(TTokenType::ResWord, (short)TResWord::Operator));
+	res_words.Add("conversion", TToken(TTokenType::ResWord, (short)TResWord::Conversion));
+
+	for (int i = 1; i < TOpcode::OP_END; i++)
+		res_words.Add(GetBytecodeString((TOpcode::Enum)i), TToken(TTokenType::Bytecode, i));
 }
 
 void TLexerPrivate::ParseSource(const char* use_source)
 {
-	source=use_source;
-	curr_char=source;
-	col=1;
-	line=1;
-	c=*curr_char;
-	int token_col=col;
-	int token_line=line;
+	source = use_source;
+	curr_char = source;
+	col = 1;
+	line = 1;
+	c = *curr_char;
+	int token_col = col;
+	int token_line = line;
 	std::vector<char> id_buf;
 	id_buf.reserve(128);
-	while(c!='\0')
+	while (c != '\0')
 	{
-		if(c==' '||c=='\t'||c==13){
+		if (c == ' ' || c == '\t' || c == 13){
 			NextChar();
-			token_col=col;
-			token_line=line;
-		}else if(c=='/'&&curr_char[1]=='/')
-		{
-			while(c!='\n'&&c!='\0')NextChar();
+			token_col = col;
+			token_line = line;
 		}
-		else if(c==10)
+		else if (c == '/'&&curr_char[1] == '/')
 		{
-			NextChar();line++;col=1;
-			token_col=col;
-			token_line=line;
+			while (c != '\n'&&c != '\0')NextChar();
 		}
-		else if(isdigit(c))
+		else if (c == 10)
 		{
-			bool is_int=(c!='.');
-			double val=c-'0';
+			NextChar(); line++; col = 1;
+			token_col = col;
+			token_line = line;
+		}
+		else if (isdigit(c))
+		{
+			bool is_int = (c != '.');
+			double val = c - '0';
 			NextChar();
-			while(isdigit(c))
+			while (isdigit(c))
 			{
-				val*=10;
-				val+=c-'0';
+				val *= 10;
+				val += c - '0';
 				NextChar();
 			}
-			if(c=='.')
+			if (c == '.')
 			{
-				is_int=false;
-				double temp=10.0;
+				is_int = false;
+				double temp = 10.0;
 				NextChar();
-				if(!isdigit(c))Error("Ошибка в числовой константе!");
-				while(isdigit(c))
+				if (!isdigit(c))Error("Ошибка в числовой константе!");
+				while (isdigit(c))
 				{
-					val+=(c-'0')/temp;
-					temp*=10.0;
+					val += (c - '0') / temp;
+					temp *= 10.0;
 					NextChar();
 				};
 			}
-			if(c=='E'||c=='e')
+			if (c == 'E' || c == 'e')
 			{
-				double temp=1.0;
-				double epow=0.0;
+				double temp = 1.0;
+				double epow = 0.0;
 				NextChar();
-				if(c=='+'){temp=1.0;NextChar();}
-				else if(c=='-'){temp=-1.0;NextChar();}
-				else if(!isdigit(c))Error("Ошибка в числовой константе!");
-				epow=c-'0';
+				if (c == '+'){ temp = 1.0; NextChar(); }
+				else if (c == '-'){ temp = -1.0; NextChar(); }
+				else if (!isdigit(c))Error("Ошибка в числовой константе!");
+				epow = c - '0';
 				NextChar();
-				while(isdigit(c))
+				while (isdigit(c))
 				{
-					epow*=10;
-					epow+=c-'0';
+					epow *= 10;
+					epow += c - '0';
 					NextChar();
 				};
-				val=pow(val,epow);
-				is_int=(floor(epow)==epow);
+				val = pow(val, epow);
+				is_int = (floor(epow) == epow);
 			}
-			if(is_int)tokens.push_back(TToken(TTokenType::Value,TValue::Int,int(val)));
-			else tokens.push_back(TToken(TTokenType::Value, TValue::Float, float(val)));
-			tokens.back().SetLineCol(token_line,token_col);
+			if (is_int)tokens.push_back(TToken(TTokenType::Value, (short)TValue::Int, int(val)));
+			else tokens.push_back(TToken(TTokenType::Value, (short)TValue::Float, float(val)));
+			tokens.back().SetLineCol(token_line, token_col);
 		}
-		else if (isalpha(c)||c=='_')
+		else if (isalpha(c) || c == '_')
 		{
-			int chars_count=0;
-			while(isalnum(c)||c=='_')
+			int chars_count = 0;
+			while (isalnum(c) || c == '_')
 			{
-				NextChar();chars_count++;
+				NextChar(); chars_count++;
 			}
-			id_buf.resize(chars_count+1);
-			strncpy_s(&id_buf[0], chars_count + 1,(char*)(curr_char - chars_count), chars_count);
-			id_buf[chars_count]='\0';
+			id_buf.resize(chars_count + 1);
+			strncpy_s(&id_buf[0], chars_count + 1, (char*)(curr_char - chars_count), chars_count);
+			id_buf[chars_count] = '\0';
 			std::string* key;
 			TToken* data;
-			if(res_words.Find(res_words.GetHash(&id_buf[0]),&id_buf[0],key,data))
+			if (res_words.Find(res_words.GetHash(&id_buf[0]), &id_buf[0], key, data))
 				tokens.push_back(*data);
 			else
 				tokens.push_back(TToken(TTokenType::Identifier, -1, AddIdentifier(&id_buf[0])));
-			tokens.back().SetLineCol(token_line,token_col);
+			tokens.back().SetLineCol(token_line, token_col);
 		}
-		else if (c=='"')
+		else if (c == '"')
 		{
-			int chars_count=0;
+			int chars_count = 0;
 			NextChar();
-			while(c!='"')
+			while (c != '"')
 			{
-				if(c=='\0')Error("Конец файла в константе!");
-				if(c=='\n')Error("Символ новой строки в константе!");
-				if(c=='\\'&&(*(char*)(curr_char+1))=='"'){
-					NextChar();chars_count++;
+				if (c == '\0')Error("Конец файла в константе!");
+				if (c == '\n')Error("Символ новой строки в константе!");
+				if (c == '\\' && (*(char*)(curr_char + 1)) == '"'){
+					NextChar(); chars_count++;
 				}
-				NextChar();chars_count++;
+				NextChar(); chars_count++;
 			}
-			id_buf.resize(chars_count+1);
-			char* currh=(char*)(curr_char-chars_count);
-			int t=0;
-			while(currh<curr_char)
+			id_buf.resize(chars_count + 1);
+			char* currh = (char*)(curr_char - chars_count);
+			int t = 0;
+			while (currh < curr_char)
 			{
-				if(*currh=='\\')
+				if (*currh == '\\')
 				{
 					currh++;
-					switch(*currh)
+					switch (*currh)
 					{
-					case 'n':id_buf[t]='\n';break;
-					case 't':id_buf[t]='\t';break;
-					case '\\':id_buf[t]='\\';break;
-					case '"':id_buf[t]='"';break;
+					case 'n':id_buf[t] = '\n'; break;
+					case 't':id_buf[t] = '\t'; break;
+					case '\\':id_buf[t] = '\\'; break;
+					case '"':id_buf[t] = '"'; break;
 					default:Error("Неизвестный символ в строке!");
 					}
-				}else id_buf[t]=*currh;
+				}
+				else id_buf[t] = *currh;
 				currh++;
 				t++;
 			}
-			id_buf[t]='\0';
+			id_buf[t] = '\0';
 			NextChar();
 
-			tokens.push_back(TToken(TTokenType::Value, TValue::String, AddIdentifier(&id_buf[0])));
-			tokens.back().SetLineCol(token_line,token_col);
+			tokens.push_back(TToken(TTokenType::Value, (short)TValue::String, AddIdentifier(&id_buf[0])));
+			tokens.back().SetLineCol(token_line, token_col);
 		}
-		else if (c=='\'')
+		else if (c == '\'')
 		{
 			NextChar();
 			{
-				if(c=='\0')Error("Конец файла в константе!");
-				if(c=='\n')Error("Символ новой строки в константе!");
+				if (c == '\0')Error("Конец файла в константе!");
+				if (c == '\n')Error("Символ новой строки в константе!");
 			}
 			char result;
-			if(c=='\\')
+			if (c == '\\')
 			{
 				NextChar();
-				switch(c)
+				switch (c)
 				{
-				case 'n':result='\n';break;
-				case 't':result='\t';break;
-				case '\\':result='\\';break;
-				case '\'':result='\'';break;
+				case 'n':result = '\n'; break;
+				case 't':result = '\t'; break;
+				case '\\':result = '\\'; break;
+				case '\'':result = '\''; break;
 				default:Error("Неизвестный символ!");
 				}
-			}else result=c;
+			}
+			else result = c;
 			NextChar();
-			if(c!='\'')Error("Символьное значение должно состоять из одного символа!");
+			if (c != '\'')Error("Символьное значение должно состоять из одного символа!");
 			NextChar();
-			tokens.push_back(TToken(TTokenType::Value, TValue::Char, result));
-			tokens.back().SetLineCol(token_line,token_col);
+			tokens.push_back(TToken(TTokenType::Value, (short)TValue::Char, result));
+			tokens.back().SetLineCol(token_line, token_col);
 		}
 		else
 		{
-			switch(c)
+			switch (c)
 			{
-			case '"':break;		
+			case '"':break;
 			case '&':
 				NextChar();
-				if(c=='&')
+				if (c == '&')
 				{
 					NextChar();
-					if(c=='=')
+					if (c == '=')
 					{
 						NextChar();
-						tokens.push_back(TToken(TTokenType::Operator, TOperator::AndA));
+						tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::AndA));
 					}
-					else tokens.push_back(TToken(TTokenType::Operator, TOperator::And));
+					else tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::And));
 				}
 				else tokens.push_back(TToken(TTokenType::Ampersand));
 				break;
 			case '|':
 				NextChar();
-				if(c=='|'){
+				if (c == '|'){
 					NextChar();
-					if(c=='='){
+					if (c == '='){
 						NextChar();
-						tokens.push_back(TToken(TTokenType::Operator, TOperator::OrA));
+						tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::OrA));
 					}
-					else tokens.push_back(TToken(TTokenType::Operator, TOperator::Or));
+					else tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::Or));
 				}
 				else tokens.push_back(TToken(TTokenType::Vertical));
 				break;
-			case '+':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::PlusA)); }
-					 else tokens.push_back(TToken(TTokenType::Operator, TOperator::Plus));
+			case '+':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::PlusA)); }
+					 else tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::Plus));
 					 break;
 			case '-':
 				NextChar();
-				if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::MinusA)); }
-				else 
+				if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::MinusA)); }
+				else
 				{
-					TTokenType::Enum prev=(TTokenType::Enum)(tokens.size()>0?(TTokenType::Enum)tokens.back().type:-1);
-					if(prev==TTokenType::ResWord||
-						prev==TTokenType::Operator||
-						prev==TTokenType::Comma||
-						prev==TTokenType::Semicolon||
-						prev==TTokenType::Colon||
-						prev==TTokenType::LParenth||
-						prev==TTokenType::LBrace||
-						prev==TTokenType::LBracket)
-						tokens.push_back(TToken(TTokenType::Operator, TOperator::UnaryMinus));
-						else if (c == '>')
-						tokens.push_back(TToken(TTokenType::Operator, TOperator::GetByReference));
-						else
-						tokens.push_back(TToken(TTokenType::Operator, TOperator::Minus));
+					TTokenType prev = (TTokenType)(tokens.size() > 0 ? (short)tokens.back().type : -1);
+					if (prev == TTokenType::ResWord ||
+						prev == TTokenType::Operator ||
+						prev == TTokenType::Comma ||
+						prev == TTokenType::Semicolon ||
+						prev == TTokenType::Colon ||
+						prev == TTokenType::LParenth ||
+						prev == TTokenType::LBrace ||
+						prev == TTokenType::LBracket)
+						tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::UnaryMinus));
+					else if (c == '>')
+						tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::GetByReference));
+					else
+						tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::Minus));
 				}
 				break;
-			case '*':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::MulA)); }
-					 else tokens.push_back(TToken(TTokenType::Operator, TOperator::Mul));
+			case '*':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::MulA)); }
+					 else tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::Mul));
 					 break;
-			case '/':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::DivA)); }
-					 else tokens.push_back(TToken(TTokenType::Operator, TOperator::Div));
+			case '/':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::DivA)); }
+					 else tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::Div));
 					 break;
-			case '%':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::PercentA)); }
-					 else tokens.push_back(TToken(TTokenType::Operator, TOperator::Percent));
-					 break; 
-			case '<':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::LessEqual)); }
-					 else tokens.push_back(TToken(TTokenType::Operator, TOperator::Less));
+			case '%':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::PercentA)); }
+					 else tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::Percent));
 					 break;
-			case '=':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::Equal)); }
-					 else tokens.push_back(TToken(TTokenType::Operator, TOperator::Assign));
+			case '<':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::LessEqual)); }
+					 else tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::Less));
 					 break;
-			case '!':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::NotEqual)); }
-					 else tokens.push_back(TToken(TTokenType::Operator, TOperator::Not));
+			case '=':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::Equal)); }
+					 else tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::Assign));
 					 break;
-			case '>':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::GreaterEqual)); }
-					 else tokens.push_back(TToken(TTokenType::Operator, TOperator::Greater));
+			case '!':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::NotEqual)); }
+					 else tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::Not));
 					 break;
-			case '[':NextChar(); if (c == ']'){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::GetArrayElement)); }
+			case '>':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::GreaterEqual)); }
+					 else tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::Greater));
+					 break;
+			case '[':NextChar(); if (c == ']'){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::GetArrayElement)); }
 					 else tokens.push_back(TToken(TTokenType::LBracket));
 					 break;
 			case ']':NextChar(); tokens.push_back(TToken(TTokenType::RBracket));
-					 break;
-			case '(':NextChar(); if (c == ')'){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, TOperator::ParamsCall)); }
+				break;
+			case '(':NextChar(); if (c == ')'){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::ParamsCall)); }
 					 else tokens.push_back(TToken(TTokenType::LParenth));
 					 break;
 			case ')':NextChar(); tokens.push_back(TToken(TTokenType::RParenth));
-					 break;
+				break;
 			case '{':NextChar(); tokens.push_back(TToken(TTokenType::LBrace));
-					 break;
+				break;
 			case '}':NextChar(); tokens.push_back(TToken(TTokenType::RBrace));
-					 break;
+				break;
 			case ';':NextChar(); tokens.push_back(TToken(TTokenType::Semicolon));
-					 break;
+				break;
 			case ':':NextChar(); tokens.push_back(TToken(TTokenType::Colon));
-					 break;
+				break;
 			case '?':NextChar(); tokens.push_back(TToken(TTokenType::Question));
-					 break;
+				break;
 			case ',':NextChar(); tokens.push_back(TToken(TTokenType::Comma));
-					 break;
+				break;
 			case '.':NextChar(); tokens.push_back(TToken(TTokenType::Dot));
-					 break;
-			default: 
+				break;
+			default:
 				Error("Неизвестный идентификатор!");
 			}
-			tokens.back().SetLineCol(token_line,token_col);
+			tokens.back().SetLineCol(token_line, token_col);
 		}
 	}
 	tokens.push_back(TToken(TTokenType::Done));
-	source=NULL;
-	curr_char=NULL;
+	source = NULL;
+	curr_char = NULL;
 }
-
 
 void TTokenPos::InitPos(ILexer* use_source)
 {

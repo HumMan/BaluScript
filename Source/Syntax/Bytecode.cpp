@@ -18,7 +18,7 @@ TBytecode::TBytecode(TClass* use_owner, TMethod* use_method, TStatements* use_pa
 
 void TBytecode::AnalyzeSyntax(Lexer::ILexer* source) {
 	InitPos(source);
-	source->GetToken(TTokenType::ResWord, TResWord::Bytecode);
+	source->GetToken(TResWord::Bytecode);
 	source->GetToken(TTokenType::LBrace);
 	while (source->Test(TTokenType::Bytecode)) {
 		int type = source->Token();
@@ -26,9 +26,9 @@ void TBytecode::AnalyzeSyntax(Lexer::ILexer* source) {
 		int params_count = 0;
 		int params[4];
 		TBytecodeOp _op;
-		while (source->Test(TTokenType::Value, TValue::Bool) || source->Test(
-				TTokenType::Value, TValue::Int) || source->Test(
-				TTokenType::Value, TValue::Float) || source->Test(
+		while (source->Test(TValue::Bool) || source->Test(
+				TValue::Int) || source->Test(
+				TValue::Float) || source->Test(
 				TTokenType::Identifier)) {
 			if (source->Test(TTokenType::Identifier)) {
 				if (source->NameId() != source->GetIdFromName(

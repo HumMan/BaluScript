@@ -10,7 +10,7 @@ using namespace Lexer;
 void TLocalVar::AnalyzeSyntax(Lexer::ILexer* source) {
 	InitPos(source);
 	type->AnalyzeSyntax(source);
-	is_static = source->TestAndGet(TTokenType::ResWord, TResWord::Static);
+	is_static = source->TestAndGet(TResWord::Static);
 	assert(parent->GetType()==TStatementType::Statements);
 	TStatements* statements = (TStatements*) parent;
 	TLocalVar* curr_var = this;
@@ -23,13 +23,13 @@ void TLocalVar::AnalyzeSyntax(Lexer::ILexer* source) {
 		curr_var->name = source->NameId();
 		int identifier_token = source->GetCurrentToken();
 		source->SetCurrentToken(identifier_token + 1);
-		bool is_next_assign = source->Test(TTokenType::Operator,
+		bool is_next_assign = source->Test(
 				TOperator::Assign);
 		source->SetCurrentToken(identifier_token);
 		if (is_next_assign) 
 		{
 			//source->GetToken(TTokenType::Identifier);
-			//source->TestAndGet(TTokenType::Operator,TOperator::Assign);
+			//source->TestAndGet(TOperator::Assign);
 			curr_var->assign_expr.reset(new TExpression(owner, method, parent,
 					curr_var->stmt_id));
 			curr_var->assign_expr->AnalyzeSyntax(source);

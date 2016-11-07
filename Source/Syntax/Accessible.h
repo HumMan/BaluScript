@@ -4,24 +4,21 @@
 
 #include "../lexer.h"
 
-namespace TTypeOfAccess
+enum class TTypeOfAccess
 {
-	enum Enum
-	{
-		Private,
-		Protected,
-		Public
-	};
-}
+	Private,
+	Protected,
+	Public
+};
 
 class TAccessible
 {
 protected:
-	TTypeOfAccess::Enum access;
+	TTypeOfAccess access;
 public:
 	TAccessible();
-	TTypeOfAccess::Enum GetAccess()const;
-	void SetAccess(TTypeOfAccess::Enum use_access);
+	TTypeOfAccess GetAccess()const;
+	void SetAccess(TTypeOfAccess use_access);
 };
 
 class TMultifield

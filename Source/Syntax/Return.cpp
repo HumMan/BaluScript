@@ -4,7 +4,7 @@ using namespace Lexer;
 
 void TReturn::AnalyzeSyntax(Lexer::ILexer* source) {
 	InitPos(source);
-	source->GetToken(TTokenType::ResWord, TResWord::Return);
+	source->GetToken(TResWord::Return);
 	if (!source->Test(TTokenType::Semicolon))
 		result.AnalyzeSyntax(source);
 }

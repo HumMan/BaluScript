@@ -23,7 +23,7 @@ class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize,public TNodeSigna
 	std::unique_ptr<TSOverloadedMethod> copy_constructors,move_constructors;
 	///<summary>Пользовательский деструктор (автоматический деструктор, если существует, будет добавлен как PostEvent)</summary>
 	std::unique_ptr<TSMethod> destructor;
-	std::unique_ptr<TSOverloadedMethod> operators[Lexer::TOperator::End];
+	std::unique_ptr<TSOverloadedMethod> operators[(short)Lexer::TOperator::End];
 	std::unique_ptr<TSOverloadedMethod> conversions;
 
 	std::vector<std::unique_ptr<TSClass>> nested_classes;
@@ -68,7 +68,7 @@ public:
 	//
 	bool GetCopyConstructors(std::vector<TSMethod*> &result);
 	bool GetMoveConstructors(std::vector<TSMethod*> &result);
-	bool GetOperators(std::vector<TSMethod*> &result, Lexer::TOperator::Enum op);
+	bool GetOperators(std::vector<TSMethod*> &result, Lexer::TOperator op);
 	bool GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_method_name);
 	bool GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_method_name, bool is_static);
 	TSMethod* GetConversion(bool source_ref, TSClass* target_type);

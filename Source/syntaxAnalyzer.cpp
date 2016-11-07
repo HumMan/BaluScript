@@ -106,7 +106,7 @@ TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 		break;
 	default:assert(false);
 	}
-	TClassMember::Enum temp = method_decl->GetSyntax()->GetMemberType();
+	TClassMember temp = method_decl->GetSyntax()->GetMemberType();
 	if (temp == TClassMember::Func ||
 		temp == TClassMember::CopyConstr ||
 		temp == TClassMember::MoveConstr ||

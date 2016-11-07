@@ -2,25 +2,22 @@
 
 #include <assert.h>
 
-namespace TVariableType
+enum class TVariableType
 {
-	enum Enum
-	{
-		ClassField,
-		Parameter,
-		Local,
-		This,
-		TemplateValue
-	};
-}
+	ClassField,
+	Parameter,
+	Local,
+	This,
+	TemplateValue
+};
 
 class TVariable
 {
 protected:
-	TVariableType::Enum var_type;
+	TVariableType var_type;
 public:
-	TVariable(TVariableType::Enum use_var_type) :var_type(use_var_type){}
-	TVariableType::Enum GetType()const{
+	TVariable(TVariableType use_var_type) :var_type(use_var_type){}
+	TVariableType GetType()const{
 		return var_type;
 	}
 };
