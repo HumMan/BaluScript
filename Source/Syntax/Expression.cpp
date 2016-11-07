@@ -285,53 +285,53 @@ void TExpression::BuildPostfix()
 	}
 }
 
-void TExpression::TBinOp::Accept(TExpressionTreeVisitor* visitor)
+TSOperation* TExpression::TBinOp::Accept(TExpressionTreeVisitor* visitor)
 {
-	visitor->Visit(this);
+	return visitor->Visit(this);
 }
-void TExpression::TUnaryOp::Accept(TExpressionTreeVisitor* visitor)
+TSOperation* TExpression::TUnaryOp::Accept(TExpressionTreeVisitor* visitor)
 {
-	visitor->Visit(this);
+	return visitor->Visit(this);
 }
-void TExpression::TConstructTempObject::Accept(TExpressionTreeVisitor* visitor)
+TSOperation* TExpression::TConstructTempObject::Accept(TExpressionTreeVisitor* visitor)
 {
-	visitor->Visit(this);
+	return visitor->Visit(this);
 }
-void TExpression::TCallParamsOp::Accept(TExpressionTreeVisitor* visitor)
+TSOperation* TExpression::TCallParamsOp::Accept(TExpressionTreeVisitor* visitor)
 {
-	visitor->Visit(this);
+	return visitor->Visit(this);
 }
-void TExpression::TCharValue::Accept(TExpressionTreeVisitor* visitor)
+TSOperation* TExpression::TCharValue::Accept(TExpressionTreeVisitor* visitor)
 {
-	visitor->Visit(this);
+	return visitor->Visit(this);
 }
-void TExpression::TFloatValue::Accept(TExpressionTreeVisitor* visitor)
+TSOperation* TExpression::TFloatValue::Accept(TExpressionTreeVisitor* visitor)
 {
-	visitor->Visit(this);
+	return visitor->Visit(this);
 }
-void TExpression::TGetMemberOp::Accept(TExpressionTreeVisitor* visitor)
+TSOperation* TExpression::TGetMemberOp::Accept(TExpressionTreeVisitor* visitor)
 {
-	visitor->Visit(this);
+	return visitor->Visit(this);
 }
-void TExpression::TId::Accept(TExpressionTreeVisitor* visitor)
+TSOperation* TExpression::TId::Accept(TExpressionTreeVisitor* visitor)
 {
-	visitor->Visit(this);
+	return visitor->Visit(this);
 }
-void TExpression::TIntValue::Accept(TExpressionTreeVisitor* visitor)
+TSOperation* TExpression::TIntValue::Accept(TExpressionTreeVisitor* visitor)
 {
-	visitor->Visit(this);
+	return visitor->Visit(this);
 }
-void TExpression::TStringValue::Accept(TExpressionTreeVisitor* visitor)
+TSOperation* TExpression::TStringValue::Accept(TExpressionTreeVisitor* visitor)
 {
-	visitor->Visit(this);
+	return visitor->Visit(this);
 }
-void TExpression::TThis::Accept(TExpressionTreeVisitor* visitor)
+TSOperation* TExpression::TThis::Accept(TExpressionTreeVisitor* visitor)
 {
-	visitor->Visit(this);
+	return visitor->Visit(this);
 }
-void TExpression::TBoolValue::Accept(TExpressionTreeVisitor* visitor)
+TSOperation* TExpression::TBoolValue::Accept(TExpressionTreeVisitor* visitor)
 {
-	visitor->Visit(this);
+	return visitor->Visit(this);
 }
 void TExpression::Accept(TStatementVisitor* visitor)
 {

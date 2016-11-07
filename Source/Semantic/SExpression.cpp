@@ -17,8 +17,6 @@
 
 class TSemanticTreeBuilder :public TExpressionTreeVisitor
 {
-	TSOperation* return_new_operation; //через это поле возвращается результат метода Visit (созданная операция)
-
 	//общие для всех выражений поля
 	TExpression* syntax_node;
 	TSClass* owner;
@@ -26,10 +24,6 @@ class TSemanticTreeBuilder :public TExpressionTreeVisitor
 	TSExpression* parent;
 	TGlobalBuildContext build_context;
 public:
-	TSOperation* GetResult()
-	{
-		return return_new_operation;
-	}
 	TSemanticTreeBuilder(TGlobalBuildContext build_context, TExpression* syntax_node, TSClass* owner, TSMethod* method, TSExpression* parent)
 	{
 		this->syntax_node = syntax_node;
@@ -37,18 +31,14 @@ public:
 		this->method = method;
 		this->parent = parent;
 		this->build_context = build_context;
-		return_new_operation = NULL;
 	}
-	void Visit(TExpression::TBinOp* operation_node)
+	TSOperation* Visit(TExpression::TBinOp* operation_node)
 	{
-		return_new_operation = NULL;
 		std::vector<TSOperation*> param_expressions;
 
 		TSOperation *left,*right;
-		operation_node->left->Accept(this);
-		left = return_new_operation;
-		operation_node->right->Accept(this);
-		right = return_new_operation;
+		left = operation_node->left->Accept(this);;
+		right = operation_node->right->Accept(this);
 
 		param_expressions.push_back(left);
 		param_expressions.push_back(right);
@@ -86,15 +76,13 @@ public:
 		method_call = new TSExpression_TMethodCall(TSExpression_TMethodCall::Operator);
 		method_call->Build(param_expressions, bin_operator);
 
-		return_new_operation = method_call;
+		return method_call;
 	}
-	void Visit(TExpression::TUnaryOp* operation_node)
+	TSOperation* Visit(TExpression::TUnaryOp* operation_node)
 	{
-		return_new_operation = NULL;
 		std::vector<TSOperation*> param_expressions;
 		TSOperation *left;
-		operation_node->left->Accept(this);
-		left = return_new_operation;
+		left = operation_node->left->Accept(this);
 
 		param_expressions.push_back(left);
 
@@ -119,25 +107,21 @@ public:
 
 			TSExpression_TMethodCall* method_call = new TSExpression_TMethodCall(TSExpression_TMethodCall::Operator);
 			method_call->Build(param_expressions, unary_operator);
-			return_new_operation = method_call;
+			return method_call;
 		}
 		else syntax_node->Error("Унарного оператора для данного типа не существует!");
 	}
-	void Visit(TExpression::TConstructTempObject* operation_node)
+	TSOperation* Visit(TExpression::TConstructTempObject* operation_node)
 	{
-		return_new_operation = NULL;
 		TSExpression_TempObjectType* result = new TSExpression_TempObjectType(owner, operation_node->type.get());
 		result->type.LinkSignature(build_context);
 		result->type.LinkBody(build_context);
-		return_new_operation = result;
+		return result;
 	}
-	void Visit(TExpression::TCallParamsOp* operation_node)
+	TSOperation* Visit(TExpression::TCallParamsOp* operation_node)
 	{
-		return_new_operation = NULL;
 		TSOperation *left;
-		operation_node->left->Accept(this);
-		left = return_new_operation;
-		return_new_operation = NULL;
+		left = operation_node->left->Accept(this);
 
 		TExpressionResult left_result = left->GetFormalParameter();
 		
@@ -147,7 +131,7 @@ public:
 
 		for (size_t i = 0; i < operation_node->param.size(); i++)
 		{
-			operation_node->param[i]->Accept(this);
+			TSOperation* return_new_operation = operation_node->param[i]->Accept(this);
 			param_expressions.push_back(return_new_operation);
 			params_result.push_back(return_new_operation->GetFormalParameter());
 			params_formals.push_back(TFormalParameter(params_result.back().GetClass(), params_result.back().IsRef()));
@@ -155,7 +139,6 @@ public:
 		
 		if (left_result.IsMethods())
 		{
-			return_new_operation = NULL;
 			//вызов метода
 			if (operation_node->is_bracket)
 				assert(false);//при вызове метода используются круглые скобки
@@ -173,11 +156,10 @@ public:
 			method_call->Build(param_expressions, invoke);
 			method_call->left.reset(left);
 			//method_call->construct_temp_object->Build()
-			return_new_operation = method_call;
+			return method_call;
 		}
 		else if (left_result.IsType())
 		{
-			return_new_operation = NULL;
 			//if(left_result.GetType()->GetType()==TYPE_ENUM)
 			//	Error("Для перечислений нельзя использовать оператор вызова параметров!");
 			int conv_need = -1;
@@ -188,12 +170,11 @@ public:
 			create_temp_obj->construct_object.reset(new TSConstructObject(owner, method, parent->GetParentStatements(), constr_class));
 			create_temp_obj->construct_object->Build(&operation_node->operation_source, params_result, param_expressions, params_formals, build_context);
 			create_temp_obj->left.reset((TSExpression_TempObjectType*)left);
-			return_new_operation = create_temp_obj;
+			return create_temp_obj;
 		}
 		else
 			//иначе вызов оператора () или []
 		{
-			return_new_operation = NULL;
 			//т.к. все операторы статические - первым параметром передаем ссылку на объект
 			param_expressions.insert(param_expressions.begin(), left);
 			params_result.insert(params_result.begin(), left_result);
@@ -215,18 +196,16 @@ public:
 			method_call->Build(param_expressions, invoke);
 
 			//method_call->construct_temp_object->Build()
-			return_new_operation = method_call;
+			return method_call;
 		}
 		
 		
 	}
 	
-	void Visit(TExpression::TGetMemberOp* operation_node)
+	TSOperation* Visit(TExpression::TGetMemberOp* operation_node)
 	{
-		return_new_operation = NULL;
 		TSOperation *left;
-		operation_node->left->Accept(this);
-		left = return_new_operation;
+		left = operation_node->left->Accept(this);
 
 		TExpressionResult left_result = left->GetFormalParameter();
 		if (left_result.IsMethods())
@@ -243,7 +222,7 @@ public:
 				{
 					TSExpression::TEnumValue* result = new TSExpression::TEnumValue(owner, left_result.GetType());
 					result->val = id;
-					return_new_operation = result;
+					return result;
 				}
 			}
 			else
@@ -255,8 +234,7 @@ public:
 					result->left.reset(left);
 					result->left_result = left_result;
 					result->field = (TSClassField*)static_member;
-					return_new_operation = result;
-					return;
+					return result;
 				}
 				else
 				{
@@ -267,8 +245,7 @@ public:
 						result->left.reset(left);
 						result->left_result = left_result;
 						result->result = TExpressionResult(methods, method->GetSyntax()->IsStatic());
-						return_new_operation = result;
-						return;
+						return result;
 					}
 					else
 					{
@@ -279,8 +256,7 @@ public:
 							result->left.reset((TSExpression_TGetClass*)left);
 							assert(result->left != NULL);
 							result->get_class = nested;
-							return_new_operation = result;
-							return;
+							return result;
 						}else
 							syntax_node->Error("Статического поля или метода с таким именем не существует!");
 					}
@@ -302,8 +278,7 @@ public:
 				result->left.reset(left);
 				result->left_result = left_result;
 				result->field = member;
-				return_new_operation = result;
-				return;
+				return result;
 
 				if (left_result.IsRef())
 				{
@@ -344,17 +319,15 @@ public:
 					result->left.reset(left);
 					result->left_result = left_result;
 					result->result = TExpressionResult(methods, false);
-					return_new_operation = result;
-					return;
+					return result;
 				}
 				else
 					syntax_node->Error("Члена класса с таким именем не существует!");
 			}
 		}
 	}
-	void Visit(TExpression::TId* operation_node)
+	TSOperation* Visit(TExpression::TId* operation_node)
 	{
-		return_new_operation = NULL;
 		TVariable* var = parent->GetVar(operation_node->name);
 		if (var != NULL)
 		{
@@ -369,22 +342,19 @@ public:
 				result->left = NULL;
 				result->field = (TSClassField*)var;
 				result->left_result = TExpressionResult(result->field->GetClass(), true);
-				return_new_operation = result;
-				return;
+				return result;
 			}break;
 			case TVariableType::Local:
 			{
 				TSExpression::TGetLocal* result = new TSExpression::TGetLocal();
 				result->variable=(TSLocalVar*)var;
-				return_new_operation = result;
-				return;
+				return result;
 			}break;
 			case TVariableType::Parameter:
 			{
 				TSExpression::TGetParameter* result = new TSExpression::TGetParameter();
 				result->parameter = (TSParameter*)var;
-				return_new_operation = result;
-				return;
+				return result;
 			}break;
 			default:
 				assert(false);//ошибка в поиске переменной
@@ -414,8 +384,7 @@ public:
 				TSExpression::TGetMethods* result = new TSExpression::TGetMethods();
 				result->left = NULL;
 				result->result = TExpressionResult(methods, method->GetSyntax()->IsStatic());
-				return_new_operation = result;
-				return;
+				return result;
 			}
 			else
 			{
@@ -425,8 +394,7 @@ public:
 					TSExpression_TGetClass* result = new TSExpression_TGetClass();
 					result->left = NULL;
 					result->get_class = type;
-					return_new_operation = result;
-					return;
+					return result;
 				}
 				else
 					syntax_node->Error("Неизвестный идентификатор!");
@@ -434,62 +402,56 @@ public:
 		}
 		assert(false);//сюда мы не должны попасть
 	}
-	void Visit(TExpression::TThis *operation_node)
+	TSOperation* Visit(TExpression::TThis *operation_node)
 	{
-		return_new_operation = NULL;
 		if (method->GetSyntax()->IsStatic())
 			syntax_node->Error("Ключевое слово 'this' можно использовать только в нестатических методах!");
 		TSExpression::TGetThis* result = new TSExpression::TGetThis();
 		result->owner = owner;
-		return_new_operation = result;
+		return result;
 	}
-	void Visit(TExpression::TIntValue *op)
+	TSOperation* Visit(TExpression::TIntValue *op)
 	{
-		return_new_operation = NULL;
 		TSExpression::TInt* result = new TSExpression::TInt(owner, &op->type);
 		result->val = op->val;
 		result->type.LinkSignature(build_context);
 		result->type.LinkBody(build_context);
-		return_new_operation = result;
+		return result;
 	}
-	void Visit(TExpression::TStringValue *op)
+	TSOperation* Visit(TExpression::TStringValue *op)
 	{
-		return_new_operation = NULL;
 		TSExpression::TString* result = new TSExpression::TString(owner, &op->type);
 		result->val = op->val;
 		result->type.LinkSignature(build_context);
 		result->type.LinkBody(build_context);
-		return_new_operation = result;
+		return result;
 	}
-	void Visit(TExpression::TCharValue* op)
+	TSOperation* Visit(TExpression::TCharValue* op)
 	{
-		return_new_operation = NULL;
+		return nullptr;
 	}
-	void Visit(TExpression::TFloatValue* op)
+	TSOperation* Visit(TExpression::TFloatValue* op)
 	{
-		return_new_operation = NULL;
 		TSExpression::TFloat* result = new TSExpression::TFloat(owner, &op->type);
 		result->val = op->val;
 		result->type.LinkSignature(build_context);
 		result->type.LinkBody(build_context);
-		return_new_operation = result;
+		return result;
 	}
-	void Visit(TExpression::TBoolValue* op)
+	TSOperation* Visit(TExpression::TBoolValue* op)
 	{
-		return_new_operation = NULL;
 		TSExpression::TBool* result = new TSExpression::TBool(owner, &op->type);
 		result->val = op->val;
 		result->type.LinkSignature(build_context);
 		result->type.LinkBody(build_context);
-		return_new_operation = result;
+		return result;
 	}
 };
 
 void TSExpression::Build(TGlobalBuildContext build_context)
 {
 	TSemanticTreeBuilder b(build_context, GetSyntax(), owner, method, this);
-	GetSyntax()->Accept(&b);
-	first_op.reset(b.GetResult());
+	first_op.reset(GetSyntax()->Accept(&b));
 }
 
 TVariable* TSExpression::GetVar(Lexer::TNameId name)
