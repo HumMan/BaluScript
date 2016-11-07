@@ -10,6 +10,8 @@
 #include <fstream>
 #include <streambuf>
 
+#include "../Source/NativeTypes/base_types.h"
+
 int main(int argc, char* argv[])
 {
 	
@@ -21,14 +23,7 @@ int main(int argc, char* argv[])
 		//time.Start();
 		printf("Compiling ... \n");
 
-		std::string source;
-		{
-			std::ifstream file("../Source/NativeTypes/base_types.bscript");
-			std::string str((std::istreambuf_iterator<char>(file)),
-				std::istreambuf_iterator<char>());
-
-			source = str;
-		}
+		std::string source = base_types;
 		std::string source2;
 		{
 			std::ifstream file("../Data/base_types_test.bscript");

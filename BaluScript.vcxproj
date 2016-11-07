@@ -84,6 +84,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Source\memleaks.h" />
+    <ClInclude Include="Source\NativeTypes\base_types.h" />
     <ClInclude Include="Source\NativeTypes\DynArray.h" />
     <ClInclude Include="Source\NativeTypes\StaticArray.h" />
     <ClInclude Include="Source\NativeTypes\stdfuncs.h" />

@@ -201,6 +201,9 @@
     <ClInclude Include="Source\NativeTypes\stdfuncs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\NativeTypes\base_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\lexer.cpp">

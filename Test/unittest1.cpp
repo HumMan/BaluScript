@@ -8,6 +8,8 @@
 
 #include "../Source/NativeTypes/vec.h"
 
+#include "../Source/NativeTypes/base_types.h"
+
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace Test
@@ -137,14 +139,7 @@ namespace Test
 		static_objects = new std::vector<TStaticValue>();
 		smethods = new std::vector<std::unique_ptr<TSMethod>>();
 
-		std::string source;
-		{
-			std::ifstream file("../../Source/NativeTypes/base_types.bscript");
-			std::string str((std::istreambuf_iterator<char>(file)),
-				std::istreambuf_iterator<char>());
-
-			source = str;
-		}
+		std::string source = base_types;
 		syntax = new TSyntaxAnalyzer();
 		syntax->Compile((char*)(("class Script{"+source+"}").c_str()));
 	}
@@ -414,7 +409,11 @@ namespace Test
 		}
 		TEST_METHOD(Vec2Func)
 		{
-			//TODO
+			using namespace BaluLib;
+			TVec2 t;
+			t = *(TVec2*)RunCode("func static Test:vec2{vec2 s; s=5.0;vec2 a; a=6.0;return s+a;}").get();
+			Assert::AreEqual(11.0f, t[0]);
+			Assert::AreEqual(11.0f, t[1]);
 		}
 	};
 	TEST_CLASS(Vec2iTesting)
@@ -439,7 +438,11 @@ namespace Test
 		}
 		TEST_METHOD(Vec2iFunc)
 		{
-			//TODO
+			using namespace BaluLib;
+			TVec2i t;
+			t = *(TVec2i*)RunCode("func static Test:vec2i{vec2i s; s=5;vec2i a; a=6;return s+a;}").get();
+			Assert::AreEqual(11, t[0]);
+			Assert::AreEqual(11, t[1]);
 		}
 	};
 	TEST_CLASS(StatementsTesting)
@@ -1250,6 +1253,7 @@ namespace Test
 		}
 		TEST_METHOD(GetByReferenceOverload)
 		{
+			//TODO
 		}
 	};
 	TEST_CLASS(TempatesTesting)
