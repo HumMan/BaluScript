@@ -169,7 +169,10 @@ const int operators_priority[(short)TOperator::End] =
 	/*GetArrayElement*/-1,
 	/*GetByReference*/-1,
 
-	/*TOperator::UnaryMinus*/8
+	/*TOperator::UnaryMinus*/8,
+
+	/*Increment*/ 8,
+	/*Decrement*/ 8
 
 };
 
@@ -187,13 +190,21 @@ TOperation* TExpression::Expr(Lexer::ILexer* source, int curr_prior_level) {
 		return Factor(source);
 	}
 	if (source->Test(TTokenType::Operator) &&
-		(source->Token() == (short)TOperator::UnaryMinus || source->Token() == (short)TOperator::Not)
+		(source->Token() == (short)TOperator::UnaryMinus ||
+		source->Token() == (short)TOperator::Not ||
+		source->Token() == (short)TOperator::Increment ||
+		source->Token() == (short)TOperator::Decrement
+		)
 		&& operators_priority[source->Token()] == curr_prior_level)
 	{
 		TTokenPos temp;
 		temp.InitPos(source);
 		if (source->Token() == (short)TOperator::Minus)
 			curr_unary_op = TOperator::UnaryMinus;
+		else if (source->Token() == (short)TOperator::Increment)
+			curr_unary_op = TOperator::Increment;
+		else if (source->Token() == (short)TOperator::Decrement)
+			curr_unary_op = TOperator::Decrement;
 		else
 			curr_unary_op = TOperator(source->Token());
 		source->GetToken();
@@ -222,67 +233,6 @@ void TExpression::AnalyzeSyntax(Lexer::ILexer* source)
 	InitPos(source);
 	first_op = std::unique_ptr<TOperation>(Expr(source, 0));
 	//BuildPostfix();
-}
-
-void TExpression::BuildPostfix()
-{
-	while (true) 
-	{
-		TPostfixOp temp;
-		TTokenType token = source->Type();
-		switch (token) 
-		{
-		case TTokenType::Identifier:
-			temp.type = TPostfixOp::OP_ID;
-			temp.id = source->NameId();
-			out.push_back(temp);
-			source->GetToken();
-			break;
-		case TTokenType::Value:
-			switch ((TValue)source->Token())
-			{
-			case TValue::Int:
-				temp.type = TPostfixOp::OP_INT;
-				temp.int_val = source->Int();
-				break;
-			case TValue::Float:
-				temp.type = TPostfixOp::OP_FLOAT;
-				temp.float_val = source->Float();
-				break;
-			case TValue::Bool:
-				temp.type = TPostfixOp::OP_BOOL;
-				temp.int_val = source->Bool();
-				break;
-			}
-			out.push_back(temp);
-			source->GetToken();
-			break;
-		case TTokenType::Operator:
-			temp.type = TPostfixOp::OP_OPERATOR;
-			temp.operator_type = source->Token();
-			stack.push_back(temp);
-			{
-				int t = stack.size() - 1;
-				while (t > 0 && stack[t - 1].type == TPostfixOp::OP_OPERATOR
-					&& operators_priority[stack[t - 1].operator_type]
-					>= operators_priority[stack[t].operator_type])
-				{
-					TPostfixOp temp = stack[t - 1]; stack[t - 1] = stack[t]; stack[t] = temp;
-					//stack.swap(t - 1, t);
-					//TODO достаточно поменять тип оператора
-				}
-			}
-			source->GetToken();
-			break;
-		default:
-			while (stack.size() > 0)
-			{
-				out.push_back(stack.back());
-				stack.pop_back();
-			}
-			return;
-		}
-	}
 }
 
 TSOperation* TExpression::TBinOp::Accept(TExpressionTreeVisitor* visitor)

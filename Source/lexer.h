@@ -108,7 +108,9 @@ namespace Lexer
 		GetArrayElement,
 		GetByReference, //оператор -> доступа к значению по указателю (shared_ptr)
 
-		UnaryMinus,
+		UnaryMinus, //унарный минус
+		Increment, //префиксный инкремент
+		Decrement, //префиксный декремент
 
 		End //используется для получения количества операторов
 	};

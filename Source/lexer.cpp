@@ -248,6 +248,7 @@ namespace Lexer
 #endif
 		}
 		TLexerPrivate();
+		bool IsPrevTokenNotId();
 		int GetCurrentToken();
 		void ParseSource(const char* use_source);
 		void Error(char* s, int token_id = -1, va_list args = NULL);
@@ -480,6 +481,23 @@ TLexerPrivate::TLexerPrivate()
 		res_words.Add(GetBytecodeString((TOpcode::Enum)i), TToken(TTokenType::Bytecode, i));
 }
 
+//используется при проверке унарных операторов,
+//перед унарным оператором может быть всё кроме:
+//ResWord Value Identifier RBracketRParenthRBrace Vertical Question Ampersand Dot
+bool TLexerPrivate::IsPrevTokenNotId()
+{
+	TTokenType prev = (TTokenType)(tokens.size() > 0 ? (short)tokens.back().type : -1);
+	return (
+		prev == TTokenType::ResWord ||
+		prev == TTokenType::Operator ||
+		prev == TTokenType::Comma ||
+		prev == TTokenType::Semicolon ||
+		prev == TTokenType::Colon ||
+		prev == TTokenType::LParenth ||
+		prev == TTokenType::LBrace ||
+		prev == TTokenType::LBracket);
+}
+
 void TLexerPrivate::ParseSource(const char* use_source)
 {
 	source = use_source;
@@ -671,23 +689,38 @@ void TLexerPrivate::ParseSource(const char* use_source)
 				}
 				else tokens.push_back(TToken(TTokenType::Vertical));
 				break;
-			case '+':NextChar(); if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::PlusA)); }
-					 else tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::Plus));
-					 break;
-			case '-':
+			case '+':
 				NextChar();
-				if (c == '='){ NextChar(); tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::MinusA)); }
+				if (c == '=')
+				{
+					NextChar();
+					tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::PlusA));
+				}
+				else if (c == '+')
+				{
+					NextChar();
+					tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::Increment));
+				}
 				else
 				{
-					TTokenType prev = (TTokenType)(tokens.size() > 0 ? (short)tokens.back().type : -1);
-					if (prev == TTokenType::ResWord ||
-						prev == TTokenType::Operator ||
-						prev == TTokenType::Comma ||
-						prev == TTokenType::Semicolon ||
-						prev == TTokenType::Colon ||
-						prev == TTokenType::LParenth ||
-						prev == TTokenType::LBrace ||
-						prev == TTokenType::LBracket)
+					tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::Plus));
+				}
+				break;
+			case '-':
+				NextChar();
+				if (c == '=')
+				{
+					NextChar(); 
+					tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::MinusA));
+				}
+				else if (c == '-')
+				{
+					NextChar();
+					tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::Decrement));
+				}
+				else
+				{
+					if (IsPrevTokenNotId())
 						tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::UnaryMinus));
 					else if (c == '>')
 						tokens.push_back(TToken(TTokenType::Operator, (short)TOperator::GetByReference));

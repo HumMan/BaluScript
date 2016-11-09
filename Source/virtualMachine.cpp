@@ -221,7 +221,7 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 		sp = d + member_size - 1;
 		memcpy(d, s, member_size * 4);
 	}
-		break;
+	break;
 
 	case ADD_OFFSET:
 		*sp += (unsigned int)op->v1 * 4; break;
@@ -233,7 +233,7 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 		TProgram::TMethod* m_call = &program->methods_table[op->v1];
 		Execute(op->v1, (sp + 1 - m_call->params_size), m_call->is_static ? NULL : (int*)sp[-m_call->params_size]);
 	}
-		break;
+	break;
 	case RETURN:
 		if (op->v1)memcpy(&sp[1 - op->v1 - op->v2], &sp[1 - op->v2], op->v2 * 4);
 		sp -= op->v1;
@@ -363,7 +363,7 @@ bool TVirtualMachine::ExecuteVec2iOps(TOp* op, int*& sp, int* object)
 	{
 	case VEC2I_CONSTR:
 		*(TVec2i*)object = *(TVec2i*)(sp - 1);
-		sp-=2; break;
+		sp -= 2; break;
 		//////////////////////////////////////////////////
 		//vec2
 	case VEC2I_PLUS_A:
@@ -451,10 +451,10 @@ bool TVirtualMachine::ExecuteBoolOps(TOp* op, int*& sp, int* object)
 	case BOOL_NOT:
 		sp[0] = !*(bool*)&sp[0]; break;
 	case EQUAL:
-		Compare(op,sp);
+		Compare(op, sp);
 		break;
 	case NOT_EQUAL:
-		Compare(op,sp);
+		Compare(op, sp);
 		sp[0] = (!*(bool*)&sp[0]);
 		break;
 	default:
@@ -462,7 +462,7 @@ bool TVirtualMachine::ExecuteBoolOps(TOp* op, int*& sp, int* object)
 	}
 	return true;
 }
-bool TVirtualMachine::ExecuteFloatOps(TOp* op, int*& sp,int* object)
+bool TVirtualMachine::ExecuteFloatOps(TOp* op, int*& sp, int* object)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
@@ -585,7 +585,7 @@ bool TVirtualMachine::ExecuteFloatOps(TOp* op, int*& sp,int* object)
 	case FLOAT_RAND:
 		*(float*)(++sp) = BaluLib::Randf(); break;
 	case FLOAT_SIGN:
-		*(float*)sp = (*(float*)sp) > 0.0f ? 1.0f : ((*(float*)sp) == 0.0f ?0.0f: -1.0f); break;
+		*(float*)sp = (*(float*)sp) > 0.0f ? 1.0f : ((*(float*)sp) == 0.0f ? 0.0f : -1.0f); break;
 	case FLOAT_SIN:
 		*(float*)sp = sin(*(float*)sp); break;
 	case FLOAT_SQRT:
@@ -633,6 +633,10 @@ bool TVirtualMachine::ExecuteIntOps(TOp* op, int*& sp, int* object)
 		*sp = -*sp; break;
 	case R_INT_UNARY_MINUS:
 		*sp = -*((int*)*sp); break;
+	case INT_PREFIX_DEC:
+		*sp = *((int*)*sp) - 1; break;
+	case INT_PREFIX_INC:
+		*sp = *((int*)*sp) + 1; break;
 	case INT_TO_VEC2:
 		sp++;
 		*((TVec2*)(sp - 1)) = TVec2(float(sp[-1]));
@@ -688,7 +692,7 @@ bool TVirtualMachine::ExecuteIntOps(TOp* op, int*& sp, int* object)
 		sp[-1] = (sp[-1] > sp[0]) ? sp[0] : sp[-1];
 		sp--; break;
 	case INT_SIGN:
-		*sp = *sp > 0 ? 1 : (*sp == 0 ? 0:-1); break;
+		*sp = *sp > 0 ? 1 : (*sp == 0 ? 0 : -1); break;
 	default:
 		return false;
 	}

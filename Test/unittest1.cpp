@@ -1034,28 +1034,24 @@ namespace Test
 		}
 		TEST_METHOD(IncrementDecrementPostfixOperatorsOverload)
 		{
-			//TODO префиксные и постфиксные операторы
-			//TSClass* cl2 = NULL;
-			//Assert::IsNotNull(cl2 = CreateClass(
-			//	"class TestClass {\n"
-			//	"class Vec2<T,Size> {\n"
-			//	"TStaticArray<T,Size> value;\n"
-			//	"copy(T v0, T v1){value[0]=v0;value[1]=v1;}\n"
-			//	"\n"
-			//	"}\n"
-			//	"func static Test:int\n"
-			//	"{\n"
-			//	"	Vec2<int, 2> v(3,5);\n"
-			//	"	int a=5,b;\n"
-			//	"	b=a++;\n"
-			//	"	return 1;\n"
-			//	"}}"));
-			//Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test").get());
-			//TODO
-		}
-		TEST_METHOD(IncrementDecrementPrefixOperatorsOverload)
-		{
-			//TODO
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class Vec2<T,Size> {\n"
+				"TStaticArray<T,Size> value;\n"
+				"copy(T v0, T v1){value[0]=v0;value[1]=v1;}\n"
+				"\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	Vec2<int, 2> v(3,5);\n"
+				"	int a=5,b;\n"
+				"	++a;\n"
+				"	b=8;\n"
+				"	--b;\n"
+				"	return a+b;\n"
+				"}}"));
+			Assert::AreEqual(13, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 		TEST_METHOD(UnaryMinusOverload)
 		{

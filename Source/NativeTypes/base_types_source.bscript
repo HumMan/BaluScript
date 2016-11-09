@@ -20,6 +20,9 @@
 		operator static -(int  l):int bytecode{ASM_INT_UNARY_MINUS;};
 		operator static -(int& l):int bytecode{ASM_R_INT_UNARY_MINUS;};
 
+		operator static --(int& l) bytecode{ASM_INT_PREFIX_DEC;};
+		operator static ++(int& l) bytecode{ASM_INT_PREFIX_INC;};
+
 		operator static < (int l,int r):bool bytecode{ASM_INT_LESS;};
 		operator static <=(int l,int r):bool bytecode{ASM_INT_LESS_EQ;};
 		operator static ==(int l,int r):bool bytecode{ASM_EQUAL 0,0,1;};

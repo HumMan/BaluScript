@@ -19,34 +19,6 @@ public:
 class TExpression:public TStatement, public TOperation
 {
 	friend class TSExpression;
-	//TODO доделать обратную польскую нотацию
-	struct TPostfixOp
-	{
-		enum Type
-		{
-			OP_ID,
-			OP_OPERATOR,
-			OP_GET_MEMBER,
-			OP_CALL_PARAMS,
-			OP_GET_ARRAY_ELEM,
-			OP_INT,
-			OP_FLOAT,
-			OP_BOOL,
-			OP_LPARENTH,
-			OP_RPARENTH,
-			OP_LBRACKET,
-			OP_RBRACKET
-		};
-		Type type;
-		int operator_type;
-		Lexer::TNameId id;
-		int int_val;
-		float float_val;
-	};
-	std::vector<TPostfixOp> stack;
-	std::vector<TPostfixOp> out;
-	std::vector<int> methods;
-	void BuildPostfix();
 public:
 	
 	class TBinOp:public TOperation
