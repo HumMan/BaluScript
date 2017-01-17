@@ -65,12 +65,12 @@ TSClass* TSType_TClassName::LinkSignature(TGlobalBuildContext build_context,TSCl
 	{
 		use_curr_class = use_owner->GetClass(GetSyntax()->name);
 		if(use_curr_class==NULL)
-			use_owner->GetSyntax()->Error("Неизвестный тип!");
+			use_owner->GetSyntax()->AsTokenPos().Error("Неизвестный тип!");
 	}else
 	{
 		use_curr_class=use_curr_class->GetNested(GetSyntax()->name);
 		if(use_curr_class==NULL)
-			use_owner->GetSyntax()->Error("Вложенного класса с таким именем не существует!");
+			use_owner->GetSyntax()->AsTokenPos().Error("Вложенного класса с таким именем не существует!");
 	}
 
 	if (use_curr_class->GetType()==TNodeWithTemplates::Template)
@@ -81,9 +81,9 @@ TSClass* TSType_TClassName::LinkSignature(TGlobalBuildContext build_context,TSCl
 		{
 
 			if (!use_curr_class->GetSyntax()->IsTemplate())
-				use_owner->GetSyntax()->Error("Класс не является шаблонным!");
+				use_owner->GetSyntax()->AsTokenPos().Error("Класс не является шаблонным!");
 			if (template_params->size() != use_curr_class->GetSyntax()->GetTemplateParamsCount())
-				use_owner->GetSyntax()->Error("Шаблон имеет другое количество параметров!");
+				use_owner->GetSyntax()->AsTokenPos().Error("Шаблон имеет другое количество параметров!");
 			for (TType_TTemplateParameter& t : *template_params)
 			{
 				template_params_classes.emplace_back();
@@ -101,7 +101,7 @@ TSClass* TSType_TClassName::LinkSignature(TGlobalBuildContext build_context,TSCl
 						TNodeWithTemplates::TTemplateParameter val;
 						if (!use_owner->GetTemplateParameter(t.type->GetClassNames().back().name, val))
 						{
-							use_owner->GetSyntax()->Error("Не найден шаблонный параметр!");
+							use_owner->GetSyntax()->AsTokenPos().Error("Не найден шаблонный параметр!");
 						}
 						if (val.is_value)
 						{
@@ -170,7 +170,7 @@ TSClass* TSType_TClassName::LinkSignature(TGlobalBuildContext build_context,TSCl
 		else
 		{
 			if (use_owner->GetType() != TNodeWithTemplates::Realization || use_owner->GetTemplateClass() != use_curr_class)
-				use_owner->GetSyntax()->Error("Использование шаблона без параметров допускается только в самом шаблоне как типа текущей реализации!");
+				use_owner->GetSyntax()->AsTokenPos().Error("Использование шаблона без параметров допускается только в самом шаблоне как типа текущей реализации!");
 			use_curr_class = use_owner;
 		}
 	}

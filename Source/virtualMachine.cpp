@@ -634,9 +634,11 @@ bool TVirtualMachine::ExecuteIntOps(TOp* op, int*& sp, int* object)
 	case R_INT_UNARY_MINUS:
 		*sp = -*((int*)*sp); break;
 	case INT_PREFIX_DEC:
-		*sp = *((int*)*sp) - 1; break;
+		*(int*)sp[0] = *(int*)sp[0] - 1; break;
+		sp--;
 	case INT_PREFIX_INC:
-		*sp = *((int*)*sp) + 1; break;
+		*(int*)sp[0] = *(int*)sp[0] + 1; break;
+		sp--;
 	case INT_TO_VEC2:
 		sp++;
 		*((TVec2*)(sp - 1)) = TVec2(float(sp[-1]));

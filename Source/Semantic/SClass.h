@@ -12,7 +12,7 @@ class TSLocalVar;
 class TStaticValue;
 class TStackValue;
 
-class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize,public TNodeSignatureLinked,public TNodeBodyLinked,public TNodeWithTemplates, public TNodeWithAutoMethods
+class TSClass:public TSyntaxNode<IClass>, public TNodeWithSize,public TNodeSignatureLinked,public TNodeBodyLinked,public TNodeWithTemplates, public TNodeWithAutoMethods
 {	
 	friend class TStaticArr;
 	friend class TSMethod;
@@ -37,15 +37,13 @@ class TSClass:public TSyntaxNode<TClass>, public TNodeWithSize,public TNodeSigna
 	std::unique_ptr<TSMethod> auto_destr;
 	///<summary>“ип от которого унаследован данный класс</summary>
 	TSType parent;
-	///<summary>ќт данного класса запрещено наследование</summary>
-	bool is_sealed;
 	///<summary> ласс в пределах которого объ€влен данный класс</summary>
 	TSClass* owner;
 
 public:
 	void AddClass(TSClass* use_class);
 	void CopyExternalMethodBindingsFrom(TSClass* source);
-	TSClass(TSClass* use_owner, TClass* use_syntax_node, TNodeWithTemplates::Type type = TNodeWithTemplates::Unknown);
+	TSClass(TSClass* use_owner, IClass* use_syntax_node, TNodeWithTemplates::Type type = TNodeWithTemplates::Unknown);
 	TSClass* GetClass(Lexer::TNameId use_name);
 	void CheckForErrors();
 	TSClass* GetOwner();

@@ -98,7 +98,7 @@ public:
 		friend class TSemanticTreeBuilder;
 		
 	public:
-		std::shared_ptr<TType> type;
+		std::unique_ptr<TType> type;
 		TConstructTempObject(){}
 		TSOperation* Accept(TExpressionTreeVisitor* visitor);
 	};

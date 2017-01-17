@@ -93,7 +93,10 @@
     <ClInclude Include="Source\notOptimizedProgram.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\semanticAnalyzer.h" />
+    <ClInclude Include="Source\semanticAnalyzer.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Source\Semantic\BuildContext.h" />
     <ClInclude Include="Source\Semantic\FormalParam.h" />
     <ClInclude Include="Source\Semantic\RunContext.h" />
@@ -143,6 +146,7 @@
     <ClInclude Include="Source\syntaxAnalyzer.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Source\SyntaxTree\IClass.h" />
     <ClInclude Include="Source\Syntax\Accessible.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
@@ -221,6 +225,7 @@
     </ClCompile>
     <ClCompile Include="Source\semanticAnalyzer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Source\Semantic\FormalParam.cpp" />
     <ClCompile Include="Source\Semantic\SBytecode.cpp">
@@ -271,6 +276,7 @@
     <ClCompile Include="Source\Semantic\Variable.cpp" />
     <ClCompile Include="Source\syntaxAnalyzer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Source\Syntax\Accessible.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -320,6 +326,7 @@
     </ClCompile>
     <ClCompile Include="Source\virtualMachine.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Source\VirtualMachine\ArrayClassMethod.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>

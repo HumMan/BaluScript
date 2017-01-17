@@ -20,7 +20,7 @@ namespace Test
 
 	std::vector < std::unique_ptr<TSMethod>> *smethods;
 
-	
+	const bool initBeforeEachTest = false;
 
 	TSMethod* CreateMethod(char* code)
 	{
@@ -131,7 +131,8 @@ namespace Test
 		ms->Run(method_run_context);
 		return result;
 	}
-	TEST_MODULE_INITIALIZE(BaseTypesTestsInitialize)
+	
+	void Init()
 	{
 		setlocale(LC_ALL, "windows");
 		printf("Compiling ... \n");
@@ -141,9 +142,9 @@ namespace Test
 
 		std::string source = base_types;
 		syntax = new TSyntaxAnalyzer();
-		syntax->Compile((char*)(("class Script{"+source+"}").c_str()));
+		syntax->Compile((char*)(("class Script{" + source + "}").c_str()));
 	}
-	TEST_MODULE_CLEANUP(BaseTypesTestsCleanup)
+	void Cleanup()
 	{
 		delete static_objects;
 		delete smethods;
@@ -166,10 +167,38 @@ namespace Test
 
 		_CrtDumpMemoryLeaks();
 	}
+	TEST_MODULE_INITIALIZE(ModuleInitialize)
+	{
+		if (!initBeforeEachTest)
+			Init();
+	}
+
+	TEST_MODULE_CLEANUP(ModuleCleanup)
+	{
+		if (!initBeforeEachTest)
+			Cleanup();
+	}
+	void BaseTypesTestsInitialize()
+	{
+		if (initBeforeEachTest)
+			Init();
+	}
+	void BaseTypesTestsCleanup()
+	{
+		if (initBeforeEachTest)
+			Cleanup();
+	}
 	TEST_CLASS(IntTesting)
 	{
 	public:
-
+		TEST_METHOD_INITIALIZE(TestMethodInit)
+		{
+			BaseTypesTestsInitialize();
+		}
+		TEST_METHOD_CLEANUP(TestMethodCleanup)
+		{
+			BaseTypesTestsCleanup();
+		}
 		TEST_METHOD(IntConstr)
 		{
 			Assert::AreEqual(5, *(int*)RunCode("func static Test:int{int s; s=5;return s;}").get());
@@ -288,7 +317,14 @@ namespace Test
 	TEST_CLASS(FloatTesting)
 	{
 	public:
-
+		TEST_METHOD_INITIALIZE(TestMethodInit)
+		{
+			BaseTypesTestsInitialize();
+		}
+		TEST_METHOD_CLEANUP(TestMethodCleanup)
+		{
+			BaseTypesTestsCleanup();
+		}
 		TEST_METHOD(FloatConstr)
 		{
 			Assert::AreEqual(5.0f, *(float*)RunCode("func static Test:float{float s; s=5.0;return s;}").get());
@@ -390,6 +426,14 @@ namespace Test
 	TEST_CLASS(Vec2Testing)
 	{
 	public:
+		TEST_METHOD_INITIALIZE(TestMethodInit)
+		{
+			BaseTypesTestsInitialize();
+		}
+		TEST_METHOD_CLEANUP(TestMethodCleanup)
+		{
+			BaseTypesTestsCleanup();
+		}
 		TEST_METHOD(Vec2Constr)
 		{
 			using namespace BaluLib;
@@ -419,6 +463,14 @@ namespace Test
 	TEST_CLASS(Vec2iTesting)
 	{
 	public:
+		TEST_METHOD_INITIALIZE(TestMethodInit)
+		{
+			BaseTypesTestsInitialize();
+		}
+		TEST_METHOD_CLEANUP(TestMethodCleanup)
+		{
+			BaseTypesTestsCleanup();
+		}
 		TEST_METHOD(Vec2iConstr)
 		{
 			using namespace BaluLib;
@@ -448,6 +500,14 @@ namespace Test
 	TEST_CLASS(StatementsTesting)
 	{
 	public:
+		TEST_METHOD_INITIALIZE(TestMethodInit)
+		{
+			BaseTypesTestsInitialize();
+		}
+		TEST_METHOD_CLEANUP(TestMethodCleanup)
+		{
+			BaseTypesTestsCleanup();
+		}
 		TEST_METHOD(IfTest)
 		{
 			Assert::AreEqual(false, *(bool*)RunCode("func static Test:bool{if(true)return false; else return true;}").get());
@@ -459,12 +519,12 @@ namespace Test
 		TEST_METHOD(WhileTest)
 		{
 			Assert::AreEqual(400, *(int*)RunCode("func static Test:int{int i=0;while(i<400){i+=1;}return i;}").get());
-			Assert::AreEqual(401, *(int*)RunCode("func static Test:int{int i=0;while(i<=400){i+=1;}return i;}").get());
+			Assert::AreEqual(401, *(int*)RunCode("func static Test:int{int i=0;while(i<=400){++i;}return i;}").get());
 		}
 		TEST_METHOD(ForTest)
 		{
 			Assert::AreEqual(13, *(int*)RunCode("func static Test:int{int s=3;for(int i=0;i<5;i+=1)s+=i;return s;}").get());
-			Assert::AreEqual(389, *(int*)RunCode("func static Test:int{for(int i=0;i<500;i+=1){if(i==389)return i;}return 1;}").get());
+			Assert::AreEqual(389, *(int*)RunCode("func static Test:int{for(int i=0;i<500;++i){if(i==389)return i;}return 1;}").get());
 		}
 		TEST_METHOD(RecursiveTest)
 		{
@@ -485,6 +545,14 @@ namespace Test
 	TEST_CLASS(StaticVariablesTesting)
 	{
 	public:
+		TEST_METHOD_INITIALIZE(TestMethodInit)
+		{
+			BaseTypesTestsInitialize();
+		}
+		TEST_METHOD_CLEANUP(TestMethodCleanup)
+		{
+			BaseTypesTestsCleanup();
+		}
 		TEST_METHOD(BasicClassFieldInit)
 		{
 			TSClass* cl2 = CreateClass(
@@ -539,6 +607,14 @@ namespace Test
 	TEST_CLASS(ConstrCopyDestrTesting)
 	{
 	public:
+		TEST_METHOD_INITIALIZE(TestMethodInit)
+		{
+			BaseTypesTestsInitialize();
+		}
+		TEST_METHOD_CLEANUP(TestMethodCleanup)
+		{
+			BaseTypesTestsCleanup();
+		}
 		TEST_METHOD(ClassConstructorTest)
 		{
 			TSClass* cl2 = CreateClass(
@@ -751,6 +827,14 @@ namespace Test
 	TEST_CLASS(DynArrayTesting)
 	{
 	public:
+		TEST_METHOD_INITIALIZE(TestMethodInit)
+		{
+			BaseTypesTestsInitialize();
+		}
+		TEST_METHOD_CLEANUP(TestMethodCleanup)
+		{
+			BaseTypesTestsCleanup();
+		}
 		TEST_METHOD(InitializationTest)
 		{
 			Assert::AreEqual(0, *(int*)RunCode("func static Test:int{TDynArray<int> s;return s.size();}").get());
@@ -862,7 +946,7 @@ namespace Test
 				"{\n"
 				"	TDynArray<TDynArray<int>> s;\n"
 				"	s.resize(100);\n"
-				"	for(int i=0;i<100;i+=1){s[i].resize(i+1);for(int k=0;k<i+1;k+=1)s[i][k]=i+k;}"
+				"	for(int i=0;i<100;i+=1){s[i].resize(i+1);for(int k=0;k<i+1;++k)s[i][k]=i+k;}"
 				"	TDynArray<TDynArray<int>> sc;\n"
 				"	sc=s;\n"
 				"	return sc.size()+sc[0][0]+sc[9][2];\n"
@@ -878,6 +962,14 @@ namespace Test
 	TEST_CLASS(ConversionsTesting)
 	{
 	public:
+		TEST_METHOD_INITIALIZE(TestMethodInit)
+		{
+			BaseTypesTestsInitialize();
+		}
+		TEST_METHOD_CLEANUP(TestMethodCleanup)
+		{
+			BaseTypesTestsCleanup();
+		}
 		TEST_METHOD(ConversionInLocalVarConstructor)
 		{
 			TSClass* cl2 = NULL;
@@ -1009,6 +1101,14 @@ namespace Test
 	TEST_CLASS(OperatorsOverloadingTesting)
 	{
 	public:
+		TEST_METHOD_INITIALIZE(TestMethodInit)
+		{
+			BaseTypesTestsInitialize();
+		}
+		TEST_METHOD_CLEANUP(TestMethodCleanup)
+		{
+			BaseTypesTestsCleanup();
+		}
 		TEST_METHOD(ArithmenticOperatorsOverload)
 		{
 			TSClass* cl2 = NULL;
@@ -1046,12 +1146,43 @@ namespace Test
 				"{\n"
 				"	Vec2<int, 2> v(3,5);\n"
 				"	int a=5,b;\n"
+				"	b=-a;\n"
 				"	++a;\n"
-				"	b=8;\n"
-				"	--b;\n"
 				"	return a+b;\n"
 				"}}"));
-			Assert::AreEqual(13, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual(1, *(int*)RunClassMethod(cl2, "Test").get());
+		}
+		TEST_METHOD(SimpleTemplateParameters)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class Vec2<T, Size> {\n"
+				"TStaticArray<T,Size> value;\n"
+				"\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	Vec2<int,2> v;\n"
+				"	return 5;\n"
+				"}}"));
+			Assert::AreEqual(5, *(int*)RunClassMethod(cl2, "Test").get());
+		}
+		TEST_METHOD(ComplexTemplateParameters)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class Vec2<T, Size> {\n"
+				"TStaticArray<T,Size> value;\n"
+				"\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	Vec2<Vec2<int,3>,2> v;\n"
+				"	return 5;\n"
+				"}}"));
+			Assert::AreEqual(5, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 		TEST_METHOD(UnaryMinusOverload)
 		{
@@ -1255,6 +1386,14 @@ namespace Test
 	TEST_CLASS(TempatesTesting)
 	{
 	public:
+		TEST_METHOD_INITIALIZE(TestMethodInit)
+		{
+			BaseTypesTestsInitialize();
+		}
+		TEST_METHOD_CLEANUP(TestMethodCleanup)
+		{
+			BaseTypesTestsCleanup();
+		}
 		TEST_METHOD(ValueParameters)
 		{
 			TSClass* cl2 = NULL;
@@ -1397,6 +1536,14 @@ namespace Test
 	TEST_CLASS(StaticArrayTesting)
 	{
 	public:
+		TEST_METHOD_INITIALIZE(TestMethodInit)
+		{
+			BaseTypesTestsInitialize();
+		}
+		TEST_METHOD_CLEANUP(TestMethodCleanup)
+		{
+			BaseTypesTestsCleanup();
+		}
 		TEST_METHOD(InitializationTest)
 		{
 			Assert::AreEqual(3, *(int*)RunCode("func static Test:int{TStaticArray<int,3> s;return s.size();}").get());
@@ -1420,7 +1567,7 @@ namespace Test
 				"func static Test:int"
 				"{"
 				"	TStaticArray<TStaticArray<int,4>,4> s;"
-				"	for(int i=0;i<4;i+=1){for(int k=0;k<4;k+=1)s[i][k]=i+k;}"
+				"	for(int i=0;i<4;++i){for(int k=0;k<4;++k)s[i][k]=i+k;}"
 				"	return s[2][1]+s[3][2];"
 				"}"
 				).get());
@@ -1546,6 +1693,14 @@ namespace Test
 	TEST_CLASS(EnumerationTesting)
 	{
 	public:
+		TEST_METHOD_INITIALIZE(TestMethodInit)
+		{
+			BaseTypesTestsInitialize();
+		}
+		TEST_METHOD_CLEANUP(TestMethodCleanup)
+		{
+			BaseTypesTestsCleanup();
+		}
 		TEST_METHOD(Initialization)
 		{
 			TSClass* cl2 = NULL;
@@ -1562,6 +1717,14 @@ namespace Test
 	TEST_CLASS(ArraysSpecialSyntaxTesting)
 	{
 	public:
+		TEST_METHOD_INITIALIZE(TestMethodInit)
+		{
+			BaseTypesTestsInitialize();
+		}
+		TEST_METHOD_CLEANUP(TestMethodCleanup)
+		{
+			BaseTypesTestsCleanup();
+		}
 		TEST_METHOD(StaticInitialization)
 		{
 			//TODO
@@ -1612,6 +1775,14 @@ namespace Test
 	TEST_CLASS(OperatorsTesting)
 	{
 	public:
+		TEST_METHOD_INITIALIZE(TestMethodInit)
+		{
+			BaseTypesTestsInitialize();
+		}
+		TEST_METHOD_CLEANUP(TestMethodCleanup)
+		{
+			BaseTypesTestsCleanup();
+		}
 		TEST_METHOD(CallMethodFromMember)
 		{
 			TSClass* cl2 = NULL;
@@ -1648,7 +1819,14 @@ namespace Test
 	TEST_CLASS(StringTesting)
 	{
 	public:
-
+		TEST_METHOD_INITIALIZE(TestMethodInit)
+		{
+			BaseTypesTestsInitialize();
+		}
+		TEST_METHOD_CLEANUP(TestMethodCleanup)
+		{
+			BaseTypesTestsCleanup();
+		}
 		TEST_METHOD(StringDefConstr)
 		{
 			Assert::AreEqual(0, *(int*)RunCode(
@@ -1713,6 +1891,7 @@ namespace Test
 		}
 		TEST_METHOD(StringGetLengthFromTemp0)
 		{
+			//TODO тут имеется утечка String.h(24) - нужно убрать
 			Assert::AreEqual(4, *(int*)RunCode(
 				"func static Test:int"
 				"{"

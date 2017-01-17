@@ -54,21 +54,18 @@ void TSyntaxAnalyzer::Compile(char* use_source/*, TTime& time*/)
 	//printf("Syntax analyzing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
 }
 
-
 void TSyntaxAnalyzer::CreateInternalClasses()
 {
 	TNameId name_id = lexer->GetIdFromName("dword");
 	TClass* t_syntax = new TClass(base_class.get());
 	base_class->AddNested(t_syntax);
-	t_syntax->name = name_id;
+	t_syntax->SetName(name_id);
 	TSClass* t = new TSClass(sem_base_class.get(), t_syntax);
 	t->SetSize(1);
 	t->SetSignatureLinked();
 	t->SetBodyLinked();
 	sem_base_class->AddClass(t);
 }
-
-
 
 TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 {
@@ -78,7 +75,6 @@ TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 	lexer->GetToken(TTokenType::Done);
 	std::unique_ptr<TSMethod> method_decl(new TSMethod(sem_base_class->GetNestedByFullName(method_decl_syntax->GetOwner()->GetFullClassName(),1), method_decl_syntax.get()));
 	method_decl->Build();
-	//method_decl->LinkBody(&static_fields, &static_variables);
 	std::vector<TSMethod*> methods;
 	TSMethod* method = NULL;
 	switch (method_decl->GetSyntax()->GetMemberType())
@@ -167,7 +163,6 @@ TSClassField* TSyntaxAnalyzer::GetStaticField(char* use_var)
 	}
 	if (result == NULL)lexer->Error("Статического члена класса с таким именем не существует!");
 	lexer->GetToken(TTokenType::Done);
-	//if(!result->IsStatic())lexer->Error("Член класса с таким именем не является статическим!");
 	return result;
 }
 

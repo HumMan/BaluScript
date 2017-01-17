@@ -283,13 +283,25 @@ namespace Lexer
 		virtual ~ILexer(){};
 	};
 
-	class TTokenPos
+	class ITokenPos
 	{
-		int token_id;
 	public:
-		ILexer* source;
-		void InitPos(ILexer* use_source);
-		void Error(char* s, ...);
+		virtual ILexer* GetLexer()const = 0;
+		virtual void Error(char* s, ...)const = 0;
 	};
 
+	class TTokenPos: public ITokenPos
+	{
+		int token_id;
+		ILexer* source;
+	public:
+		TTokenPos()
+		{
+			token_id = -1;
+			source = nullptr;
+		}
+		void InitPos(ILexer* use_source);
+		ILexer* GetLexer()const;
+		void Error(char* s, ...)const;
+	};
 }

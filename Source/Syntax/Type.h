@@ -30,7 +30,7 @@ private:
 	void AnalyzeClassName(Lexer::ILexer* source);
 	void AnalyzeDimensions(Lexer::ILexer* source);
 public:
-	std::list<TType_TClassName>& GetClassNames()
+	std::list<TType_TClassName> GetClassNames() const
 	{
 		return class_names;
 	}
@@ -44,5 +44,5 @@ struct TType_TTemplateParameter
 	//в качестве шаблонных параметров могут использоваться значения int
 	bool is_value;
 	int value;
-	std::unique_ptr<TType> type;
+	std::shared_ptr<TType> type;
 };

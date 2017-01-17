@@ -12,7 +12,7 @@ int TNodeWithTemplates::FindTemplateIntParameter(Lexer::TNameId parameter_id)
 	assert(type == Realization);
 	for (size_t i = 0; i < template_params.size(); i++)
 	{
-		if (template_params[i].is_value&&template_class->GetSyntax()->template_params[i] == parameter_id)
+		if (template_params[i].is_value&&template_class->GetSyntax()->GetTemplateParam(i) == parameter_id)
 			return template_params[i].value;
 	}
 	assert(false);//TODO поиск шаблонного параметра значения должен происходить не только здесь, можно инициализировать значения в выражениях

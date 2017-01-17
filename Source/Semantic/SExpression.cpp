@@ -212,9 +212,9 @@ public:
 			syntax_node->Error("Оператор доступа к члену класса нельзя применить к методу!");
 		if (left_result.IsType())
 		{
-			if (left_result.GetType()->GetSyntax()->IsEnumeration())
+			if (left_result.GetType()->GetSyntax()->AsEnumeration()->IsEnumeration())
 			{
-				int id = left_result.GetType()->GetSyntax()->GetEnumId(operation_node->name);
+				int id = left_result.GetType()->GetSyntax()->AsEnumeration()->GetEnumId(operation_node->name);
 				//TODO ввести спец функции min max count
 				if (id == -1)
 					syntax_node->Error("Перечислимого типа с таким именем не существует!");
@@ -306,12 +306,6 @@ public:
 			}
 			else
 			{
-				if (!left_result.IsRef())
-				{
-					//syntax_node->Error("Вызов метода для временного объекта недопустим!");
-					//TODO
-					int tttt;
-				}
 				std::vector<TSMethod*> methods;
 				if (left_result.GetClass()->GetMethods(methods, operation_node->name, false))
 				{

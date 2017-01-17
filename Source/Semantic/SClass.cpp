@@ -13,7 +13,8 @@
 #include "../Syntax/ClassField.h"
 #include "../Syntax/Method.h"
 
-TSClass::TSClass(TSClass* use_owner, TClass* use_syntax_node, TNodeWithTemplates::Type type) :TSyntaxNode(use_syntax_node), parent(this,&use_syntax_node->parent)
+TSClass::TSClass(TSClass* use_owner, IClass* use_syntax_node, TNodeWithTemplates::Type type)
+	:TSyntaxNode(use_syntax_node), parent(this,use_syntax_node->GetParent())
 {
 	if (type == TNodeWithTemplates::Unknown)
 	{
@@ -24,7 +25,6 @@ TSClass::TSClass(TSClass* use_owner, TClass* use_syntax_node, TNodeWithTemplates
 	}
 	else
 		SetType(type);
-	is_sealed = false;
 
 	owner = use_owner;
 }
@@ -53,48 +53,49 @@ TSClass* TSClass::GetNestedByFullName(std::vector<Lexer::TNameId> full_name, int
 
 void TSClass::Build()
 {
-	for (TClassField& field_syntax : GetSyntax()->fields)
+	for (int i = 0; i < GetSyntax()->GetFieldsCount();i++)
 	{
-		fields.emplace_back(this, &field_syntax);
-
+		fields.emplace_back(this, GetSyntax()->GetField(i));
 	}
 
-	for (TOverloadedMethod& method : GetSyntax()->methods)
+	for (int i = 0; i < GetSyntax()->GetMethodsCount(); i++)
 	{
-		methods.emplace_back(this, &method);
+		methods.emplace_back(this, GetSyntax()->GetMethod(i));
 		methods.back().Build();
 	}
 
-	if (GetSyntax()->constr_default)
+	if (GetSyntax()->HasDefConstr())
 	{
-		default_constructor = std::unique_ptr<TSMethod>(new TSMethod(this, GetSyntax()->constr_default.get()));
+		TMethod* constr_syntax = GetSyntax()->GetDefaultConstructor();
+		default_constructor = std::unique_ptr<TSMethod>(new TSMethod(this, constr_syntax));
 		default_constructor->Build();
 	}
 
-	copy_constructors = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, &GetSyntax()->constr_copy));
+	copy_constructors = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, GetSyntax()->GetCopyConstr()));
 	copy_constructors->Build();
 
-	move_constructors = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, &GetSyntax()->constr_move));
+	move_constructors = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, GetSyntax()->GetMoveConstr()));
 	move_constructors->Build();
 
-	if (GetSyntax()->destructor)
+	if (GetSyntax()->HasDestructor())
 	{
-		destructor = std::unique_ptr<TSMethod>(new TSMethod(this, GetSyntax()->destructor.get()));
+		destructor = std::unique_ptr<TSMethod>(new TSMethod(this, GetSyntax()->GetDestructor()));
 		destructor->Build();
 	}
 
 	for (int i = 0; i < (short)Lexer::TOperator::End; i++)
 	{
-		operators[i] = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, &GetSyntax()->operators[i]));
+		operators[i] = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, GetSyntax()->GetOperator(i)));
 		operators[i]->Build();
 	}
 
-	conversions = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, &GetSyntax()->conversions));
+	conversions = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, GetSyntax()->GetConversion()));
 	conversions->Build();
 
-	for (const std::unique_ptr<TClass>& nested_class : GetSyntax()->nested_classes)
+	for (int i = 0; i < GetSyntax()->GetNestedCount(); i++)
 	{
-		nested_classes.push_back(std::unique_ptr<TSClass>(new TSClass(this, nested_class.get())));
+		auto nested_class = GetSyntax()->GetNested(i);
+		nested_classes.push_back(std::unique_ptr<TSClass>(new TSClass(this, nested_class)));
 		nested_classes.back()->Build();
 	}
 }
@@ -109,48 +110,37 @@ TSClass* TSClass::GetNested(Lexer::TNameId name) {
 bool TSClass::GetTemplateParameter(Lexer::TNameId name, TNodeWithTemplates::TTemplateParameter& result)
 {
 	assert(GetType() == TNodeWithTemplates::Realization);
-	int par_count = GetTemplateClass()->GetSyntax()->GetTemplateParamsCount();
-	int i = 0;
-	for (Lexer::TNameId& n : GetTemplateClass()->GetSyntax()->template_params)
+	IClass* template_class_syntax = GetTemplateClass()->GetSyntax();
+	int par_count = template_class_syntax->GetTemplateParamsCount();
+	for (int i = 0; i < par_count; i++)
 	{
+		Lexer::TNameId n = template_class_syntax->GetTemplateParam(i);
 		if (n == name)
 		{
 			result = GetTemplateParam(i);
 			return true;
 		}
-		i++;
 	}
 	return false;
-	assert(false);
 }
 
 bool TSClass::HasTemplateParameter(Lexer::TNameId name)
 {
-	assert(GetType() == TNodeWithTemplates::Realization);
-	int par_count = GetTemplateClass()->GetSyntax()->GetTemplateParamsCount();
-	int i = 0;
-	for (Lexer::TNameId& n : GetTemplateClass()->GetSyntax()->template_params)
-	{
-		if (n == name)
-		{
-			return true;
-		}
-		i++;
-	}
-	return false;
+	TNodeWithTemplates::TTemplateParameter result;
+	return GetTemplateParameter(name, result);
 }
 
 void TSClass::CheckForErrors()
 {
 	if (owner != NULL&&owner->GetOwner() != NULL&&owner->GetOwner()->GetClass(GetSyntax()->GetName()))
-		GetSyntax()->Error("Класс с таким именем уже существует!");//TODO как выводить ошибки если объекты были получены не из кода, а созданы вручную - исправить
+		GetSyntax()->AsTokenPos().Error("Класс с таким именем уже существует!");//TODO как выводить ошибки если объекты были получены не из кода, а созданы вручную - исправить
 	//for (const std::unique_ptr<TSClass> nested_class : nested_classes)
 	for (size_t i = 0; i < nested_classes.size(); i++)
 	{
 		for (size_t k = 0; k < i; k++)
 		{
 			if (nested_classes[i]->GetSyntax()->GetName() == nested_classes[k]->GetSyntax()->GetName())
-				nested_classes[i]->GetSyntax()->Error("Класс с таким именем уже существует!");
+				nested_classes[i]->GetSyntax()->AsTokenPos().Error("Класс с таким именем уже существует!");
 		}
 	}
 	for (TSClassField& field : fields)
@@ -161,7 +151,7 @@ void TSClass::CheckForErrors()
 			if (&field == &other_field)
 				break;
 			if (owner == NULL&&!field.GetSyntax()->IsStatic())
-				GetSyntax()->Error("Базовый класс может содержать только статические поля!");
+				GetSyntax()->AsTokenPos().Error("Базовый класс может содержать только статические поля!");
 			if (field.GetSyntax()->GetName() == other_field.GetSyntax()->GetName())
 				field.GetSyntax()->Error("Поле класса с таким именем уже существует!");
 			//TODO как быть со статическими членами класса
@@ -217,7 +207,7 @@ TSClass* TSClass::GetClass(Lexer::TNameId use_name)
 		std::vector<TNodeWithTemplates::TTemplateParameter> template_params = GetTemplateParams();
 		for (size_t i = 0; i < template_params.size(); i++)
 			if (!template_params[i].is_value)
-				if (GetTemplateClass()->GetSyntax()->template_params[i] == use_name)
+				if (GetTemplateClass()->GetSyntax()->GetTemplateParam(i) == use_name)
 					return template_params[i].type;
 	}
 
@@ -551,7 +541,7 @@ void TSClass::CopyExternalMethodBindingsFrom(TSClass* source)
 
 void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 {
-	if (GetSyntax()->IsEnumeration())
+	if (GetSyntax()->AsEnumeration()->IsEnumeration())
 	{
 		if (!IsSizeInitialized())
 		{
@@ -568,7 +558,7 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 				if (std::find(owners.begin(), owners.end(), this) != owners.end())
 				{
 					//Error(" ласс не может содержать поле с собственным типом(кроме дин. массивов)!");//TODO см. initautomethods дл¤ дин массивов
-					GetSyntax()->Error("Класс не может содержать поле собственного типа!");
+					GetSyntax()->AsTokenPos().Error("Класс не может содержать поле собственного типа!");
 				}
 				else {
 					owners.push_back(this);

@@ -789,7 +789,11 @@ void TTokenPos::InitPos(ILexer* use_source)
 	source = use_source;
 	token_id = use_source->GetCurrentToken();
 }
-void TTokenPos::Error(char* s, ...)
+ILexer* TTokenPos::GetLexer()const
+{
+	return source;
+}
+void TTokenPos::Error(char* s, ...)const
 {
 	va_list args;
 	va_start(args, s);

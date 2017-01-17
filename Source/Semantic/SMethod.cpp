@@ -331,7 +331,7 @@ void TSMethod::CheckForErrors()
 			else //остальные бинарные операторы
 			{
 				if ((GetSyntax()->operator_type == Lexer::TOperator::Equal || GetSyntax()->operator_type == Lexer::TOperator::NotEqual)
-					&& ret.GetClass() != owner->GetClass(GetSyntax()->source->GetIdFromName("bool")))
+					&& ret.GetClass() != owner->GetClass(GetSyntax()->GetLexer()->GetIdFromName("bool")))
 					GetSyntax()->Error("Оператор сравнения должен возвращать логическое значение!");
 				if (GetParamsCount() != 2)
 					GetSyntax()->Error("У бинарного оператора должно быть 2 параметра!");
