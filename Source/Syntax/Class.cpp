@@ -156,7 +156,7 @@ int TClass::GetNestedCount()const
 
 TClass* TClass::GetNested(Lexer::TNameId name)const
 {
-	for (int i = 0; i < nested_classes.size(); i++)
+	for (size_t i = 0; i < nested_classes.size(); i++)
 	{
 		if (nested_classes[i]->GetName() == name)
 			return nested_classes[i].get();
@@ -176,7 +176,7 @@ TType* TClass::GetParent()const
 
 int TClass::FindNested(Lexer::TNameId name)const
 {
-	for (int i = 0; i < nested_classes.size(); i++)
+	for (size_t i = 0; i < nested_classes.size(); i++)
 	{
 		if (nested_classes[i]->GetName() == name)
 			return i;

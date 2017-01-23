@@ -163,38 +163,7 @@ namespace Lexer
 			assert(id >= -1);
 			return id == -1;
 		}
-	};
-
-	struct TToken
-	{
-		TTokenType type;
-		short token;
-		union
-		{
-			int int_attrib;
-			float float_attrib;
-			int identifier;
-		};
-		int line, col;
-		TToken(){}
-
-		TToken(TTokenType use_type) :type(use_type){}
-		TToken(TTokenType use_type, short use_token) :type(use_type), token(use_token){}
-		TToken(TTokenType use_type, short use_token, int use_att) :type(use_type), token(use_token), int_attrib(use_att){}
-		TToken(TTokenType use_type, short use_token, float use_att) :type(use_type), token(use_token), float_attrib(use_att){}
-		TToken(TTokenType use_type, short use_token, TNameId use_identifier)
-			:type(use_type), token(use_token), identifier(use_identifier.GetId()){}
-
-		void SetLineCol(int use_line, int use_col)
-		{
-			line = use_line;
-			col = use_col;
-		}
-		bool operator==(const TToken& v)const
-		{
-			return type == v.type&&token == v.token;
-		}
-	};
+	};	
 
 	class ILexer
 	{

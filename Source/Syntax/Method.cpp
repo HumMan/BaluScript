@@ -151,16 +151,27 @@ TMethod::~TMethod()
 
 }
 
-void TMethod::SetHasReturn(bool use_has_return){
+void TMethod::SetHasReturn(bool use_has_return)
+{
 	has_return = use_has_return;
 }
-TNameId TMethod::GetName(){
+bool TMethod::HasReturn()const
+{
+	return has_return;
+}
+TStatements* TMethod::GetStatements()const
+{
+	return statements.get();
+}
+TNameId TMethod::GetName()const
+{
 	return method_name;
 }
-TClass* TMethod::GetOwner()const{
+TClass* TMethod::GetOwner()const
+{
 	return owner;
 }
-TOperator TMethod::GetOperatorType()
+TOperator TMethod::GetOperatorType()const
 {
 	assert(member_type == TClassMember::Operator);
 	return operator_type;
@@ -169,21 +180,24 @@ TClassMember TMethod::GetMemberType()const
 {
 	return member_type;
 }
-TParameter* TMethod::GetParam(int use_id)
+TParameter* TMethod::GetParam(int use_id)const
 {
 	return parameters[use_id].get();
 }
-int TMethod::GetParamsCount(){
+int TMethod::GetParamsCount()const
+{
 	return parameters.size();
 }
 bool TMethod::IsReturnRef()const
 {
 	return ret_ref;
 }
-bool TMethod::IsStatic(){
+bool TMethod::IsStatic()const
+{
 	return is_static;
 }
-bool TMethod::IsExternal(){
+bool TMethod::IsExternal()const
+{
 	return is_extern;
 }
 //bool TMethod::IsBytecode()

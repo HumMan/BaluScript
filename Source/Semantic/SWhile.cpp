@@ -14,12 +14,12 @@ TSWhile::TSWhile(TSClass* use_owner, TSMethod* use_method, TSStatements* use_par
 
 void TSWhile::Build(TGlobalBuildContext build_context)
 {
-	compare = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, GetSyntax()->compare.get()));
+	compare = std::unique_ptr<TSExpression>(new TSExpression(GetOwner(), GetMethod(), GetParentStatements(), GetSyntax()->GetCompare()));
 	compare->Build(build_context);
 	TExpressionResult compare_result = compare->GetFormalParameter();
 	TestBoolExpr(compare_result, compare_conversion);
 
-	statements = std::unique_ptr<TSStatements>(new TSStatements(owner, method, parent, GetSyntax()->statements.get()));
+	statements = std::unique_ptr<TSStatements>(new TSStatements(GetOwner(), GetMethod(), GetParentStatements(), GetSyntax()->GetStatements()));
 	statements->Build(build_context);
 }
 

@@ -18,18 +18,19 @@ TSBytecode::TSBytecode(TSClass* use_owner, TSMethod* use_method, TSStatements* u
 
 void TSBytecode::Build(TGlobalBuildContext build_context)
 {
-	for (size_t i = 0; i<GetSyntax()->code.size(); i++)
+	auto code = GetSyntax()->GetBytecode();
+	for (size_t i = 0; i<code.size(); i++)
 	{
-		if (GetSyntax()->code[i].f[0] == TBytecode::TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID)
+		if (code[i].f[0] == TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID)
 		{
-			TSClass* temp = owner->GetClass(GetSyntax()->code[i].id[0]);
+			TSClass* temp = GetOwner()->GetClass(code[i].id[0]);
 			if (temp == NULL)GetSyntax()->Error("Неизвестный идентификатор!");
 			//GetSyntax()->code[i].op.v1 = program.CreateArrayElementClassId(temp);
 			array_element_classes.push_back(temp);
 		}//TODO сделать нормально без повторений
-		if (GetSyntax()->code[i].f[1] == TBytecode::TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID)
+		if (code[i].f[1] == TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID)
 		{
-			TSClass* temp = owner->GetClass(GetSyntax()->code[i].id[1]);
+			TSClass* temp = GetOwner()->GetClass(code[i].id[1]);
 			if (temp == NULL)GetSyntax()->Error("Неизвестный идентификатор!");
 			//code[i].op.v2 = program.CreateArrayElementClassId(temp);
 			array_element_classes.push_back(temp);
@@ -65,17 +66,17 @@ void TSBytecode::Run(TStatementRunContext run_context)
 	PackToStack(*run_context.formal_params, sp);
 
 	auto object = (run_context.object!=nullptr)?(int*)run_context.object->get():nullptr;
-
-	for (TBytecode::TBytecodeOp& op : GetSyntax()->code)
+	auto code = GetSyntax()->GetBytecode();
+	for (const TBytecodeOp& op : code)
 	{
 		
 		if (
-			TVirtualMachine::ExecuteIntOps(&op.op, sp, object) ||
-			TVirtualMachine::ExecuteFloatOps(&op.op, sp, object) ||
-			TVirtualMachine::ExecuteBoolOps(&op.op, sp, object) ||
-			TVirtualMachine::ExecuteBaseOps(&op.op, sp, object) ||
-			TVirtualMachine::ExecuteVec2Ops(&op.op, sp, object) ||
-			TVirtualMachine::ExecuteVec2iOps(&op.op, sp, object))
+			TVirtualMachine::ExecuteIntOps(op.op, sp, object) ||
+			TVirtualMachine::ExecuteFloatOps(op.op, sp, object) ||
+			TVirtualMachine::ExecuteBoolOps(op.op, sp, object) ||
+			TVirtualMachine::ExecuteBaseOps(op.op, sp, object) ||
+			TVirtualMachine::ExecuteVec2Ops(op.op, sp, object) ||
+			TVirtualMachine::ExecuteVec2iOps(op.op, sp, object))
 		{
 
 		}
@@ -84,16 +85,16 @@ void TSBytecode::Run(TStatementRunContext run_context)
 			throw;//GetSyntax()->Error("Неизвестная команда!");
 		}
 	}
-	if (method->GetRetClass() != NULL)
+	if (GetMethod()->GetRetClass() != NULL)
 	{
-		*run_context.result = TStackValue(method->GetSyntax()->IsReturnRef(), method->GetRetClass());
-		if (method->GetSyntax()->IsReturnRef())
+		*run_context.result = TStackValue(GetMethod()->GetSyntax()->IsReturnRef(), GetMethod()->GetRetClass());
+		if (GetMethod()->GetSyntax()->IsReturnRef())
 		{
 			run_context.result->SetAsReference(*(void**)stack);
 		}
 		else
 		{
-			memcpy(run_context.result->get(), stack, method->GetReturnSize()*sizeof(int));
+			memcpy(run_context.result->get(), stack, GetMethod()->GetReturnSize()*sizeof(int));
 		}
 	}
 }

@@ -14,9 +14,7 @@ class TStackValue;
 
 class TSClass:public TSyntaxNode<IClass>, public TNodeWithSize,public TNodeSignatureLinked,public TNodeBodyLinked,public TNodeWithTemplates, public TNodeWithAutoMethods
 {	
-	friend class TStaticArr;
-	friend class TSMethod;
-	std::list<TSClassField> fields;
+	std::vector<std::unique_ptr<TSClassField>> fields;
 	std::list<TSOverloadedMethod> methods;
 
 	std::unique_ptr<TSMethod> default_constructor;
@@ -41,6 +39,8 @@ class TSClass:public TSyntaxNode<IClass>, public TNodeWithSize,public TNodeSigna
 	TSClass* owner;
 
 public:
+	TSMethod* GetAutoDefConstr()const;
+	TSMethod* GetAutoDestr()const;
 	void AddClass(TSClass* use_class);
 	void CopyExternalMethodBindingsFrom(TSClass* source);
 	TSClass(TSClass* use_owner, IClass* use_syntax_node, TNodeWithTemplates::Type type = TNodeWithTemplates::Unknown);
@@ -53,6 +53,8 @@ public:
 	}
 	TSClass* GetNestedByFullName(std::vector<Lexer::TNameId> full_name, int curr_id);
 	TSClassField* GetField(Lexer::TNameId name, bool only_in_this);
+	TSClassField* GetField(int i)const;
+	int GetFieldsCount()const;
 	TSClassField* GetField(Lexer::TNameId name, bool is_static, bool only_in_this);
 	bool HasConversion(TSClass* target_type);
 	bool IsNestedIn(TSClass* use_parent);

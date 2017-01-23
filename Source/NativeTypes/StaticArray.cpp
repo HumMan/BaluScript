@@ -11,8 +11,8 @@
 void TStaticArr::get_element_op(TMethodRunContext run_context)
 {
 	TSClass* obj_class = (*run_context.formal_params)[0].GetClass();
-	TSClass* el = obj_class->fields.begin()->GetClass();
-	int size = obj_class->fields.begin()->GetSizeMultiplier();
+	TSClass* el = obj_class->GetField(0)->GetClass();
+	int size = obj_class->GetField(0)->GetSizeMultiplier();
 	int index = (*(int*)(*run_context.formal_params)[1].get());
 	if (index < 0 || index >= size)
 		throw std::string("Index out of range");
@@ -22,7 +22,7 @@ void TStaticArr::get_element_op(TMethodRunContext run_context)
 void TStaticArr::get_size(TMethodRunContext run_context)
 {
 	TSClass* obj_class = run_context.object->GetClass();
-	int size = obj_class->fields.begin()->GetSizeMultiplier();
+	int size = obj_class->GetField(0)->GetSizeMultiplier();
 	*(int*)run_context.result->get() = size;
 }
 

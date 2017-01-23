@@ -61,16 +61,16 @@ bool IsVarDecl(Lexer::ILexer* source) {
 void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
 	switch (source->Type()) {
 	case TTokenType::LBrace: {
-		TStatements* s = new TStatements(owner, method, this,
+		TStatements* s = new TStatements(GetOwner(), GetMethod(), this,
 				statements.size());
 		Add(s);
 		s->AnalyzeSyntax(source);
 		return;
 	}
 	case TTokenType::ResWord: {
-		switch (source->Token()) {
+		switch ((TResWord)source->Token()) {
 		case TResWord::Return: {
-			TReturn* t = new TReturn(owner, method, this, statements.size());
+			TReturn* t = new TReturn(GetOwner(), GetMethod(), this, statements.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
 			if (!end_semicolon)
@@ -79,7 +79,7 @@ void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
 			return;
 		}
 		case TResWord::If: {
-			TIf* t = new TIf(owner, method, this, statements.size());
+			TIf* t = new TIf(GetOwner(), GetMethod(), this, statements.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
 			return;
@@ -88,12 +88,12 @@ void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
 			source->GetToken(TResWord::For);
 			source->GetToken(TTokenType::LParenth);
 
-			TStatements* for_stmt = new TStatements(owner, method, this,
+			TStatements* for_stmt = new TStatements(GetOwner(), GetMethod(), this,
 					statements.size());
 			Add(for_stmt);
 
 			TFor* t =
-					new TFor(owner, method, for_stmt, for_stmt->GetHigh()+1);
+				new TFor(GetOwner(), GetMethod(), for_stmt, for_stmt->GetHigh() + 1);
 			for_stmt->AnalyzeSyntax(source);
 			for_stmt->Add(t);
 
@@ -101,13 +101,13 @@ void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
 			return;
 		}
 		case TResWord::While: {
-			TWhile* t = new TWhile(owner, method, this, statements.size());
+			TWhile* t = new TWhile(GetOwner(), GetMethod(), this, statements.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
 			return;
 		}
 		case TResWord::This: {
-			TExpression* t = new TExpression(owner, method, this,
+			TExpression* t = new TExpression(GetOwner(), GetMethod(), this,
 					statements.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
@@ -116,7 +116,7 @@ void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
 			return;
 		}
 		case TResWord::Bytecode: {
-			TBytecode* t = new TBytecode(owner, method, this,
+			TBytecode* t = new TBytecode(GetOwner(), GetMethod(), this,
 					statements.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
@@ -129,12 +129,12 @@ void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
 	}
 	default:
 		if (IsVarDecl(source)) {
-			TLocalVar* t = new TLocalVar(owner, method, this,
+			TLocalVar* t = new TLocalVar(GetOwner(), GetMethod(), this,
 					statements.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
 		} else {
-			TExpression* t = new TExpression(owner, method, this,
+			TExpression* t = new TExpression(GetOwner(), GetMethod(), this,
 					statements.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
@@ -171,7 +171,10 @@ void TStatements::AddVar(TLocalVar* use_var)
 	statements.push_back(std::unique_ptr<TStatement>(use_var));
 	use_var->SetStmtId(statements.size() - 1);
 }
-
+int TStatements::GetStatementsCount()const
+{
+	return statements.size();
+}
 TStatement* TStatements::GetStatement(int i)
 {
 	return statements[i].get();

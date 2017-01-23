@@ -21,3 +21,15 @@ void TParameter::AnalyzeSyntax(Lexer::ILexer* source)
 	name = source->NameId();
 	source->GetToken(TTokenType::Identifier);
 }
+
+Lexer::TNameId TParameter::GetName()const
+{
+	return name;
+}
+TType* TParameter::GetType()const
+{
+	return type.get();
+}
+bool TParameter::IsRef()const{
+	return is_ref;
+}

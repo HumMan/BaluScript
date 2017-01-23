@@ -15,18 +15,18 @@
 
 void TSReturn::Build(TGlobalBuildContext build_context)
 {
-	result = std::unique_ptr<TSExpression>(new TSExpression(owner, method, parent, &GetSyntax()->result));
+	result = std::unique_ptr<TSExpression>(new TSExpression(GetOwner(), GetMethod(), GetParentStatements(), GetSyntax()->GetResult()));
 	result->Build(build_context);
 	TExpressionResult result_result = result->GetFormalParameter();
-	if(method->GetRetClass()!=NULL)
+	if (GetMethod()->GetRetClass() != NULL)
 	{
 		int conv_needed;
 		if(result_result.IsVoid())
 			GetSyntax()->Error("После оператора return должно следовать какое-то выражение!");
-		if(!IsEqualClasses(result_result,TFormalParameter(method->GetRetClass(),method->GetSyntax()->IsReturnRef()),conv_needed))
+		if (!IsEqualClasses(result_result, TFormalParameter(GetMethod()->GetRetClass(), GetMethod()->GetSyntax()->IsReturnRef()), conv_needed))
 			GetSyntax()->Error("Выражение невозможно преобразовать в тип возвращаемого значения!");
 		conversions.reset(new TActualParamWithConversion());
-		conversions->BuildConvert(result_result, TFormalParameter(method->GetRetClass(), method->GetSyntax()->IsReturnRef()));
+		conversions->BuildConvert(result_result, TFormalParameter(GetMethod()->GetRetClass(), GetMethod()->GetSyntax()->IsReturnRef()));
 	}
 	else 
 		if(result_result.GetClass()!=NULL)

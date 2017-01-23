@@ -13,7 +13,7 @@ enum class TVariableType
 
 class TVariable
 {
-protected:
+private:
 	TVariableType var_type;
 public:
 	TVariable(TVariableType use_var_type) :var_type(use_var_type){}

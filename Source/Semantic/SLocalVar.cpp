@@ -21,11 +21,11 @@ void TSLocalVar::Build(TGlobalBuildContext build_context)
 	type.LinkBody(build_context);
 
 	std::vector<TSMethod*> methods;
-	if (owner->GetMethods(methods, GetSyntax()->name))
+	if (GetOwner()->GetMethods(methods, GetSyntax()->GetName()))
 		GetSyntax()->Error("Метод не может быть именем переменной!");
-	if (owner->GetClass(GetSyntax()->name) != NULL)
+	if (GetOwner()->GetClass(GetSyntax()->GetName()) != NULL)
 		GetSyntax()->Error("Класс не может быть именем переменной!");
-	TVariable* t = parent->GetVar(GetSyntax()->name, GetSyntax()->stmt_id);
+	TVariable* t = GetParentStatements()->GetVar(GetSyntax()->GetName(), GetSyntax()->GetStmtId());
 	if (t != NULL&&t != this)
 	{
 		switch (t->GetType())
@@ -40,19 +40,19 @@ void TSLocalVar::Build(TGlobalBuildContext build_context)
 		}
 	}
 
-	construct_object.reset(new TSConstructObject(owner, method, parent, type.GetClass()));
+	construct_object.reset(new TSConstructObject(GetOwner(), GetMethod(), GetParentStatements(), type.GetClass()));
 
-	construct_object->Build(GetSyntax(),GetSyntax()->params, build_context);
+	construct_object->Build(GetSyntax(),GetSyntax()->GetParams(), build_context);
 
-	if (GetSyntax()->is_static)
+	if (GetSyntax()->IsStatic())
 	{
 		build_context.static_variables->push_back(this);
 	}
-	parent->AddVar(this, GetSyntax()->stmt_id);
+	GetParentStatements()->AddVar(this, GetSyntax()->GetStmtId());
 
-	if (GetSyntax()->assign_expr != NULL)
+	if (GetSyntax()->GetAssignExpr() != NULL)
 	{
-		assign_expr.reset(new TSExpression(owner, method, parent, GetSyntax()->assign_expr.get()));
+		assign_expr.reset(new TSExpression(GetOwner(), GetMethod(), GetParentStatements(), GetSyntax()->GetAssignExpr()));
 		assign_expr->Build(build_context);
 	}
 }

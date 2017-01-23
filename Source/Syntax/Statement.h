@@ -22,7 +22,7 @@ enum class TStatementType
 
 class TStatement:public Lexer::TTokenPos
 {
-protected:
+private:
 	TMethod* method;
 	TStatements* parent;
 	TClass* owner;
@@ -30,6 +30,26 @@ protected:
 	TStatementType stmt_type;
 public:
 	void SetStmtId(int use_id);
+	int GetStmtId()
+	{
+		return stmt_id;
+	}
+	TStatementType GetStmtType()
+	{
+		return stmt_type;
+	}
+	TMethod* GetMethod()
+	{
+		return method;
+	}
+	TStatements* GetParent()
+	{
+		return parent;
+	}
+	TClass* GetOwner()
+	{
+		return owner;
+	}
 	TStatement(TStatementType use_stmt_type, TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);
 	TStatementType GetType();
 	virtual void Accept(TStatementVisitor* visitor) = 0;

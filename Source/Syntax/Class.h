@@ -54,7 +54,7 @@ public:
 
 class TClass:public Lexer::TTokenPos, public TCanBeEnumeration, public IClass
 {
-protected:
+private:
 	bool is_template;
 
 	std::vector<Lexer::TNameId> template_params;

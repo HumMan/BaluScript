@@ -29,7 +29,6 @@ void TSyntaxAnalyzer::Compile(char* use_source/*, TTime& time*/)
 	//printf("Source parsing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
 	//t = time.GetTime();
 	base_class.reset(new TClass(NULL));
-	base_class->InitPos(lexer.get());
 
 	base_class->AnalyzeSyntax(lexer.get());
 	lexer->GetToken(Lexer::TTokenType::Done);

@@ -4,113 +4,190 @@
 
 #include <list>
 
-class TVariable;
 class TExpressionTreeVisitor;
-class TSOperation;
 
 class TOperation
 {
 public:
 	Lexer::TTokenPos operation_source;
 	virtual ~TOperation(){}
-	virtual TSOperation* Accept(TExpressionTreeVisitor* visitor) = 0;
+	virtual void Accept(TExpressionTreeVisitor* visitor) = 0;
 };
 
 class TExpression:public TStatement, public TOperation
 {
-	friend class TSExpression;
 public:
 	
 	class TBinOp:public TOperation
 	{
-		friend class TSemanticTreeBuilder;
 		std::unique_ptr<TOperation> left, right;
 		Lexer::TOperator op;
 	public:
+		TOperation* GetLeft()const
+		{
+			return left.get();
+		}
+		TOperation* GetRight()const
+		{
+			return right.get();
+		}
+		Lexer::TOperator GetOp()const
+		{
+			return op;
+		}
 		TBinOp(TOperation *use_left, TOperation *use_right, Lexer::TOperator use_op) :left(use_left), right(use_right), op(use_op){}
-		TSOperation* Accept(TExpressionTreeVisitor* visitor);
+		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TUnaryOp:public TOperation
 	{
-		friend class TSemanticTreeBuilder;
 		std::unique_ptr<TOperation> left;
 		Lexer::TOperator op;
 	public:
+		TOperation* GetLeft()const
+		{
+			return left.get();
+		}
+		Lexer::TOperator GetOp()const
+		{
+			return op;
+		}
 		TUnaryOp(TOperation *use_left, Lexer::TOperator use_op) :left(use_left), op(use_op){}
-		TSOperation* Accept(TExpressionTreeVisitor* visitor);
+		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TIntValue:public TOperation
 	{
-		friend class TSemanticTreeBuilder;
 		int val;
 		TType type;
 	public:
+		int GetValue()const
+		{
+			return val;
+		}
+		TType* GetType()
+		{
+			return &type;
+		}
 		TIntValue(int use_val, Lexer::TNameId int_class_name, TClass* use_owner) :val(use_val), type(int_class_name, use_owner){}
-		TSOperation* Accept(TExpressionTreeVisitor* visitor);
+		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TFloatValue:public TOperation
 	{
-		friend class TSemanticTreeBuilder;
 		float val;
 		TType type;
 	public:
+		float GetValue()const
+		{
+			return val;
+		}
+		TType* GetType()
+		{
+			return &type;
+		}
 		TFloatValue(float use_val, Lexer::TNameId float_class_name, TClass* use_owner) :val(use_val), type(float_class_name, use_owner){}
-		TSOperation* Accept(TExpressionTreeVisitor* visitor);
+		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TBoolValue:public TOperation
 	{
-		friend class TSemanticTreeBuilder;
 		bool val;
 		TType type;
 	public:
+		bool GetValue()const
+		{
+			return val;
+		}
+		TType* GetType()
+		{
+			return &type;
+		}
 		TBoolValue(bool use_val, Lexer::TNameId bool_class_name, TClass* use_owner) :val(use_val), type(bool_class_name, use_owner){}
-		TSOperation* Accept(TExpressionTreeVisitor* visitor);
+		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TStringValue:public TOperation
 	{
-		friend class TSemanticTreeBuilder;
 		std::string val;
 		TType type;
 	public:
+		std::string GetValue()const
+		{
+			return val;
+		}
+		TType* GetType()
+		{
+			return &type;
+		}
 		TStringValue(std::string use_val, Lexer::TNameId string_class_name, TClass* use_owner) :val(use_val), type(string_class_name, use_owner){}
-		TSOperation* Accept(TExpressionTreeVisitor* visitor);
+		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TCharValue:public TOperation
 	{
-		friend class TSemanticTreeBuilder;
 		char val;
 		TType type;
 	public:
+		char GetValue()const
+		{
+			return val;
+		}
+		TType* GetType()
+		{
+			return &type;
+		}
 		TCharValue(char use_val, Lexer::TNameId char_class_name, TClass* use_owner) :val(use_val), type(char_class_name, use_owner){}
-		TSOperation* Accept(TExpressionTreeVisitor* visitor);
+		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TGetMemberOp:public TOperation
 	{
-		friend class TSemanticTreeBuilder;
 		std::unique_ptr<TOperation> left;
 		Lexer::TNameId name;
 	public:
+		TOperation* GetLeft()const
+		{
+			return left.get();
+		}
+		Lexer::TNameId GetName()const
+		{
+			return name;
+		}
 		TGetMemberOp(TOperation *use_left, Lexer::TNameId use_member) :left(use_left), name(use_member){}
-		TSOperation* Accept(TExpressionTreeVisitor* visitor);
+		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TConstructTempObject :public TOperation
 	{
-		friend class TSemanticTreeBuilder;
-		
-	public:
 		std::unique_ptr<TType> type;
+	public:		
+		TType* GetType()const
+		{
+			return type.get();
+		}
 		TConstructTempObject(){}
-		TSOperation* Accept(TExpressionTreeVisitor* visitor);
+		TConstructTempObject(TType* type)
+		{
+			this->type.reset(type);
+		}
+		void Accept(TExpressionTreeVisitor* visitor);
 	};
 	class TCallParamsOp:public TOperation
 	{
-		friend class TSemanticTreeBuilder;
 		std::unique_ptr<TOperation> left;
 		std::vector<std::unique_ptr<TExpression>> param;
 		bool is_bracket;
 	public:
+		TOperation* GetLeft()const
+		{
+			return left.get();
+		}
+		bool IsBracket()const
+		{
+			return is_bracket;
+		}
+		std::vector<TExpression*> GetParam()const
+		{
+			std::vector<TExpression*> result;
+			for (const std::unique_ptr<TExpression>& v : param)
+				result.push_back(v.get());
+			return result;
+		}
 		TCallParamsOp(){}
-		TSOperation* Accept(TExpressionTreeVisitor* visitor);
+		void Accept(TExpressionTreeVisitor* visitor);
 		TCallParamsOp(TOperation *use_left,bool use_is_bracket):left(use_left),is_bracket(use_is_bracket)
 		{
 		}
@@ -121,16 +198,20 @@ public:
 	};
 	class TId:public TOperation
 	{
-	public:
 		Lexer::TNameId name;
+	public:		
+		Lexer::TNameId GetName()const
+		{
+			return name;
+		}
 		TId(Lexer::TNameId use_name) :name(use_name){}
-		TSOperation* Accept(TExpressionTreeVisitor* visitor);
+		void Accept(TExpressionTreeVisitor* visitor);
 	};
 
 	class TThis:public TOperation
 	{
 	public:
-		TSOperation* Accept(TExpressionTreeVisitor* visitor);
+		void Accept(TExpressionTreeVisitor* visitor);
 	};
 
 	std::unique_ptr<TOperation> first_op;
@@ -159,7 +240,7 @@ public:
 	~TExpression()
 	{
 	}
-	TSOperation* Accept(TExpressionTreeVisitor* visitor)
+	void Accept(TExpressionTreeVisitor* visitor)
 	{
 		return first_op->Accept(visitor);
 	}
@@ -169,16 +250,16 @@ public:
 class TExpressionTreeVisitor
 {
 public:
-	virtual TSOperation* Visit(TExpression::TBinOp* op) = 0;
-	virtual TSOperation* Visit(TExpression::TUnaryOp* op) = 0;
-	virtual TSOperation* Visit(TExpression::TCallParamsOp* op) = 0;
-	virtual TSOperation* Visit(TExpression::TConstructTempObject* op) = 0;
-	virtual TSOperation* Visit(TExpression::TCharValue* op) = 0;
-	virtual TSOperation* Visit(TExpression::TFloatValue* op) = 0;
-	virtual TSOperation* Visit(TExpression::TGetMemberOp* op) = 0;
-	virtual TSOperation* Visit(TExpression::TId* op) = 0;
-	virtual TSOperation* Visit(TExpression::TIntValue *op) = 0;
-	virtual TSOperation* Visit(TExpression::TStringValue *op) = 0;
-	virtual TSOperation* Visit(TExpression::TThis *op) = 0;
-	virtual TSOperation* Visit(TExpression::TBoolValue *op) = 0;
+	virtual void Visit(TExpression::TBinOp* op) = 0;
+	virtual void Visit(TExpression::TUnaryOp* op) = 0;
+	virtual void Visit(TExpression::TCallParamsOp* op) = 0;
+	virtual void Visit(TExpression::TConstructTempObject* op) = 0;
+	virtual void Visit(TExpression::TCharValue* op) = 0;
+	virtual void Visit(TExpression::TFloatValue* op) = 0;
+	virtual void Visit(TExpression::TGetMemberOp* op) = 0;
+	virtual void Visit(TExpression::TId* op) = 0;
+	virtual void Visit(TExpression::TIntValue *op) = 0;
+	virtual void Visit(TExpression::TStringValue *op) = 0;
+	virtual void Visit(TExpression::TThis *op) = 0;
+	virtual void Visit(TExpression::TBoolValue *op) = 0;
 };

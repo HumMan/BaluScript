@@ -5,13 +5,13 @@
 
 class TReturn:public TStatement
 {
-	friend class TSReturn;
-	TExpression result;
+	std::unique_ptr<TExpression> result;
 	void operator=(const TReturn& use_source);
 public:
+	TExpression* GetResult()const;
 	TReturn(TClass* use_owner,TMethod* use_method,TStatements* use_parent,int use_stmt_id)
 		:TStatement(TStatementType::Return,use_owner,use_method,use_parent,use_stmt_id)//TODO вроде здесь родитель и id не нужен вовсе
-		,result(use_owner,use_method,use_parent,use_stmt_id)
+		,result(new TExpression(use_owner,use_method,use_parent,use_stmt_id))
 	{}
 	void AnalyzeSyntax(Lexer::ILexer* source);
 	void Accept(TStatementVisitor* visitor);

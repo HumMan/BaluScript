@@ -29,6 +29,11 @@ void TClassField::AnalyzeSyntax(Lexer::ILexer* source) {
 	source->GetToken(TTokenType::Semicolon);
 }
 
+TType* TClassField::GetType()const
+{
+	return type.get();
+}
+
 bool TClassField::IsReadOnly()const
 {
 	return read_only;

@@ -10,8 +10,15 @@ TSOverloadedMethod::TSOverloadedMethod(TSClass* use_owner, TOverloadedMethod* us
 	:linked_signature(false), linked_body(false), TSyntaxNode(use_syntax), owner(use_owner)
 {
 }
-
-TSMethod* TSOverloadedMethod::FindParams(std::vector<std::unique_ptr<TSParameter>>& params)
+TSMethod* TSOverloadedMethod::GetMethod(int i)const
+{
+	return methods[i].get();
+}
+int TSOverloadedMethod::GetMethodsCount()const
+{
+	return methods.size();
+}
+TSMethod* TSOverloadedMethod::FindParams(const std::vector<TSParameter*>& params)const
 {
 	for (const std::unique_ptr<TSMethod>& method : methods)
 		if (method->HasParams(params))
@@ -19,7 +26,7 @@ TSMethod* TSOverloadedMethod::FindParams(std::vector<std::unique_ptr<TSParameter
 	return NULL;
 }
 
-TSMethod* TSOverloadedMethod::FindConversion(std::vector<std::unique_ptr<TSParameter>>& params, TSClass* ret_class)
+TSMethod* TSOverloadedMethod::FindConversion(const std::vector<TSParameter*>& params, TSClass* ret_class)const
 {
 	for (const std::unique_ptr<TSMethod>& i : methods)
 		if (i->HasParams(params) && i->GetRetClass() == ret_class)
@@ -43,17 +50,17 @@ void TSOverloadedMethod::CopyExternalMethodBindingsFrom(TSOverloadedMethod* sour
 		methods[i]->CopyExternalMethodBindingsFrom(source->methods[i].get());
 }
 
-bool TSOverloadedMethod::ParamsExists(TSMethod* use_method)
+bool TSOverloadedMethod::ParamsExists(TSMethod* use_method)const
 {
-	return FindParams(use_method->parameters) != NULL;
+	return FindParams(use_method->GetParameters()) != NULL;
 }
 
-TSMethod* TSOverloadedMethod::FindParams(TSMethod* use_method)
+TSMethod* TSOverloadedMethod::FindParams(TSMethod* use_method)const
 {
-	return FindParams(use_method->parameters);
+	return FindParams(use_method->GetParameters());
 }
 
-void TSOverloadedMethod::GetMethods(std::vector<TSMethod*> &result)
+void TSOverloadedMethod::GetMethods(std::vector<TSMethod*> &result)const
 {
 	for (const std::unique_ptr<TSMethod>& i : methods)
 		result.push_back(i.get());
@@ -66,12 +73,12 @@ void TSOverloadedMethod::CheckForErrors(bool is_conversion)
 		i->CheckForErrors();
 		if (is_conversion)
 		{
-			if (FindConversion(i->parameters, i->GetRetClass()) != &(*i))
+			if (FindConversion(i->GetParameters(), i->GetRetClass()) != &(*i))
 				i->GetSyntax()->Error("Метод с такими параметрами уже существует!");
 		}
 		else
 		{
-			if (FindParams(i->parameters) != &(*i))
+			if (FindParams(i->GetParameters()) != &(*i))
 				i->GetSyntax()->Error("Метод с такими параметрами уже существует!");
 		}
 	}

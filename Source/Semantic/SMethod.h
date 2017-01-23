@@ -47,7 +47,6 @@ typedef void(*TExternalSMethod)(TMethodRunContext run_context);
 
 class TSMethod :public TSyntaxNode<TMethod>, public TSpecialClassMethod, public TNodeSignatureLinked, public TNodeBodyLinked
 {
-	friend class TSOverloadedMethod;
 private:
 	TSType ret;
 	bool has_return;
@@ -94,9 +93,10 @@ public:
 	TSClass* GetOwner()const;
 	TSClass* GetRetClass();
 	TSParameter* GetParam(int use_id);
+	std::vector<TSParameter*> GetParameters()const;
 	TVariable* GetVar(Lexer::TNameId name);
 	int GetParamsCount();
-	bool HasParams(std::vector<std::unique_ptr<TSParameter>> &use_params)const;
+	bool HasParams(const std::vector<TSParameter*> &use_params)const;
 	void CheckForErrors();
 
 	void Build();

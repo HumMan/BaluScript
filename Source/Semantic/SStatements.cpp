@@ -98,9 +98,9 @@ void TSStatements::AddVar(TSLocalVar* var, int stmt_id)
 
 int TSStatements::GetLastVariableOffset()
 {
-	if (parent != NULL)
+	if (GetParentStatements() != NULL)
 	{
-		return parent->GetLastVariableOffset() + var_declarations.size();
+		return GetParentStatements()->GetLastVariableOffset() + var_declarations.size();
 	}
 	else
 	{
@@ -110,9 +110,11 @@ int TSStatements::GetLastVariableOffset()
 
 void TSStatements::Build(TGlobalBuildContext build_context)
 {
-	for (const std::unique_ptr<TStatement>& st : ((TStatements*)GetSyntax())->statements)
+	auto syntax = ((TStatements*)GetSyntax());
+	for (int i = 0; i < syntax->GetStatementsCount(); i++)
 	{
-		TSStatementBuilder b(build_context, owner, method, this);
+		TStatement* st = syntax->GetStatement(i);
+		TSStatementBuilder b(build_context, GetOwner(), GetMethod(), this);
 		st->Accept(&b);
 		statements.push_back(std::unique_ptr<TSStatement>(b.GetResult()));
 	}
@@ -134,8 +136,10 @@ TVariable* TSStatements::GetVar(Lexer::TNameId name, int sender_id)
 	//		return ((TLocalVar*)(statement[i]));
 	//	if(statement[i]==sender)break;
 	//}
-	if (parent != NULL)return parent->GetVar(name, GetSyntax()->stmt_id);
-	else if (method != NULL)return  method->GetVar(name);
+	if (GetParentStatements() != NULL)
+		return GetParentStatements()->GetVar(name, GetSyntax()->GetStmtId());
+	else if (GetMethod() != NULL)
+		return  GetMethod()->GetVar(name);
 	else return NULL;
 }
 

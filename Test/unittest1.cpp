@@ -56,8 +56,8 @@ namespace Test
 		{
 			printf(s.c_str());
 			Logger::WriteMessage(s.c_str());
-			//throw;
 		}
+		return nullptr;
 	}
 	TSClass* CreateClass(char* code)
 	{
@@ -99,8 +99,8 @@ namespace Test
 		{
 			printf(s.c_str());
 			Logger::WriteMessage(s.c_str());
-			//throw;
 		}
+		return nullptr;
 	}
 	TStackValue RunCode(char* code)
 	{
@@ -1889,6 +1889,16 @@ namespace Test
 				"}"
 				).get());
 		}
+		//TODO тип char
+		//TEST_METHOD(StringGetCharValue)
+		//{
+		//	Assert::AreEqual('e', *(char*)RunCode(
+		//		"func static Test:char"
+		//		"{"
+		//		"	return 'e';"
+		//		"}"
+		//		).get());
+		//}
 		TEST_METHOD(StringGetLengthFromTemp0)
 		{
 			//TODO тут имеется утечка String.h(24) - нужно убрать
@@ -1899,6 +1909,7 @@ namespace Test
 				"}"
 				).get());
 		}
+		//TODO добавить деструктор для временных объектов
 		TEST_METHOD(StringGetLengthFromTemp)
 		{
 			Assert::AreEqual(16, *(int*)RunCode(

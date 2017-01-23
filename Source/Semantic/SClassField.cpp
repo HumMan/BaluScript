@@ -6,7 +6,7 @@
 
 TSClassField::TSClassField(TSClass* use_owner, TClassField* use_syntax) 
 	:TSyntaxNode(use_syntax), TVariable(TVariableType::ClassField)
-	, type(use_owner, use_syntax->type.get())
+	, type(use_owner, use_syntax->GetType())
 {
 	owner = use_owner;
 }

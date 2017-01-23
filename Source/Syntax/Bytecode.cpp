@@ -85,3 +85,8 @@ void TBytecode::Accept(TStatementVisitor* visitor)
 {
 	visitor->Visit(this);
 }
+
+const std::vector<TBytecodeOp>& TBytecode::GetBytecode()
+{
+	return code;
+}

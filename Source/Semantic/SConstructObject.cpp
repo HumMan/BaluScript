@@ -48,15 +48,15 @@ void TSConstructObject::Build(Lexer::TTokenPos* source, std::vector<TExpressionR
 	}
 }
 
-void TSConstructObject::Build(Lexer::TTokenPos* source, std::vector<std::unique_ptr<TExpression>>& syntax_params, TGlobalBuildContext build_context)
+void TSConstructObject::Build(Lexer::TTokenPos* source, const std::vector<TExpression*>& syntax_params, TGlobalBuildContext build_context)
 {
 	std::vector<TExpressionResult> params_result;
 	std::vector<TFormalParameter> params_formals;
 	std::vector<TSOperation*> params;
 
-	for (const std::unique_ptr<TExpression>& param_syntax : syntax_params)
+	for (TExpression* param_syntax : syntax_params)
 	{
-		auto t = new TSExpression(owner, method, parent, param_syntax.get());
+		auto t = new TSExpression(owner, method, parent, param_syntax);
 		t->Build(build_context);
 		params.push_back(t);
 		params_result.push_back(params.back()->GetFormalParameter());

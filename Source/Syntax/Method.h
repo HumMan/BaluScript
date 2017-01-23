@@ -21,8 +21,6 @@ enum class TClassMember
 
 class TMethod:public Lexer::TTokenPos,public TAccessible
 {
-	friend class TOverloadedMethod;
-	friend class TSMethod;
 private:
 	std::unique_ptr<TType> ret;
 	bool ret_ref;
@@ -47,21 +45,23 @@ public:
 	void AnalyzeSyntax(Lexer::ILexer* source,bool realization=true);//realization - используется при получении идентификатора метода (т.к. только прототип без тела метода)
 
 	void SetHasReturn(bool use_has_return);
-	Lexer::TNameId GetName();
+	bool HasReturn()const;
+	TStatements* GetStatements()const;
+	Lexer::TNameId GetName()const;
 	TClass* GetOwner()const;
-	Lexer::TOperator GetOperatorType();
+	Lexer::TOperator GetOperatorType()const;
 	TClassMember GetMemberType()const;
-	int GetParamsSize();
-	TParameter* GetParam(int use_id);
-	int GetParamsCount();
+	int GetParamsSize()const;
+	TParameter* GetParam(int use_id)const;
+	int GetParamsCount()const;
 	bool IsReturnRef()const;
-	bool IsStatic();
-	bool IsExternal();
+	bool IsStatic()const;
+	bool IsExternal()const;
 	//bool IsBytecode();
 	void AddParam(TParameter* use_param);
 	bool HasParams(std::vector<std::unique_ptr<TParameter>> &use_params)const;
 	void CheckForErrors();
-	TType* GetRetType()
+	TType* GetRetType()const
 	{
 		return ret.get();
 	}

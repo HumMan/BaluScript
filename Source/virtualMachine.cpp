@@ -249,41 +249,41 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 	}
 	op++;
 }
-bool TVirtualMachine::ExecuteBaseOps(TOp* op, int*& sp, int* object)
+bool TVirtualMachine::ExecuteBaseOps(const TOp& op, int*& sp, int* object)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
 	//int
-	switch (op->type)
+	switch (op.type)
 	{
 	case ASSIGN:
 	{
 		int *s, *d;
-		if (op->f1){
+		if (op.f1){
 			s = (int*)(sp[0]);
 			d = (int*)(sp[-1]);
 		}
 		else{
-			s = &sp[1 - op->v1];
-			d = (int*)(sp[-op->v1]);
+			s = &sp[1 - op.v1];
+			d = (int*)(sp[-op.v1]);
 		}
-		memcpy(d, s, op->v1 * 4);
-		if (op->f1)
+		memcpy(d, s, op.v1 * 4);
+		if (op.f1)
 			sp -= 2;
 		else
-			sp -= op->v1 + 1;
+			sp -= op.v1 + 1;
 	}break;
 	default:
 		return false;
 	}
 	return true;
 }
-bool TVirtualMachine::ExecuteVec2Ops(TOp* op, int*& sp, int* object)
+bool TVirtualMachine::ExecuteVec2Ops(const TOp& op, int*& sp, int* object)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
 	//int
-	switch (op->type)
+	switch (op.type)
 	{
 	case VEC2_CONSTR:
 		*(TVec2*)object = *(TVec2*)(sp - 1);
@@ -354,12 +354,12 @@ bool TVirtualMachine::ExecuteVec2Ops(TOp* op, int*& sp, int* object)
 	}
 	return true;
 }
-bool TVirtualMachine::ExecuteVec2iOps(TOp* op, int*& sp, int* object)
+bool TVirtualMachine::ExecuteVec2iOps(const TOp& op, int*& sp, int* object)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
 	//int
-	switch (op->type)
+	switch (op.type)
 	{
 	case VEC2I_CONSTR:
 		*(TVec2i*)object = *(TVec2i*)(sp - 1);
@@ -430,12 +430,12 @@ bool TVirtualMachine::ExecuteVec2iOps(TOp* op, int*& sp, int* object)
 	}
 	return true;
 }
-bool TVirtualMachine::ExecuteBoolOps(TOp* op, int*& sp, int* object)
+bool TVirtualMachine::ExecuteBoolOps(const TOp& op, int*& sp, int* object)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
 	//int
-	switch (op->type)
+	switch (op.type)
 	{
 	case BOOL_CONSTR:
 		*object = *(bool*)&sp[0];
@@ -462,12 +462,12 @@ bool TVirtualMachine::ExecuteBoolOps(TOp* op, int*& sp, int* object)
 	}
 	return true;
 }
-bool TVirtualMachine::ExecuteFloatOps(TOp* op, int*& sp, int* object)
+bool TVirtualMachine::ExecuteFloatOps(const TOp& op, int*& sp, int* object)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
 	//int
-	switch (op->type)
+	switch (op.type)
 	{
 		//////////////////////////////////////////////////
 	case FLOAT_CONSTR:
@@ -603,12 +603,12 @@ bool TVirtualMachine::ExecuteFloatOps(TOp* op, int*& sp, int* object)
 	return true;
 }
 
-bool TVirtualMachine::ExecuteIntOps(TOp* op, int*& sp, int* object)
+bool TVirtualMachine::ExecuteIntOps(const TOp& op, int*& sp, int* object)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
 	//int
-	switch (op->type)
+	switch (op.type)
 	{
 	case INT_CONSTR:
 		*object = sp[0];

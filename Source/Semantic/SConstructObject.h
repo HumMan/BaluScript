@@ -20,7 +20,7 @@ class TSConstructObject
 public:
 	TSConstructObject(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TSClass* object_type);
 	void Build(Lexer::TTokenPos* source, std::vector<TExpressionResult>& exp_results, std::vector<TSOperation*>& params, std::vector<TFormalParameter>& params_formals, TGlobalBuildContext build_context);
-	void Build(Lexer::TTokenPos* source, std::vector<std::unique_ptr<TExpression>>& params, TGlobalBuildContext build_context);
+	void Build(Lexer::TTokenPos* source, const std::vector<TExpression*>& params, TGlobalBuildContext build_context);
 	void Construct(TStackValue& constructed_object, TStatementRunContext run_context);
 	void Destruct(TStackValue& destroyed_object, TGlobalRunContext run_context);
 };

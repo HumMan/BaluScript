@@ -20,7 +20,7 @@ class TStaticValue;
 
 class TSStatement :public TSyntaxNode<TStatement>
 {
-protected:
+private:
 	TSMethod* method;
 	TSStatements* parent;
 	TSClass* owner;
@@ -35,6 +35,14 @@ public:
 	//virtual void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value, int method_base) = 0;
 	virtual void Run(TStatementRunContext run_context) = 0;
 	virtual ~TSStatement(){}
+	TSClass* GetOwner()
+	{
+		return owner;
+	}
+	TSMethod* GetMethod()
+	{
+		return method;
+	}
 	void TestBoolExpr(TExpressionResult& compare_result, std::unique_ptr<TActualParamWithConversion>& conversion);
 };
 

@@ -11,8 +11,8 @@ void TLocalVar::AnalyzeSyntax(Lexer::ILexer* source) {
 	InitPos(source);
 	type->AnalyzeSyntax(source);
 	is_static = source->TestAndGet(TResWord::Static);
-	assert(parent->GetType()==TStatementType::Statements);
-	TStatements* statements = (TStatements*) parent;
+	assert(GetParent()->GetType()==TStatementType::Statements);
+	TStatements* statements = (TStatements*) GetParent();
 	TLocalVar* curr_var = this;
 	do {
 		if (curr_var != this) {
@@ -30,8 +30,8 @@ void TLocalVar::AnalyzeSyntax(Lexer::ILexer* source) {
 		{
 			//source->GetToken(TTokenType::Identifier);
 			//source->TestAndGet(TOperator::Assign);
-			curr_var->assign_expr.reset(new TExpression(owner, method, parent,
-					curr_var->stmt_id));
+			curr_var->assign_expr.reset(new TExpression(GetOwner(), GetMethod(), GetParent(),
+					curr_var->GetStmtId()));
 			curr_var->assign_expr->AnalyzeSyntax(source);
 		} else {
 			source->GetToken();
@@ -39,8 +39,8 @@ void TLocalVar::AnalyzeSyntax(Lexer::ILexer* source) {
 			{
 				while (!source->Test(TTokenType::RParenth)) 
 				{
-					TExpression* expr = new TExpression(owner, method, parent,
-							curr_var->stmt_id);
+					TExpression* expr = new TExpression(GetOwner(), GetMethod(), GetParent(),
+							curr_var->GetStmtId());
 					expr->AnalyzeSyntax(source);
 					curr_var->params.push_back(std::unique_ptr<TExpression>(expr));
 					if (!source->TestAndGet(TTokenType::Comma))
@@ -53,16 +53,16 @@ void TLocalVar::AnalyzeSyntax(Lexer::ILexer* source) {
 		{
 			statements->AddVar(curr_var);
 			if (curr_var->assign_expr)
-				curr_var->assign_expr->SetStmtId(curr_var->stmt_id);
+				curr_var->assign_expr->SetStmtId(curr_var->GetStmtId());
 			if (curr_var->params.size() > 0)
 			{
 				for (const std::unique_ptr<TExpression>& v : curr_var->params)
-					v->SetStmtId(curr_var->stmt_id);
+					v->SetStmtId(curr_var->GetStmtId());
 			}
 		}
 		if (source->Test(TTokenType::Comma))
 		{
-			curr_var = new TLocalVar(owner, method, statements, -1);
+			curr_var = new TLocalVar(GetOwner(), GetMethod(), statements, -1);
 		}
 	} while (source->TestAndGet(TTokenType::Comma));
 }
@@ -83,4 +83,17 @@ bool TLocalVar::IsStatic(){
 void TLocalVar::Accept(TStatementVisitor* visitor)
 {
 	visitor->Visit(this);
+}
+
+TExpression* TLocalVar::GetAssignExpr()const
+{
+	return assign_expr.get();
+}
+std::vector<TExpression*> TLocalVar::GetParams()const
+{
+	std::vector<TExpression*> result;
+	result.resize(params.size());
+	for (size_t i = 0; i < params.size(); i++)
+		result[i] = params[i].get();
+	return result;
 }

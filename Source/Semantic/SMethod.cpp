@@ -33,7 +33,7 @@ TSMethod::TSMethod(TSClass* use_owner, TMethod* use_syntax)
 	owner = use_owner;
 	is_external = false;
 	external_func = NULL;
-	has_return = use_syntax->has_return;
+	has_return = use_syntax->HasReturn();
 	ret_ref = use_syntax->IsReturnRef();
 	
 }
@@ -69,7 +69,7 @@ void TSMethod::LinkSignature(TGlobalBuildContext build_context)
 	if (IsSignatureLinked())
 		return;
 	SetSignatureLinked();
-	if(GetSyntax()->has_return)
+	if(GetSyntax()->HasReturn())
 		ret.LinkSignature(build_context);
 	for (const std::unique_ptr<TSParameter>& v : parameters)
 	{
@@ -90,13 +90,20 @@ TSParameter* TSMethod::GetParam(int id)
 {
 	return parameters[id].get();
 }
-
+std::vector<TSParameter*>  TSMethod::GetParameters()const
+{
+	std::vector<TSParameter*> result;
+	result.resize(parameters.size());
+	for (size_t i = 0; i < parameters.size(); i++)
+		result[i] = parameters[i].get();
+	return result;
+}
 int TSMethod::GetParamsCount()
 {
 	return parameters.size();
 }
 
-bool TSMethod::HasParams(std::vector<std::unique_ptr<TSParameter>> &use_params)const
+bool TSMethod::HasParams(const std::vector<TSParameter*> &use_params)const
 {
 	if (use_params.size() != parameters.size())
 		return false;
@@ -113,12 +120,12 @@ void TSMethod::LinkBody(TGlobalBuildContext build_context)
 	if (IsBodyLinked())
 		return;
 	SetBodyLinked();
-	statements = std::unique_ptr<TSStatements>(new TSStatements(owner, this, NULL, GetSyntax()->statements.get()));
+	statements = std::unique_ptr<TSStatements>(new TSStatements(owner, this, NULL, GetSyntax()->GetStatements()));
 	statements->Build(build_context);
 	//if (!GetSyntax()->IsBytecode())
 	//	statements->Build();
 
-	if (GetSyntax()->has_return)
+	if (GetSyntax()->HasReturn())
 		ret.LinkBody(build_context);
 	for (const std::unique_ptr<TSParameter>& v : parameters)
 	{
@@ -192,20 +199,20 @@ void TSMethod::Run(TMethodRunContext method_run_context)
 			}break;
 			case TSpecialClassMethod::Default:
 			{
-				if (owner->auto_def_constr)
+				if (owner->GetAutoDefConstr())
 					owner->RunAutoDefConstr(*run_context.static_fields, *run_context.object);
 				statements->Run(run_context);
 			}break;
 			case TSpecialClassMethod::CopyConstr:
 			{
-				if (owner->auto_def_constr)
+				if (owner->GetAutoDefConstr())
 					owner->RunAutoDefConstr(*run_context.static_fields, *run_context.object);
 				statements->Run(run_context);
 			}break;
 			case TSpecialClassMethod::Destructor:
 			{
 				statements->Run(run_context);
-				if (owner->auto_destr)
+				if (owner->GetAutoDestr())
 					owner->RunAutoDestr(*run_context.static_fields, *run_context.object);
 			}break;
 			case TSpecialClassMethod::AutoAssignOperator:
@@ -238,11 +245,12 @@ void TSMethod::Run(TMethodRunContext method_run_context)
 
 void TSMethod::Build()
 {
-	for (const std::unique_ptr<TParameter>& v : GetSyntax()->parameters)
+	for (int i = 0; i < GetSyntax()->GetParamsCount(); i++)
 	{
-		parameters.push_back(std::unique_ptr<TSParameter>(new TSParameter(owner, this, v.get(), v->type.get())));
+		TParameter* v = GetSyntax()->GetParam(i);
+		parameters.push_back(std::unique_ptr<TSParameter>(new TSParameter(owner, this, v, v->GetType())));
 	}
-	is_external = GetSyntax()->is_extern;
+	is_external = GetSyntax()->IsExternal();
 }
 
 void TSMethod::CheckForErrors()
@@ -258,47 +266,47 @@ void TSMethod::CheckForErrors()
 				parameters[i]->GetSyntax()->Error("Параметр с таким именем уже существует!");
 			}
 	}
-	if (!GetSyntax()->method_name.IsNull())
+	if (!GetSyntax()->GetName().IsNull())
 	{
-		if (owner->GetClass(GetSyntax()->method_name) != NULL)
+		if (owner->GetClass(GetSyntax()->GetName()) != NULL)
 			GetSyntax()->Error("Класс не может быть именем метода!");
-		if (owner->GetField(GetSyntax()->method_name, false) != NULL)
+		if (owner->GetField(GetSyntax()->GetName(), false) != NULL)
 			GetSyntax()->Error("Член класса с таким именем уже существует!");
 		//TODO проверить члены родительского класса и т.д. (полный запрет на перекрытие имен)
 	}
-	switch (GetSyntax()->member_type)
+	switch ((Lexer::TResWord)GetSyntax()->GetMemberType())
 	{
 	case Lexer::TResWord::Func:
-		assert(!GetSyntax()->method_name.IsNull());
+		assert(!GetSyntax()->GetName().IsNull());
 		break;
 	case Lexer::TResWord::Default:
 	case Lexer::TResWord::Copy:
 	case Lexer::TResWord::Move:
-		if (GetSyntax()->is_static)GetSyntax()->Error("Конструктор должен быть не статичным!");
+		if (GetSyntax()->IsStatic())GetSyntax()->Error("Конструктор должен быть не статичным!");
 		break;
 	case Lexer::TResWord::Destr:
-		if (GetSyntax()->is_static)GetSyntax()->Error("Деструктор должен быть не статичным!");
+		if (GetSyntax()->IsStatic())GetSyntax()->Error("Деструктор должен быть не статичным!");
 		break;
 	case Lexer::TResWord::Operator:
-		if (!GetSyntax()->is_static)GetSyntax()->Error("Оператор должен быть статичным!");
+		if (!GetSyntax()->IsStatic())GetSyntax()->Error("Оператор должен быть статичным!");
 		break;
 	case Lexer::TResWord::Conversion:
-		if (!GetSyntax()->is_static)GetSyntax()->Error("Оператор приведения типа должен быть статичным!");
+		if (!GetSyntax()->IsStatic())GetSyntax()->Error("Оператор приведения типа должен быть статичным!");
 		break;
 	default:assert(false);
 	}
 	{
 		//проверяем правильность указания параметров и возвращаемого значения
-		switch (GetSyntax()->member_type)
+		switch (GetSyntax()->GetMemberType())
 		{
 		case TClassMember::Func:
 			break;
-		case Lexer::TResWord::Default:
+		case TClassMember::DefaultConstr:
 			if (ret.GetClass() != NULL)GetSyntax()->Error("Конструктор по умолчанию не должен возвращать значение!");
 			if (parameters.size() != 0)GetSyntax()->Error("Конструктор по умолчанию не имеет параметров!");
 			break;
-		case Lexer::TResWord::Copy:
-		case Lexer::TResWord::Move:
+		case TClassMember::CopyConstr:
+		case TClassMember::MoveConstr:
 			if (ret.GetClass() != NULL)GetSyntax()->Error("Конструктор не должен возвращать значение!");
 			break;
 		case TClassMember::Destr:
@@ -306,14 +314,14 @@ void TSMethod::CheckForErrors()
 			if (parameters.size() != 0)GetSyntax()->Error("Деструктор не имеет параметров!");
 			break;
 		case TClassMember::Operator:
-			if (GetSyntax()->operator_type == Lexer::TOperator::Not)//унарные операторы
+			if (GetSyntax()->GetOperatorType() == Lexer::TOperator::Not)//унарные операторы
 			{
 				if (GetParamsCount() != 1)
 					GetSyntax()->Error("Унарный оператор должен иметь один параметр!");
 				if (GetParam(0)->GetClass() != owner)
 					GetSyntax()->Error("Хотя бы один из параметров оператора должен быть классом для которого он используется!");
 			}
-			else if (GetSyntax()->operator_type == Lexer::TOperator::UnaryMinus)
+			else if (GetSyntax()->GetOperatorType() == Lexer::TOperator::UnaryMinus)
 			{
 				if (!LexerIsIn(GetParamsCount(), 1, 2))
 					GetSyntax()->Error("У унарного оператора ""-"" должнен быть 1 параметр!");
@@ -321,7 +329,7 @@ void TSMethod::CheckForErrors()
 					&& (GetParamsCount() == 2 && GetParam(1)->GetClass() != owner))
 					GetSyntax()->Error("Параметром унарного оператора должен быть класс для которого он используется!");
 			}
-			else if (GetSyntax()->operator_type == Lexer::TOperator::ParamsCall || GetSyntax()->operator_type == Lexer::TOperator::GetArrayElement)
+			else if (GetSyntax()->GetOperatorType() == Lexer::TOperator::ParamsCall || GetSyntax()->GetOperatorType() == Lexer::TOperator::GetArrayElement)
 			{
 				if (GetParamsCount()<2)
 					GetSyntax()->Error("Оператор вызова параметров должен иметь минимум 2 операнда!");
@@ -330,7 +338,7 @@ void TSMethod::CheckForErrors()
 			}
 			else //остальные бинарные операторы
 			{
-				if ((GetSyntax()->operator_type == Lexer::TOperator::Equal || GetSyntax()->operator_type == Lexer::TOperator::NotEqual)
+				if ((GetSyntax()->GetOperatorType() == Lexer::TOperator::Equal || GetSyntax()->GetOperatorType() == Lexer::TOperator::NotEqual)
 					&& ret.GetClass() != owner->GetClass(GetSyntax()->GetLexer()->GetIdFromName("bool")))
 					GetSyntax()->Error("Оператор сравнения должен возвращать логическое значение!");
 				if (GetParamsCount() != 2)

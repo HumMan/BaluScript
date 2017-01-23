@@ -28,7 +28,7 @@ TOperation* TExpression::ParamsCall(Lexer::ILexer* source, TOperation* curr_oper
 	while (!source->Test(use_brackets ? (TTokenType::RBracket)
 		: (TTokenType::RParenth)))
 	{
-		params_call->AddParam(new TExpression(Expr(source, 0), owner, method, parent));
+		params_call->AddParam(new TExpression(Expr(source, 0), GetOwner(), GetMethod(), GetParent()));
 		if (!source->TestAndGet(TTokenType::Comma))
 			break;
 	}
@@ -73,23 +73,23 @@ TOperation* TExpression::Factor(Lexer::ILexer* source)
 		{
 		case TValue::Int:
 			curr_operation = new TIntValue(source->Int(),
-				source->GetIdFromName("int"), owner);
+				source->GetIdFromName("int"), GetOwner());
 			break;
 		case TValue::Float:
 			curr_operation = new TFloatValue(source->Float(),
-				source->GetIdFromName("float"), owner);
+				source->GetIdFromName("float"), GetOwner());
 			break;
 		case TValue::Bool:
 			curr_operation = new TBoolValue(source->Bool(),
-				source->GetIdFromName("bool"), owner);
+				source->GetIdFromName("bool"), GetOwner());
 			break;
 		case TValue::String:
 			curr_operation = new TStringValue(source->StringValue(),
-				source->GetIdFromName("string"), owner);
+				source->GetIdFromName("string"), GetOwner());
 			break;
 		case TValue::Char:
 			curr_operation = new TCharValue(source->Char(),
-				source->GetIdFromName("char"), owner);
+				source->GetIdFromName("char"), GetOwner());
 			break;
 		default:
 			assert(false);
@@ -105,9 +105,9 @@ TOperation* TExpression::Factor(Lexer::ILexer* source)
 		}
 		else if (source->TestAndGet(TResWord::New)) 
 		{
-			TConstructTempObject* temp = new TConstructTempObject();
-			temp->type.reset(new TType(owner));
-			temp->type->AnalyzeSyntax(source);
+			auto new_type = new TType(GetOwner());
+			new_type->AnalyzeSyntax(source);
+			TConstructTempObject* temp = new TConstructTempObject(new_type);
 			return ParamsCall(source, temp);
 		}
 		else if (source->Test(TTokenType::Identifier))
@@ -235,53 +235,53 @@ void TExpression::AnalyzeSyntax(Lexer::ILexer* source)
 	//BuildPostfix();
 }
 
-TSOperation* TExpression::TBinOp::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TBinOp::Accept(TExpressionTreeVisitor* visitor)
 {
-	return visitor->Visit(this);
+	visitor->Visit(this);
 }
-TSOperation* TExpression::TUnaryOp::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TUnaryOp::Accept(TExpressionTreeVisitor* visitor)
 {
-	return visitor->Visit(this);
+	visitor->Visit(this);
 }
-TSOperation* TExpression::TConstructTempObject::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TConstructTempObject::Accept(TExpressionTreeVisitor* visitor)
 {
-	return visitor->Visit(this);
+	visitor->Visit(this);
 }
-TSOperation* TExpression::TCallParamsOp::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TCallParamsOp::Accept(TExpressionTreeVisitor* visitor)
 {
-	return visitor->Visit(this);
+	visitor->Visit(this);
 }
-TSOperation* TExpression::TCharValue::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TCharValue::Accept(TExpressionTreeVisitor* visitor)
 {
-	return visitor->Visit(this);
+	visitor->Visit(this);
 }
-TSOperation* TExpression::TFloatValue::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TFloatValue::Accept(TExpressionTreeVisitor* visitor)
 {
-	return visitor->Visit(this);
+	visitor->Visit(this);
 }
-TSOperation* TExpression::TGetMemberOp::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TGetMemberOp::Accept(TExpressionTreeVisitor* visitor)
 {
-	return visitor->Visit(this);
+	visitor->Visit(this);
 }
-TSOperation* TExpression::TId::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TId::Accept(TExpressionTreeVisitor* visitor)
 {
-	return visitor->Visit(this);
+	visitor->Visit(this);
 }
-TSOperation* TExpression::TIntValue::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TIntValue::Accept(TExpressionTreeVisitor* visitor)
 {
-	return visitor->Visit(this);
+	visitor->Visit(this);
 }
-TSOperation* TExpression::TStringValue::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TStringValue::Accept(TExpressionTreeVisitor* visitor)
 {
-	return visitor->Visit(this);
+	visitor->Visit(this);
 }
-TSOperation* TExpression::TThis::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TThis::Accept(TExpressionTreeVisitor* visitor)
 {
-	return visitor->Visit(this);
+	visitor->Visit(this);
 }
-TSOperation* TExpression::TBoolValue::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TBoolValue::Accept(TExpressionTreeVisitor* visitor)
 {
-	return visitor->Visit(this);
+	visitor->Visit(this);
 }
 void TExpression::Accept(TStatementVisitor* visitor)
 {
