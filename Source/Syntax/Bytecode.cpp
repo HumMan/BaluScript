@@ -33,7 +33,7 @@ void TBytecode::AnalyzeSyntax(Lexer::ILexer* source) {
 			if (source->Test(TTokenType::Identifier)) {
 				if (source->NameId() != source->GetIdFromName(
 						"CreateArrayElementClassId"))
-					source->Error("Неизвестный идентификатор!");
+					Error("Неизвестный идентификатор!");
 				source->GetToken();
 				source->GetToken(TTokenType::LParenth);
 				source->TestToken(TTokenType::Identifier);
@@ -50,18 +50,13 @@ void TBytecode::AnalyzeSyntax(Lexer::ILexer* source) {
 				source->GetToken();
 			}
 			if (params_count > 4)
-				source->Error("Слишком много параметров!");
+				Error("Слишком много параметров!");
 			if (!source->TestAndGet(TTokenType::Comma))
 				break;
 		}
 		int params_count_info = GetBytecodeParamsCount((TOpcode::Enum) type);
 		if (params_count != params_count_info) {
-			char buf[256];
-			sprintf_s(
-					buf,
-					"Неправильное количество параметров: для %s нужно %i параметра!",
-					GetBytecodeString((TOpcode::Enum) type), params_count_info);
-			source->Error(buf);
+			Error("Неправильное количество параметров: для %s нужно %i параметра!", GetBytecodeString((TOpcode::Enum) type), params_count_info);
 		}
 		TOp op;
 		int t = 0;
