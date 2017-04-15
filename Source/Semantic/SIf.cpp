@@ -6,8 +6,8 @@
 #include "../Syntax/If.h"
 #include "../Syntax/Statements.h"
 
-TSIf::TSIf(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TIf* use_syntax)
-	:TSStatement(TStatementType::For, use_owner, use_method, use_parent, (TStatement*)use_syntax)
+TSIf::TSIf(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IIf* use_syntax)
+	:TSStatement(SyntaxApi::TStatementType::For, use_owner, use_method, use_parent, dynamic_cast<SyntaxApi::IStatement*>(use_syntax))
 {
 
 }
@@ -23,6 +23,11 @@ void TSIf::Build(TGlobalBuildContext build_context)
 	statements->Build(build_context);
 	else_statements = std::unique_ptr<TSStatements>(new TSStatements(GetOwner(), GetMethod(), GetParentStatements(), GetSyntax()->GetElseStatements()));
 	else_statements->Build(build_context);
+}
+
+SyntaxApi::IIf* TSIf::GetSyntax()
+{
+	return dynamic_cast<SyntaxApi::IIf*>(TSyntaxNode::GetSyntax());
 }
 
 void TSIf::Run(TStatementRunContext run_context)

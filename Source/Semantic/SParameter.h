@@ -1,19 +1,16 @@
 #pragma once
 
-#include "../lexer.h"
+#include "../SyntaxTree/SyntaxTreeApi.h"
 
 #include "SSyntaxNode.h"
 #include "SType.h"
 #include "Variable.h"
 #include "FormalParam.h"
 
-#include "../Syntax/Parameter.h"
-
 #include "BuildContext.h"
 #include "RunContext.h"
 
 class TSMethod;
-class TSLocalVar;
 
 class TFormalParameter
 {
@@ -44,7 +41,7 @@ public:
 };
 
 ///<summary>Класс описывает параметр сигнатуры метода</summary>
-class TSParameter :public TSyntaxNode<TParameter>, public TVariable,public TNodeWithOffset,public TNodeWithSize
+class TSParameter :public TSyntaxNode<SyntaxApi::IParameter>, public TVariable,public TNodeWithOffset,public TNodeWithSize
 {
 	TSType type;
 	TSClass* owner;
@@ -52,7 +49,7 @@ class TSParameter :public TSyntaxNode<TParameter>, public TVariable,public TNode
 
 	bool is_ref;
 public:
-	TSParameter(TSClass* use_owner, TSMethod* use_method, TParameter* use_syntax_node, TType* use_type_syntax_node);
+	TSParameter(TSClass* use_owner, TSMethod* use_method, SyntaxApi::IParameter* use_syntax_node, SyntaxApi::IType* use_type_syntax_node);
 	TSParameter(TSClass* use_owner, TSMethod* use_method, TSClass* use_class, bool use_is_ref);
 	void LinkBody(TGlobalBuildContext build_context);
 	void LinkSignature(TGlobalBuildContext build_context);

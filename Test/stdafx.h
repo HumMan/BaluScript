@@ -22,3 +22,6 @@
 #include "../Source/Syntax/Statements.h"
 #include "../Source/Syntax/Method.h"
 #include "../Source/semanticAnalyzer.h"
+
+
+#include "../Source/Syntax/Class.h"

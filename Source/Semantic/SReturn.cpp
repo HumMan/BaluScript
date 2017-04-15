@@ -31,12 +31,16 @@ void TSReturn::Build(TGlobalBuildContext build_context)
 	else 
 		if(result_result.GetClass()!=NULL)
 			GetSyntax()->Error("Метод не должен ничего возвращать!");
-
 }
 
-TSReturn::TSReturn(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TReturn* use_syntax)
-	:TSStatement(TStatementType::Return, use_owner, use_method, use_parent, (TStatement*)use_syntax)
+TSReturn::TSReturn(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IReturn* use_syntax)
+	:TSStatement(SyntaxApi::TStatementType::Return, use_owner, use_method, use_parent, dynamic_cast<SyntaxApi::IStatement*>(use_syntax))
 {}
+
+SyntaxApi::IReturn* TSReturn::GetSyntax()
+{
+	return dynamic_cast<SyntaxApi::IReturn*>(TSyntaxNode::GetSyntax());
+}
 
 void TSReturn::Run(TStatementRunContext run_context)
 {

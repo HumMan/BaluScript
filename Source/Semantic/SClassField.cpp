@@ -4,7 +4,7 @@
 
 #include "../Syntax/ClassField.h"
 
-TSClassField::TSClassField(TSClass* use_owner, TClassField* use_syntax) 
+TSClassField::TSClassField(TSClass* use_owner, SyntaxApi::IClassField* use_syntax) 
 	:TSyntaxNode(use_syntax), TVariable(TVariableType::ClassField)
 	, type(use_owner, use_syntax->GetType())
 {

@@ -6,6 +6,7 @@
 #include "Type.h"
 
 using namespace Lexer;
+using namespace SyntaxInternal;
 
 void TClassField::AnalyzeSyntax(Lexer::ILexer* source) {
 	InitPos(source);
@@ -29,7 +30,7 @@ void TClassField::AnalyzeSyntax(Lexer::ILexer* source) {
 	source->GetToken(TTokenType::Semicolon);
 }
 
-TType* TClassField::GetType()const
+SyntaxApi::IType* TClassField::GetType()const
 {
 	return type.get();
 }

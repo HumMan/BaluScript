@@ -1,81 +1,34 @@
 ﻿#pragma once
 
-#include <assert.h>
-#include "../lexer.h"
+#include "../SyntaxTree/SyntaxTreeApi.h"
 
-class TMethod;
-class TStatements;
-class TClass;
-class TStatementVisitor;
-
-enum class TStatementType
+namespace SyntaxInternal
 {
-	VarDecl,
-	For,
-	If,
-	While,
-	Return,
-	Expression,
-	Bytecode,
-	Statements
-};
+	class TMethod;
+	class TStatements;
+	class TClass;
+	class TStatementVisitor;
 
-class TStatement:public Lexer::TTokenPos
-{
-private:
-	TMethod* method;
-	TStatements* parent;
-	TClass* owner;
-	int stmt_id;//порядковый номер блока в родительском блоке
-	TStatementType stmt_type;
-public:
-	void SetStmtId(int use_id);
-	int GetStmtId()
+	class TStatement :public Lexer::TTokenPos, public virtual SyntaxApi::IStatement
 	{
-		return stmt_id;
-	}
-	TStatementType GetStmtType()
-	{
-		return stmt_type;
-	}
-	TMethod* GetMethod()
-	{
-		return method;
-	}
-	TStatements* GetParent()
-	{
-		return parent;
-	}
-	TClass* GetOwner()
-	{
-		return owner;
-	}
-	TStatement(TStatementType use_stmt_type, TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);
-	TStatementType GetType();
-	virtual void Accept(TStatementVisitor* visitor) = 0;
-	virtual ~TStatement()
-	{
-	}
-};
-
-class TExpression;
-class TFor;
-class TIf;
-class TLocalVar;
-class TReturn;
-class TBytecode;
-class TStatements;
-class TWhile;
-
-class TStatementVisitor
-{
-public:
-	virtual void Visit(TBytecode* op) = 0;
-	virtual void Visit(TExpression* op) = 0;
-	virtual void Visit(TFor* op) = 0;
-	virtual void Visit(TIf* op) = 0;
-	virtual void Visit(TLocalVar* op) = 0;
-	virtual void Visit(TReturn* op) = 0;
-	virtual void Visit(TStatements* op) = 0;
-	virtual void Visit(TWhile* op) = 0;
-};
+	private:
+		TMethod* method;
+		TStatements* parent;
+		TClass* owner;
+		int stmt_id;//порядковый номер блока в родительском блоке
+		SyntaxApi::TStatementType stmt_type;
+	public:
+		void SetStmtId(int use_id);
+		int GetStmtId()const;
+		SyntaxApi::IMethod* GetMethod()const;
+		TMethod* GetMethodT()const;
+		SyntaxApi::IStatements* GetParent()const;
+		TStatements* GetParentT()const;
+		SyntaxApi::IClass* GetOwner()const;
+		TClass* GetOwnerT()const;
+		TStatement(SyntaxApi::TStatementType use_stmt_type, TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);
+		SyntaxApi::TStatementType GetType()const;
+		virtual void Accept(SyntaxApi::IStatementVisitor* visitor) = 0;
+		virtual ~TStatement();
+	};
+}

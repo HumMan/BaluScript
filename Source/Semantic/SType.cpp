@@ -6,7 +6,7 @@
 #include "../Syntax/Statements.h"
 #include "../Syntax/Method.h"
 
-TSType::TSType(TSClass* use_owner, TType* use_syntax_node) :TSyntaxNode(use_syntax_node)
+TSType::TSType(TSClass* use_owner, SyntaxApi::IType* use_syntax_node) :TSyntaxNode(use_syntax_node)
 {
 	owner = use_owner;
 }
@@ -20,9 +20,9 @@ TSType::TSType(TSClass* use_owner, TSClass* use_class) : TSyntaxNode(NULL)
 
 void TSType::LinkSignature(TGlobalBuildContext build_context, TSClass* use_curr_class)
 {
-	for (TType_TClassName& v : GetSyntax()->GetClassNames())
+	for (auto v : GetSyntax()->GetClassNames())
 	{
-		classes.emplace_back(&v);
+		classes.emplace_back(v.get());
 		use_curr_class = classes.back().LinkSignature(build_context, owner, use_curr_class);
 	}
 }
@@ -63,45 +63,45 @@ TSClass* TSType_TClassName::LinkSignature(TGlobalBuildContext build_context,TSCl
 
 	if(use_curr_class==NULL)
 	{
-		use_curr_class = use_owner->GetClass(GetSyntax()->name);
+		use_curr_class = use_owner->GetClass(GetSyntax()->GetName());
 		if(use_curr_class==NULL)
-			use_owner->GetSyntax()->AsTokenPos().Error("Неизвестный тип!");
+			use_owner->GetSyntax()->Error("Неизвестный тип!");
 	}else
 	{
-		use_curr_class=use_curr_class->GetNested(GetSyntax()->name);
+		use_curr_class = use_curr_class->GetNested(GetSyntax()->GetName());
 		if(use_curr_class==NULL)
-			use_owner->GetSyntax()->AsTokenPos().Error("Вложенного класса с таким именем не существует!");
+			use_owner->GetSyntax()->Error("Вложенного класса с таким именем не существует!");
 	}
 
 	if (use_curr_class->GetType()==TNodeWithTemplates::Template)
 	{
-		auto template_params = &GetSyntax()->template_params;
+		auto template_params = GetSyntax()->GetTemplateParams();
 
-		if (template_params->size() != 0)
+		if (template_params.size() != 0)
 		{
 
 			if (!use_curr_class->GetSyntax()->IsTemplate())
-				use_owner->GetSyntax()->AsTokenPos().Error("Класс не является шаблонным!");
-			if (template_params->size() != use_curr_class->GetSyntax()->GetTemplateParamsCount())
-				use_owner->GetSyntax()->AsTokenPos().Error("Шаблон имеет другое количество параметров!");
-			for (TType_TTemplateParameter& t : *template_params)
+				use_owner->GetSyntax()->Error("Класс не является шаблонным!");
+			if (template_params.size() != use_curr_class->GetSyntax()->GetTemplateParamsCount())
+				use_owner->GetSyntax()->Error("Шаблон имеет другое количество параметров!");
+			for (const auto t : template_params)
 			{
 				template_params_classes.emplace_back();
-				template_params_classes.back().is_value = t.is_value;
+				template_params_classes.back().is_value = t->IsValue();
 				//если параметр шаблона это константный идентификатор шаблона, то копируем его значение
-				if (t.is_value)
+				if (t->IsValue())
 				{
-					template_params_classes.back().value = t.value;
+					template_params_classes.back().value = t->GetValue();
 				}
 				else
 				{
 					//проверяем не является ли идентификатор шаблонным параметром
-					if (use_owner->GetType() == TNodeWithTemplates::Realization && use_owner->HasTemplateParameter(t.type->GetClassNames().back().name))
+					if (use_owner->GetType() == TNodeWithTemplates::Realization && use_owner->HasTemplateParameter(t->GetType()->GetClassNames().back()->GetName()))
 					{
 						TNodeWithTemplates::TTemplateParameter val;
-						if (!use_owner->GetTemplateParameter(t.type->GetClassNames().back().name, val))
+						if (!use_owner->GetTemplateParameter(t->GetType()->GetClassNames().back()->GetName(), val))
 						{
-							use_owner->GetSyntax()->AsTokenPos().Error("Не найден шаблонный параметр!");
+							use_owner->GetSyntax()->Error("Не найден шаблонный параметр!");
 						}
 						if (val.is_value)
 						{
@@ -111,13 +111,13 @@ TSClass* TSType_TClassName::LinkSignature(TGlobalBuildContext build_context,TSCl
 						}
 						else
 						{
-							template_params_classes.back().type.reset(new TSType(use_owner, t.type.get()));
+							template_params_classes.back().type.reset(new TSType(use_owner, t->GetType()));
 							template_params_classes.back().type->LinkSignature(build_context);
 						}
 					}
 					else
 					{
-						template_params_classes.back().type.reset(new TSType(use_owner, t.type.get()));
+						template_params_classes.back().type.reset(new TSType(use_owner, t->GetType()));
 						template_params_classes.back().type->LinkSignature(build_context);
 					}
 				}
@@ -170,7 +170,7 @@ TSClass* TSType_TClassName::LinkSignature(TGlobalBuildContext build_context,TSCl
 		else
 		{
 			if (use_owner->GetType() != TNodeWithTemplates::Realization || use_owner->GetTemplateClass() != use_curr_class)
-				use_owner->GetSyntax()->AsTokenPos().Error("Использование шаблона без параметров допускается только в самом шаблоне как типа текущей реализации!");
+				use_owner->GetSyntax()->Error("Использование шаблона без параметров допускается только в самом шаблоне как типа текущей реализации!");
 			use_curr_class = use_owner;
 		}
 	}

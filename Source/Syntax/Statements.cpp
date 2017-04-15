@@ -7,8 +7,11 @@
 #include "LocalVar.h"
 #include "ClassField.h"
 #include "Bytecode.h"
+#include "Class.h"
+#include "Method.h"
 
 using namespace Lexer;
+using namespace SyntaxInternal;
 
 bool ClassName(Lexer::ILexer* source) {
 	if (!source->TestAndGet(TTokenType::Identifier))
@@ -61,8 +64,7 @@ bool IsVarDecl(Lexer::ILexer* source) {
 void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
 	switch (source->Type()) {
 	case TTokenType::LBrace: {
-		TStatements* s = new TStatements(GetOwner(), GetMethod(), this,
-				statements.size());
+		TStatements* s = new TStatements(GetOwnerT(), GetMethodT(),this, statements.size());
 		Add(s);
 		s->AnalyzeSyntax(source);
 		return;
@@ -70,7 +72,7 @@ void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
 	case TTokenType::ResWord: {
 		switch ((TResWord)source->Token()) {
 		case TResWord::Return: {
-			TReturn* t = new TReturn(GetOwner(), GetMethod(), this, statements.size());
+			TReturn* t = new TReturn(GetOwnerT(), GetMethodT(), this, statements.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
 			if (!end_semicolon)
@@ -79,7 +81,7 @@ void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
 			return;
 		}
 		case TResWord::If: {
-			TIf* t = new TIf(GetOwner(), GetMethod(), this, statements.size());
+			TIf* t = new TIf(GetOwnerT(), GetMethodT(), this, statements.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
 			return;
@@ -88,12 +90,12 @@ void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
 			source->GetToken(TResWord::For);
 			source->GetToken(TTokenType::LParenth);
 
-			TStatements* for_stmt = new TStatements(GetOwner(), GetMethod(), this,
+			TStatements* for_stmt = new TStatements(GetOwnerT(), GetMethodT(), this,
 					statements.size());
 			Add(for_stmt);
 
 			TFor* t =
-				new TFor(GetOwner(), GetMethod(), for_stmt, for_stmt->GetHigh() + 1);
+				new TFor(GetOwnerT(), GetMethodT(), for_stmt, for_stmt->GetStatementsCount());
 			for_stmt->AnalyzeSyntax(source);
 			for_stmt->Add(t);
 
@@ -101,13 +103,13 @@ void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
 			return;
 		}
 		case TResWord::While: {
-			TWhile* t = new TWhile(GetOwner(), GetMethod(), this, statements.size());
+			TWhile* t = new TWhile(GetOwnerT(), GetMethodT(), this, statements.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
 			return;
 		}
 		case TResWord::This: {
-			TExpression* t = new TExpression(GetOwner(), GetMethod(), this,
+			TExpression* t = new TExpression(GetOwnerT(), GetMethodT(), this,
 					statements.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
@@ -116,7 +118,7 @@ void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
 			return;
 		}
 		case TResWord::Bytecode: {
-			TBytecode* t = new TBytecode(GetOwner(), GetMethod(), this,
+			TBytecode* t = new TBytecode(GetOwnerT(), GetMethodT(), this,
 					statements.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
@@ -129,12 +131,12 @@ void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
 	}
 	default:
 		if (IsVarDecl(source)) {
-			TLocalVar* t = new TLocalVar(GetOwner(), GetMethod(), this,
+			TLocalVar* t = new TLocalVar(GetOwnerT(), GetMethodT(), this,
 					statements.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
 		} else {
-			TExpression* t = new TExpression(GetOwner(), GetMethod(), this,
+			TExpression* t = new TExpression(GetOwnerT(), GetMethodT(), this,
 					statements.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
@@ -155,7 +157,7 @@ void TStatements::AnalyzeSyntax(Lexer::ILexer* source) {
 		AnalyzeStatement(source, true);
 }
 
-void TStatements::Accept(TStatementVisitor* visitor)
+void TStatements::Accept(SyntaxApi::IStatementVisitor* visitor)
 {
 	visitor->Visit(this);
 }
@@ -179,11 +181,7 @@ TStatement* TStatements::GetStatement(int i)
 {
 	return statements[i].get();
 }
-int TStatements::GetHigh()
-{
-	return statements.size()-1;
-}
 TStatements::TStatements(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id)
-	:TStatement(TStatementType::Statements, use_owner, use_method, use_parent, use_stmt_id)
+	:TStatement(SyntaxApi::TStatementType::Statements, use_owner, use_method, use_parent, use_stmt_id)
 {
 }

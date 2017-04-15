@@ -8,9 +8,10 @@
 #include "Statements.h"
 
 using namespace Lexer;
+using namespace SyntaxInternal;
 
 TBytecode::TBytecode(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id)
-	:TStatement(TStatementType::Bytecode, use_owner, use_method, use_parent, use_stmt_id)
+	:TStatement(SyntaxApi::TStatementType::Bytecode, use_owner, use_method, use_parent, use_stmt_id)
 {
 	//TODO
 	//method->SetHasReturn(true);
@@ -25,7 +26,7 @@ void TBytecode::AnalyzeSyntax(Lexer::ILexer* source) {
 		source->GetToken();
 		int params_count = 0;
 		int params[4];
-		TBytecodeOp _op;
+		SyntaxApi::TBytecodeOp _op;
 		while (source->Test(TValue::Bool) || source->Test(
 				TValue::Int) || source->Test(
 				TValue::Float) || source->Test(
@@ -40,7 +41,7 @@ void TBytecode::AnalyzeSyntax(Lexer::ILexer* source) {
 				//if(params_count<2||params_count>4)
 				//	source->Error("Ошибка в выражении");
 				//TODO разгрести это+ сделать нормальные константные выражения+ ссылки на локальные переменные
-				_op.f[params_count] = TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID;
+				_op.f[params_count] = SyntaxApi::TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID;
 				_op.id[params_count] = source->NameId();
 				source->GetToken();
 				params_count++;
@@ -76,12 +77,12 @@ void TBytecode::AnalyzeSyntax(Lexer::ILexer* source) {
 	source->GetToken(TTokenType::RBrace);
 }
 
-void TBytecode::Accept(TStatementVisitor* visitor)
+void TBytecode::Accept(SyntaxApi::IStatementVisitor* visitor)
 {
 	visitor->Visit(this);
 }
 
-const std::vector<TBytecodeOp>& TBytecode::GetBytecode()
+const std::vector<SyntaxApi::TBytecodeOp>& TBytecode::GetBytecode()const
 {
 	return code;
 }

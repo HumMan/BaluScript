@@ -6,7 +6,7 @@
 #include "SStatements.h"
 #include "../Syntax/Statements.h"
 
-TSOverloadedMethod::TSOverloadedMethod(TSClass* use_owner, TOverloadedMethod* use_syntax)
+TSOverloadedMethod::TSOverloadedMethod(TSClass* use_owner, SyntaxApi::IOverloadedMethod* use_syntax)
 	:linked_signature(false), linked_body(false), TSyntaxNode(use_syntax), owner(use_owner)
 {
 }
@@ -104,9 +104,11 @@ void TSOverloadedMethod::LinkBody(TGlobalBuildContext build_context)
 
 void TSOverloadedMethod::Build()
 {
-	for (const std::unique_ptr<TMethod>& method : GetSyntax()->methods)
+	std::vector<SyntaxApi::IMethod*> syntax_methods;
+	GetSyntax()->GetMethods(syntax_methods);
+	for (auto method : syntax_methods)
 	{
-		methods.push_back(std::unique_ptr<TSMethod>(new TSMethod(owner, method.get())));
+		methods.emplace_back(new TSMethod(owner, method));
 		methods.back()->Build();
 	}
 }

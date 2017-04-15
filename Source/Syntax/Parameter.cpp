@@ -5,6 +5,7 @@
 #include "Type.h"
 
 using namespace Lexer;
+using namespace SyntaxInternal;
 
 TParameter::TParameter(TClass* use_owner, TMethod* use_method)
 	: type(new TType(use_owner)), is_ref(false)

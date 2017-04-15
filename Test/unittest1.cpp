@@ -20,19 +20,19 @@ namespace Test
 
 	std::vector < std::unique_ptr<TSMethod>> *smethods;
 
-	const bool initBeforeEachTest = false;
+	const bool initBeforeEachTest = true;
 
 	TSMethod* CreateMethod(char* code)
 	{
 		
 		try
 		{
-			TMethod* m = new TMethod(syntax->base_class.get());
-			syntax->lexer->ParseSource(code);
-			m->AnalyzeSyntax(syntax->lexer.get());
-			syntax->lexer->GetToken(Lexer::TTokenType::Done);
+			TMethod* m = new TMethod(syntax->GetBaseClass());
+			syntax->GetLexer()->ParseSource(code);
+			m->AnalyzeSyntax(syntax->GetLexer());
+			syntax->GetLexer()->GetToken(Lexer::TTokenType::Done);
 
-			TSMethod* ms = new TSMethod(syntax->sem_base_class.get(), m);
+			TSMethod* ms = new TSMethod(syntax->GetCompiledBaseClass(), m);
 			smethods->push_back(std::unique_ptr<TSMethod>(ms));
 			ms->Build();
 
@@ -45,7 +45,7 @@ namespace Test
 			ms->CalculateParametersOffsets();
 
 			std::vector<TSClass*> owners;
-			syntax->sem_base_class->CalculateSizes(owners);
+			syntax->GetCompiledBaseClass()->CalculateSizes(owners);
 
 			InitializeStaticClassFields(static_fields, *static_objects);
 			InitializeStaticVariables(static_variables, *static_objects);
@@ -63,14 +63,14 @@ namespace Test
 	{
 		try
 		{
-			TClass* cl = new TClass(syntax->base_class.get());
-			syntax->base_class->AddNested(cl);
-			syntax->lexer->ParseSource(code);
-			cl->AnalyzeSyntax(syntax->lexer.get());
-			syntax->lexer->GetToken(Lexer::TTokenType::Done);
+			TClass* cl = new TClass(syntax->GetBaseClass());
+			syntax->GetBaseClass()->AddNested(cl);
+			syntax->GetLexer()->ParseSource(code);
+			cl->AnalyzeSyntax(syntax->GetLexer());
+			syntax->GetLexer()->GetToken(Lexer::TTokenType::Done);
 
-			TSClass* scl = new TSClass(syntax->sem_base_class.get(), cl);
-			syntax->sem_base_class->AddClass(scl);
+			TSClass* scl = new TSClass(syntax->GetCompiledBaseClass(), cl);
+			syntax->GetCompiledBaseClass()->AddClass(scl);
 			scl->Build();
 
 			std::vector<TSClassField*> static_fields;
@@ -88,7 +88,7 @@ namespace Test
 			scl->CalculateMethodsSizes();
 
 			owners.clear();
-			syntax->sem_base_class->CalculateSizes(owners);//т.к. в этом классе могут использоваться другие шаблонные класса, реализацию которых нужно обновить
+			syntax->GetCompiledBaseClass()->CalculateSizes(owners);//т.к. в этом классе могут использоваться другие шаблонные класса, реализацию которых нужно обновить
 
 			InitializeStaticClassFields(static_fields, *static_objects);
 			InitializeStaticVariables(static_variables, *static_objects);
@@ -122,7 +122,7 @@ namespace Test
 	TStackValue RunClassMethod(TSClass* scl, char* method_name)
 	{
 		std::vector<TSMethod*> methods;
-		scl->GetMethods(methods, syntax->lexer->GetIdFromName(method_name));
+		scl->GetMethods(methods, syntax->GetLexer()->GetIdFromName(method_name));
 		TSMethod* ms = methods[0];
 
 		std::vector<TStackValue> params;
@@ -150,20 +150,6 @@ namespace Test
 		delete smethods;
 
 		delete syntax;
-
-		//FILE *out_file;
-
-		////Redirect the error stream to a file.
-		//freopen_s(&out_file, "d:/Memory_Leaks.txt", "w", stderr);
-		////freopen_s(&out_file, __FILE__".Memory_Leaks.txt", "w", stderr);
-		////Turn on debugging for memory leaks. This is automatically turned off when the build is Release.
-		////_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-		//_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
-		//_CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
-		//_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
-		//_CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
-		//_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
-		//_CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
 
 		_CrtDumpMemoryLeaks();
 	}
@@ -1798,6 +1784,21 @@ namespace Test
 				"}}"));
 			Assert::AreEqual((int)547, *(int*)RunClassMethod(cl2, "Test").get());
 		}
+		TEST_METHOD(CallStaticMethodFromMember)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"class ITestBase { TDynArray<int> s;func GetValue:int {s.resize(1);return 547;}}"
+				"class ITest { func static GetBase:ITestBase{return new ITestBase();}}"
+				"func static Test:int\n"
+				"{\n"
+				"	ITest e;\n"
+				"	int v = ITest.GetBase().GetValue();\n"
+				"	return v;\n"
+				"}}"));
+			Assert::AreEqual((int)547, *(int*)RunClassMethod(cl2, "Test").get());
+		}
 		TEST_METHOD(CallMethodWithParamFromMember)
 		{
 			TSClass* cl2 = NULL;
@@ -2024,5 +2025,57 @@ namespace Test
 				"}}"));
 			Assert::AreEqual((int)0, *(int*)RunClassMethod(cl2, "Test").get());
 		}
+	};
+	TEST_CLASS(RefErrorsCheckTest)
+	{
+	public:
+		TEST_METHOD_INITIALIZE(TestMethodInit)
+		{
+			BaseTypesTestsInitialize();
+		}
+		TEST_METHOD_CLEANUP(TestMethodCleanup)
+		{
+			BaseTypesTestsCleanup();
+		}
+		/*TEST_METHOD(BasicRefErrorsCheck)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"func static DoWork(TDynArray<TDynArray<int>>& arr, TDynArray<int>& el):int\n"
+				"{\n"
+				"	arr.resize(20);\n"
+				"	el.resize(20);\n"
+				"	return 1;\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	TDynArray<TDynArray<int>> arr;\n"
+				"	arr.resize(1);\n"
+				"	arr[0].resize(1);\n"
+				"	int result=DoWork(arr, arr[0]);\n"
+				"	return result;\n"
+				"}}"));
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test").get());
+		}
+		TEST_METHOD(StackRefCheck)
+		{
+			TSClass* cl2 = NULL;
+			Assert::IsNotNull(cl2 = CreateClass(
+				"class TestClass {\n"
+				"func static DoWork:&TDynArray<int>\n"
+				"{\n"
+				"	TDynArray<int> arr;\n"
+				"	arr.resize(100);\n"
+				"	return arr;\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	TDynArray<int> result=DoWork();\n"
+				"	result.resize(1);\n"
+				"	return 1;\n"
+				"}}"));
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test").get());
+		}*/
 	};
 }

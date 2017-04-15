@@ -8,9 +8,6 @@ class TSClass;
 class TSMethod;
 class TSStatements;
 class TSExpression;
-class TExpressionResult;
-class TSClassField;
-class TSLocalVar;
 
 class TSFor :public TSStatement
 {
@@ -19,11 +16,8 @@ class TSFor :public TSStatement
 	std::unique_ptr<TSStatements> increment;
 	std::unique_ptr<TSStatements> statements;
 public:
-	TSFor(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TFor* use_syntax);
+	TSFor(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IFor* use_syntax);
 	void Build(TGlobalBuildContext build_context);
-	TFor* GetSyntax()
-	{
-		return (TFor*)TSyntaxNode::GetSyntax();
-	}
+	SyntaxApi::IFor* GetSyntax();
 	void Run(TStatementRunContext run_context);
 };

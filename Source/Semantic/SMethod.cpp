@@ -12,22 +12,22 @@
 #include "../Syntax/Statements.h"
 #include "../Syntax/Method.h"
 
-TSpecialClassMethod::Type GetMethodTypeFromSyntax(TMethod* use_syntax)
+TSpecialClassMethod::Type GetMethodTypeFromSyntax(SyntaxApi::IMethod* use_syntax)
 {
 	switch (use_syntax->GetMemberType())
 	{
-	case TClassMember::DefaultConstr:
+	case SyntaxApi::TClassMember::DefaultConstr:
 		return TSpecialClassMethod::Default;
-	case TClassMember::CopyConstr:
+	case SyntaxApi::TClassMember::CopyConstr:
 		return TSpecialClassMethod::CopyConstr;
-	case TClassMember::Destr:
+	case SyntaxApi::TClassMember::Destr:
 		return TSpecialClassMethod::Destructor;
 	default:
 		return TSpecialClassMethod::NotSpecial;
 	}
 }
 
-TSMethod::TSMethod(TSClass* use_owner, TMethod* use_syntax)
+TSMethod::TSMethod(TSClass* use_owner, SyntaxApi::IMethod* use_syntax)
 	:TSyntaxNode(use_syntax), ret(use_owner, use_syntax->GetRetType()), TSpecialClassMethod(GetMethodTypeFromSyntax(use_syntax))
 {
 	owner = use_owner;
@@ -247,7 +247,7 @@ void TSMethod::Build()
 {
 	for (int i = 0; i < GetSyntax()->GetParamsCount(); i++)
 	{
-		TParameter* v = GetSyntax()->GetParam(i);
+		SyntaxApi::IParameter* v = GetSyntax()->GetParam(i);
 		parameters.push_back(std::unique_ptr<TSParameter>(new TSParameter(owner, this, v, v->GetType())));
 	}
 	is_external = GetSyntax()->IsExternal();
@@ -299,21 +299,21 @@ void TSMethod::CheckForErrors()
 		//проверяем правильность указания параметров и возвращаемого значения
 		switch (GetSyntax()->GetMemberType())
 		{
-		case TClassMember::Func:
+		case SyntaxApi::TClassMember::Func:
 			break;
-		case TClassMember::DefaultConstr:
+		case SyntaxApi::TClassMember::DefaultConstr:
 			if (ret.GetClass() != NULL)GetSyntax()->Error("Конструктор по умолчанию не должен возвращать значение!");
 			if (parameters.size() != 0)GetSyntax()->Error("Конструктор по умолчанию не имеет параметров!");
 			break;
-		case TClassMember::CopyConstr:
-		case TClassMember::MoveConstr:
+		case SyntaxApi::TClassMember::CopyConstr:
+		case SyntaxApi::TClassMember::MoveConstr:
 			if (ret.GetClass() != NULL)GetSyntax()->Error("Конструктор не должен возвращать значение!");
 			break;
-		case TClassMember::Destr:
+		case SyntaxApi::TClassMember::Destr:
 			if (ret.GetClass() != NULL)GetSyntax()->Error("Деструктор не должен возвращать значение!");
 			if (parameters.size() != 0)GetSyntax()->Error("Деструктор не имеет параметров!");
 			break;
-		case TClassMember::Operator:
+		case SyntaxApi::TClassMember::Operator:
 			if (GetSyntax()->GetOperatorType() == Lexer::TOperator::Not)//унарные операторы
 			{
 				if (GetParamsCount() != 1)
@@ -348,7 +348,7 @@ void TSMethod::CheckForErrors()
 					GetSyntax()->Error("Хотя бы один из параметров оператора должен быть классом для которого он используется!");
 			}
 			break;
-		case TClassMember::Conversion:
+		case SyntaxApi::TClassMember::Conversion:
 			if (GetParamsCount() != 1
 				|| GetParam(0)->GetClass() != owner)
 				GetSyntax()->Error("Оператор приведения типа должен иметь один параметр с типом равным классу в котором он находится!");

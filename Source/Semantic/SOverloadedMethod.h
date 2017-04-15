@@ -1,9 +1,6 @@
 ﻿#pragma once
 
-#include "../lexer.h"
-#include <list>
-#include <vector>
-#include <memory>
+#include "../SyntaxTree/SyntaxTreeApi.h"
 
 #include "SSyntaxNode.h"
 
@@ -12,11 +9,8 @@
 class TSParameter;
 class TSMethod;
 class TSClass;
-class TOverloadedMethod;
-class TSClassField;
-class TSLocalVar;
 
-class TSOverloadedMethod :TSyntaxNode<TOverloadedMethod>
+class TSOverloadedMethod :TSyntaxNode<SyntaxApi::IOverloadedMethod>
 {
 	bool linked_signature,linked_body;
 	std::vector<std::unique_ptr<TSMethod>> methods;
@@ -24,7 +18,7 @@ class TSOverloadedMethod :TSyntaxNode<TOverloadedMethod>
 public:
 	TSMethod* GetMethod(int i)const;
 	int GetMethodsCount()const;
-	TSOverloadedMethod(TSClass* use_owner, TOverloadedMethod* use_syntax);
+	TSOverloadedMethod(TSClass* use_owner, SyntaxApi::IOverloadedMethod* use_syntax);
 	Lexer::TNameId GetName()const;
 	TSMethod* FindParams(const std::vector<TSParameter*>& params)const;
 	TSMethod* FindConversion(const std::vector<TSParameter*>& params, TSClass* ret_class)const;

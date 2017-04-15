@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../SyntaxTree/SyntaxTreeApi.h"
+
 #include "SStatement.h"
 #include "Variable.h"
 
@@ -9,7 +11,6 @@
 class TSLocalVar;
 class TSClass;
 class TSMethod;
-class TSClassField;
 
 class TSStatements :public TSStatement
 {
@@ -22,11 +23,10 @@ class TSStatements :public TSStatement
 	};
 	std::vector<std::unique_ptr<TSStatement>> statements;
 	std::vector<TVarDecl> var_declarations;
-	void operator=(const TStatements& use_source);
 public:
-	TStatements* GetSyntax()
+	SyntaxApi::IStatements* GetSyntax()
 	{
-		return (TStatements*)TSyntaxNode::GetSyntax();
+		return dynamic_cast<SyntaxApi::IStatements*>(TSyntaxNode::GetSyntax());
 	}
 	void Add(TSStatement* use_statement);
 	void AddVar(TSLocalVar* use_var,int stmt_id);
@@ -34,7 +34,7 @@ public:
 	TSStatement* GetStatement(int i);
 	//TSStatement* CreateNode(TStatement* use_syntax_node);
 	TVariable* GetVar(Lexer::TNameId name, int sender_id);
-	TSStatements(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TStatements* use_syntax);
+	TSStatements(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IStatements* use_syntax);
 	void Build(TGlobalBuildContext build_context);
 	//void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value);
 	void Run(TStatementRunContext run_context);

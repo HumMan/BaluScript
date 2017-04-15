@@ -1,32 +1,25 @@
 ﻿#pragma once
 
-#include <memory>
+#include "../SyntaxTree/SyntaxTreeApi.h"
 
-#include "Statement.h"
+#include "Statements.h"
+#include "Expression.h"
 
-class TStatements;
-class TClass;
-class TExpression;
-
-class TFor :public TStatement
+namespace SyntaxInternal
 {
-	std::unique_ptr<TExpression> compare;
-	std::unique_ptr<TStatements> increment;
-	std::unique_ptr<TStatements> statements;
-public:
-	TExpression* GetCompare()const
+	class TClass;
+
+	class TFor :public TStatement, public SyntaxApi::IFor
 	{
-		return compare.get();
-	}
-	TStatements* GetIncrement()const
-	{
-		return increment.get();
-	}
-	TStatements* GetStatements()const
-	{
-		return statements.get();
-	}
-	TFor(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);
-	void AnalyzeSyntax(Lexer::ILexer* source);
-	void Accept(TStatementVisitor* visitor);
-};
+		std::unique_ptr<TExpression> compare;
+		std::unique_ptr<TStatements> increment;
+		std::unique_ptr<TStatements> statements;
+	public:
+		TExpression* GetCompare()const;
+		TStatements* GetIncrement()const;
+		TStatements* GetStatements()const;
+		TFor(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);
+		void AnalyzeSyntax(Lexer::ILexer* source);
+		void Accept(SyntaxApi::IStatementVisitor* visitor);
+	};
+}

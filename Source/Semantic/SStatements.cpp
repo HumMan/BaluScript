@@ -14,7 +14,7 @@
 #include "../Syntax/Statements.h"
 #include "../Syntax/Method.h"
 
-class TSStatementBuilder :public TStatementVisitor
+class TSStatementBuilder :public SyntaxApi::IStatementVisitor
 {
 	TSStatement* return_new_operation;
 	TSClass* owner;
@@ -33,49 +33,49 @@ public:
 		this->parent = parent;
 		this->build_context = build_context;
 	}
-	void Visit(TExpression* op)
+	void Visit(SyntaxApi::IExpression* op)
 	{
 		TSExpression* new_node = new TSExpression(owner, method, parent, op);
 		new_node->Build(build_context);
 		return_new_operation = new_node;
 	}
-	void Visit(TLocalVar* op)
+	void Visit(SyntaxApi::ILocalVar* op)
 	{
 		TSLocalVar* new_node = new TSLocalVar(owner, method, parent, op);
 		new_node->Build(build_context);
 		return_new_operation = new_node;
 	}
-	void Visit(TReturn* op)
+	void Visit(SyntaxApi::IReturn* op)
 	{
 		TSReturn* new_node = new TSReturn(owner, method, parent, op);
 		new_node->Build(build_context);
 		return_new_operation = new_node;
 	}
-	void Visit(TStatements* op)
+	void Visit(SyntaxApi::IStatements* op)
 	{
 		TSStatements* new_node = new TSStatements(owner, method, parent, op);
 		new_node->Build(build_context);
 		return_new_operation = new_node;
 	}
-	void Visit(TBytecode* op)
+	void Visit(SyntaxApi::IBytecode* op)
 	{
 		TSBytecode* new_node = new TSBytecode(owner, method, parent, op);
 		new_node->Build(build_context);
 		return_new_operation = new_node;
 	}
-	void Visit(TWhile* op)
+	void Visit(SyntaxApi::IWhile* op)
 	{
 		TSWhile* new_node = new TSWhile(owner, method, parent, op);
 		new_node->Build(build_context);
 		return_new_operation = new_node;
 	}
-	void Visit(TFor* op)
+	void Visit(SyntaxApi::IFor* op)
 	{
 		TSFor* new_node = new TSFor(owner, method, parent, op);
 		new_node->Build(build_context);
 		return_new_operation = new_node;
 	}
-	void Visit(TIf* op)
+	void Visit(SyntaxApi::IIf* op)
 	{
 		TSIf* new_node = new TSIf(owner, method, parent, op);
 		new_node->Build(build_context);
@@ -83,8 +83,8 @@ public:
 	}
 };
 
-TSStatements::TSStatements(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TStatements* use_syntax)
-	:TSStatement(TStatementType::Statements,use_owner,use_method,use_parent,use_syntax)
+TSStatements::TSStatements(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IStatements* use_syntax)
+	:TSStatement(SyntaxApi::TStatementType::Statements, use_owner, use_method, use_parent, use_syntax)
 {
 
 }
@@ -110,10 +110,10 @@ int TSStatements::GetLastVariableOffset()
 
 void TSStatements::Build(TGlobalBuildContext build_context)
 {
-	auto syntax = ((TStatements*)GetSyntax());
+	auto syntax = dynamic_cast<SyntaxApi::IStatements*>(GetSyntax());
 	for (int i = 0; i < syntax->GetStatementsCount(); i++)
 	{
-		TStatement* st = syntax->GetStatement(i);
+		SyntaxApi::IStatement* st = syntax->GetStatement(i);
 		TSStatementBuilder b(build_context, GetOwner(), GetMethod(), this);
 		st->Accept(&b);
 		statements.push_back(std::unique_ptr<TSStatement>(b.GetResult()));

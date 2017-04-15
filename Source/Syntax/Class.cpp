@@ -1,191 +1,225 @@
 ﻿#include "Class.h"
 
+#include "ClassField.h"
+#include "Type.h"
+#include "OverloadedMethod.h"
+#include "Method.h"
+
 using namespace Lexer;
+using namespace SyntaxInternal;
+
+namespace SyntaxInternal
+{
+	struct TClassInternal
+	{
+		bool is_template;
+
+		std::vector<Lexer::TNameId> template_params;
+
+		std::vector<std::unique_ptr<TClassField>> fields;
+		std::vector<std::unique_ptr<TOverloadedMethod>> methods;
+		std::unique_ptr<TMethod> constr_default;
+		std::unique_ptr<TOverloadedMethod> constr_copy, constr_move;
+		///<summary>Пользовательский деструктор</summary>
+		std::unique_ptr<TMethod> destructor;
+		std::unique_ptr<TOverloadedMethod> operators[(short)Lexer::TOperator::End];
+		std::unique_ptr<TOverloadedMethod> conversions;
+
+		std::vector<std::unique_ptr<TClass>> nested_classes;
+
+		///<summary>Название класса</summary>
+		Lexer::TNameId name;
+		///<summary>Тип от которого унаследован данный класс</summary>
+		std::unique_ptr<TType> parent;
+		///<summary>От данного класса запрещено наследование</summary>
+		bool is_sealed;
+		///<summary>Класс в пределах которого объявлен данный класс</summary>
+		TClass* owner;
+		bool is_external;
+	};
+}
 
 bool TClass::IsTemplate()const
 {
-	return is_template;
+	return _this->is_template;
 }
 
 bool TClass::IsExternal()const
 {
-	return is_external;
-}
-
-ICanBeEnumeration* TClass::AsEnumeration() const
-{
-	return (ICanBeEnumeration*)this;
-}
-Lexer::TTokenPos TClass::AsTokenPos()const
-{
-	return *(Lexer::TTokenPos*)this;
+	return _this->is_external;
 }
 
 Lexer::TNameId TClass::GetTemplateParam(int i)const
 {
-	return template_params[i];
+	return _this->template_params[i];
 }
 
 int TClass::GetTemplateParamsCount()const
 {
-	return template_params.size();
+	return _this->template_params.size();
 }
 
 Lexer::TNameId TClass::GetName()const
 {
-	return name;
+	return _this->name;
 }
 
 TClass* TClass::GetOwner()const
 {
-	return owner;
+	return _this->owner;
 }
 
 void TClass::SetName(Lexer::TNameId name)
 {
-	this->name = name;
+	_this->name = name;
 }
 
 std::vector<Lexer::TNameId> TClass::GetFullClassName()const
 {
 	std::vector<Lexer::TNameId> result;
-	if (owner != NULL)
-		result = owner->GetFullClassName();
-	result.push_back(name);
+	if (_this->owner != NULL)
+		result = _this->owner->GetFullClassName();
+	result.push_back(_this->name);
 	return result;
 }
 
-TClass::TClass(TClass* use_owner) :parent(new TType(this))
+TClass::TClass(TClass* use_owner)
 {
-	is_template = false;
-	is_sealed = false;
-	is_external = false;
-	owner = use_owner;
+	_this.reset(new TClassInternal());
+	_this->parent.reset(new TType(this));
+	_this->is_template = false;
+	_this->is_sealed = false;
+	_this->is_external = false;
+	_this->owner = use_owner;
 
-	constr_copy.reset(new TOverloadedMethod());
-	constr_move.reset(new TOverloadedMethod());
+	_this->constr_copy.reset(new TOverloadedMethod());
+	_this->constr_move.reset(new TOverloadedMethod());
 	for (int i = 0; i < (short)Lexer::TOperator::End;i++)
-		operators[i].reset(new TOverloadedMethod());
-	conversions.reset(new TOverloadedMethod());
+		_this->operators[i].reset(new TOverloadedMethod());
+	_this->conversions.reset(new TOverloadedMethod());
+}
+
+TClass::~TClass()
+{
 }
 
 void TClass::AddMethod(TMethod* use_method, Lexer::TNameId name) {
 	//»щем перегруженные методы с таким же именем, иначе добавл¤ем новый
 	TOverloadedMethod* temp = NULL;
-	for (std::unique_ptr<TOverloadedMethod>& method : methods)
+	for (std::unique_ptr<TOverloadedMethod>& method : _this->methods)
 		if (method->GetName() == name)
 			temp = method.get();
 	if (temp == NULL)
 	{
-		methods.emplace_back(new TOverloadedMethod(name));
-		temp = methods.back().get();
+		_this->methods.emplace_back(new TOverloadedMethod(name));
+		temp = _this->methods.back().get();
 	}
-	temp->methods.push_back(std::unique_ptr<TMethod>(use_method));
+	temp->AddMethod(use_method);
 }
 
 void TClass::AddOperator(Lexer::TOperator op, TMethod* use_method)
 {
-	operators[(short)op]->methods.push_back(std::unique_ptr<TMethod>(use_method));
+	_this->operators[(short)op]->AddMethod(use_method);
 }
 
 void TClass::AddConversion(TMethod* use_method) 
 {
-	conversions->methods.push_back(std::unique_ptr<TMethod>(use_method));
+	_this->conversions->AddMethod(use_method);
 }
 
 void TClass::AddDefaultConstr(TMethod* use_method)
 {
 	if (use_method->GetParamsCount() != 0)
 		Error("Конструктор по умолчанию уже существует!");
-	constr_default.reset(use_method);
+	_this->constr_default.reset(use_method);
 }
 
 void TClass::AddCopyConstr(TMethod* use_method)
 {
 	if(use_method->GetParamsCount()==0)
 		Error("Конструктор копии должен иметь параметры!");
-	constr_copy->methods.push_back(std::unique_ptr<TMethod>(use_method));
+	_this->constr_copy->AddMethod(use_method);
 }
 
 void TClass::AddMoveConstr(TMethod* use_method)
 {
 	if (use_method->GetParamsCount() == 0)
 		Error("Конструктор перемещения должен иметь параметры!");
-	constr_move->methods.push_back(std::unique_ptr<TMethod>(use_method));
+	_this->constr_move->AddMethod(use_method);
 }
 
 void TClass::AddDestr(TMethod* use_method)
 {
-	if (destructor)
+	if (_this->destructor)
 		Error("Деструктор уже существует!");
-	destructor = std::unique_ptr<TMethod>(use_method);
+	_this->destructor = std::unique_ptr<TMethod>(use_method);
 }
 
 int TClass::GetFieldsCount()const
 {
-	return fields.size();
+	return _this->fields.size();
 }
-TClassField* TClass::GetField(int i) const
+SyntaxApi::IClassField* TClass::GetField(int i) const
 {
-	return fields[i].get();
+	return _this->fields[i].get();
 }
 int TClass::GetMethodsCount()const
 {
-	return methods.size();
+	return _this->methods.size();
 }
-TOverloadedMethod* TClass::GetMethod(int i) const
+SyntaxApi::IOverloadedMethod* TClass::GetMethod(int i) const
 {
-	return methods[i].get();
+	return _this->methods[i].get();
 }
 
 void TClass::AddNested(TClass* use_class)
 {
-	nested_classes.push_back(std::unique_ptr<TClass>(use_class));
+	_this->nested_classes.push_back(std::unique_ptr<TClass>(use_class));
 }
 
 TClassField* TClass::EmplaceField(TClass* use_field_owner)
 {
-	fields.emplace_back(new TClassField(use_field_owner));
-	return fields.back().get();
+	_this->fields.emplace_back(new TClassField(use_field_owner));
+	return _this->fields.back().get();
 }
 
 int TClass::GetNestedCount()const
 {
-	return nested_classes.size();
+	return _this->nested_classes.size();
 }
 
 TClass* TClass::GetNested(Lexer::TNameId name)const
 {
-	for (size_t i = 0; i < nested_classes.size(); i++)
+	for (size_t i = 0; i < _this->nested_classes.size(); i++)
 	{
-		if (nested_classes[i]->GetName() == name)
-			return nested_classes[i].get();
+		if (_this->nested_classes[i]->GetName() == name)
+			return _this->nested_classes[i].get();
 	}
 	return nullptr;
 }
 
 TClass* TClass::GetNested(int i)const
 {
-	return nested_classes[i].get();
+	return _this->nested_classes[i].get();
 }
 
-TType* TClass::GetParent()const
+SyntaxApi::IType* TClass::GetParent()const
 {
-	return parent.get();
+	return _this->parent.get();
 }
 
 int TClass::FindNested(Lexer::TNameId name)const
 {
-	for (size_t i = 0; i < nested_classes.size(); i++)
+	for (size_t i = 0; i < _this->nested_classes.size(); i++)
 	{
-		if (nested_classes[i]->GetName() == name)
+		if (_this->nested_classes[i]->GetName() == name)
 			return i;
 	}
 	return -1;
 }
 
 void TClass::AccessDecl(Lexer::ILexer* source, bool& readonly,
-		TTypeOfAccess access) {
+	SyntaxApi::TTypeOfAccess access) {
 	if (source->Type() == Lexer::TTokenType::ResWord)
 	{
 		switch ((TResWord)source->Token())
@@ -194,25 +228,25 @@ void TClass::AccessDecl(Lexer::ILexer* source, bool& readonly,
 			source->GetToken();
 			source->GetToken(TTokenType::Colon);
 			readonly = true;
-			access = TTypeOfAccess::Public;
+			access = SyntaxApi::TTypeOfAccess::Public;
 			break;
 		case TResWord::Public:
 			source->GetToken();
 			source->GetToken(TTokenType::Colon);
 			readonly = false;
-			access = TTypeOfAccess::Public;
+			access = SyntaxApi::TTypeOfAccess::Public;
 			break;
 		case TResWord::Protected:
 			source->GetToken();
 			source->GetToken(TTokenType::Colon);
 			readonly = false;
-			access = TTypeOfAccess::Protected;
+			access = SyntaxApi::TTypeOfAccess::Protected;
 			break;
 		case TResWord::Private:
 			source->GetToken();
 			source->GetToken(TTokenType::Colon);
 			readonly = false;
-			access = TTypeOfAccess::Private;
+			access = SyntaxApi::TTypeOfAccess::Private;
 			break;
 		}
 	}
@@ -226,7 +260,7 @@ void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 	{
 		SetAsEnumeration();
 		source->TestToken(TTokenType::Identifier);
-		name = source->NameId();
+		_this->name = source->NameId();
 		source->GetToken();
 		source->GetToken(TTokenType::LBrace);
 		do
@@ -250,17 +284,17 @@ void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 	{
 
 		source->GetToken(TResWord::Class);
-		is_sealed = source->TestAndGet(TResWord::Sealed);
-		is_external = source->TestAndGet(TResWord::Extern);
+		_this->is_sealed = source->TestAndGet(TResWord::Sealed);
+		_this->is_external = source->TestAndGet(TResWord::Extern);
 		source->TestToken(TTokenType::Identifier);
-		name = source->NameId();
+		_this->name = source->NameId();
 		source->GetToken();
 		if (source->TestAndGet(TOperator::Less)) 
 		{
-			is_template = true;
+			_this->is_template = true;
 			do {
 				source->TestToken(TTokenType::Identifier);
-				template_params.push_back(source->NameId());
+				_this->template_params.push_back(source->NameId());
 				source->GetToken();
 				if (!source->TestAndGet(TTokenType::Comma))
 					break;
@@ -270,12 +304,12 @@ void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 		if (source->TestAndGet(TTokenType::Colon)) 
 		{
 			source->TestToken(TTokenType::Identifier);
-			parent->AnalyzeSyntax(source);
+			_this->parent->AnalyzeSyntax(source);
 		}
 		source->GetToken(TTokenType::LBrace);
 
 		bool readonly = false;
-		TTypeOfAccess access = TTypeOfAccess::Public;
+		SyntaxApi::TTypeOfAccess access = SyntaxApi::TTypeOfAccess::Public;
 
 		while (true)
 		{
@@ -319,11 +353,11 @@ void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 					TNameId factor = source->NameId();
 					source->GetToken();
 					source->GetToken(TTokenType::RParenth);
-					fields.emplace_back(new TClassField(this));
-					fields.back()->SetFactorId(factor);
-					fields.back()->SetAccess(access);
-					fields.back()->SetReadOnly(readonly);
-					fields.back()->AnalyzeSyntax(source);
+					_this->fields.emplace_back(new TClassField(this));
+					_this->fields.back()->SetFactorId(factor);
+					_this->fields.back()->SetAccess(access);
+					_this->fields.back()->SetReadOnly(readonly);
+					_this->fields.back()->AnalyzeSyntax(source);
 				}
 					break;
 				default:
@@ -331,10 +365,10 @@ void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 			}
 			else if (source->Type() == TTokenType::Identifier) 
 			{
-				fields.emplace_back(new TClassField(this));
-				fields.back()->SetAccess(access);
-				fields.back()->SetReadOnly(readonly);
-				fields.back()->AnalyzeSyntax(source);
+				_this->fields.emplace_back(new TClassField(this));
+				_this->fields.back()->SetAccess(access);
+				_this->fields.back()->SetReadOnly(readonly);
+				_this->fields.back()->AnalyzeSyntax(source);
 			}
 			else
 				break;
@@ -347,33 +381,33 @@ void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 
 bool TClass::HasDefConstr()const
 {
-	return (bool)constr_default;
+	return (bool)_this->constr_default;
 }
-TMethod* TClass::GetDefaultConstructor() const
+SyntaxApi::IMethod* TClass::GetDefaultConstructor() const
 {
-	return constr_default.get();
+	return _this->constr_default.get();
 }
 bool TClass::HasDestructor()const
 {
-	return (bool)destructor;
+	return (bool)_this->destructor;
 }
-TMethod* TClass::GetDestructor() const
+SyntaxApi::IMethod* TClass::GetDestructor() const
 {
-	return destructor.get();
+	return _this->destructor.get();
 }
-TOverloadedMethod* TClass::GetCopyConstr() const
+SyntaxApi::IOverloadedMethod* TClass::GetCopyConstr() const
 {
-	return constr_copy.get();
+	return _this->constr_copy.get();
 }
-TOverloadedMethod* TClass::GetMoveConstr() const
+SyntaxApi::IOverloadedMethod* TClass::GetMoveConstr() const
 {
-	return constr_move.get();
+	return _this->constr_move.get();
 }
-TOverloadedMethod* TClass::GetOperator(int i) const
+SyntaxApi::IOverloadedMethod* TClass::GetOperator(int i) const
 {
-	return operators[i].get();
+	return _this->operators[i].get();
 }
-TOverloadedMethod* TClass::GetConversion() const
+SyntaxApi::IOverloadedMethod* TClass::GetConversion() const
 {
-	return conversions.get();
+	return _this->conversions.get();
 }

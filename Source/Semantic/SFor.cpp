@@ -5,8 +5,8 @@
 #include "../Syntax/For.h"
 #include "../Syntax/Statements.h"
 
-TSFor::TSFor(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TFor* use_syntax)
-	:TSStatement(TStatementType::For, use_owner, use_method, use_parent, (TStatement*)use_syntax)
+TSFor::TSFor(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IFor* use_syntax)
+	:TSStatement(SyntaxApi::TStatementType::For, use_owner, use_method, use_parent, dynamic_cast<SyntaxApi::IStatement*>(use_syntax))
 {
 
 }
@@ -22,6 +22,11 @@ void TSFor::Build(TGlobalBuildContext build_context)
 	increment->Build(build_context);
 	statements = std::unique_ptr<TSStatements>(new TSStatements(GetOwner(), GetMethod(), GetParentStatements(), GetSyntax()->GetStatements()));
 	statements->Build(build_context);
+}
+
+SyntaxApi::IFor* TSFor::GetSyntax()
+{
+	return dynamic_cast<SyntaxApi::IFor*>(TSyntaxNode::GetSyntax());
 }
 
 void TSFor::Run(TStatementRunContext run_context)

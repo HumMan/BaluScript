@@ -10,10 +10,15 @@
 #include "../Syntax/Bytecode.h"
 #include "../Syntax/Method.h"
 
-TSBytecode::TSBytecode(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TBytecode* use_syntax)
-	:TSStatement(TStatementType::Bytecode,use_owner,use_method,use_parent,(TStatement*)use_syntax)
+TSBytecode::TSBytecode(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IBytecode* use_syntax)
+	:TSStatement(SyntaxApi::TStatementType::Bytecode, use_owner, use_method, use_parent, dynamic_cast<SyntaxApi::IStatement*>(use_syntax))
 {
 
+}
+
+SyntaxApi::IBytecode* TSBytecode::GetSyntax()
+{
+	return dynamic_cast<SyntaxApi::IBytecode*>(TSyntaxNode::GetSyntax());
 }
 
 void TSBytecode::Build(TGlobalBuildContext build_context)
@@ -21,14 +26,14 @@ void TSBytecode::Build(TGlobalBuildContext build_context)
 	auto code = GetSyntax()->GetBytecode();
 	for (size_t i = 0; i<code.size(); i++)
 	{
-		if (code[i].f[0] == TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID)
+		if (code[i].f[0] == SyntaxApi::TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID)
 		{
 			TSClass* temp = GetOwner()->GetClass(code[i].id[0]);
 			if (temp == NULL)GetSyntax()->Error("Неизвестный идентификатор!");
 			//GetSyntax()->code[i].op.v1 = program.CreateArrayElementClassId(temp);
 			array_element_classes.push_back(temp);
 		}//TODO сделать нормально без повторений
-		if (code[i].f[1] == TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID)
+		if (code[i].f[1] == SyntaxApi::TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID)
 		{
 			TSClass* temp = GetOwner()->GetClass(code[i].id[1]);
 			if (temp == NULL)GetSyntax()->Error("Неизвестный идентификатор!");
@@ -67,7 +72,7 @@ void TSBytecode::Run(TStatementRunContext run_context)
 
 	auto object = (run_context.object!=nullptr)?(int*)run_context.object->get():nullptr;
 	auto code = GetSyntax()->GetBytecode();
-	for (const TBytecodeOp& op : code)
+	for (const SyntaxApi::TBytecodeOp& op : code)
 	{
 		
 		if (

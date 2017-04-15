@@ -1,14 +1,8 @@
 ﻿#pragma once
 
-#include <assert.h>
-#include <list>
-#include <vector>
-#include <memory>
-
-#include "../lexer.h"
+#include "../SyntaxTree/SyntaxTreeApi.h"
 
 class TSClass;
-class TSType;
 struct TSType_TTemplateParameter;
 
 class TNodeWithTemplates

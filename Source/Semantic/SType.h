@@ -1,9 +1,6 @@
 #pragma once 
 
-#include <memory>
-#include "../lexer.h"
-
-#include "../Syntax/Type.h"
+#include "../SyntaxTree/SyntaxTreeApi.h"
 
 #include "SSyntaxNode.h"
 
@@ -11,8 +8,6 @@
 
 class TSClass;
 class TSType;
-class TSClassField;
-class TSLocalVar;
 
 struct TSType_TTemplateParameter
 {
@@ -21,11 +16,11 @@ struct TSType_TTemplateParameter
 	std::unique_ptr<TSType> type;
 };
 
-struct TSType_TClassName :TSyntaxNode<TType_TClassName>,TNodeSignatureLinked,TNodeBodyLinked
+struct TSType_TClassName :TSyntaxNode<SyntaxApi::IType_TClassName>, TNodeSignatureLinked, TNodeBodyLinked
 {
 	TSClass* class_of_type;
 	std::list<TSType_TTemplateParameter> template_params_classes;
-	TSType_TClassName(TType_TClassName* use_syntax) :TSyntaxNode(use_syntax)
+	TSType_TClassName(SyntaxApi::IType_TClassName* use_syntax) :TSyntaxNode(use_syntax)
 	{
 		class_of_type = NULL;
 	}
@@ -39,7 +34,7 @@ struct TSType_TClassName :TSyntaxNode<TType_TClassName>,TNodeSignatureLinked,TNo
 	void LinkBody(TGlobalBuildContext build_context);
 };
 
-class TSType :public TSyntaxNode<TType>, public TNodeSignatureLinked, public TNodeBodyLinked
+class TSType :public TSyntaxNode<SyntaxApi::IType>, public TNodeSignatureLinked, public TNodeBodyLinked
 {
 private:
 	TSClass* owner;
@@ -47,7 +42,7 @@ private:
 	void LinkSignature(TGlobalBuildContext build_context, TSClass* use_curr_class);
 public:
 	bool IsEqualTo(const TSType& use_right)const;
-	TSType(TSClass* use_owner,TType* use_syntax_node);
+	TSType(TSClass* use_owner,SyntaxApi::IType* use_syntax_node);
 	///<summary>Используется при создании автоматических методов</summary>
 	TSType(TSClass* use_owner, TSClass* use_class);
 	void LinkSignature(TGlobalBuildContext build_context);

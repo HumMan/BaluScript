@@ -4,6 +4,7 @@
 #include "ClassField.h"
 
 using namespace Lexer;
+using namespace SyntaxInternal;
 
 TOperation* TExpression::ParamsCall(Lexer::ILexer* source, TOperation* curr_operation)
 {
@@ -28,7 +29,7 @@ TOperation* TExpression::ParamsCall(Lexer::ILexer* source, TOperation* curr_oper
 	while (!source->Test(use_brackets ? (TTokenType::RBracket)
 		: (TTokenType::RParenth)))
 	{
-		params_call->AddParam(new TExpression(Expr(source, 0), GetOwner(), GetMethod(), GetParent()));
+		params_call->AddParam(new TExpression(Expr(source, 0), GetOwnerT(), GetMethodT(), GetParentT()));
 		if (!source->TestAndGet(TTokenType::Comma))
 			break;
 	}
@@ -73,23 +74,23 @@ TOperation* TExpression::Factor(Lexer::ILexer* source)
 		{
 		case TValue::Int:
 			curr_operation = new TIntValue(source->Int(),
-				source->GetIdFromName("int"), GetOwner());
+				source->GetIdFromName("int"), GetOwnerT());
 			break;
 		case TValue::Float:
 			curr_operation = new TFloatValue(source->Float(),
-				source->GetIdFromName("float"), GetOwner());
+				source->GetIdFromName("float"), GetOwnerT());
 			break;
 		case TValue::Bool:
 			curr_operation = new TBoolValue(source->Bool(),
-				source->GetIdFromName("bool"), GetOwner());
+				source->GetIdFromName("bool"), GetOwnerT());
 			break;
 		case TValue::String:
 			curr_operation = new TStringValue(source->StringValue(),
-				source->GetIdFromName("string"), GetOwner());
+				source->GetIdFromName("string"), GetOwnerT());
 			break;
 		case TValue::Char:
 			curr_operation = new TCharValue(source->Char(),
-				source->GetIdFromName("char"), GetOwner());
+				source->GetIdFromName("char"), GetOwnerT());
 			break;
 		default:
 			assert(false);
@@ -105,7 +106,7 @@ TOperation* TExpression::Factor(Lexer::ILexer* source)
 		}
 		else if (source->TestAndGet(TResWord::New)) 
 		{
-			auto new_type = new TType(GetOwner());
+			auto new_type = new TType(GetOwnerT());
 			new_type->AnalyzeSyntax(source);
 			TConstructTempObject* temp = new TConstructTempObject(new_type);
 			return ParamsCall(source, temp);
@@ -235,55 +236,55 @@ void TExpression::AnalyzeSyntax(Lexer::ILexer* source)
 	//BuildPostfix();
 }
 
-void TExpression::TBinOp::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TBinOp::Accept(SyntaxApi::IExpressionTreeVisitor* visitor)
 {
 	visitor->Visit(this);
 }
-void TExpression::TUnaryOp::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TUnaryOp::Accept(SyntaxApi::IExpressionTreeVisitor* visitor)
 {
 	visitor->Visit(this);
 }
-void TExpression::TConstructTempObject::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TConstructTempObject::Accept(SyntaxApi::IExpressionTreeVisitor* visitor)
 {
 	visitor->Visit(this);
 }
-void TExpression::TCallParamsOp::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TCallParamsOp::Accept(SyntaxApi::IExpressionTreeVisitor* visitor)
 {
 	visitor->Visit(this);
 }
-void TExpression::TCharValue::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TCharValue::Accept(SyntaxApi::IExpressionTreeVisitor* visitor)
 {
 	visitor->Visit(this);
 }
-void TExpression::TFloatValue::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TFloatValue::Accept(SyntaxApi::IExpressionTreeVisitor* visitor)
 {
 	visitor->Visit(this);
 }
-void TExpression::TGetMemberOp::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TGetMemberOp::Accept(SyntaxApi::IExpressionTreeVisitor* visitor)
 {
 	visitor->Visit(this);
 }
-void TExpression::TId::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TId::Accept(SyntaxApi::IExpressionTreeVisitor* visitor)
 {
 	visitor->Visit(this);
 }
-void TExpression::TIntValue::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TIntValue::Accept(SyntaxApi::IExpressionTreeVisitor* visitor)
 {
 	visitor->Visit(this);
 }
-void TExpression::TStringValue::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TStringValue::Accept(SyntaxApi::IExpressionTreeVisitor* visitor)
 {
 	visitor->Visit(this);
 }
-void TExpression::TThis::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TThis::Accept(SyntaxApi::IExpressionTreeVisitor* visitor)
 {
 	visitor->Visit(this);
 }
-void TExpression::TBoolValue::Accept(TExpressionTreeVisitor* visitor)
+void TExpression::TBoolValue::Accept(SyntaxApi::IExpressionTreeVisitor* visitor)
 {
 	visitor->Visit(this);
 }
-void TExpression::Accept(TStatementVisitor* visitor)
+void TExpression::Accept(SyntaxApi::IStatementVisitor* visitor)
 {
 	visitor->Visit(this);
 }

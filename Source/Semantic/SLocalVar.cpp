@@ -57,8 +57,8 @@ void TSLocalVar::Build(TGlobalBuildContext build_context)
 	}
 }
 
-TSLocalVar::TSLocalVar(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TLocalVar* use_syntax)
-	:TSStatement(TStatementType::VarDecl, use_owner, use_method, use_parent, use_syntax)
+TSLocalVar::TSLocalVar(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::ILocalVar* use_syntax)
+	:TSStatement(SyntaxApi::TStatementType::VarDecl, use_owner, use_method, use_parent, use_syntax)
 	, TVariable(TVariableType::Local)
 	, type(use_owner, use_syntax->GetVarType())
 {
@@ -68,6 +68,11 @@ TSLocalVar::TSLocalVar(TSClass* use_owner, TSMethod* use_method, TSStatements* u
 Lexer::TNameId TSLocalVar::GetName()
 {
 	return GetSyntax()->GetName();
+}
+
+SyntaxApi::ILocalVar* TSLocalVar::GetSyntax()
+{
+	return dynamic_cast<SyntaxApi::ILocalVar*>(TSyntaxNode::GetSyntax());
 }
 
 TSClass* TSLocalVar::GetClass()

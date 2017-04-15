@@ -259,7 +259,7 @@ namespace Lexer
 		virtual void Error(char* s, ...)const = 0;
 	};
 
-	class TTokenPos: public ITokenPos
+	class TTokenPos: public virtual ITokenPos
 	{
 		int token_id;
 		ILexer* source;

@@ -6,12 +6,13 @@
 #include "ClassField.h"
 
 using namespace Lexer;
+using namespace SyntaxInternal;
 
 void TLocalVar::AnalyzeSyntax(Lexer::ILexer* source) {
 	InitPos(source);
 	type->AnalyzeSyntax(source);
 	is_static = source->TestAndGet(TResWord::Static);
-	assert(GetParent()->GetType()==TStatementType::Statements);
+	assert(GetParent()->GetType()==SyntaxApi::TStatementType::Statements);
 	TStatements* statements = (TStatements*) GetParent();
 	TLocalVar* curr_var = this;
 	do {
@@ -30,7 +31,7 @@ void TLocalVar::AnalyzeSyntax(Lexer::ILexer* source) {
 		{
 			//source->GetToken(TTokenType::Identifier);
 			//source->TestAndGet(TOperator::Assign);
-			curr_var->assign_expr.reset(new TExpression(GetOwner(), GetMethod(), GetParent(),
+			curr_var->assign_expr.reset(new TExpression(GetOwnerT(), GetMethodT(), GetParentT(),
 					curr_var->GetStmtId()));
 			curr_var->assign_expr->AnalyzeSyntax(source);
 		} else {
@@ -39,7 +40,7 @@ void TLocalVar::AnalyzeSyntax(Lexer::ILexer* source) {
 			{
 				while (!source->Test(TTokenType::RParenth)) 
 				{
-					TExpression* expr = new TExpression(GetOwner(), GetMethod(), GetParent(),
+					TExpression* expr = new TExpression(GetOwnerT(), GetMethodT(), GetParentT(),
 							curr_var->GetStmtId());
 					expr->AnalyzeSyntax(source);
 					curr_var->params.push_back(std::unique_ptr<TExpression>(expr));
@@ -62,36 +63,38 @@ void TLocalVar::AnalyzeSyntax(Lexer::ILexer* source) {
 		}
 		if (source->Test(TTokenType::Comma))
 		{
-			curr_var = new TLocalVar(GetOwner(), GetMethod(), statements, -1);
+			curr_var = new TLocalVar(GetOwnerT(), GetMethodT(), statements, -1);
 		}
 	} while (source->TestAndGet(TTokenType::Comma));
 }
 
 TLocalVar::TLocalVar(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id) :
-TStatement(TStatementType::VarDecl, use_owner, use_method, use_parent, use_stmt_id),
+TStatement(SyntaxApi::TStatementType::VarDecl, use_owner, use_method, use_parent, use_stmt_id),
 type(new TType(use_owner)), is_static(false)
 {
 }
 
-TNameId TLocalVar::GetName(){
+TNameId TLocalVar::GetName()const
+{
 	return name;
 }
-bool TLocalVar::IsStatic(){
+bool TLocalVar::IsStatic()
+{
 	return is_static;
 }
 
-void TLocalVar::Accept(TStatementVisitor* visitor)
+void TLocalVar::Accept(SyntaxApi::IStatementVisitor* visitor)
 {
 	visitor->Visit(this);
 }
 
-TExpression* TLocalVar::GetAssignExpr()const
+SyntaxApi::IExpression* TLocalVar::GetAssignExpr()const
 {
 	return assign_expr.get();
 }
-std::vector<TExpression*> TLocalVar::GetParams()const
+std::vector<SyntaxApi::IExpression*> TLocalVar::GetParams()const
 {
-	std::vector<TExpression*> result;
+	std::vector<SyntaxApi::IExpression*> result;
 	result.resize(params.size());
 	for (size_t i = 0; i < params.size(); i++)
 		result[i] = params[i].get();

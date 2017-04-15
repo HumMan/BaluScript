@@ -4,9 +4,14 @@
 #include <vector>
 #include <memory>
 
-class TClass;
+namespace SyntaxInternal
+{
+	class TClass;
+}
+
+using namespace SyntaxInternal;
+
 class TSClassField;
-class TExpressionResult;
 class TSClass;
 class TSMethod;
 class TTemplateRealizations;
@@ -14,17 +19,25 @@ class TSLocalVar;
 
 class TSyntaxAnalyzer
 {
-public:
 	std::unique_ptr<Lexer::ILexer> lexer;
 	std::unique_ptr<TClass> base_class;
 	std::unique_ptr<TSClass> sem_base_class;
 	std::vector<TSClassField*> static_fields;
 	std::vector<TSLocalVar*> static_variables;
 public:
+	TClass* GetBaseClass()const;
+	TSClass* GetCompiledBaseClass()const;
+	Lexer::ILexer* GetLexer()const;
 	TSyntaxAnalyzer();
 	~TSyntaxAnalyzer();
 	void Compile(char* use_source/*,TTime& time*/);
 	void CreateInternalClasses();
 	TSMethod* GetMethod(char* use_method);
 	TSClassField* GetStaticField(char* use_var);
+
+};
+
+class ISyntaxAnalyzer
+{
+
 };

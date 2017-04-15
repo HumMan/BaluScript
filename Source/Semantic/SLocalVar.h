@@ -5,10 +5,6 @@
 #include "Variable.h"
 
 class TSExpression;
-class TLocalVar;
-class TExpressionResult;
-class TSExpression_TMethodCall;
-class TOperation;
 class TSConstructObject;
 
 class TSLocalVar :public TSStatement, public TVariable, public TNodeWithOffset
@@ -17,11 +13,8 @@ class TSLocalVar :public TSStatement, public TVariable, public TNodeWithOffset
 	std::unique_ptr<TSConstructObject> construct_object;
 	TSType type;
 public:
-	TLocalVar* GetSyntax()
-	{
-		return (TLocalVar*)TSyntaxNode::GetSyntax();
-	}
-	TSLocalVar(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TLocalVar* use_syntax);
+	SyntaxApi::ILocalVar* GetSyntax();
+	TSLocalVar(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::ILocalVar* use_syntax);
 	Lexer::TNameId GetName();
 	TSClass* GetClass();
 	bool IsStatic();

@@ -1,10 +1,13 @@
 ﻿#include "Method.h"
 
 #include "Statements.h"
+#include "Parameter.h"
+#include "Type.h"
 
 #include <common.h>
 
 using namespace Lexer;
+using namespace SyntaxInternal;
 
 void TMethod::ParametersDecl(Lexer::ILexer* source) {
 	//Считываем все параметры метода и возвращаемое значение
@@ -35,8 +38,8 @@ void TMethod::ParametersDecl(Lexer::ILexer* source) {
 void TMethod::AnalyzeSyntax(Lexer::ILexer* source, bool realization) {
 	InitPos(source);
 	source->TestToken(TTokenType::ResWord);
-	member_type = (TClassMember) source->Token();
-	if (!LexerIsIn(member_type, TClassMember::Func, TClassMember::Conversion))
+	member_type = (SyntaxApi::TClassMember) source->Token();
+	if (!LexerIsIn(member_type, SyntaxApi::TClassMember::Func, SyntaxApi::TClassMember::Conversion))
 		source->Error(
 				"Ожидалось объявление метода,конструктора,деструктора,оператора или приведения типа!");
 	source->GetToken();
@@ -46,13 +49,13 @@ void TMethod::AnalyzeSyntax(Lexer::ILexer* source, bool realization) {
 		is_extern = source->TestAndGet(TResWord::Extern);
 	is_static = source->TestAndGet(TResWord::Static);
 	switch (member_type) {
-	case TClassMember::Func:
-	case TClassMember::DefaultConstr:
-	case TClassMember::CopyConstr:
-	case TClassMember::MoveConstr:
-	case TClassMember::Destr:
-	case TClassMember::Operator:
-	case TClassMember::Conversion:
+	case SyntaxApi::TClassMember::Func:
+	case SyntaxApi::TClassMember::DefaultConstr:
+	case SyntaxApi::TClassMember::CopyConstr:
+	case SyntaxApi::TClassMember::MoveConstr:
+	case SyntaxApi::TClassMember::Destr:
+	case SyntaxApi::TClassMember::Operator:
+	case SyntaxApi::TClassMember::Conversion:
 		break;
 	default:
 		source->Error(
@@ -79,11 +82,12 @@ void TMethod::AnalyzeSyntax(Lexer::ILexer* source, bool realization) {
 		}
 	}
 	//
-	if (member_type == TClassMember::Func) {
+	if (member_type == SyntaxApi::TClassMember::Func) {
 		source->TestToken(TTokenType::Identifier);
 		method_name = source->NameId();
 		source->GetToken();
-	} else if (member_type == TClassMember::Operator) {
+	}
+	else if (member_type == SyntaxApi::TClassMember::Operator) {
 		source->TestToken(TTokenType::Operator);
 		operator_type = (TOperator) source->Token();
 		source->GetToken();
@@ -92,22 +96,22 @@ void TMethod::AnalyzeSyntax(Lexer::ILexer* source, bool realization) {
 		ParametersDecl(source);
 		if (realization) {
 			switch (member_type) {
-			case TClassMember::Func:
+			case SyntaxApi::TClassMember::Func:
 				owner->AddMethod(this, method_name);
 				break;
-			case TClassMember::DefaultConstr:
+			case SyntaxApi::TClassMember::DefaultConstr:
 				owner->AddDefaultConstr(this);
 				break;
-			case TClassMember::CopyConstr:
+			case SyntaxApi::TClassMember::CopyConstr:
 				owner->AddCopyConstr(this);
 				break;
-			case TClassMember::MoveConstr:
+			case SyntaxApi::TClassMember::MoveConstr:
 				owner->AddMoveConstr(this);
 				break;
-			case TClassMember::Destr:
+			case SyntaxApi::TClassMember::Destr:
 				owner->AddDestr(this);
 				break;
-			case TClassMember::Operator:
+			case SyntaxApi::TClassMember::Operator:
 				if (operator_type == TOperator::Minus || operator_type
 						== TOperator::UnaryMinus) {
 					if (GetParamsCount() == 1)
@@ -117,7 +121,7 @@ void TMethod::AnalyzeSyntax(Lexer::ILexer* source, bool realization) {
 				}
 				owner->AddOperator(operator_type, this);
 				break;
-			case TClassMember::Conversion:
+			case SyntaxApi::TClassMember::Conversion:
 				owner->AddConversion(this);
 				break;
 			default:
@@ -135,7 +139,7 @@ void TMethod::AnalyzeSyntax(Lexer::ILexer* source, bool realization) {
 	}
 }
 
-TMethod::TMethod(TClass* use_owner, TClassMember use_member_type)
+TMethod::TMethod(TClass* use_owner, SyntaxApi::TClassMember use_member_type)
 	:ret(new TType(use_owner)), ret_ref(false), owner(use_owner)
 	, is_static(false), is_extern(false)
 	, statements(new TStatements(use_owner, this, NULL, -1))
@@ -159,7 +163,7 @@ bool TMethod::HasReturn()const
 {
 	return has_return;
 }
-TStatements* TMethod::GetStatements()const
+TStatements* TMethod::GetStatementsT()const
 {
 	return statements.get();
 }
@@ -173,14 +177,14 @@ TClass* TMethod::GetOwner()const
 }
 TOperator TMethod::GetOperatorType()const
 {
-	assert(member_type == TClassMember::Operator);
+	assert(member_type == SyntaxApi::TClassMember::Operator);
 	return operator_type;
 }
-TClassMember TMethod::GetMemberType()const
+SyntaxApi::TClassMember TMethod::GetMemberType()const
 {
 	return member_type;
 }
-TParameter* TMethod::GetParam(int use_id)const
+TParameter* TMethod::GetParamT(int use_id)const
 {
 	return parameters[use_id].get();
 }
@@ -200,11 +204,27 @@ bool TMethod::IsExternal()const
 {
 	return is_extern;
 }
+SyntaxApi::IStatements* TMethod::GetStatements()const
+{
+	return statements.get();
+}
+SyntaxApi::IParameter* TMethod::GetParam(int use_id)const
+{
+	return parameters[use_id].get();
+}
+SyntaxApi::IType* TMethod::GetRetType()const
+{
+	return ret.get();
+}
+TType* TMethod::GetRetTypeT()const
+{
+	return ret.get();
+}
 //bool TMethod::IsBytecode()
 //{
 //		return one_instruction
 //		&&statements->GetHigh() == 0
-//		&& statements->GetStatement(0)->GetType() == TStatementType::Bytecode;
+//		&& statements->GetStatement(0)->GetType() == SyntaxApi::TStatementType::Bytecode;
 //}
 void TMethod::AddParam(TParameter* use_param)
 {

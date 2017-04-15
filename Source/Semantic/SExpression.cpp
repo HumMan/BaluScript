@@ -3,22 +3,23 @@
 #include "../Syntax/Expression.h"
 #include "../Syntax/Statements.h"
 #include "../Syntax/Method.h"
+#include "../Syntax/ClassField.h"
 
 #include "../semanticAnalyzer.h"
 
 #include "FormalParam.h"
 #include "SStatements.h"
-#include "FormalParam.h"
 #include "SLocalVar.h"
 #include "SClass.h"
+#include "SClassField.h"
 #include "SConstructObject.h"
 
 #include "../NativeTypes/String.h"
 
-class TSemanticTreeBuilder :public TExpressionTreeVisitor
+class TSemanticTreeBuilder :public SyntaxApi::IExpressionTreeVisitor
 {
 	//общие для всех выражений поля
-	TExpression* syntax_node;
+	SyntaxApi::IExpression* syntax_node;
 	TSClass* owner;
 	TSMethod* method;
 	TSExpression* parent;
@@ -26,7 +27,7 @@ class TSemanticTreeBuilder :public TExpressionTreeVisitor
 
 	TSOperation* visit_result;
 public:
-	TSemanticTreeBuilder(TGlobalBuildContext build_context, TExpression* syntax_node, TSClass* owner, TSMethod* method, TSExpression* parent)
+	TSemanticTreeBuilder(TGlobalBuildContext build_context, SyntaxApi::IExpression* syntax_node, TSClass* owner, TSMethod* method, TSExpression* parent)
 	{
 		this->syntax_node = syntax_node;
 		this->owner = owner;
@@ -35,7 +36,7 @@ public:
 		this->build_context = build_context;
 	}
 
-	TSOperation* VisitNode(TExpression::TOperation* op)
+	TSOperation* VisitNode(SyntaxApi::IOperations::IOperation* op)
 	{
 		assert(this->visit_result == nullptr);
 		op->Accept(this);
@@ -45,7 +46,7 @@ public:
 		return result;
 	}
 
-	TSOperation* VisitNode(const std::unique_ptr<TExpression::TOperation>& op)
+	TSOperation* VisitNode(const std::unique_ptr<SyntaxApi::IOperations::IOperation>& op)
 	{
 		assert(this->visit_result == nullptr);
 		op->Accept(this);
@@ -61,7 +62,7 @@ public:
 		this->visit_result = visit_result;
 	}
 
-	void Visit(TExpression::TBinOp* operation_node)
+	void Visit(SyntaxApi::IOperations::IBinOp* operation_node)
 	{
 		std::vector<TSOperation*> param_expressions;
 
@@ -75,7 +76,7 @@ public:
 		TSMethod *bin_operator = NULL;
 
 		std::vector<TExpressionResult> param;
-		std::vector<TMethod*> bin_operators;
+		std::vector<SyntaxApi::IMethod*> bin_operators;
 
 		param.resize(2);
 		param[0] = left->GetFormalParameter();
@@ -107,7 +108,7 @@ public:
 
 		Return(method_call);
 	}
-	void Visit(TExpression::TUnaryOp* operation_node)
+	void Visit(SyntaxApi::IOperations::IUnaryOp* operation_node)
 	{
 		std::vector<TSOperation*> param_expressions;
 		TSOperation *left;
@@ -140,14 +141,14 @@ public:
 		}
 		else syntax_node->Error("Унарного оператора для данного типа не существует!");
 	}
-	void Visit(TExpression::TConstructTempObject* operation_node)
+	void Visit(SyntaxApi::IOperations::IConstructTempObject* operation_node)
 	{
 		TSExpression_TempObjectType* result = new TSExpression_TempObjectType(owner, operation_node->GetType());
 		result->type.LinkSignature(build_context);
 		result->type.LinkBody(build_context);
 		Return(result);
 	}
-	void Visit(TExpression::TCallParamsOp* operation_node)
+	void Visit(SyntaxApi::IOperations::ICallParamsOp* operation_node)
 	{
 		TSOperation *left;
 		left = VisitNode(operation_node->GetLeft());
@@ -197,7 +198,7 @@ public:
 
 			TSExpression_TCreateTempObject* create_temp_obj = new TSExpression_TCreateTempObject();
 			create_temp_obj->construct_object.reset(new TSConstructObject(owner, method, parent->GetParentStatements(), constr_class));
-			create_temp_obj->construct_object->Build(&operation_node->operation_source, params_result, param_expressions, params_formals, build_context);
+			create_temp_obj->construct_object->Build(operation_node->GetOperationSource(), params_result, param_expressions, params_formals, build_context);
 			create_temp_obj->left.reset((TSExpression_TempObjectType*)left);
 			Return(create_temp_obj);
 		}
@@ -228,7 +229,7 @@ public:
 		}		
 	}
 	
-	void Visit(TExpression::TGetMemberOp* operation_node)
+	void Visit(SyntaxApi::IOperations::IGetMemberOp* operation_node)
 	{
 		TSOperation *left;
 		left = VisitNode(operation_node->GetLeft());
@@ -238,9 +239,9 @@ public:
 			syntax_node->Error("Оператор доступа к члену класса нельзя применить к методу!");
 		if (left_result.IsType())
 		{
-			if (left_result.GetType()->GetSyntax()->AsEnumeration()->IsEnumeration())
+			if (left_result.GetType()->GetSyntax()->IsEnumeration())
 			{
-				int id = left_result.GetType()->GetSyntax()->AsEnumeration()->GetEnumId(operation_node->GetName());
+				int id = left_result.GetType()->GetSyntax()->GetEnumId(operation_node->GetName());
 				//TODO ввести спец функции min max count
 				if (id == -1)
 					syntax_node->Error("Перечислимого типа с таким именем не существует!");
@@ -346,7 +347,7 @@ public:
 			}
 		}
 	}
-	void Visit(TExpression::TId* operation_node)
+	void Visit(SyntaxApi::IOperations::IId* operation_node)
 	{
 		TVariable* var = parent->GetVar(operation_node->GetName());
 		if (var != NULL)
@@ -421,7 +422,7 @@ public:
 			}
 		}
 	}
-	void Visit(TExpression::TThis *operation_node)
+	void Visit(SyntaxApi::IOperations::IThis *operation_node)
 	{
 		if (method->GetSyntax()->IsStatic())
 			syntax_node->Error("Ключевое слово 'this' можно использовать только в нестатических методах!");
@@ -429,7 +430,7 @@ public:
 		result->owner = owner;
 		Return(result);
 	}
-	void Visit(TExpression::TIntValue *op)
+	void Visit(SyntaxApi::IOperations::IIntValue *op)
 	{
 		TSExpression::TInt* result = new TSExpression::TInt(owner, op->GetType());
 		result->val = op->GetValue();
@@ -437,7 +438,7 @@ public:
 		result->type.LinkBody(build_context);
 		Return(result);
 	}
-	void Visit(TExpression::TStringValue *op)
+	void Visit(SyntaxApi::IOperations::IStringValue *op)
 	{
 		TSExpression::TString* result = new TSExpression::TString(owner, op->GetType());
 		result->val = op->GetValue();
@@ -445,7 +446,7 @@ public:
 		result->type.LinkBody(build_context);
 		Return(result);
 	}
-	void Visit(TExpression::TCharValue* op)
+	void Visit(SyntaxApi::IOperations::ICharValue* op)
 	{
 		//TODO тип char
 		//TSExpression::TChar* result = new TSExpression::TChar(owner, op->GetType());
@@ -454,7 +455,7 @@ public:
 		//result->type.LinkBody(build_context);
 		//Return(result);
 	}
-	void Visit(TExpression::TFloatValue* op)
+	void Visit(SyntaxApi::IOperations::IFloatValue* op)
 	{
 		TSExpression::TFloat* result = new TSExpression::TFloat(owner, op->GetType());
 		result->val = op->GetValue();
@@ -462,7 +463,7 @@ public:
 		result->type.LinkBody(build_context);
 		Return(result);
 	}
-	void Visit(TExpression::TBoolValue* op)
+	void Visit(SyntaxApi::IOperations::IBoolValue* op)
 	{
 		TSExpression::TBool* result = new TSExpression::TBool(owner, op->GetType());
 		result->val = op->GetValue();
@@ -497,7 +498,7 @@ void TSExpression_TMethodCall::Build(const std::vector<TSOperation*>& param_expr
 	params.Build(param_expressions, formal_params);
 }
 
-TSExpression::TInt::TInt(TSClass* owner, TType* syntax_node)
+TSExpression::TInt::TInt(TSClass* owner, SyntaxApi::IType* syntax_node)
 	:type(owner,syntax_node)
 {
 }
@@ -506,7 +507,7 @@ void TSExpression::TInt::Run(TExpressionRunContext run_context)
 	*run_context.expression_result = TStackValue(false, type.GetClass());
 	run_context.expression_result->get_as<int>() = val;
 }
-TSExpression::TFloat::TFloat(TSClass* owner, TType* syntax_node)
+TSExpression::TFloat::TFloat(TSClass* owner, SyntaxApi::IType* syntax_node)
 	:type(owner, syntax_node)
 {
 }
@@ -520,7 +521,7 @@ TExpressionResult TSExpression::TFloat::GetFormalParameter()
 	return TExpressionResult(type.GetClass(), false);
 }
 
-TSExpression::TBool::TBool(TSClass* owner, TType* syntax_node)
+TSExpression::TBool::TBool(TSClass* owner, SyntaxApi::IType* syntax_node)
 	:type(owner, syntax_node)
 {
 }
@@ -534,7 +535,7 @@ TExpressionResult TSExpression::TBool::GetFormalParameter()
 	return TExpressionResult(type.GetClass(), false);
 }
 
-TSExpression::TString::TString(TSClass* owner, TType* syntax_node)
+TSExpression::TString::TString(TSClass* owner, SyntaxApi::IType* syntax_node)
 	:type(owner, syntax_node)
 {
 }
@@ -737,11 +738,11 @@ void TSExpression_TGetClass::Run(TExpressionRunContext run_context)
 	//nothing to do
 }
 
-void TSExpression_TCreateTempObject::Build(const std::vector<TExpression*>& param_expressions)
+void TSExpression_TCreateTempObject::Build(const std::vector<SyntaxApi::IExpression*>& param_expressions)
 {
 
 }
-TSExpression_TempObjectType::TSExpression_TempObjectType(TSClass* owner, TType* syntax_node)
+TSExpression_TempObjectType::TSExpression_TempObjectType(TSClass* owner, SyntaxApi::IType* syntax_node)
 	:type(owner,syntax_node)
 {
 }
@@ -784,7 +785,7 @@ void TSExpression::Run(TExpressionRunContext run_context)
 	first_op->Run(run_context);
 }
 
-TExpression* TSExpression::GetSyntax()
+SyntaxApi::IExpression* TSExpression::GetSyntax()
 {
-	return dynamic_cast<TExpression*>(TSStatement::GetSyntax());
+	return dynamic_cast<SyntaxApi::IExpression*>(TSStatement::GetSyntax());
 }

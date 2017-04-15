@@ -1,18 +1,17 @@
 #pragma once
 
-#include "../Syntax/Class.h"
+#include "../SyntaxTree/SyntaxTreeApi.h"
+
 #include "TemplateRealizations.h"
 #include "SMethod.h"
 #include "SOverloadedMethod.h"
 #include "SSyntaxNode.h"
 
-class TTemplateRealizations;
 class TSClassField;
-class TSLocalVar;
 class TStaticValue;
 class TStackValue;
 
-class TSClass:public TSyntaxNode<IClass>, public TNodeWithSize,public TNodeSignatureLinked,public TNodeBodyLinked,public TNodeWithTemplates, public TNodeWithAutoMethods
+class TSClass:public TSyntaxNode<SyntaxApi::IClass>, public TNodeWithSize,public TNodeSignatureLinked,public TNodeBodyLinked,public TNodeWithTemplates, public TNodeWithAutoMethods
 {	
 	std::vector<std::unique_ptr<TSClassField>> fields;
 	std::list<TSOverloadedMethod> methods;
@@ -43,7 +42,7 @@ public:
 	TSMethod* GetAutoDestr()const;
 	void AddClass(TSClass* use_class);
 	void CopyExternalMethodBindingsFrom(TSClass* source);
-	TSClass(TSClass* use_owner, IClass* use_syntax_node, TNodeWithTemplates::Type type = TNodeWithTemplates::Unknown);
+	TSClass(TSClass* use_owner, SyntaxApi::IClass* use_syntax_node, TNodeWithTemplates::Type type = TNodeWithTemplates::Unknown);
 	TSClass* GetClass(Lexer::TNameId use_name);
 	void CheckForErrors();
 	TSClass* GetOwner();

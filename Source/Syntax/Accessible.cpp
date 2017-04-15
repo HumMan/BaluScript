@@ -1,18 +1,19 @@
 ﻿#include "Accessible.h"
 
 using namespace Lexer;
+using namespace SyntaxInternal;
 
 TAccessible::TAccessible()
-	:access(TTypeOfAccess::Public)
+	:access(SyntaxApi::TTypeOfAccess::Public)
 {
 }
 
-TTypeOfAccess TAccessible::GetAccess()const
+SyntaxApi::TTypeOfAccess TAccessible::GetAccess()const
 {
 	return access;
 }
 
-void TAccessible::SetAccess(TTypeOfAccess use_access){
+void TAccessible::SetAccess(SyntaxApi::TTypeOfAccess use_access){
 	access = use_access;
 }
 

@@ -22,6 +22,19 @@ TSyntaxAnalyzer::~TSyntaxAnalyzer()
 {
 }
 
+TClass* TSyntaxAnalyzer::GetBaseClass()const
+{
+	return base_class.get();
+}
+TSClass* TSyntaxAnalyzer::GetCompiledBaseClass()const
+{
+	return sem_base_class.get();
+}
+Lexer::ILexer* TSyntaxAnalyzer::GetLexer()const
+{
+	return lexer.get();
+}
+
 void TSyntaxAnalyzer::Compile(char* use_source/*, TTime& time*/)
 {
 	//unsigned long long t = time.GetTime();
@@ -78,34 +91,34 @@ TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 	TSMethod* method = NULL;
 	switch (method_decl->GetSyntax()->GetMemberType())
 	{
-	case TClassMember::Func:
+	case SyntaxApi::TClassMember::Func:
 		method_decl->GetOwner()->GetMethods(methods, method_decl->GetSyntax()->GetName());
 		break;
-	case TClassMember::DefaultConstr:
+	case SyntaxApi::TClassMember::DefaultConstr:
 		method = method_decl->GetOwner()->GetDefConstr();
 		break;
-	case TClassMember::CopyConstr:
+	case SyntaxApi::TClassMember::CopyConstr:
 		method_decl->GetOwner()->GetCopyConstructors(methods);
 		break;
-	case TClassMember::MoveConstr:
+	case SyntaxApi::TClassMember::MoveConstr:
 		method_decl->GetOwner()->GetMoveConstructors(methods);
 		break;
-	case TClassMember::Destr:
+	case SyntaxApi::TClassMember::Destr:
 		method = method_decl->GetOwner()->GetDestructor();
 		break;
-	case TClassMember::Operator:
+	case SyntaxApi::TClassMember::Operator:
 		method_decl->GetOwner()->GetOperators(methods, method_decl->GetSyntax()->GetOperatorType());
 		break;
-	case TClassMember::Conversion:
+	case SyntaxApi::TClassMember::Conversion:
 		method = method_decl->GetOwner()->GetConversion(method_decl->GetParam(0)->GetSyntax()->IsRef(), method_decl->GetRetClass());
 		break;
 	default:assert(false);
 	}
-	TClassMember temp = method_decl->GetSyntax()->GetMemberType();
-	if (temp == TClassMember::Func ||
-		temp == TClassMember::CopyConstr ||
-		temp == TClassMember::MoveConstr ||
-		temp == TClassMember::Operator)
+	SyntaxApi::TClassMember temp = method_decl->GetSyntax()->GetMemberType();
+	if (temp == SyntaxApi::TClassMember::Func ||
+		temp == SyntaxApi::TClassMember::CopyConstr ||
+		temp == SyntaxApi::TClassMember::MoveConstr ||
+		temp == SyntaxApi::TClassMember::Operator)
 	{
 		for (size_t i = 0; i<methods.size(); i++)
 		{

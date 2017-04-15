@@ -8,6 +8,8 @@
 #include "../Syntax/Statements.h"
 #include "../Syntax/Method.h"
 
+#include "../Syntax/Class.h"
+
 void TStaticArr::get_element_op(TMethodRunContext run_context)
 {
 	TSClass* obj_class = (*run_context.formal_params)[0].GetClass();
@@ -28,9 +30,9 @@ void TStaticArr::get_size(TMethodRunContext run_context)
 
 void TStaticArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 {
-	TClass* cl = new TClass(syntax->base_class.get());
-	syntax->base_class->AddNested(cl);
-	syntax->lexer->ParseSource(
+	TClass* cl = new TClass(syntax->GetBaseClass());
+	syntax->GetBaseClass()->AddNested(cl);
+	syntax->GetLexer()->ParseSource(
 		"class TStaticArray<T,Size>\n"
 		"{\n"
 		"	multifield(Size) T value;\n"
@@ -38,11 +40,11 @@ void TStaticArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 		"	func extern size:int;\n"
 		"}\n"
 		);
-	cl->AnalyzeSyntax(syntax->lexer.get());
-	syntax->lexer->GetToken(Lexer::TTokenType::Done);
+	cl->AnalyzeSyntax(syntax->GetLexer());
+	syntax->GetLexer()->GetToken(Lexer::TTokenType::Done);
 
-	TSClass* scl = new TSClass(syntax->sem_base_class.get(), cl);
-	syntax->sem_base_class->AddClass(scl);
+	TSClass* scl = new TSClass(syntax->GetCompiledBaseClass(), cl);
+	syntax->GetCompiledBaseClass()->AddClass(scl);
 	scl->Build();
 	scl->SetAutoMethodsInitialized();
 
@@ -53,6 +55,6 @@ void TStaticArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 	m[0]->SetAsExternal(TStaticArr::get_element_op);
 
 	m.clear();
-	scl->GetMethods(m, syntax->lexer->GetIdFromName("size"));
+	scl->GetMethods(m, syntax->GetLexer()->GetIdFromName("size"));
 	m[0]->SetAsExternal(TStaticArr::get_size);
 }

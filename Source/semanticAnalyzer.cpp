@@ -28,7 +28,7 @@ bool IsEqualClasses(TExpressionResult actual_parameter, TFormalParameter formal_
 	return true;
 }
 
-TSMethod* FindMethod(Lexer::TTokenPos* source, std::vector<TSMethod*> &methods_to_call, const std::vector<TExpressionResult> &actual_params)
+TSMethod* FindMethod(Lexer::ITokenPos* source, std::vector<TSMethod*> &methods_to_call, const std::vector<TExpressionResult> &actual_params)
 {
 	int conv_needed;
 	for (size_t k = 0; k<actual_params.size(); k++){
@@ -64,24 +64,24 @@ TSMethod* FindMethod(Lexer::TTokenPos* source, std::vector<TSMethod*> &methods_t
 }
 
 
-void ValidateAccess(Lexer::TTokenPos* field_pos, TSClass* source, TSClassField* target)
+void ValidateAccess(Lexer::ITokenPos* field_pos, TSClass* source, TSClassField* target)
 {
-	if (target->GetSyntax()->GetAccess() == TTypeOfAccess::Public)return;
+	if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Public)return;
 	if (source == target->GetOwner())return;
-	if (target->GetSyntax()->GetAccess() == TTypeOfAccess::Protected&&!source->IsNestedIn(target->GetOwner()))
+	if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Protected&&!source->IsNestedIn(target->GetOwner()))
 		field_pos->Error("Данное поле класса доступно только из классов наследников (protected)!");
-	else if (target->GetSyntax()->GetAccess() == TTypeOfAccess::Private&&source != target->GetOwner())
+	else if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Private&&source != target->GetOwner())
 		field_pos->Error("Данное поле класса доступно только из класса в котором оно объявлено (private)!");
 }
 
-void ValidateAccess(Lexer::TTokenPos* field_pos, TSClass* source, TSMethod* target)
+void ValidateAccess(Lexer::ITokenPos* field_pos, TSClass* source, TSMethod* target)
 {
 	if (target->GetType() != TSpecialClassMethod::NotSpecial)return;
-	if (target->GetSyntax()->GetAccess() == TTypeOfAccess::Public)return;
+	if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Public)return;
 	if (source == target->GetOwner())return;
-	if (target->GetSyntax()->GetAccess() == TTypeOfAccess::Protected&&!source->IsNestedIn(target->GetOwner()))
+	if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Protected&&!source->IsNestedIn(target->GetOwner()))
 		field_pos->Error("Данный метод доступен только из классов наследников (protected)!");
-	else if (target->GetSyntax()->GetAccess() == TTypeOfAccess::Private&&source != target->GetOwner())
+	else if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Private&&source != target->GetOwner())
 		field_pos->Error("Данный метод доступен только из класса в котором он объявлен (private)!");
 }
 

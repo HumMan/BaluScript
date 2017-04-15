@@ -57,6 +57,8 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4566;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -146,7 +148,23 @@
     <ClInclude Include="Source\syntaxAnalyzer.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Source\SyntaxTree\IAccesible.h" />
+    <ClInclude Include="Source\SyntaxTree\IBytecode.h" />
     <ClInclude Include="Source\SyntaxTree\IClass.h" />
+    <ClInclude Include="Source\SyntaxTree\IClassField.h" />
+    <ClInclude Include="Source\SyntaxTree\IExpression.h" />
+    <ClInclude Include="Source\SyntaxTree\IFor.h" />
+    <ClInclude Include="Source\SyntaxTree\IIf.h" />
+    <ClInclude Include="Source\SyntaxTree\ILocalVar.h" />
+    <ClInclude Include="Source\SyntaxTree\IMethod.h" />
+    <ClInclude Include="Source\SyntaxTree\IOverloadedMethod.h" />
+    <ClInclude Include="Source\SyntaxTree\IParameter.h" />
+    <ClInclude Include="Source\SyntaxTree\IReturn.h" />
+    <ClInclude Include="Source\SyntaxTree\IStatement.h" />
+    <ClInclude Include="Source\SyntaxTree\IStatements.h" />
+    <ClInclude Include="Source\SyntaxTree\IType.h" />
+    <ClInclude Include="Source\SyntaxTree\IWhile.h" />
+    <ClInclude Include="Source\SyntaxTree\SyntaxTreeApi.h" />
     <ClInclude Include="Source\Syntax\Accessible.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>

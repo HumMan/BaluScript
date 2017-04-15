@@ -9,11 +9,7 @@
 
 class TSClass;
 class TSStatements;
-class TMethod;
 class TSParameter;
-class TStackValue;
-class TSLocalVar;
-class TStaticValue;
 
 class TSpecialClassMethod
 {
@@ -45,7 +41,7 @@ public:
 
 typedef void(*TExternalSMethod)(TMethodRunContext run_context);
 
-class TSMethod :public TSyntaxNode<TMethod>, public TSpecialClassMethod, public TNodeSignatureLinked, public TNodeBodyLinked
+class TSMethod :public TSyntaxNode<SyntaxApi::IMethod>, public TSpecialClassMethod, public TNodeSignatureLinked, public TNodeBodyLinked
 {
 private:
 	TSType ret;
@@ -79,7 +75,7 @@ public:
 	TSMethod(TSClass* use_owner, TSpecialClassMethod::Type special_method_type);
 	void AddParameter(TSParameter* use_par);
 
-	TSMethod(TSClass* use_owner,TMethod* use_syntax);
+	TSMethod(TSClass* use_owner,SyntaxApi::IMethod* use_syntax);
 
 	int GetParametersSize()
 	{

@@ -9,7 +9,6 @@
 #include "BuildContext.h"
 #include "RunContext.h"
 
-class TExpression;
 class TVariable;
 class TSClassField;
 class TSParameter;
@@ -71,7 +70,7 @@ class TSExpression_TCreateTempObject : public TSOperation
 public:
 	std::unique_ptr<TSExpression_TempObjectType> left;
 	std::unique_ptr<TSConstructObject> construct_object;
-	void Build(const std::vector<TExpression*>& param_expressions);
+	void Build(const std::vector<SyntaxApi::IExpression*>& param_expressions);
 	TExpressionResult GetFormalParameter();
 	void Run(TExpressionRunContext run_context);
 };
@@ -79,7 +78,7 @@ public:
 class TSExpression_TempObjectType : public TSOperation
 {
 public:
-	TSExpression_TempObjectType(TSClass* owner, TType* syntax_node);
+	TSExpression_TempObjectType(TSClass* owner, SyntaxApi::IType* syntax_node);
 	TSType type;
 	TExpressionResult GetFormalParameter();
 	void Run(TExpressionRunContext run_context);
@@ -94,7 +93,7 @@ public:
 	class TInt : public TSOperation
 	{
 	public:
-		TInt(TSClass* owner, TType* syntax_node);
+		TInt(TSClass* owner, SyntaxApi::IType* syntax_node);
 		int val;
 		TSType type;
 		TExpressionResult GetFormalParameter();
@@ -103,7 +102,7 @@ public:
 	class TFloat : public TSOperation
 	{
 	public:
-		TFloat(TSClass* owner, TType* syntax_node);
+		TFloat(TSClass* owner, SyntaxApi::IType* syntax_node);
 		float val;
 		TSType type;
 		TExpressionResult GetFormalParameter();
@@ -112,7 +111,7 @@ public:
 	class TBool : public TSOperation
 	{
 	public:
-		TBool(TSClass* owner, TType* syntax_node);
+		TBool(TSClass* owner, SyntaxApi::IType* syntax_node);
 		bool val;
 		TSType type;
 		TExpressionResult GetFormalParameter();
@@ -121,7 +120,7 @@ public:
 	class TString : public TSOperation
 	{
 	public:
-		TString(TSClass* owner, TType* syntax_node);
+		TString(TSClass* owner, SyntaxApi::IType* syntax_node);
 		std::string val;
 		TSType type;
 		TExpressionResult GetFormalParameter();
@@ -177,11 +176,11 @@ public:
 	};
 	
 public:
-	TSExpression(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TExpression* syntax_node)
-		:TSStatement(TStatementType::Expression, use_owner, use_method, use_parent, (TStatement*)(syntax_node)){}
+	TSExpression(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IExpression* syntax_node)
+		:TSStatement(SyntaxApi::TStatementType::Expression, use_owner, use_method, use_parent, (SyntaxApi::IStatement*)(syntax_node)){}
 	void Build(TGlobalBuildContext build_context);
 	TVariable* GetVar(Lexer::TNameId name);
-	TExpression* GetSyntax();
+	SyntaxApi::IExpression* GetSyntax();
 	TExpressionResult GetFormalParameter()
 	{
 		return first_op->GetFormalParameter();

@@ -1,6 +1,7 @@
 ﻿#include "Return.h"
 
 using namespace Lexer;
+using namespace SyntaxInternal;
 
 void TReturn::AnalyzeSyntax(Lexer::ILexer* source) {
 	InitPos(source);
@@ -9,7 +10,7 @@ void TReturn::AnalyzeSyntax(Lexer::ILexer* source) {
 		result->AnalyzeSyntax(source);
 }
 
-void TReturn::Accept(TStatementVisitor* visitor)
+void TReturn::Accept(SyntaxApi::IStatementVisitor* visitor)
 {
 	visitor->Visit(this);
 }

@@ -1,10 +1,6 @@
 #pragma once
 
-#include <memory>
-
-#include "../lexer.h"
-
-#include "../Syntax/Statement.h"
+#include "../SyntaxTree/SyntaxTreeApi.h"
 
 #include "SSyntaxNode.h"
 
@@ -16,9 +12,8 @@ class TSClass;
 class TStackValue;
 class TExpressionResult;
 class TActualParamWithConversion;
-class TStaticValue;
 
-class TSStatement :public TSyntaxNode<TStatement>
+class TSStatement :public TSyntaxNode<SyntaxApi::IStatement>
 {
 private:
 	TSMethod* method;
@@ -29,7 +24,7 @@ public:
 	{
 		return parent;
 	}
-	TSStatement(TStatementType use_stmt_type, TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, TStatement* use_syntax) :
+	TSStatement(SyntaxApi::TStatementType use_stmt_type, TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IStatement* use_syntax) :
 		method(use_method), parent(use_parent), owner(use_owner),
 		TSyntaxNode(use_syntax){}
 	//virtual void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value, int method_base) = 0;
