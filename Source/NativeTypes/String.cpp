@@ -116,7 +116,7 @@ void TString::get_length(TMethodRunContext run_context)
 template<>
 void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 {
-	TClass* cl = new TClass(syntax->GetBaseClass());
+	SyntaxInternal::TClass* cl = new SyntaxInternal::TClass(syntax->GetBaseClass());
 	syntax->GetBaseClass()->AddNested(cl);
 	syntax->GetLexer()->ParseSource(
 		"class extern string\n"

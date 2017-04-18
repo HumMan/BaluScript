@@ -22,7 +22,7 @@ TSyntaxAnalyzer::~TSyntaxAnalyzer()
 {
 }
 
-TClass* TSyntaxAnalyzer::GetBaseClass()const
+SyntaxInternal::TClass* TSyntaxAnalyzer::GetBaseClass()const
 {
 	return base_class.get();
 }
@@ -41,7 +41,7 @@ void TSyntaxAnalyzer::Compile(char* use_source/*, TTime& time*/)
 	lexer->ParseSource(use_source);
 	//printf("Source parsing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
 	//t = time.GetTime();
-	base_class.reset(new TClass(NULL));
+	base_class.reset(new SyntaxInternal::TClass(NULL));
 
 	base_class->AnalyzeSyntax(lexer.get());
 	lexer->GetToken(Lexer::TTokenType::Done);
@@ -69,7 +69,7 @@ void TSyntaxAnalyzer::Compile(char* use_source/*, TTime& time*/)
 void TSyntaxAnalyzer::CreateInternalClasses()
 {
 	TNameId name_id = lexer->GetIdFromName("dword");
-	TClass* t_syntax = new TClass(base_class.get());
+	SyntaxInternal::TClass* t_syntax = new SyntaxInternal::TClass(base_class.get());
 	base_class->AddNested(t_syntax);
 	t_syntax->SetName(name_id);
 	TSClass* t = new TSClass(sem_base_class.get(), t_syntax);
@@ -82,7 +82,7 @@ void TSyntaxAnalyzer::CreateInternalClasses()
 TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 {
 	lexer->ParseSource(use_method);
-	std::unique_ptr<TMethod> method_decl_syntax(new TMethod(base_class.get()));
+	std::unique_ptr<SyntaxInternal::TMethod> method_decl_syntax(new SyntaxInternal::TMethod(base_class.get()));
 	method_decl_syntax->AnalyzeSyntax(lexer.get(), false);
 	lexer->GetToken(TTokenType::Done);
 	std::unique_ptr<TSMethod> method_decl(new TSMethod(sem_base_class->GetNestedByFullName(method_decl_syntax->GetOwner()->GetFullClassName(),1), method_decl_syntax.get()));

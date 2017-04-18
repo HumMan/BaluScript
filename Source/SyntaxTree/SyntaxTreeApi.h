@@ -8,24 +8,6 @@
 
 #pragma warning( disable : 4250)  
 
-//TODO нужно заменить на интерфейсы api
-namespace SyntaxInternal
-{
-	class TType;
-	class TClassField;
-	class TOverloadedMethod;
-	class TMethod;
-	class TStatement;
-	class TBytecode;
-	class TExpression;
-	class TFor;
-	class TIf;
-	class TLocalVar;
-	class TReturn;
-	class TStatements;
-	class TRetTWhileurn;
-}
-
 namespace SyntaxApi
 {
 	class IExpressionTreeVisitor;

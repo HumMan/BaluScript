@@ -50,7 +50,6 @@ public:
 	//void Build(const std::vector<TSOperation*>& param_expressions);
 	TExpressionResult GetFormalParameter();
 	void Run(TExpressionRunContext run_context);
-	//void Run(TStackValue& object_to_construct, TMethodRunContext run_context, std::vector<TStackValue>& local_variables);
 };
 
 class TSExpression_TGetClass : public TSOperation

@@ -30,7 +30,7 @@ void TStaticArr::get_size(TMethodRunContext run_context)
 
 void TStaticArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 {
-	TClass* cl = new TClass(syntax->GetBaseClass());
+	SyntaxInternal::TClass* cl = new SyntaxInternal::TClass(syntax->GetBaseClass());
 	syntax->GetBaseClass()->AddNested(cl);
 	syntax->GetLexer()->ParseSource(
 		"class TStaticArray<T,Size>\n"

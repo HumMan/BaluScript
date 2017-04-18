@@ -9,8 +9,6 @@ namespace SyntaxInternal
 	class TClass;
 }
 
-using namespace SyntaxInternal;
-
 class TSClassField;
 class TSClass;
 class TSMethod;
@@ -20,12 +18,12 @@ class TSLocalVar;
 class TSyntaxAnalyzer
 {
 	std::unique_ptr<Lexer::ILexer> lexer;
-	std::unique_ptr<TClass> base_class;
+	std::unique_ptr<SyntaxInternal::TClass> base_class;
 	std::unique_ptr<TSClass> sem_base_class;
 	std::vector<TSClassField*> static_fields;
 	std::vector<TSLocalVar*> static_variables;
 public:
-	TClass* GetBaseClass()const;
+	SyntaxInternal::TClass* GetBaseClass()const;
 	TSClass* GetCompiledBaseClass()const;
 	Lexer::ILexer* GetLexer()const;
 	TSyntaxAnalyzer();
