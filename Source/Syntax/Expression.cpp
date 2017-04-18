@@ -236,6 +236,11 @@ void TExpression::AnalyzeSyntax(Lexer::ILexer* source)
 	//BuildPostfix();
 }
 
+bool TExpression::IsEmpty()
+{
+	return first_op == nullptr;
+}
+
 void TExpression::TBinOp::Accept(SyntaxApi::IExpressionTreeVisitor* visitor)
 {
 	visitor->Visit(this);

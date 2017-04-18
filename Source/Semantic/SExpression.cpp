@@ -476,7 +476,9 @@ public:
 void TSExpression::Build(TGlobalBuildContext build_context)
 {
 	TSemanticTreeBuilder b(build_context, GetSyntax(), GetOwner(), GetMethod(), this);
-	first_op.reset(b.VisitNode(GetSyntax()));
+	auto syntax = GetSyntax();
+	if (!syntax->IsEmpty())
+		first_op.reset(b.VisitNode(syntax));
 }
 
 TVariable* TSExpression::GetVar(Lexer::TNameId name)

@@ -234,6 +234,7 @@ namespace SyntaxInternal
 		TOperation* Expr(Lexer::ILexer* source, int curr_prior_level);
 		void operator=(const TExpression& use_source);
 	public:
+		bool IsEmpty();
 		void AnalyzeSyntax(Lexer::ILexer* source);
 		TExpression(const TExpression &use_source) :TStatement(use_source)
 		{

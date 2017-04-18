@@ -182,7 +182,10 @@ public:
 	SyntaxApi::IExpression* GetSyntax();
 	TExpressionResult GetFormalParameter()
 	{
-		return first_op->GetFormalParameter();
+		if (first_op != nullptr)
+			return first_op->GetFormalParameter();
+		else 
+			return TExpressionResult();
 	}
 	void Run(TStatementRunContext run_context);
 	void Run(TExpressionRunContext run_context);
