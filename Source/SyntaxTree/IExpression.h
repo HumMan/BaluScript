@@ -103,5 +103,6 @@ namespace SyntaxApi
 	class IExpression : public virtual Lexer::ITokenPos, public virtual IStatement, public virtual IOperations::IOperation
 	{
 	public:
+		virtual bool IsEmpty()=0;
 	};
 }
