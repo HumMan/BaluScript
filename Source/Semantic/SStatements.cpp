@@ -152,9 +152,10 @@ void TSStatements::Run(TStatementRunContext run_context)
 			break;
 	}
 	//for (TSStatements::TVarDecl& var_decl : var_declarations)
-	for (size_t i = var_declarations.size() - 1; i >= 0;i--)
+	auto size = var_declarations.size();
+	for (size_t i = 0; i < size; i++)
 	{
-		auto& var_decl = var_declarations[i];
+		auto& var_decl = var_declarations[size-i-1];
 		var_decl.pointer->Destruct(*run_context.static_fields,*run_context.local_variables);
 		if(!var_decl.pointer->IsStatic())
 			run_context.local_variables->pop_back();
