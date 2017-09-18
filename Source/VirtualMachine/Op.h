@@ -17,8 +17,8 @@ namespace TOpcode{
 #undef BALU_SCRIPT_OPCODE_BEGIN
 
 extern bool ValidateOpParams(TOpcode::Enum op, bool f1, bool f2, bool v1, bool v2);
-extern char* GetBytecodeString(TOpcode::Enum use_bytecode);
-extern int GetBytecodeParamsCount(TOpcode::Enum use_bytecode);
+extern const char* GetBytecodeString(TOpcode::Enum use_bytecode);
+extern size_t GetBytecodeParamsCount(TOpcode::Enum use_bytecode);
 extern bool GetBytecodeParamExists(TOpcode::Enum use_bytecode, int i);
 
 struct TOp

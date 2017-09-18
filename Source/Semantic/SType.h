@@ -22,9 +22,9 @@ struct TSType_TClassName :TSyntaxNode<SyntaxApi::IType_TClassName>, TNodeSignatu
 	std::list<TSType_TTemplateParameter> template_params_classes;
 	TSType_TClassName(SyntaxApi::IType_TClassName* use_syntax) :TSyntaxNode(use_syntax)
 	{
-		class_of_type = NULL;
+		class_of_type = nullptr;
 	}
-	TSType_TClassName(TSClass* use_class) :TSyntaxNode(NULL)
+	TSType_TClassName(TSClass* use_class) :TSyntaxNode(nullptr)
 	{
 		class_of_type = use_class;
 		SetSignatureLinked();
@@ -50,7 +50,7 @@ public:
 	TSClass* GetClass()const
 	{
 		if (classes.size() == 0)
-			return NULL;
+			return nullptr;
 		return classes.back().class_of_type;
 	}
 };

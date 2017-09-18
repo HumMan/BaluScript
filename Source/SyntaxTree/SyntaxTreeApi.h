@@ -6,7 +6,9 @@
 
 #include "../lexer.h"
 
+#ifdef _MSC_VER
 #pragma warning( disable : 4250)  
+#endif
 
 namespace SyntaxApi
 {

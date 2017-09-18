@@ -29,14 +29,14 @@ void TSBytecode::Build(TGlobalBuildContext build_context)
 		if (code[i].f[0] == SyntaxApi::TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID)
 		{
 			TSClass* temp = GetOwner()->GetClass(code[i].id[0]);
-			if (temp == NULL)GetSyntax()->Error("Неизвестный идентификатор!");
+			if (temp == nullptr)GetSyntax()->Error("Неизвестный идентификатор!");
 			//GetSyntax()->code[i].op.v1 = program.CreateArrayElementClassId(temp);
 			array_element_classes.push_back(temp);
 		}//TODO сделать нормально без повторений
 		if (code[i].f[1] == SyntaxApi::TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID)
 		{
 			TSClass* temp = GetOwner()->GetClass(code[i].id[1]);
-			if (temp == NULL)GetSyntax()->Error("Неизвестный идентификатор!");
+			if (temp == nullptr)GetSyntax()->Error("Неизвестный идентификатор!");
 			//code[i].op.v2 = program.CreateArrayElementClassId(temp);
 			array_element_classes.push_back(temp);
 		}//TODO сделать нормально без повторений
@@ -90,7 +90,7 @@ void TSBytecode::Run(TStatementRunContext run_context)
 			throw;//GetSyntax()->Error("Неизвестная команда!");
 		}
 	}
-	if (GetMethod()->GetRetClass() != NULL)
+	if (GetMethod()->GetRetClass() != nullptr)
 	{
 		*run_context.result = TStackValue(GetMethod()->GetSyntax()->IsReturnRef(), GetMethod()->GetRetClass());
 		if (GetMethod()->GetSyntax()->IsReturnRef())

@@ -10,11 +10,11 @@ TSOverloadedMethod::TSOverloadedMethod(TSClass* use_owner, SyntaxApi::IOverloade
 	:linked_signature(false), linked_body(false), TSyntaxNode(use_syntax), owner(use_owner)
 {
 }
-TSMethod* TSOverloadedMethod::GetMethod(int i)const
+TSMethod* TSOverloadedMethod::GetMethod(size_t i)const
 {
 	return methods[i].get();
 }
-int TSOverloadedMethod::GetMethodsCount()const
+size_t TSOverloadedMethod::GetMethodsCount()const
 {
 	return methods.size();
 }
@@ -23,7 +23,7 @@ TSMethod* TSOverloadedMethod::FindParams(const std::vector<TSParameter*>& params
 	for (const std::unique_ptr<TSMethod>& method : methods)
 		if (method->HasParams(params))
 			return method.get();
-	return NULL;
+	return nullptr;
 }
 
 TSMethod* TSOverloadedMethod::FindConversion(const std::vector<TSParameter*>& params, TSClass* ret_class)const
@@ -31,7 +31,7 @@ TSMethod* TSOverloadedMethod::FindConversion(const std::vector<TSParameter*>& pa
 	for (const std::unique_ptr<TSMethod>& i : methods)
 		if (i->HasParams(params) && i->GetRetClass() == ret_class)
 			return i.get();
-	return NULL;
+	return nullptr;
 }
 
 Lexer::TNameId TSOverloadedMethod::GetName()const
@@ -52,7 +52,7 @@ void TSOverloadedMethod::CopyExternalMethodBindingsFrom(TSOverloadedMethod* sour
 
 bool TSOverloadedMethod::ParamsExists(TSMethod* use_method)const
 {
-	return FindParams(use_method->GetParameters()) != NULL;
+	return FindParams(use_method->GetParameters()) != nullptr;
 }
 
 TSMethod* TSOverloadedMethod::FindParams(TSMethod* use_method)const

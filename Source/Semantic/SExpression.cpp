@@ -73,7 +73,7 @@ public:
 		param_expressions.push_back(left);
 		param_expressions.push_back(right);
 
-		TSMethod *bin_operator = NULL;
+		TSMethod *bin_operator = nullptr;
 
 		std::vector<TExpressionResult> param;
 		std::vector<SyntaxApi::IMethod*> bin_operators;
@@ -95,13 +95,13 @@ public:
 		if (operation_node->GetOp() >= Lexer::TOperator::Assign&&operation_node->GetOp() <= Lexer::TOperator::OrA && !param[0].IsRef())
 			syntax_node->Error("Для присваиваниия требуется ссылка, а не значение!");
 
-		if (bin_operator != NULL)
+		if (bin_operator != nullptr)
 		{
 			ValidateAccess(syntax_node, owner, bin_operator);
 		}
 		else syntax_node->Error("Бинарного оператора для данных типов не существует!");
 
-		TSExpression_TMethodCall* method_call = NULL;
+		TSExpression_TMethodCall* method_call = nullptr;
 
 		method_call = new TSExpression_TMethodCall(TSExpression_TMethodCall::Operator);
 		method_call->Build(param_expressions, bin_operator);
@@ -121,9 +121,9 @@ public:
 		param.resize(1);
 		param[0] = left->GetFormalParameter();
 
-		TSMethod *unary_operator = NULL;
+		TSMethod *unary_operator = nullptr;
 
-		if (param[0].GetClass() == NULL)
+		if (param[0].GetClass() == nullptr)
 			syntax_node->Error("К данному операнду нельзя применить унарный оператор (нужен тип отличающийся от void)!");
 
 		std::vector<TSMethod*> operators;
@@ -131,7 +131,7 @@ public:
 
 		unary_operator = FindMethod(syntax_node, operators, param);
 
-		if (unary_operator != NULL)
+		if (unary_operator != nullptr)
 		{
 			ValidateAccess(syntax_node, owner, unary_operator);
 
@@ -172,9 +172,9 @@ public:
 			//вызов метода
 			if (operation_node->IsBracket())
 				assert(false);//при вызове метода используются круглые скобки
-			TSMethod* invoke = NULL;
+			TSMethod* invoke = nullptr;
 			TSMethod* method = FindMethod(syntax_node, left_result.GetMethods(), params_result);
-			if (method != NULL)
+			if (method != nullptr)
 			{
 				ValidateAccess(syntax_node, owner, method);
 				invoke = method;
@@ -209,12 +209,12 @@ public:
 			param_expressions.insert(param_expressions.begin(), left);
 			params_result.insert(params_result.begin(), left_result);
 			
-			left = NULL;
-			TSMethod* invoke = NULL;
+			left = nullptr;
+			TSMethod* invoke = nullptr;
 			std::vector<TSMethod*> operators;
 			left_result.GetClass()->GetOperators(operators, operation_node->IsBracket() ? (Lexer::TOperator::GetArrayElement) : (Lexer::TOperator::ParamsCall));
 			TSMethod* method = FindMethod(syntax_node, operators, params_result);
-			if (method != NULL)
+			if (method != nullptr)
 			{
 				ValidateAccess(syntax_node, owner, method);
 				invoke = method;
@@ -255,7 +255,7 @@ public:
 			else
 			{
 				TSClassField* static_member = left_result.GetType()->GetField(operation_node->GetName(), true, true);
-				if (static_member != NULL)
+				if (static_member != nullptr)
 				{
 					TSExpression::TGetClassField* result = new TSExpression::TGetClassField();
 					result->left.reset(left);
@@ -277,11 +277,11 @@ public:
 					else
 					{
 						TSClass* nested = left_result.GetType()->GetNested(operation_node->GetName());
-						if (nested != NULL)
+						if (nested != nullptr)
 						{
 							TSExpression_TGetClass* result = new TSExpression_TGetClass();
 							result->left.reset((TSExpression_TGetClass*)left);
-							assert(result->left != NULL);
+							assert(result->left != nullptr);
 							result->get_class = nested;
 							Return(result);
 						}else
@@ -292,10 +292,10 @@ public:
 		}
 		else
 		{
-			TSClassField* member = left_result.GetClass() != NULL
+			TSClassField* member = left_result.GetClass() != nullptr
 				? left_result.GetClass()->GetField(operation_node->GetName(), true)
-				: NULL;
-			if (member != NULL)
+				: nullptr;
+			if (member != nullptr)
 			{
 				if (member->GetSyntax()->IsStatic())
 					syntax_node->Error("Оператор доступа к члену класса нельзя применить к объекту для доступа к статическому члену, \nвместо объекта следует использовать имя класса!");
@@ -350,7 +350,7 @@ public:
 	void Visit(SyntaxApi::IOperations::IId* operation_node)
 	{
 		TVariable* var = parent->GetVar(operation_node->GetName());
-		if (var != NULL)
+		if (var != nullptr)
 		{
 			switch (var->GetType())
 			{
@@ -360,7 +360,7 @@ public:
 				if ((!(static_cast<TSClassField*>(var))->GetSyntax()->IsStatic()) && method->GetSyntax()->IsStatic())
 					syntax_node->Error("К нестатическому полю класса нельзя обращаться из статического метода!");
 				TSExpression::TGetClassField* result = new TSExpression::TGetClassField();
-				result->left = NULL;
+				result->left = nullptr;
 				result->field = (TSClassField*)var;
 				result->left_result = TExpressionResult(result->field->GetClass(), true);
 				Return(result);
@@ -403,17 +403,17 @@ public:
 			if (methods.size() != 0)
 			{
 				TSExpression::TGetMethods* result = new TSExpression::TGetMethods();
-				result->left = NULL;
+				result->left = nullptr;
 				result->result = TExpressionResult(methods, method->GetSyntax()->IsStatic());
 				Return(result);
 			}
 			else
 			{
 				TSClass* type = owner->GetClass(operation_node->GetName());
-				if (type != NULL)
+				if (type != nullptr)
 				{
 					TSExpression_TGetClass* result = new TSExpression_TGetClass();
-					result->left = NULL;
+					result->left = nullptr;
 					result->get_class = type;
 					Return(result);
 				}
@@ -584,10 +584,10 @@ void TSExpression_TMethodCall::Run(TExpressionRunContext run_context)
 	case TSExpression_TMethodCall::Method:
 	{
 		TStackValue left_result;
-		if (left != NULL)
+		if (left != nullptr)
 			left->Run(TExpressionRunContext(run_context, &left_result));
 
-		if (invoke->GetRetClass() != NULL)
+		if (invoke->GetRetClass() != nullptr)
 			*run_context.expression_result = TStackValue(invoke->GetSyntax()->IsReturnRef(), invoke->GetRetClass());
 
 		invoke->Run(TMethodRunContext(run_context.static_fields, &method_call_formal_params, run_context.expression_result, &left_result));
@@ -595,7 +595,7 @@ void TSExpression_TMethodCall::Run(TExpressionRunContext run_context)
 
 	case TSExpression_TMethodCall::Operator:
 	{
-		if (invoke->GetRetClass() != NULL)
+		if (invoke->GetRetClass() != nullptr)
 			*run_context.expression_result = TStackValue(invoke->GetSyntax()->IsReturnRef(), invoke->GetRetClass());
 		invoke->Run(TMethodRunContext(run_context.static_fields, &method_call_formal_params, run_context.expression_result, nullptr));
 	}break;
@@ -643,7 +643,7 @@ TExpressionResult TSExpression::TGetMethods::GetFormalParameter()
 }
 void TSExpression::TGetMethods::Run(TExpressionRunContext run_context)
 {
-	if (left == NULL)
+	if (left == nullptr)
 		return;
 
 	//auto exp_result_type = left->GetFormalParameter();
@@ -673,7 +673,7 @@ void TSExpression::TGetClassField::Run(TExpressionRunContext run_context)
 	}
 	else
 	{
-		if (left != NULL)
+		if (left != nullptr)
 		{
 			auto exp_result_type = left->GetFormalParameter();
 			if (!exp_result_type.IsRef())
@@ -717,7 +717,7 @@ TExpressionResult TSExpression::TGetLocal::GetFormalParameter()
 }
 void TSExpression::TGetLocal::Run(TExpressionRunContext run_context)
 {
-	void* variable_value = NULL;
+	void* variable_value = nullptr;
 	if (variable->IsStatic())
 	{
 		variable_value = (*run_context.static_fields)[variable->GetOffset()].get();

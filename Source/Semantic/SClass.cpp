@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <algorithm>
+#include <string.h>
 
 #include "SOverloadedMethod.h"
 #include "SType.h"
@@ -34,13 +35,13 @@ TSClass* TSClass::GetOwner()
 	return owner;
 }
 
-TSClass* TSClass::GetNestedByFullName(std::vector<Lexer::TNameId> full_name, int curr_id)
+TSClass* TSClass::GetNestedByFullName(std::vector<Lexer::TNameId> full_name, size_t curr_id)
 {
 	if (curr_id == full_name.size())
 		return this;
 	Lexer::TNameId curr = full_name[curr_id];
 	TSClass* child = GetNested(full_name[curr_id]);
-	if (child!=NULL)
+	if (child!=nullptr)
 	{
 		if (curr_id + 1 == full_name.size())
 			return child;
@@ -48,17 +49,17 @@ TSClass* TSClass::GetNestedByFullName(std::vector<Lexer::TNameId> full_name, int
 			return child->GetNestedByFullName(full_name, curr_id+1);
 	}
 	else
-		return NULL;
+		return nullptr;
 }
 
 void TSClass::Build()
 {
-	for (int i = 0; i < GetSyntax()->GetFieldsCount();i++)
+	for (size_t i = 0; i < GetSyntax()->GetFieldsCount(); i++)
 	{
 		fields.emplace_back(new TSClassField(this, GetSyntax()->GetField(i)));
 	}
 
-	for (int i = 0; i < GetSyntax()->GetMethodsCount(); i++)
+	for (size_t i = 0; i < GetSyntax()->GetMethodsCount(); i++)
 	{
 		methods.emplace_back(this, GetSyntax()->GetMethod(i));
 		methods.back().Build();
@@ -83,7 +84,7 @@ void TSClass::Build()
 		destructor->Build();
 	}
 
-	for (int i = 0; i < (short)Lexer::TOperator::End; i++)
+	for (size_t i = 0; i < (short)Lexer::TOperator::End; i++)
 	{
 		operators[i] = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, GetSyntax()->GetOperator(i)));
 		operators[i]->Build();
@@ -92,7 +93,7 @@ void TSClass::Build()
 	conversions = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, GetSyntax()->GetConversion()));
 	conversions->Build();
 
-	for (int i = 0; i < GetSyntax()->GetNestedCount(); i++)
+	for (size_t i = 0; i < GetSyntax()->GetNestedCount(); i++)
 	{
 		auto nested_class = GetSyntax()->GetNested(i);
 		nested_classes.push_back(std::unique_ptr<TSClass>(new TSClass(this, nested_class)));
@@ -104,15 +105,15 @@ TSClass* TSClass::GetNested(Lexer::TNameId name) {
 	for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
 		if (nested_class->GetSyntax()->GetName() == name)
 			return nested_class.get();
-	return NULL;
+	return nullptr;
 }
 
 bool TSClass::GetTemplateParameter(Lexer::TNameId name, TNodeWithTemplates::TTemplateParameter& result)
 {
 	assert(GetType() == TNodeWithTemplates::Realization);
 	SyntaxApi::IClass* template_class_syntax = GetTemplateClass()->GetSyntax();
-	int par_count = template_class_syntax->GetTemplateParamsCount();
-	for (int i = 0; i < par_count; i++)
+	size_t par_count = template_class_syntax->GetTemplateParamsCount();
+	for (size_t i = 0; i < par_count; i++)
 	{
 		Lexer::TNameId n = template_class_syntax->GetTemplateParam(i);
 		if (n == name)
@@ -132,7 +133,7 @@ bool TSClass::HasTemplateParameter(Lexer::TNameId name)
 
 void TSClass::CheckForErrors()
 {
-	if (owner != NULL&&owner->GetOwner() != NULL&&owner->GetOwner()->GetClass(GetSyntax()->GetName()))
+	if (owner != nullptr&&owner->GetOwner() != nullptr&&owner->GetOwner()->GetClass(GetSyntax()->GetName()))
 		GetSyntax()->Error("Класс с таким именем уже существует!");//TODO как выводить ошибки если объекты были получены не из кода, а созданы вручную - исправить
 	//for (const std::unique_ptr<TSClass> nested_class : nested_classes)
 	for (size_t i = 0; i < nested_classes.size(); i++)
@@ -146,43 +147,43 @@ void TSClass::CheckForErrors()
 	for (std::unique_ptr<TSClassField>& field : fields)
 	{
 		for (std::unique_ptr<TSClassField>& other_field : fields)
-			//for(int k=0;k<i;k++)
+			//for(size_t k=0;k<i;k++)
 		{
 			if (&field == &other_field)
 				break;
-			if (owner == NULL&&!field->GetSyntax()->IsStatic())
+			if (owner == nullptr&&!field->GetSyntax()->IsStatic())
 				GetSyntax()->Error("Базовый класс может содержать только статические поля!");
 			if (field->GetSyntax()->GetName() == other_field->GetSyntax()->GetName())
 				field->GetSyntax()->Error("Поле класса с таким именем уже существует!");
 			//TODO как быть со статическими членами класса
 		}
 		std::vector<TSMethod*> m;
-		if ((owner != NULL&&owner->GetField(GetSyntax()->GetName(), true, false) != NULL) || GetMethods(m, GetSyntax()->GetName()))
+		if ((owner != nullptr&&owner->GetField(GetSyntax()->GetName(), true, false) != nullptr) || GetMethods(m, GetSyntax()->GetName()))
 			field->GetSyntax()->Error("Член класса с таким имененем уже существует!");
 	}
 	for (TSOverloadedMethod& method : methods)
 	{
-		if ((owner != NULL&&owner->GetField(method.GetName(), true, false) != NULL))
+		if ((owner != nullptr&&owner->GetField(method.GetName(), true, false) != nullptr))
 			method.GetMethod(0)->GetSyntax()->Error("Статическое поле класса с таким имененем уже существует!");
 		method.CheckForErrors();
 		std::vector<TSMethod*> owner_methods;
-		if (owner != NULL&&owner->GetMethods(owner_methods, method.GetName()))
+		if (owner != nullptr&&owner->GetMethods(owner_methods, method.GetName()))
 		{
 			for (size_t k = 0; k < owner_methods.size(); k++)
 			{
 				TSMethod* temp = method.FindParams(owner_methods[k]);
-				if (temp != NULL)
+				if (temp != nullptr)
 					temp->GetSyntax()->Error("Статический метод с такими параметрами уже существует!");
 			}
 		}
 	}
 	//constructors.CheckForErrors();
 	//conversions.CheckForErrors(true);
-	//for(int i=0;i<TOperator::End;i++)
+	//for(size_t i=0;i<TOperator::End;i++)
 	//{
 	//	operators[i].CheckForErrors();
 	//}
-	//for(int i=0;i<nested_classes.size();i++)
+	//for(size_t i=0;i<nested_classes.size();i++)
 	//	if(!nested_classes[i]->IsTemplate())
 	//		nested_classes[i]->DeclareMethods();
 }
@@ -211,30 +212,30 @@ TSClass* TSClass::GetClass(Lexer::TNameId use_name)
 					return template_params[i].type;
 	}
 
-	if (owner != NULL)
+	if (owner != nullptr)
 		return owner->GetClass(use_name);
-	return NULL;
+	return nullptr;
 }
 
 TSClassField* TSClass::GetField(Lexer::TNameId name, bool only_in_this)
 {
 	TSClassField* result_ns = GetField(name, false, only_in_this);
 	TSClassField* result_s = GetField(name, true, only_in_this);
-	if (result_ns != NULL)
+	if (result_ns != nullptr)
 		return result_ns;
 	else
 		return result_s;
 }
-TSClassField* TSClass::GetField(int i)const
+TSClassField* TSClass::GetField(size_t i)const
 {
 	return fields[i].get();
 }
 TSClassField* TSClass::GetField(Lexer::TNameId name, bool is_static, bool only_in_this)
 {
-	TSClassField* result_parent = NULL;
-	if (parent.GetClass() != NULL)
+	TSClassField* result_parent = nullptr;
+	if (parent.GetClass() != nullptr)
 		result_parent = parent.GetClass()->GetField(name, true);
-	if (result_parent != NULL)
+	if (result_parent != nullptr)
 		return result_parent;
 	for (std::unique_ptr<TSClassField>& field : fields)
 	{
@@ -242,9 +243,9 @@ TSClassField* TSClass::GetField(Lexer::TNameId name, bool is_static, bool only_i
 			return field.get();
 		}
 	}
-	if (!only_in_this && is_static && owner != NULL)
+	if (!only_in_this && is_static && owner != nullptr)
 		return owner->GetField(name, true, false);
-	return NULL;
+	return nullptr;
 }
 
 void TSClass::LinkSignature(TGlobalBuildContext build_context)
@@ -280,7 +281,7 @@ void TSClass::LinkSignature(TGlobalBuildContext build_context)
 	if (destructor)
 		destructor->LinkSignature(build_context);
 
-	for (int i = 0; i < (short)Lexer::TOperator::End; i++)
+	for (size_t i = 0; i < (short)Lexer::TOperator::End; i++)
 		operators[i]->LinkSignature(build_context);
 	conversions->LinkSignature(build_context);
 
@@ -319,7 +320,7 @@ void TSClass::LinkBody(TGlobalBuildContext build_context)
 	if (destructor)
 		destructor->LinkBody(build_context);
 
-	for (int i = 0; i < (short)Lexer::TOperator::End; i++)
+	for (size_t i = 0; i < (short)Lexer::TOperator::End; i++)
 		if (operators[i])
 			operators[i]->LinkBody(build_context);
 	conversions->LinkBody(build_context);
@@ -337,13 +338,13 @@ bool TSClass::GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_meth
 	{
 		if (ov_method.GetName() == use_method_name)
 		{
-			for (int i = 0; i < ov_method.GetMethodsCount();i++)
+			for (size_t i = 0; i < ov_method.GetMethodsCount();i++)
 				result.push_back(ov_method.GetMethod(i));
 		}
 	}
-	if (owner != NULL)
+	if (owner != nullptr)
 		owner->GetMethods(result, use_method_name, true);
-	if (parent.GetClass() != NULL)
+	if (parent.GetClass() != nullptr)
 		parent.GetClass()->GetMethods(result, use_method_name);
 	return result.size() > 0;
 }
@@ -355,7 +356,7 @@ bool TSClass::GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_meth
 	{
 		if (ov_method.GetName() == use_method_name)
 		{
-			for (int i = 0; i < ov_method.GetMethodsCount(); i++)
+			for (size_t i = 0; i < ov_method.GetMethodsCount(); i++)
 			{
 				auto method = ov_method.GetMethod(i);
 				if (method->GetSyntax()->IsStatic() == is_static)
@@ -363,9 +364,9 @@ bool TSClass::GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_meth
 			}
 		}
 	}
-	if (is_static && owner != NULL)
+	if (is_static && owner != nullptr)
 		owner->GetMethods(result, use_method_name, true);
-	if (parent.GetClass() != NULL)
+	if (parent.GetClass() != nullptr)
 		parent.GetClass()->GetMethods(result, use_method_name, is_static);
 	return result.size() > 0;
 }
@@ -373,7 +374,7 @@ bool TSClass::GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_meth
 TSMethod* TSClass::GetConversion(bool source_ref, TSClass* target_type)
 {
 	assert(IsSignatureLinked());
-	for (int i = 0; i < conversions->GetMethodsCount(); i++)
+	for (size_t i = 0; i < conversions->GetMethodsCount(); i++)
 	{
 		auto conversion = conversions->GetMethod(i);
 		if (conversion->GetRetClass() == target_type
@@ -381,13 +382,13 @@ TSMethod* TSClass::GetConversion(bool source_ref, TSClass* target_type)
 			return conversion;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 bool TSClass::GetCopyConstructors(std::vector<TSMethod*> &result)
 {
 	assert(IsAutoMethodsInitialized());
-	for (int i = 0; i < copy_constructors->GetMethodsCount(); i++)
+	for (size_t i = 0; i < copy_constructors->GetMethodsCount(); i++)
 	{
 		auto constructor = copy_constructors->GetMethod(i);
 		result.push_back(constructor);
@@ -401,7 +402,7 @@ bool TSClass::GetCopyConstructors(std::vector<TSMethod*> &result)
 bool TSClass::GetMoveConstructors(std::vector<TSMethod*> &result)
 {
 	assert(IsAutoMethodsInitialized());
-	for (int i = 0; i < move_constructors->GetMethodsCount(); i++)
+	for (size_t i = 0; i < move_constructors->GetMethodsCount(); i++)
 	{
 		auto constructor = move_constructors->GetMethod(i);
 		result.push_back(constructor);
@@ -419,7 +420,7 @@ TSMethod* TSClass::GetDefConstr()
 		return default_constructor.get();
 	if (auto_def_constr)
 		return auto_def_constr.get();
-	return NULL;
+	return nullptr;
 }
 
 TSMethod* TSClass::GetCopyConstr()
@@ -427,7 +428,7 @@ TSMethod* TSClass::GetCopyConstr()
 	assert(IsAutoMethodsInitialized());
 	if (copy_constructors)
 	{
-		for (int i = 0; i < copy_constructors->GetMethodsCount(); i++)
+		for (size_t i = 0; i < copy_constructors->GetMethodsCount(); i++)
 		{
 			auto constructor = copy_constructors->GetMethod(i);
 			if (constructor->GetParamsCount() == 1
@@ -439,7 +440,7 @@ TSMethod* TSClass::GetCopyConstr()
 	}
 	if (auto_copy_constr)
 		return auto_copy_constr.get();
-	return NULL;
+	return nullptr;
 }
 
 TSMethod* TSClass::GetMoveConstr()
@@ -447,7 +448,7 @@ TSMethod* TSClass::GetMoveConstr()
 	assert(IsAutoMethodsInitialized());
 	if (move_constructors)
 	{
-		for (int i = 0; i < move_constructors->GetMethodsCount(); i++)
+		for (size_t i = 0; i < move_constructors->GetMethodsCount(); i++)
 		{
 			auto constructor = move_constructors->GetMethod(i);
 			if (constructor->GetParamsCount() == 1
@@ -459,7 +460,7 @@ TSMethod* TSClass::GetMoveConstr()
 	}
 	if (auto_move_constr)
 		return auto_copy_constr.get();
-	return NULL;
+	return nullptr;
 }
 
 TSMethod* TSClass::GetAssignOperator()
@@ -468,7 +469,7 @@ TSMethod* TSClass::GetAssignOperator()
 	if (operators[(short)Lexer::TOperator::Assign])
 	{
 		auto assign_ops = operators[(short)Lexer::TOperator::Assign].get();
-		for (int i = 0; i < assign_ops->GetMethodsCount(); i++)
+		for (size_t i = 0; i < assign_ops->GetMethodsCount(); i++)
 		{
 
 			auto assign_op = assign_ops->GetMethod(i);
@@ -483,7 +484,7 @@ TSMethod* TSClass::GetAssignOperator()
 	}
 	if (auto_assign_operator)
 		return auto_assign_operator.get();
-	return NULL;
+	return nullptr;
 }
 
 TSMethod* TSClass::GetDestructor()
@@ -493,7 +494,7 @@ TSMethod* TSClass::GetDestructor()
 		return destructor.get();
 	if (auto_destr)
 		return auto_destr.get();
-	return NULL;
+	return nullptr;
 }
 
 bool TSClass::HasConversion(TSClass* target_type)
@@ -504,7 +505,7 @@ bool TSClass::HasConversion(TSClass* target_type)
 
 bool TSClass::IsNestedIn(TSClass* use_parent)
 {
-	if (parent.GetClass() == NULL)
+	if (parent.GetClass() == nullptr)
 		return false;
 	if (parent.GetClass() == use_parent)
 		return true;
@@ -552,7 +553,7 @@ void TSClass::CopyExternalMethodBindingsFrom(TSClass* source)
 	if (destructor)
 		destructor->CopyExternalMethodBindingsFrom(source->destructor.get());
 
-	for (int i = 0; i < (short)Lexer::TOperator::End; i++)
+	for (size_t i = 0; i < (short)Lexer::TOperator::End; i++)
 		operators[i]->CopyExternalMethodBindingsFrom(source->operators[i].get());
 	conversions->CopyExternalMethodBindingsFrom(source->conversions.get());
 
@@ -575,7 +576,7 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 		{
 			if (!IsSizeInitialized())
 			{
-				int class_size = 0;
+				size_t class_size = 0;
 				if (std::find(owners.begin(), owners.end(), this) != owners.end())
 				{
 					//Error(" ласс не может содержать поле с собственным типом(кроме дин. массивов)!");//TODO см. initautomethods дл¤ дин массивов
@@ -583,7 +584,7 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 				}
 				else {
 					owners.push_back(this);
-					if (parent.GetClass() != NULL)
+					if (parent.GetClass() != nullptr)
 					{
 						TSClass* parent_class = parent.GetClass();
 						parent_class->CalculateSizes(owners);
@@ -603,7 +604,7 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 							AddConversion(temp);*/
 
 							parent_class = parent_class->GetParent();
-						} while (parent_class != NULL);
+						} while (parent_class != nullptr);
 					}
 					for (std::unique_ptr<TSClassField>& field : fields)
 					{
@@ -614,12 +615,12 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 							if (field->GetSyntax()->HasSizeMultiplierId())
 							{
 								Lexer::TNameId multiplier_id = field->GetSyntax()->GetFactorId();
-								int multiplier = this->FindTemplateIntParameter(multiplier_id);
+								size_t multiplier = this->FindTemplateIntParameter(multiplier_id);
 								field->SetSizeMultiplier(multiplier);
 							}
 							else if (field->GetSyntax()->HasSizeMultiplier())
 							{
-								int multiplier = field->GetSyntax()->GetSizeMultiplier();
+								size_t multiplier = field->GetSyntax()->GetSizeMultiplier();
 								field->SetSizeMultiplier(multiplier);
 							}
 
@@ -660,7 +661,7 @@ void TSClass::CalculateMethodsSizes()
 		if (destructor)
 			destructor->CalculateParametersOffsets();
 
-		for (int i = 0; i < (short)Lexer::TOperator::End; i++)
+		for (size_t i = 0; i < (short)Lexer::TOperator::End; i++)
 			if (operators[i])
 				operators[i]->CalculateParametersOffsets();
 		if (conversions)
@@ -694,13 +695,13 @@ void TSClass::InitAutoMethods()
 	for (std::unique_ptr<TSClassField>& field : fields)
 	{
 		TSClass* field_class = field->GetClass();
-		if (field_class->GetDefConstr() != NULL)
+		if (field_class->GetDefConstr() != nullptr)
 			has_def_constr = true;
-		if (field_class->GetCopyConstr() != NULL)
+		if (field_class->GetCopyConstr() != nullptr)
 			has_copy_constr = true;
-		if (field_class->GetDestructor() != NULL)
+		if (field_class->GetDestructor() != nullptr)
 			has_destr = true;
-		if (field_class->GetAssignOperator() != NULL)
+		if (field_class->GetAssignOperator() != nullptr)
 			has_assign_op = true;
 	}
 
@@ -753,7 +754,7 @@ void TSClass::RunAutoDefConstr(std::vector<TStaticValue> &static_fields, TStackV
 	assert(auto_def_constr);
 
 	//bool field_has_def_constr = false;
-	//bool parent_has_def_constr = parent.GetClass() == NULL ? false : parent.GetClass()->HasDefConstr();
+	//bool parent_has_def_constr = parent.GetClass() == nullptr ? false : parent.GetClass()->HasDefConstr();
 
 	std::vector<TStackValue> formal_params;
 	TStackValue result;
@@ -762,7 +763,7 @@ void TSClass::RunAutoDefConstr(std::vector<TStaticValue> &static_fields, TStackV
 	{
 		assert(field->GetClass()->IsAutoMethodsInitialized());
 		TSMethod* field_def_constr = field->GetClass()->GetDefConstr();
-		if (field_def_constr != NULL&& !field->GetSyntax()->IsStatic())
+		if (field_def_constr != nullptr&& !field->GetSyntax()->IsStatic())
 		{
 			TSClass* field_class = field->GetClass();
 
@@ -770,7 +771,7 @@ void TSClass::RunAutoDefConstr(std::vector<TStaticValue> &static_fields, TStackV
 			TStackValue field_object(true, field_class);
 			if (field->HasSizeMultiplier())
 			{
-				for (int i = 0; i < field->GetSizeMultiplier(); i++)
+				for (size_t i = 0; i < field->GetSizeMultiplier(); i++)
 				{
 					field_object.SetAsReference(&(((int*)object.get())[field->GetOffset()+i*field->GetClass()->GetSize()]));
 					field_def_constr->Run(TMethodRunContext(&static_fields, &formal_params, &result, &field_object));
@@ -797,7 +798,7 @@ void TSClass::RunAutoDestr(std::vector<TStaticValue> &static_fields, TStackValue
 	{
 		assert(field->GetClass()->IsAutoMethodsInitialized());
 		TSMethod* field_destr = field->GetClass()->GetDestructor();
-		if (field_destr != NULL&& !field->GetSyntax()->IsStatic())
+		if (field_destr != nullptr&& !field->GetSyntax()->IsStatic())
 		{
 			TSClass* field_class = field->GetClass();
 
@@ -805,7 +806,7 @@ void TSClass::RunAutoDestr(std::vector<TStaticValue> &static_fields, TStackValue
 			TStackValue field_object(true, field_class);
 			if (field->HasSizeMultiplier())
 			{
-				for (int i = 0; i < field->GetSizeMultiplier(); i++)
+				for (size_t i = 0; i < field->GetSizeMultiplier(); i++)
 				{
 					field_object.SetAsReference(&(((int*)object.get())[field->GetOffset() + i*field->GetClass()->GetSize()]));
 					field_destr->Run(TMethodRunContext(&static_fields, &formal_params, &result, &field_object));
@@ -842,13 +843,13 @@ void TSClass::RunAutoCopyConstr(std::vector<TStaticValue> &static_fields, std::v
 			{
 				TSClass* field_class = field->GetClass();
 				//если у поля имеется конструктор копии - вызываем его
-				if (field_copy_constr != NULL)
+				if (field_copy_constr != nullptr)
 				{
 					ValidateAccess(field->GetSyntax(), this, field_copy_constr);
 					TStackValue field_object(true, field_class);
 					if (field->HasSizeMultiplier())
 					{
-						for (int i = 0; i < field->GetSizeMultiplier(); i++)
+						for (size_t i = 0; i < field->GetSizeMultiplier(); i++)
 						{
 							//настраиваем указатель this - инициализируемый объект
 							field_object.SetAsReference(&(((int*)object.get())[field->GetOffset() + i*field->GetClass()->GetSize()]));
@@ -877,7 +878,7 @@ void TSClass::RunAutoCopyConstr(std::vector<TStaticValue> &static_fields, std::v
 	}
 	else
 	{
-		memcpy((int*)object.get(), (int*)formal_params[0].get(), object.GetSize()*sizeof(int));
+		memcpy(object.get(), formal_params[0].get(), object.GetSize()*sizeof(int));
 	}
 }
 
@@ -903,13 +904,13 @@ void TSClass::RunAutoAssign(std::vector<TStaticValue> &static_fields, std::vecto
 			{
 				TSClass* field_class = field->GetClass();
 				//если у поля имеется конструктор копии - вызываем его
-				if (field_assign_op != NULL)
+				if (field_assign_op != nullptr)
 				{
 					ValidateAccess(field->GetSyntax(), this, field_assign_op);
 
 					if (field->HasSizeMultiplier())
 					{
-						for (int i = 0; i < field->GetSizeMultiplier(); i++)
+						for (size_t i = 0; i < field->GetSizeMultiplier(); i++)
 						{
 							std::vector<TStackValue> field_formal_params;
 							//передаем в качестве параметра ссылку на копируемый объект
@@ -941,6 +942,6 @@ void TSClass::RunAutoAssign(std::vector<TStaticValue> &static_fields, std::vecto
 	}
 	else
 	{
-		memcpy((int*)formal_params[0].get(), (int*)formal_params[1].get(), formal_params[0].GetClass()->GetSize()*sizeof(int));
+		memcpy(formal_params[0].get(), formal_params[1].get(), formal_params[0].GetClass()->GetSize()*sizeof(int));
 	}
 }

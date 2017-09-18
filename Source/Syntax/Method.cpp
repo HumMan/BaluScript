@@ -73,7 +73,7 @@ void TMethod::AnalyzeSyntax(Lexer::ILexer* source, bool realization) {
 			if (!source->Test(TTokenType::Identifier))
 				break;
 			TClass* t = owner->GetNested(source->NameId());
-			if (t != NULL) 
+			if (t != nullptr) 
 			{
 				source->GetToken();
 				owner = t;
@@ -142,7 +142,7 @@ void TMethod::AnalyzeSyntax(Lexer::ILexer* source, bool realization) {
 TMethod::TMethod(TClass* use_owner, SyntaxApi::TClassMember use_member_type)
 	:ret(new TType(use_owner)), ret_ref(false), owner(use_owner)
 	, is_static(false), is_extern(false)
-	, statements(new TStatements(use_owner, this, NULL, -1))
+	, statements(new TStatements(use_owner, this, nullptr, -1))
 	, has_return(false)
 	, one_instruction(false)
 	, operator_type(TOperator::End)
@@ -184,11 +184,11 @@ SyntaxApi::TClassMember TMethod::GetMemberType()const
 {
 	return member_type;
 }
-TParameter* TMethod::GetParamT(int use_id)const
+TParameter* TMethod::GetParamT(size_t use_id)const
 {
 	return parameters[use_id].get();
 }
-int TMethod::GetParamsCount()const
+size_t TMethod::GetParamsCount()const
 {
 	return parameters.size();
 }
@@ -208,7 +208,7 @@ SyntaxApi::IStatements* TMethod::GetStatements()const
 {
 	return statements.get();
 }
-SyntaxApi::IParameter* TMethod::GetParam(int use_id)const
+SyntaxApi::IParameter* TMethod::GetParam(size_t use_id)const
 {
 	return parameters[use_id].get();
 }
@@ -234,12 +234,12 @@ void TMethod::AddParam(TParameter* use_param)
 void TMethod::CheckForErrors()
 {
 	//TODO - всё уже есть в TSMethod
-	//if (owner->GetOwner() == NULL&&!is_static)
+	//if (owner->GetOwner() == nullptr&&!is_static)
 	//	Error("Базовый класс может содержать только статические методы!");
-	//for (int i = 0; i<parameters.size(); i++)
+	//for (size_t i = 0; i<parameters.size(); i++)
 	//{
 	//	if (!parameters[i]->GetName().IsNull())
-	//		for (int k = 0; k<i; k++)
+	//		for (size_t k = 0; k<i; k++)
 	//		{
 	//		if (parameters[i]->GetName() == parameters[k]->GetName())
 	//			parameters[i]->Error("Параметр с таким именем уже существует!");

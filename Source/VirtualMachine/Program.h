@@ -22,7 +22,7 @@ public:
 		int post_event;
 		int params_size;
 		int return_size;//используется для внешних методов, для USER методов все есть в RETURN
-		TMethod():first_op(-1),extern_method(NULL){}
+		TMethod():first_op(-1),extern_method(nullptr){}
 	};
 	std::vector<TOp> instructions;//TODO в дальнейшем в TVector<int>
 	

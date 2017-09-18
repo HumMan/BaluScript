@@ -22,8 +22,8 @@ namespace SyntaxApi
 		virtual IType* GetRetType()const = 0;
 		virtual TClassMember GetMemberType()const=0;
 		virtual IStatements* GetStatements()const=0;
-		virtual IParameter* GetParam(int use_id)const = 0;
-		virtual int GetParamsCount()const = 0;
+		virtual IParameter* GetParam(size_t use_id)const = 0;
+		virtual size_t GetParamsCount()const = 0;
 		virtual bool IsStatic()const = 0;
 		virtual bool IsExternal()const = 0;
 		virtual Lexer::TOperator GetOperatorType()const = 0;

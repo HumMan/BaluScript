@@ -21,7 +21,7 @@ public:
 
 class TNodeWithSize
 {
-	int size;
+	size_t size;
 	bool size_initialized;
 public:
 	TNodeWithSize()
@@ -35,7 +35,7 @@ public:
 		size = use_size;
 		size_initialized = true;
 	}
-	int GetSize()
+	size_t GetSize()
 	{
 		assert(size_initialized);
 		return size;

@@ -60,7 +60,7 @@ TSMethod* FindMethod(Lexer::ITokenPos* source, std::vector<TSMethod*> &methods_t
 	}
 	if(min_conv_method>=0)
 		return methods_to_call[min_conv_method];		
-	return NULL;
+	return nullptr;
 }
 
 
@@ -94,7 +94,7 @@ void InitializeStaticClassFields(std::vector<TSClassField*> static_fields, std::
 		static_objects.emplace_back(false,v->GetClass());
 		TSMethod* def_constr = v->GetClass()->GetDefConstr();
 		static_objects[v->GetOffset()].Initialize();
-		if (def_constr != NULL)
+		if (def_constr != nullptr)
 		{
 			std::vector<TStackValue> constr_formal_params;
 			TStackValue without_result, var_object(true, v->GetClass());

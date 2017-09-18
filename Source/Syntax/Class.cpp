@@ -54,7 +54,7 @@ Lexer::TNameId TClass::GetTemplateParam(int i)const
 	return _this->template_params[i];
 }
 
-int TClass::GetTemplateParamsCount()const
+size_t TClass::GetTemplateParamsCount()const
 {
 	return _this->template_params.size();
 }
@@ -77,7 +77,7 @@ void TClass::SetName(Lexer::TNameId name)
 std::vector<Lexer::TNameId> TClass::GetFullClassName()const
 {
 	std::vector<Lexer::TNameId> result;
-	if (_this->owner != NULL)
+	if (_this->owner != nullptr)
 		result = _this->owner->GetFullClassName();
 	result.push_back(_this->name);
 	return result;
@@ -94,7 +94,7 @@ TClass::TClass(TClass* use_owner)
 
 	_this->constr_copy.reset(new TOverloadedMethod());
 	_this->constr_move.reset(new TOverloadedMethod());
-	for (int i = 0; i < (short)Lexer::TOperator::End;i++)
+	for (size_t i = 0; i < (short)Lexer::TOperator::End;i++)
 		_this->operators[i].reset(new TOverloadedMethod());
 	_this->conversions.reset(new TOverloadedMethod());
 }
@@ -105,11 +105,11 @@ TClass::~TClass()
 
 void TClass::AddMethod(TMethod* use_method, Lexer::TNameId name) {
 	//»щем перегруженные методы с таким же именем, иначе добавл¤ем новый
-	TOverloadedMethod* temp = NULL;
+	TOverloadedMethod* temp = nullptr;
 	for (std::unique_ptr<TOverloadedMethod>& method : _this->methods)
 		if (method->GetName() == name)
 			temp = method.get();
-	if (temp == NULL)
+	if (temp == nullptr)
 	{
 		_this->methods.emplace_back(new TOverloadedMethod(name));
 		temp = _this->methods.back().get();
@@ -155,15 +155,15 @@ void TClass::AddDestr(TMethod* use_method)
 	_this->destructor = std::unique_ptr<TMethod>(use_method);
 }
 
-int TClass::GetFieldsCount()const
+size_t TClass::GetFieldsCount()const
 {
 	return _this->fields.size();
 }
-SyntaxApi::IClassField* TClass::GetField(int i) const
+SyntaxApi::IClassField* TClass::GetField(size_t i) const
 {
 	return _this->fields[i].get();
 }
-int TClass::GetMethodsCount()const
+size_t TClass::GetMethodsCount()const
 {
 	return _this->methods.size();
 }
@@ -183,7 +183,7 @@ TClassField* TClass::EmplaceField(TClass* use_field_owner)
 	return _this->fields.back().get();
 }
 
-int TClass::GetNestedCount()const
+size_t TClass::GetNestedCount()const
 {
 	return _this->nested_classes.size();
 }
@@ -198,7 +198,7 @@ TClass* TClass::GetNested(Lexer::TNameId name)const
 	return nullptr;
 }
 
-TClass* TClass::GetNested(int i)const
+TClass* TClass::GetNested(size_t i)const
 {
 	return _this->nested_classes[i].get();
 }
@@ -208,7 +208,7 @@ SyntaxApi::IType* TClass::GetParent()const
 	return _this->parent.get();
 }
 
-int TClass::FindNested(Lexer::TNameId name)const
+size_t TClass::FindNested(Lexer::TNameId name)const
 {
 	for (size_t i = 0; i < _this->nested_classes.size(); i++)
 	{

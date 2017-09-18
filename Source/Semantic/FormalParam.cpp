@@ -1,4 +1,6 @@
-﻿#include "FormalParam.h"
+﻿#include <string.h>
+
+#include "FormalParam.h"
 
 #include "SClass.h"
 #include "SMethod.h"
@@ -9,9 +11,9 @@
 
 void TExpressionResult::Init()
 {
-	result_value_type = NULL;
+	result_value_type = nullptr;
 	is_ref = false;
-	type = NULL;
+	type = nullptr;
 }
 TExpressionResult::TExpressionResult()
 {
@@ -47,7 +49,7 @@ bool TExpressionResult::IsMethods()const
 }
 bool TExpressionResult::IsType()const
 {
-	return type != NULL;
+	return type != nullptr;
 }
 TSClass* TExpressionResult::GetType()const
 {
@@ -63,7 +65,7 @@ TSClass* TExpressionResult::GetClass()const
 }
 bool TExpressionResult::IsVoid()const
 {
-	return result_value_type == NULL && (!IsMethods()) && type == NULL;//TODO в дальнейшем methods_pointer не должен считаться void
+	return result_value_type == nullptr && (!IsMethods()) && type == nullptr;//TODO в дальнейшем methods_pointer не должен считаться void
 }
 
 TSClass* TStackValue::GetClass()const
@@ -77,8 +79,8 @@ bool TStackValue::IsRef()const
 TStackValue::TStackValue()
 {
 	is_ref = false;
-	internal_buf = NULL;
-	type = NULL;
+	internal_buf = nullptr;
+	type = nullptr;
 }
 TStackValue::TStackValue(const TStackValue& copy_from)
 {
@@ -86,7 +88,7 @@ TStackValue::TStackValue(const TStackValue& copy_from)
 	is_ref = copy_from.is_ref;
 	type = copy_from.type;
 
-	if (copy_from.internal_buf != NULL)
+	if (copy_from.internal_buf != nullptr)
 	{
 		if (is_ref)
 		{
@@ -100,7 +102,7 @@ TStackValue::TStackValue(const TStackValue& copy_from)
 	}
 	else
 	{
-		internal_buf = NULL;
+		internal_buf = nullptr;
 	}
 }
 
@@ -113,8 +115,8 @@ TStackValue::TStackValue(TStackValue&& copy_from)
 
 	copy_from.actual_size = 0;
 	copy_from.is_ref = false;
-	copy_from.type = NULL;
-	copy_from.internal_buf = NULL;
+	copy_from.type = nullptr;
+	copy_from.internal_buf = nullptr;
 }
 
 void TStackValue::SetAsReference(void* use_ref)
@@ -141,7 +143,7 @@ TStackValue::TStackValue(bool is_ref, TSClass* type)
 	if (is_ref)
 	{
 		actual_size = 1;
-		internal_buf = NULL;
+		internal_buf = nullptr;
 	}
 	else
 	{
@@ -154,13 +156,13 @@ void TStackValue::operator=(const TStackValue& right)
 	if (!is_ref)
 	{
 		delete internal_buf;
-		internal_buf = NULL;
+		internal_buf = nullptr;
 	}
 	actual_size = right.actual_size;
 	is_ref = right.is_ref;
 	type = right.type;
 
-	if (right.internal_buf != NULL)
+	if (right.internal_buf != nullptr)
 	{
 		if (is_ref)
 		{
@@ -174,17 +176,17 @@ void TStackValue::operator=(const TStackValue& right)
 	}
 	else
 	{
-		internal_buf = NULL;
+		internal_buf = nullptr;
 	}
 }
 TStackValue::~TStackValue()
 {
 	if (!is_ref)
 	{
-		if (internal_buf!=NULL)
+		if (internal_buf!=nullptr)
 			memset(internal_buf, 0xfeefee, actual_size);
 		delete internal_buf;
-		internal_buf = NULL;
+		internal_buf = nullptr;
 	}
 }
 

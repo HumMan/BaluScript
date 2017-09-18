@@ -33,7 +33,7 @@ void TNotOptimizedProgram::Push(TOp use_op, TOpArray &ops_array)
 	{
 		ops_array.last->next=op;
 		op->prev=ops_array.last;
-		op->next=NULL;
+		op->next=nullptr;
 		ops_array.last=op;
 	}
 	ListItems();
@@ -50,7 +50,7 @@ void TNotOptimizedProgram::PushFront(TOp use_op, TOpArray &ops_array)
 	{
 		ops_array.first->prev=op;
 		op->next=ops_array.first;
-		op->prev=NULL;
+		op->prev=nullptr;
 		ops_array.first=op;
 	}
 	ListItems();
@@ -70,7 +70,7 @@ void TNotOptimizedProgram::ListItems()
 			ops.push_back(&c->value);
 			last=c;
 			c=c->next;
-		}while(c!=NULL);
+		}while(c!=nullptr);
 		assert(last==methods_table[i]->GetOps().last);
 	}
 #endif
@@ -78,9 +78,9 @@ void TNotOptimizedProgram::ListItems()
 
 void ConnectOps(BaluLib::TListItem<TOp>* &first_instr, BaluLib::TListItem<TOp>* &last_instr, const TOpArray& ops)
 {
-	assert(ops.first->prev==NULL&&ops.last->next==NULL);
+	assert(ops.first->prev==nullptr&&ops.last->next==nullptr);
 	if(ops.IsNull())return;
-	if(first_instr==NULL)
+	if(first_instr==nullptr)
 		first_instr=ops.first;
 	else
 		last_instr->next=ops.first;
@@ -102,18 +102,18 @@ struct TMethodPrePostEvents
 
 int TNotOptimizedProgram::CreateStaticVarsInitMethod()
 {
-	static_vars_init_method = std::unique_ptr<TMethod>(new TMethod((TClass*)NULL));
+	static_vars_init_method = std::unique_ptr<TMethod>(new TMethod((TClass*)nullptr));
 	methods_table.push_back(static_vars_init_method.get());
-	static_vars_init_method->SetAs(static_vars_init, NULL, false, true);
+	static_vars_init_method->SetAs(static_vars_init, nullptr, false, true);
 	static_vars_init_method->CalcParamSize();
 	AddMethodToTable(static_vars_init_method.get());
 	return methods_table.size() - 1;
 }
 int TNotOptimizedProgram::CreateStaticVarsDestroyMethod()
 {
-	static_vars_destroy_method = std::unique_ptr<TMethod>(new TMethod((TClass*)NULL));
+	static_vars_destroy_method = std::unique_ptr<TMethod>(new TMethod((TClass*)nullptr));
 	methods_table.push_back(static_vars_destroy_method.get());
-	static_vars_destroy_method->SetAs(static_vars_destroy, NULL, false, true);
+	static_vars_destroy_method->SetAs(static_vars_destroy, nullptr, false, true);
 	static_vars_destroy_method->CalcParamSize();
 	AddMethodToTable(static_vars_destroy_method.get());
 	return methods_table.size() - 1;
@@ -122,29 +122,29 @@ int TNotOptimizedProgram::CreateStaticVarsDestroyMethod()
 void TNotOptimizedProgram::InitArrayClassMethods(TProgram& optimized)
 {
 	optimized.array_class_methods.resize(array_element_classes.size());
-	for (int i = 0; i<array_element_classes.size(); i++)
+	for (size_t i = 0; i<array_element_classes.size(); i++)
 	{
 		TClass* arr_element = array_element_classes[i];
 		TMethod* el_assign_op[2];
 		bool el_has_assign_op = false;
-		for (int t = 0; t<2; t++)
+		for (size_t t = 0; t<2; t++)
 		{
 			el_assign_op[t] = arr_element->GetBinOp(TOperator::Assign, arr_element, true, arr_element, t);
-			if (el_assign_op[t] != NULL&&el_assign_op[t]->IsBytecode())
-				el_assign_op[t] = NULL;
-			el_has_assign_op = el_has_assign_op || (el_assign_op[t] != NULL);
+			if (el_assign_op[t] != nullptr&&el_assign_op[t]->IsBytecode())
+				el_assign_op[t] = nullptr;
+			el_has_assign_op = el_has_assign_op || (el_assign_op[t] != nullptr);
 		}
 
 		TMethod* el_equal_op[2][2];
 		bool el_has_equal_op = false;
-		for (int t = 0; t<2; t++)
+		for (size_t t = 0; t<2; t++)
 		{
-			for (int k = 0; k<2; k++)
+			for (size_t k = 0; k<2; k++)
 			{
 				el_equal_op[t][k] = arr_element->GetBinOp(TOperator::Equal, arr_element, t, arr_element, k);
-				if (el_equal_op[t][k] != NULL&&el_equal_op[t][k]->IsBytecode())
-					el_equal_op[t][k] = NULL;
-				el_has_equal_op = el_has_equal_op || (el_equal_op[t][k] != NULL);
+				if (el_equal_op[t][k] != nullptr&&el_equal_op[t][k]->IsBytecode())
+					el_equal_op[t][k] = nullptr;
+				el_has_equal_op = el_has_equal_op || (el_equal_op[t][k] != nullptr);
 			}
 		}
 
@@ -155,9 +155,9 @@ void TNotOptimizedProgram::InitArrayClassMethods(TProgram& optimized)
 		temp.el_def_constr = AddMethodToTable(arr_element->GetDefConstr());
 		temp.el_copy_constr = AddMethodToTable(arr_element->GetCopyConstr());
 		temp.el_destr = AddMethodToTable(arr_element->GetDestructor());
-		for (int t = 0; t<2; t++)
+		for (size_t t = 0; t<2; t++)
 			temp.el_assign_op[t] = AddMethodToTable(el_assign_op[t]);
-		for (int t = 0; t<4; t++)
+		for (size_t t = 0; t<4; t++)
 			temp.el_equal_op[0][t] = AddMethodToTable(el_equal_op[0][t]);
 
 		optimized.array_class_methods[i] = temp;
@@ -166,7 +166,7 @@ void TNotOptimizedProgram::InitArrayClassMethods(TProgram& optimized)
 
 void TNotOptimizedProgram::InitPrePostEvents(std::vector<TMethodPrePostEvents>& method_prepost_events, int methods_before_prepost_event)
 {
-	for (int i = 0; i<methods_table.size(); i++)
+	for (size_t i = 0; i<methods_table.size(); i++)
 	{
 		if (AddMethodToTable(methods_table[i]->GetPreEvent()) != -1)
 		{
@@ -220,15 +220,15 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 
 	//TODO метод не может начинаться с метки
 	for(int i=0;i<methods_table.size();i++)
-		if(methods_table[i]->GetOps().first!=NULL)
+		if(methods_table[i]->GetOps().first!=nullptr)
 			assert(methods_table[i]->GetOps().first->value.type!=TOpcode::LABEL);
 	//преобразуем все комманды методов в единый непрерывный список
-	BaluLib::TListItem<TOp>* first_instr = NULL;
-	BaluLib::TListItem<TOp>* last_instr = NULL;
+	BaluLib::TListItem<TOp>* first_instr = nullptr;
+	BaluLib::TListItem<TOp>* last_instr = nullptr;
 	for(int i=0;i<methods_table.size();i++)
 	{
 		BaluLib::TListItem<TOp>* c = methods_table[i]->GetOps().first;
-		if(c==NULL)continue;//метод с пустым телом, но используемый
+		if(c==nullptr)continue;//метод с пустым телом, но используемый
 		assert(c->value.type!=TOpcode::LABEL);//TODO будет ошибка т.к. ккомманда вырежется
 		ConnectOps(first_instr,last_instr,methods_table[i]->GetOps());
 	}
@@ -242,22 +242,22 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 	//if(false)
 	{
 		//считываем метки и запоминаем их позиции
-		int* labels=curr_label>0?new int[curr_label]:NULL;
+		int* labels=curr_label>0?new int[curr_label]:nullptr;
 		//if(curr_label>0) т.к. нам надо подсчитать количество инструкций
 		{
 			//TODO а разьве метод не может начинаться с метки
 			BaluLib::TListItem<TOp>* curr = first_instr;
-			if(curr!=NULL){
+			if(curr!=nullptr){
 				int i=0;
 				do{
 					while(curr->value.type==TOpcode::LABEL){
-						assert(curr!=NULL);//программа не может прерываться меткой, обязательно будет RETURN
+						assert(curr!=nullptr);//программа не может прерываться меткой, обязательно будет RETURN
 						labels[curr->value.v1]=i;
 						(curr->next->prev=curr->prev)->next=curr->next;
 						curr=curr->next;
 					}
 					i++;
-				}while((curr=curr->next)!=NULL);
+				}while((curr=curr->next)!=nullptr);
 				ops_count=i;
 			}
 		}
@@ -268,7 +268,7 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 		optimized.instructions.resize(ops_count);
 		optimized.methods_table.resize(methods_table.size());
 		BaluLib::TListItem<TOp> *curr = first_instr;
-		if(curr!=NULL){
+		if(curr!=nullptr){
 			int curr_method=0,curr_instr=0,curr_event=0;
 			do{
 				//настраиваем комманды использующие переходы
@@ -336,11 +336,11 @@ void TNotOptimizedProgram::CreateOptimizedProgram(TProgram& optimized,TTime& tim
 					}
 				}
 				curr_instr++;
-			}while((curr=curr->next)!=NULL);
-			assert(curr==NULL);//должны дойти до последней инструкции
+			}while((curr=curr->next)!=nullptr);
+			assert(curr==nullptr);//должны дойти до последней инструкции
 			assert(curr_method==methods_table.size());
 		}
-		if(labels!=NULL)delete[] labels;
+		if(labels!=nullptr)delete[] labels;
 	}
 
 	printf("Ops generating = %.3f ms\n",time.TimeDiff(time.GetTime(),t)*1000);
@@ -371,7 +371,7 @@ int TNotOptimizedProgram::AddStringConst(TNameId string)
 }
 int TNotOptimizedProgram::AddMethodToTable(TMethod* use_method)
 {
-	if(use_method==NULL)return -1;
+	if(use_method==nullptr)return -1;
 	int i=FindMethod(use_method);
 	if(i==-1)
 	{

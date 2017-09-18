@@ -16,8 +16,8 @@ class TSOverloadedMethod :TSyntaxNode<SyntaxApi::IOverloadedMethod>
 	std::vector<std::unique_ptr<TSMethod>> methods;
 	TSClass* owner;
 public:
-	TSMethod* GetMethod(int i)const;
-	int GetMethodsCount()const;
+	TSMethod* GetMethod(size_t i)const;
+	size_t GetMethodsCount()const;
 	TSOverloadedMethod(TSClass* use_owner, SyntaxApi::IOverloadedMethod* use_syntax);
 	Lexer::TNameId GetName()const;
 	TSMethod* FindParams(const std::vector<TSParameter*>& params)const;

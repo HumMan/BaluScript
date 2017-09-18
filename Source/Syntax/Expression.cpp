@@ -64,7 +64,7 @@ TOperation* TExpression::SpecialPostfix(Lexer::ILexer* source,
 
 TOperation* TExpression::Factor(Lexer::ILexer* source)
 {
-	TOperation* curr_operation = NULL;
+	TOperation* curr_operation = nullptr;
 	TTokenPos token_pos;
 	token_pos.InitPos(source);
 	if (source->Test(TTokenType::Value))
@@ -124,7 +124,7 @@ TOperation* TExpression::Factor(Lexer::ILexer* source)
 			curr_operation = Expr(source, 0);
 			source->GetToken(TTokenType::RParenth);
 		}
-		if (curr_operation == NULL)
+		if (curr_operation == nullptr)
 			source->Error("Ошибка в выражении!");
 		//Синтаксис: SpecialPostfixOp*
 		do

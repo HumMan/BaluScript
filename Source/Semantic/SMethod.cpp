@@ -28,18 +28,18 @@ TSpecialClassMethod::Type GetMethodTypeFromSyntax(SyntaxApi::IMethod* use_syntax
 }
 
 TSMethod::TSMethod(TSClass* use_owner, SyntaxApi::IMethod* use_syntax)
-	:TSyntaxNode(use_syntax), ret(use_owner, use_syntax->GetRetType()), TSpecialClassMethod(GetMethodTypeFromSyntax(use_syntax))
+	:TSyntaxNode(use_syntax), TSpecialClassMethod(GetMethodTypeFromSyntax(use_syntax)), ret(use_owner, use_syntax->GetRetType())
 {
 	owner = use_owner;
 	is_external = false;
-	external_func = NULL;
+	external_func = nullptr;
 	has_return = use_syntax->HasReturn();
 	ret_ref = use_syntax->IsReturnRef();
 	
 }
 
 TSMethod::TSMethod(TSClass* use_owner, TSpecialClassMethod::Type special_method_type)
-	:TSyntaxNode(NULL), ret(use_owner, (TSClass*)NULL), TSpecialClassMethod(special_method_type)
+	:TSyntaxNode(nullptr), TSpecialClassMethod(special_method_type), ret(use_owner, (TSClass*)nullptr)
 {
 	owner = use_owner;
 	SetBodyLinked();
@@ -83,7 +83,7 @@ TSClass* TSMethod::GetRetClass()
 	if (has_return)
 		return ret.GetClass();
 	else
-		return NULL;
+		return nullptr;
 }
 
 TSParameter* TSMethod::GetParam(int id)
@@ -120,7 +120,7 @@ void TSMethod::LinkBody(TGlobalBuildContext build_context)
 	if (IsBodyLinked())
 		return;
 	SetBodyLinked();
-	statements = std::unique_ptr<TSStatements>(new TSStatements(owner, this, NULL, GetSyntax()->GetStatements()));
+	statements = std::unique_ptr<TSStatements>(new TSStatements(owner, this, nullptr, GetSyntax()->GetStatements()));
 	statements->Build(build_context);
 	//if (!GetSyntax()->IsBytecode())
 	//	statements->Build();
@@ -146,7 +146,7 @@ void TSMethod::CalculateParametersOffsets()
 			parameters_size += parameters[i]->GetSize();
 		}
 	}
-	if (GetRetClass() != NULL)
+	if (GetRetClass() != nullptr)
 	{
 		if (GetSyntax()->IsReturnRef())
 			ret_size = 1;
@@ -231,7 +231,7 @@ void TSMethod::Run(TMethodRunContext method_run_context)
 	//if(method->GetMemberType()==TClassMember::Destr)
 	//{
 	//	TMethod* auto_destr=owner->GetAutoDestructor();
-	//	if(auto_destr!=NULL)
+	//	if(auto_destr!=nullptr)
 	//	{
 	//		program.Push(TOp(TOpcode::PUSH_THIS),result_result.GetOps());
 	//		result_result.GetOps()+=auto_destr->BuildCall(program).GetOps();
@@ -245,7 +245,7 @@ void TSMethod::Run(TMethodRunContext method_run_context)
 
 void TSMethod::Build()
 {
-	for (int i = 0; i < GetSyntax()->GetParamsCount(); i++)
+	for (size_t i = 0; i < GetSyntax()->GetParamsCount(); i++)
 	{
 		SyntaxApi::IParameter* v = GetSyntax()->GetParam(i);
 		parameters.push_back(std::unique_ptr<TSParameter>(new TSParameter(owner, this, v, v->GetType())));
@@ -255,7 +255,7 @@ void TSMethod::Build()
 
 void TSMethod::CheckForErrors()
 {
-	if (owner->GetOwner() == NULL&&!GetSyntax()->IsStatic())
+	if (owner->GetOwner() == nullptr&&!GetSyntax()->IsStatic())
 		GetSyntax()->Error("Базовый класс может содержать только статические методы!");
 	for (size_t i = 0; i<parameters.size(); i++)
 	{
@@ -268,9 +268,9 @@ void TSMethod::CheckForErrors()
 	}
 	if (!GetSyntax()->GetName().IsNull())
 	{
-		if (owner->GetClass(GetSyntax()->GetName()) != NULL)
+		if (owner->GetClass(GetSyntax()->GetName()) != nullptr)
 			GetSyntax()->Error("Класс не может быть именем метода!");
-		if (owner->GetField(GetSyntax()->GetName(), false) != NULL)
+		if (owner->GetField(GetSyntax()->GetName(), false) != nullptr)
 			GetSyntax()->Error("Член класса с таким именем уже существует!");
 		//TODO проверить члены родительского класса и т.д. (полный запрет на перекрытие имен)
 	}
@@ -302,15 +302,15 @@ void TSMethod::CheckForErrors()
 		case SyntaxApi::TClassMember::Func:
 			break;
 		case SyntaxApi::TClassMember::DefaultConstr:
-			if (ret.GetClass() != NULL)GetSyntax()->Error("Конструктор по умолчанию не должен возвращать значение!");
+			if (ret.GetClass() != nullptr)GetSyntax()->Error("Конструктор по умолчанию не должен возвращать значение!");
 			if (parameters.size() != 0)GetSyntax()->Error("Конструктор по умолчанию не имеет параметров!");
 			break;
 		case SyntaxApi::TClassMember::CopyConstr:
 		case SyntaxApi::TClassMember::MoveConstr:
-			if (ret.GetClass() != NULL)GetSyntax()->Error("Конструктор не должен возвращать значение!");
+			if (ret.GetClass() != nullptr)GetSyntax()->Error("Конструктор не должен возвращать значение!");
 			break;
 		case SyntaxApi::TClassMember::Destr:
-			if (ret.GetClass() != NULL)GetSyntax()->Error("Деструктор не должен возвращать значение!");
+			if (ret.GetClass() != nullptr)GetSyntax()->Error("Деструктор не должен возвращать значение!");
 			if (parameters.size() != 0)GetSyntax()->Error("Деструктор не имеет параметров!");
 			break;
 		case SyntaxApi::TClassMember::Operator:

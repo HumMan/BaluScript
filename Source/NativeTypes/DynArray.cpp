@@ -19,7 +19,7 @@ void TDynArr::constructor(TMethodRunContext run_context)
 
 void CallMethod(std::vector<TStaticValue> &static_fields, int* v, int first_element, int el_count, int el_size, TSClass* el_class, TSMethod* method)
 {
-	for (int i = first_element*el_size; i<el_count*el_size; i += el_size)
+	for (size_t i = first_element*el_size; i<el_count*el_size; i += el_size)
 	{
 		TStackValue el_obj(true, el_class);
 		std::vector<TStackValue> without_params;
@@ -33,7 +33,7 @@ void CallMethod(std::vector<TStaticValue> &static_fields, int* v, int first_elem
 
 void CallCopyConstr(std::vector<TStaticValue> &static_fields, int* v, int* copy_from, int first_element, int el_count, int el_size, TSClass* el_class, TSMethod* method)
 {
-	for (int i = first_element*el_size; i<el_count*el_size; i += el_size)
+	for (size_t i = first_element*el_size; i<el_count*el_size; i += el_size)
 	{
 		TStackValue el_obj(true, el_class);
 		el_obj.SetAsReference(&v[i]);
@@ -50,7 +50,7 @@ void CallCopyConstr(std::vector<TStaticValue> &static_fields, int* v, int* copy_
 
 void CallAssignOp(std::vector<TStaticValue> &static_fields, int* left, int* right, int first_element, int el_count, int el_size, TSClass* el_class, TSMethod* method)
 {
-	for (int i = first_element*el_size; i<el_count*el_size; i += el_size)
+	for (size_t i = first_element*el_size; i<el_count*el_size; i += el_size)
 	{
 		TStackValue el_obj;
 		std::vector<TStackValue> params;
@@ -67,7 +67,7 @@ void CallAssignOp(std::vector<TStaticValue> &static_fields, int* left, int* righ
 void dyn_arr_resize(std::vector<TStaticValue> &static_fields, TDynArr* obj, int new_size)
 {
 	TSClass* el = obj->el_class;
-	int curr_size = obj->v->size() / el->GetSize();
+	size_t curr_size = obj->v->size() / el->GetSize();
 
 	if (curr_size == new_size)
 		return;
@@ -75,7 +75,7 @@ void dyn_arr_resize(std::vector<TStaticValue> &static_fields, TDynArr* obj, int 
 	if (curr_size > new_size)
 	{
 		TSMethod* el_destr = el->GetDestructor();
-		if (el_destr != NULL)
+		if (el_destr != nullptr)
 		{
 			CallMethod(static_fields, &((*obj->v)[0]), new_size, curr_size, el->GetSize(), el, el_destr);
 		}
@@ -84,7 +84,7 @@ void dyn_arr_resize(std::vector<TStaticValue> &static_fields, TDynArr* obj, int 
 	if (curr_size < new_size)
 	{
 		TSMethod* el_def_constr = el->GetDefConstr();
-		if (el_def_constr != NULL)
+		if (el_def_constr != nullptr)
 		{
 			CallMethod(static_fields, &((*obj->v)[0]), curr_size, new_size, el->GetSize(), el, el_def_constr);
 		}
@@ -96,7 +96,7 @@ void TDynArr::destructor(TMethodRunContext run_context)
 	TDynArr* obj = ((TDynArr*)run_context.object->get());
 	TSClass* el = obj->el_class;
 	TSMethod* el_destr = el->GetDestructor();
-	if (el_destr != NULL)
+	if (el_destr != nullptr)
 	{
 		if (obj->v->size() > 0)
 		{
@@ -115,7 +115,7 @@ void TDynArr::copy_constr(TMethodRunContext run_context)
 	TSClass* el = copy_from->el_class;
 	TSMethod* el_copy_constr = el->GetCopyConstr();
 	
-	if (el_copy_constr != NULL)
+	if (el_copy_constr != nullptr)
 	{
 		obj->Init();
 		obj->el_class = el;

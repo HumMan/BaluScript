@@ -1,4 +1,6 @@
-﻿#include "Op.h"
+﻿#include <stdlib.h>
+
+#include "Op.h"
 
 void TOp::Init()
 {

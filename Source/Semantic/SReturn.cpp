@@ -18,7 +18,7 @@ void TSReturn::Build(TGlobalBuildContext build_context)
 	result = std::unique_ptr<TSExpression>(new TSExpression(GetOwner(), GetMethod(), GetParentStatements(), GetSyntax()->GetResult()));
 	result->Build(build_context);
 	TExpressionResult result_result = result->GetFormalParameter();
-	if (GetMethod()->GetRetClass() != NULL)
+	if (GetMethod()->GetRetClass() != nullptr)
 	{
 		int conv_needed;
 		if(result_result.IsVoid())
@@ -29,7 +29,7 @@ void TSReturn::Build(TGlobalBuildContext build_context)
 		conversions->BuildConvert(result_result, TFormalParameter(GetMethod()->GetRetClass(), GetMethod()->GetSyntax()->IsReturnRef()));
 	}
 	else 
-		if(result_result.GetClass()!=NULL)
+		if(result_result.GetClass()!=nullptr)
 			GetSyntax()->Error("Метод не должен ничего возвращать!");
 }
 

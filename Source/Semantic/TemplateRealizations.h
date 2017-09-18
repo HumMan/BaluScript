@@ -50,7 +50,7 @@ public:
 
 class TSMultifield
 {
-	int size_multiplier;
+	size_t size_multiplier;
 	bool size_multiplier_set;
 public:
 	TSMultifield()
@@ -68,7 +68,7 @@ public:
 	{
 		return size_multiplier_set;
 	}
-	int GetSizeMultiplier()
+	size_t GetSizeMultiplier()
 	{
 		return size_multiplier;
 	}

@@ -1,4 +1,6 @@
-﻿#include "OpArray.h"
+﻿#include <stdlib.h>
+
+#include "OpArray.h"
 
 TOpArray::TOpArray() :first(nullptr), last(nullptr){}
 bool TOpArray::IsNull()const

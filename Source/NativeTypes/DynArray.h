@@ -15,12 +15,12 @@ struct TDynArr
 	TSClass* el_class;
 	void Init()
 	{
-		el_class = NULL;
+		el_class = nullptr;
 		v = new std::vector<int>();
 	}
 	void Init(const TDynArr& r)
 	{
-		el_class = NULL;
+		el_class = nullptr;
 		v = new std::vector<int>();
 	}
 	TDynArr()
@@ -36,9 +36,9 @@ struct TDynArr
 	void EmplaceBack(std::vector<TStaticValue> &static_fields);
 	~TDynArr()
 	{
-		el_class = NULL;
+		el_class = nullptr;
 		delete v;
-		v = NULL;
+		v = nullptr;
 	}
 	static void constructor(TMethodRunContext run_context);
 	static void destructor(TMethodRunContext run_context);

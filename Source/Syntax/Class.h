@@ -34,7 +34,7 @@ namespace SyntaxInternal
 		{
 			return enums;
 		}
-		int GetEnumId(Lexer::TNameId use_enum)const
+		size_t GetEnumId(Lexer::TNameId use_enum)const
 		{
 			assert(is_enum);
 			for (size_t i = 0; i < enums.size(); i++)
@@ -61,21 +61,21 @@ namespace SyntaxInternal
 		bool IsTemplate()const;
 		bool IsExternal()const;
 
-		int GetTemplateParamsCount()const;
+		size_t GetTemplateParamsCount()const;
 		Lexer::TNameId GetTemplateParam(int i)const;
 
-		TClass* GetNested(int i)const;
+		TClass* GetNested(size_t i)const;
 		TClass* GetNested(Lexer::TNameId name)const;
-		int FindNested(Lexer::TNameId name)const;
-		int GetNestedCount()const;
+		size_t FindNested(Lexer::TNameId name)const;
+		size_t GetNestedCount()const;
 
 		Lexer::TNameId GetName()const;
 		TClass* GetOwner()const;
 		SyntaxApi::IType* GetParent()const;
 		std::vector<Lexer::TNameId> GetFullClassName()const;
-		int GetFieldsCount()const;
-		SyntaxApi::IClassField* GetField(int i) const;
-		int GetMethodsCount()const;
+		size_t GetFieldsCount()const;
+		SyntaxApi::IClassField* GetField(size_t i) const;
+		size_t GetMethodsCount()const;
 		SyntaxApi::IOverloadedMethod* GetMethod(int i) const;
 
 		bool HasDefConstr()const;

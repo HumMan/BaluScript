@@ -43,7 +43,7 @@ public:
 	}type;
 	TSExpression_TMethodCall(TMethodCallType type)
 	{
-		invoke = NULL;
+		invoke = nullptr;
 		this->type = type;
 	}
 	void Build(const std::vector<TSOperation*>& param_expressions, TSMethod* method);

@@ -98,7 +98,7 @@ void TSStatements::AddVar(TSLocalVar* var, int stmt_id)
 
 int TSStatements::GetLastVariableOffset()
 {
-	if (GetParentStatements() != NULL)
+	if (GetParentStatements() != nullptr)
 	{
 		return GetParentStatements()->GetLastVariableOffset() + var_declarations.size();
 	}
@@ -111,7 +111,7 @@ int TSStatements::GetLastVariableOffset()
 void TSStatements::Build(TGlobalBuildContext build_context)
 {
 	auto syntax = dynamic_cast<SyntaxApi::IStatements*>(GetSyntax());
-	for (int i = 0; i < syntax->GetStatementsCount(); i++)
+	for (size_t i = 0; i < syntax->GetStatementsCount(); i++)
 	{
 		SyntaxApi::IStatement* st = syntax->GetStatement(i);
 		TSStatementBuilder b(build_context, GetOwner(), GetMethod(), this);
@@ -136,11 +136,11 @@ TVariable* TSStatements::GetVar(Lexer::TNameId name, int sender_id)
 	//		return ((TLocalVar*)(statement[i]));
 	//	if(statement[i]==sender)break;
 	//}
-	if (GetParentStatements() != NULL)
+	if (GetParentStatements() != nullptr)
 		return GetParentStatements()->GetVar(name, GetSyntax()->GetStmtId());
-	else if (GetMethod() != NULL)
+	else if (GetMethod() != nullptr)
 		return  GetMethod()->GetVar(name);
-	else return NULL;
+	else return nullptr;
 }
 
 void TSStatements::Run(TStatementRunContext run_context)
@@ -152,7 +152,7 @@ void TSStatements::Run(TStatementRunContext run_context)
 			break;
 	}
 	//for (TSStatements::TVarDecl& var_decl : var_declarations)
-	for (int i = var_declarations.size() - 1; i >= 0;i--)
+	for (size_t i = var_declarations.size() - 1; i >= 0;i--)
 	{
 		auto& var_decl = var_declarations[i];
 		var_decl.pointer->Destruct(*run_context.static_fields,*run_context.local_variables);

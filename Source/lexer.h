@@ -170,7 +170,7 @@ namespace Lexer
 	public:
 		virtual int GetCurrentToken() = 0;
 		virtual void ParseSource(const char* use_source) = 0;
-		virtual void Error(char* s, int token_id = -1, va_list args = NULL) = 0;
+		virtual void Error(const char* s, int token_id = -1, va_list args = nullptr) = 0;
 		virtual void SetCurrentToken(int use_curr_token) = 0;
 		virtual TNameId NameId() = 0;
 		//TODO не должно использоваться, только через lexer по name_id (т.к. много одинаковых)
@@ -256,7 +256,7 @@ namespace Lexer
 	{
 	public:
 		virtual ILexer* GetLexer()const = 0;
-		virtual void Error(char* s, ...)const = 0;
+		virtual void Error(const char* s, ...)const = 0;
 	};
 
 	class TTokenPos: public virtual ITokenPos
@@ -271,6 +271,6 @@ namespace Lexer
 		}
 		void InitPos(ILexer* use_source);
 		ILexer* GetLexer()const;
-		void Error(char* s, ...)const;
+		void Error(const char* s, ...)const;
 	};
 }

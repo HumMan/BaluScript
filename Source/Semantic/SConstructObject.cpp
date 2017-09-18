@@ -19,14 +19,14 @@ TSConstructObject::TSConstructObject(TSClass* use_owner, TSMethod* use_method, T
 
 void TSConstructObject::Build(Lexer::ITokenPos* source, std::vector<TExpressionResult>& params_result, std::vector<TSOperation*>& params, std::vector<TFormalParameter>& params_formals, TGlobalBuildContext build_context)
 {
-	TSMethod* constructor = NULL;
+	TSMethod* constructor = nullptr;
 	if (params_result.size() > 0)
 	{
 		std::vector<TSMethod*> constructors;
 		object_type->GetCopyConstructors(constructors);
 		constructor = FindMethod(source, constructors, params_result);
 		
-		if (constructor == NULL)
+		if (constructor == nullptr)
 			source->Error(" оструктора с такими парметрами не существует!");
 	}
 	else
@@ -35,12 +35,12 @@ void TSConstructObject::Build(Lexer::ITokenPos* source, std::vector<TExpressionR
 	}
 
 	TSMethod* destructor = object_type->GetDestructor();
-	if (destructor != NULL)
+	if (destructor != nullptr)
 	{
 		ValidateAccess(source, owner, destructor);
 	}
 
-	if (constructor != NULL)
+	if (constructor != nullptr)
 	{
 		constructor_call.reset(new TSExpression_TMethodCall(TSExpression_TMethodCall::ObjectConstructor));
 		constructor_call->Build(params, constructor);
@@ -79,7 +79,7 @@ void TSConstructObject::Construct(TStackValue& constructed_object, TStatementRun
 void TSConstructObject::Destruct(TStackValue& constructed_object, TGlobalRunContext run_context)
 {
 	TSMethod* destr = object_type->GetDestructor();
-	if (destr != NULL)
+	if (destr != nullptr)
 	{
 		destr->Run(TMethodRunContext(run_context.static_fields, nullptr, nullptr, &constructed_object));
 	}

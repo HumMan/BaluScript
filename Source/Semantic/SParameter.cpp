@@ -16,7 +16,7 @@ TSParameter::TSParameter(TSClass* use_owner, TSMethod* use_method, SyntaxApi::IP
 }
 
 TSParameter::TSParameter(TSClass* use_owner, TSMethod* use_method, TSClass* use_class, bool use_is_ref)
-	: TSyntaxNode(NULL)
+	: TSyntaxNode(nullptr)
 	, TVariable(TVariableType::Parameter)
 	, type(use_owner, use_class), owner(use_owner), method(use_method), is_ref(use_is_ref)
 {
@@ -61,8 +61,8 @@ void TActualParamWithConversion::RunConversion(std::vector<TStaticValue> &static
 {
 	if (ref_to_rvalue)
 	{
-		assert(copy_constr != NULL);
-		//if (copy_constr != NULL)
+		assert(copy_constr != nullptr);
+		//if (copy_constr != nullptr)
 		{
 			std::vector<TStackValue> constr_params;
 			constr_params.push_back(value);
@@ -78,7 +78,7 @@ void TActualParamWithConversion::RunConversion(std::vector<TStaticValue> &static
 		//	value = constructed_object;
 		//}
 	}
-	if (conversion != NULL)
+	if (conversion != nullptr)
 	{
 		std::vector<TStackValue> conv_params;
 		conv_params.push_back(value);
@@ -90,8 +90,8 @@ void TActualParamWithConversion::RunConversion(std::vector<TStaticValue> &static
 
 TActualParamWithConversion::TActualParamWithConversion()
 {
-	this->copy_constr = NULL;
-	this->conversion = NULL;
+	this->copy_constr = nullptr;
+	this->conversion = nullptr;
 	this->ref_to_rvalue = false;
 }
 void TActualParamWithConversion::BuildConvert(TExpressionResult from_result, TFormalParameter to_formal_param)
@@ -104,14 +104,14 @@ void TActualParamWithConversion::BuildConvert(TExpressionResult from_result, TFo
 		conversion = result.GetClass()->GetConversion(result.IsRef(), to_formal_param.GetClass());
 		if (result.IsRef() && !to_formal_param.IsRef())
 		{
-			if (conversion == NULL)
+			if (conversion == nullptr)
 			{
 				//если отсутствует преобразование, но имеется конструктор копии
 				copy_constr = result.GetClass()->GetCopyConstr();
 				conversion = result.GetClass()->GetConversion(false, to_formal_param.GetClass());
 			}
 		}
-		if(conversion == NULL)
+		if(conversion == nullptr)
 			throw std::logic_error("Невозможно преобразовать тип!");
 	}
 	//если в стеке находится ссылка, а в качестве параметра требуется значение, то добавляем преобразование
@@ -152,7 +152,7 @@ void TActualParameters::Destroy(std::vector<TStackValue> &method_call_formal_par
 	auto it = input.begin();
 	for (size_t i = 0; i < method_call_formal_params.size(); i++)
 	{
-		if (!it->result.IsRef() && it->result.GetClass()->GetDestructor() != NULL)
+		if (!it->result.IsRef() && it->result.GetClass()->GetDestructor() != nullptr)
 		{
 			TStackValue destructor_result;
 			std::vector<TStackValue> without_params;

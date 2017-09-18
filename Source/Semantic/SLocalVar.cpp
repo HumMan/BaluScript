@@ -23,10 +23,10 @@ void TSLocalVar::Build(TGlobalBuildContext build_context)
 	std::vector<TSMethod*> methods;
 	if (GetOwner()->GetMethods(methods, GetSyntax()->GetName()))
 		GetSyntax()->Error("Метод не может быть именем переменной!");
-	if (GetOwner()->GetClass(GetSyntax()->GetName()) != NULL)
+	if (GetOwner()->GetClass(GetSyntax()->GetName()) != nullptr)
 		GetSyntax()->Error("Класс не может быть именем переменной!");
 	TVariable* t = GetParentStatements()->GetVar(GetSyntax()->GetName(), GetSyntax()->GetStmtId());
-	if (t != NULL&&t != this)
+	if (t != nullptr&&t != this)
 	{
 		switch (t->GetType())
 		{
@@ -50,7 +50,7 @@ void TSLocalVar::Build(TGlobalBuildContext build_context)
 	}
 	GetParentStatements()->AddVar(this, GetSyntax()->GetStmtId());
 
-	if (GetSyntax()->GetAssignExpr() != NULL)
+	if (GetSyntax()->GetAssignExpr() != nullptr)
 	{
 		assign_expr.reset(new TSExpression(GetOwner(), GetMethod(), GetParentStatements(), GetSyntax()->GetAssignExpr()));
 		assign_expr->Build(build_context);

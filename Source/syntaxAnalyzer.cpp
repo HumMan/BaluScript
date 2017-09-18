@@ -41,12 +41,12 @@ void TSyntaxAnalyzer::Compile(char* use_source/*, TTime& time*/)
 	lexer->ParseSource(use_source);
 	//printf("Source parsing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
 	//t = time.GetTime();
-	base_class.reset(new SyntaxInternal::TClass(NULL));
+	base_class.reset(new SyntaxInternal::TClass(nullptr));
 
 	base_class->AnalyzeSyntax(lexer.get());
 	lexer->GetToken(Lexer::TTokenType::Done);
 
-	sem_base_class.reset(new TSClass(NULL,base_class.get()));
+	sem_base_class.reset(new TSClass(nullptr,base_class.get()));
 
 	sem_base_class->Build();
 
@@ -88,7 +88,7 @@ TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 	std::unique_ptr<TSMethod> method_decl(new TSMethod(sem_base_class->GetNestedByFullName(method_decl_syntax->GetOwner()->GetFullClassName(),1), method_decl_syntax.get()));
 	method_decl->Build();
 	std::vector<TSMethod*> methods;
-	TSMethod* method = NULL;
+	TSMethod* method = nullptr;
 	switch (method_decl->GetSyntax()->GetMemberType())
 	{
 	case SyntaxApi::TClassMember::Func:
@@ -127,7 +127,7 @@ TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 				break;
 			}
 			if (method_decl->GetParamsCount() != methods[i]->GetParamsCount())continue;
-			for (int k = 0; k < method_decl->GetParamsCount(); k++)
+			for (size_t k = 0; k < method_decl->GetParamsCount(); k++)
 			{
 				if (!methods[i]->GetParam(k)->IsEqualTo(*method_decl->GetParam(k)))
 					goto end_search;
@@ -137,7 +137,7 @@ TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 		}
 	}
 
-	if (method != NULL)
+	if (method != nullptr)
 	{
 		if (method_decl->GetSyntax()->IsStatic() != method->GetSyntax()->IsStatic())
 			lexer->Error("Метод отличается по статичности!");
@@ -150,7 +150,7 @@ TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 	}
 	else
 		lexer->Error("Такого метода не существует!");
-	return NULL;
+	return nullptr;
 }
 
 TSClassField* TSyntaxAnalyzer::GetStaticField(char* use_var)
@@ -159,21 +159,21 @@ TSClassField* TSyntaxAnalyzer::GetStaticField(char* use_var)
 	if (lexer->NameId() != base_class->GetName())
 		lexer->Error("Ожидалось имя класса!");
 	lexer->GetToken();
-	TSClassField* result = NULL;
+	TSClassField* result = nullptr;
 	TSClass* curr_class = sem_base_class.get();
 	while (lexer->Test(TTokenType::Dot))
 	{
 		lexer->GetToken(TTokenType::Dot);
 		lexer->TestToken(TTokenType::Identifier);
 		TSClass* t = curr_class->GetNested(lexer->NameId());
-		if (t == NULL)
+		if (t == nullptr)
 		{
 			result = curr_class->GetField(lexer->NameId(), true);
 		}
 		else curr_class = t;
 		lexer->GetToken();
 	}
-	if (result == NULL)lexer->Error("Статического члена класса с таким именем не существует!");
+	if (result == nullptr)lexer->Error("Статического члена класса с таким именем не существует!");
 	lexer->GetToken(TTokenType::Done);
 	return result;
 }

@@ -1,13 +1,13 @@
 ﻿#include "String.h"
 //
 //void TString::Init(){
-//	chars = NULL;
+//	chars = nullptr;
 //	length = 0;
 //	//is_const=false;
 //}
 //void TString::Copy(TString* copy_from)
 //{
-//	chars = copy_from->length != 0 ? new char[copy_from->length + 1] : NULL;
+//	chars = copy_from->length != 0 ? new char[copy_from->length + 1] : nullptr;
 //	length = copy_from->length;
 //	if (length > 0)strncpy_s(chars, copy_from->length + 1, copy_from->chars, copy_from->length + 1);
 //}
@@ -20,14 +20,14 @@
 //}
 //void TString::Destr()
 //{
-//	if (chars != NULL)delete chars;
+//	if (chars != nullptr)delete chars;
 //}
 //void TString::AssignOp(TString* right)
 //{
 //	if (length != right->length)
 //	{
-//		if (chars != NULL)delete chars;
-//		chars = right->length != 0 ? new char[right->length + 1] : NULL;
+//		if (chars != nullptr)delete chars;
+//		chars = right->length != 0 ? new char[right->length + 1] : nullptr;
 //		length = right->length;
 //	}
 //	if (length > 0)

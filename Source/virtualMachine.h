@@ -36,7 +36,7 @@ public:
 		sp_first=new int[stack_max_size];
 		stack_size=stack_max_size;
 		sp=&sp_first[-1];
-		program=NULL;
+		program=nullptr;
 	}
 	~TVirtualMachine()
 	{
@@ -54,15 +54,15 @@ public:
 	{
 		for(int i=first_el*el_size;i<(first_el+el_count)*el_size;i+=el_size)
 		{
-			*(void**)(++sp)=NULL;
-			Execute(el_def_constr,NULL,&v[i]);
+			*(void**)(++sp)=nullptr;
+			Execute(el_def_constr,nullptr,&v[i]);
 		}
 	}
 	void ArrayElementsRCopyConstr(int* copy_to,int* copy_from, int el_size, int el_count, int el_copy_constr)
 	{
 		for(int i=0;i<el_count*el_size;i+=el_size)
 		{
-			*(void**)(++sp)=NULL;
+			*(void**)(++sp)=nullptr;
 			*(void**)(++sp)=&copy_from[i];
 			Execute(el_copy_constr,sp,&copy_to[i]);
 		}
@@ -71,8 +71,8 @@ public:
 	{
 		for(int i=first_el*el_size;i<(first_el+el_count)*el_size;i+=el_size)
 		{
-			*(void**)(++sp)=NULL;
-			Execute(el_destr,NULL,&v[i]);
+			*(void**)(++sp)=nullptr;
+			Execute(el_destr,nullptr,&v[i]);
 		}
 	}
 
@@ -82,7 +82,7 @@ public:
 		{
 			*(void**)(++sp)=&copy_to[i];
 			*(void**)(++sp)=&copy_from[i];
-			Execute(el_assign_op,sp-1,NULL);
+			Execute(el_assign_op,sp-1,nullptr);
 		}
 	}
 
@@ -95,11 +95,11 @@ public:
 			int* second_par=sp+1;
 			sp+=el_size;
 			//вызываем конструктор копии для второго параметра
-			*(void**)(++sp)=NULL;
+			*(void**)(++sp)=nullptr;
 			*(void**)(++sp)=&copy_from[i];
-			Execute(el_copy_constr,NULL,second_par);
+			Execute(el_copy_constr,nullptr,second_par);
 			//
-			Execute(el_assign_op,first_par,NULL);
+			Execute(el_assign_op,first_par,nullptr);
 		}
 	}
 
@@ -109,7 +109,7 @@ public:
 		{
 			*(void**)(++sp)=&left[i];
 			*(void**)(++sp)=&right[i];
-			Execute(el_equal_op,sp-1,NULL);
+			Execute(el_equal_op,sp-1,nullptr);
 			if(*sp==0){sp--;return false;}
 			sp--;
 		}
@@ -125,11 +125,11 @@ public:
 			int* second_par=sp+1;
 			sp+=el_size;
 			//вызываем конструктор копии для второго параметра
-			*(void**)(++sp)=NULL;
+			*(void**)(++sp)=nullptr;
 			*(void**)(++sp)=&right[i];
 			Execute(el_copy_constr,sp,second_par);//TODO что-то непонятно а где конструктор копии для первого параметра
 			//
-			Execute(el_equal_op,first_par,NULL);
+			Execute(el_equal_op,first_par,nullptr);
 			if(*sp==0){sp--;return false;}
 			sp--;
 		}

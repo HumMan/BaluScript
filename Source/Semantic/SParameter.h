@@ -19,23 +19,23 @@ class TFormalParameter
 public:
 	TFormalParameter()
 	{
-		type = NULL;
+		type = nullptr;
 		is_ref = false;
 	}
 	TFormalParameter(TSClass* type, bool is_ref)
 	{
-		assert(type != NULL);
+		assert(type != nullptr);
 		this->type = type;
 		this->is_ref = is_ref;
 	}
 	TSClass* GetClass()
 	{
-		assert(type != NULL);
+		assert(type != nullptr);
 		return type;
 	}
 	bool IsRef()
 	{
-		assert(type != NULL);
+		assert(type != nullptr);
 		return is_ref;
 	}
 };

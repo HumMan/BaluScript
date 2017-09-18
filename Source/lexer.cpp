@@ -14,13 +14,13 @@
 #else
 #include <string.h>
 template<typename... Args>
-int _snprintf_s(char* buf, int len, char* value, Args... args)
+int _snprintf_s(char* buf, int len, const char* value, Args... args)
 {
 	return snprintf(buf, len, value, args...);
 }
 
 template<typename... Args>
-int _vsnprintf_s(char* buf, int len, char* value, Args... args)
+int _vsnprintf_s(char* buf, int len, const char* value, Args... args)
 {
 	return vsnprintf(buf, len, value, args...);
 }
@@ -50,7 +50,7 @@ private:
 	int total_count;
 #endif
 public:
-	TLexerAllocator() :count(0), end(NULL)
+	TLexerAllocator() :count(0), end(nullptr)
 #ifdef _DEBUG
 		, total_count(0)
 #endif
@@ -58,7 +58,7 @@ public:
 	~TLexerAllocator()
 	{
 		TBlock* curr = end;
-		while (curr != NULL)
+		while (curr != nullptr)
 		{
 			TBlock* temp = curr;
 			curr = curr->prev;
@@ -67,7 +67,7 @@ public:
 	}
 	T* New()
 	{
-		if (end != NULL)
+		if (end != nullptr)
 		{
 			if (count == block_size)
 			{
@@ -81,7 +81,7 @@ public:
 		{
 			end = new TBlock();
 			count = 0;
-			end->prev = NULL;
+			end->prev = nullptr;
 		}
 #ifdef _DEBUG
 		total_count++;
@@ -110,13 +110,13 @@ private:
 public:
 	THash()
 	{
-		for (int i = 0; i < table_size; i++)
-			table[i] = NULL;
+		for (size_t i = 0; i < table_size; i++)
+			table[i] = nullptr;
 	}
 	bool Find(int use_hash, TExtKey use_key, TKey* &key, TData* &data)
 	{
 		assert(use_hash >= 0 && use_hash < table_size);
-		if (table[use_hash] != NULL)
+		if (table[use_hash] != nullptr)
 		{
 			TNode* curr = table[use_hash];
 			TNode* last;
@@ -130,7 +130,7 @@ public:
 					return true;
 				}
 				curr = curr->next;
-			} while (curr != NULL);
+			} while (curr != nullptr);
 		}
 		return false;
 	}
@@ -144,8 +144,8 @@ public:
 	{
 		assert(use_hash >= 0 && use_hash < table_size);
 		TNode* curr = table[use_hash];
-		TNode* last = NULL;
-		if (curr != NULL)
+		TNode* last = nullptr;
+		if (curr != nullptr)
 		{
 			do{
 				last = curr;
@@ -156,13 +156,13 @@ public:
 					return false;
 				}
 				curr = curr->next;
-			} while (curr != NULL);
+			} while (curr != nullptr);
 		}
 		TNode* node = nodes.New();
 		node->key = use_key;
 		node->data = use_data;
-		node->next = NULL;
-		if (table[use_hash] == NULL)
+		node->next = nullptr;
+		if (table[use_hash] == nullptr)
 			table[use_hash] = node;
 		else
 			last->next = node;
@@ -181,7 +181,7 @@ public:
 		assert(hash_bits_count >= 1 && hash_bits_count <= 16);
 		unsigned char h1, h2;
 		int h;
-		assert(str != NULL);
+		assert(str != nullptr);
 		h1 = *str;
 		if (hash_bits_count > 8)
 			h2 = *str + 1;
@@ -238,8 +238,8 @@ namespace Lexer
 	{
 	public:
 		THash<std::string, const char*, int, 16> ids_table;
-		THash<std::string, char*, int, 16> string_literals_table;
-		THash<std::string, char*, TToken, 8> res_words;
+		THash<std::string, const char*, int, 16> string_literals_table;
+		THash<std::string, const char*, TToken, 8> res_words;
 
 		int curr_unique_id;
 		std::vector<std::string*> ids;
@@ -282,7 +282,7 @@ namespace Lexer
 		bool IsPrevTokenNotId();
 		int GetCurrentToken();
 		void ParseSource(const char* use_source);
-		void Error(char* s, int token_id = -1, va_list args = NULL);
+		void Error(const char* s, int token_id = -1, va_list args = nullptr);
 		void SetCurrentToken(int use_curr_token);
 		TNameId NameId();
 		//TODO не должно использоваться, только через lexer по name_id (т.к. много одинаковых)
@@ -316,7 +316,7 @@ int TLexerPrivate::GetCurrentToken()
 	return curr_token;
 }
 
-void TLexerPrivate::Error(char* s, int token_id, va_list args)
+void TLexerPrivate::Error(const char* s, int token_id, va_list args)
 {
 	const int err_head_length = 600;
 	const int err_length = 500;
@@ -508,7 +508,7 @@ TLexerPrivate::TLexerPrivate()
 	res_words.Add("operator", TToken(TTokenType::ResWord, (short)TResWord::Operator));
 	res_words.Add("conversion", TToken(TTokenType::ResWord, (short)TResWord::Conversion));
 
-	for (int i = 1; i < TOpcode::OP_END; i++)
+	for (size_t i = 1; i < TOpcode::OP_END; i++)
 		res_words.Add(GetBytecodeString((TOpcode::Enum)i), TToken(TTokenType::Bytecode, i));
 }
 
@@ -583,11 +583,10 @@ void TLexerPrivate::ParseSource(const char* use_source)
 			}
 			if (c == 'E' || c == 'e')
 			{
-				double temp = 1.0;
 				double epow = 0.0;
 				NextChar();
-				if (c == '+'){ temp = 1.0; NextChar(); }
-				else if (c == '-'){ temp = -1.0; NextChar(); }
+				if (c == '+'){ NextChar(); }
+				else if (c == '-'){ NextChar(); }
 				else if (!isdigit(c))Error("Ошибка в числовой константе!");
 				epow = c - '0';
 				NextChar();
@@ -811,8 +810,8 @@ void TLexerPrivate::ParseSource(const char* use_source)
 		}
 	}
 	tokens.push_back(TToken(TTokenType::Done));
-	source = NULL;
-	curr_char = NULL;
+	source = nullptr;
+	curr_char = nullptr;
 }
 
 void TTokenPos::InitPos(ILexer* use_source)
@@ -825,7 +824,7 @@ ILexer* TTokenPos::GetLexer()const
 {
 	return source;
 }
-void TTokenPos::Error(char* s, ...)const
+void TTokenPos::Error(const char* s, ...)const
 {
 	va_list args;
 	va_start(args, s);

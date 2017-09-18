@@ -11,7 +11,7 @@ TSType::TSType(TSClass* use_owner, SyntaxApi::IType* use_syntax_node) :TSyntaxNo
 	owner = use_owner;
 }
 
-TSType::TSType(TSClass* use_owner, TSClass* use_class) : TSyntaxNode(NULL)
+TSType::TSType(TSClass* use_owner, TSClass* use_class) : TSyntaxNode(nullptr)
 {
 	owner = use_owner;
 	classes.emplace_back(use_class);
@@ -33,7 +33,7 @@ void TSType::LinkSignature(TGlobalBuildContext build_context)
 		SetSignatureLinked();
 	else
 		return;
-	LinkSignature(build_context, NULL);
+	LinkSignature(build_context, nullptr);
 }
 
 void TSType::LinkBody(TGlobalBuildContext build_context)
@@ -50,7 +50,7 @@ void TSType::LinkBody(TGlobalBuildContext build_context)
 
 bool TSType::IsEqualTo(const TSType& use_right)const
 {
-	assert(GetClass() != NULL&&use_right.GetClass() != NULL);
+	assert(GetClass() != nullptr&&use_right.GetClass() != nullptr);
 	return GetClass() == use_right.GetClass();
 }
 
@@ -59,17 +59,17 @@ TSClass* TSType_TClassName::LinkSignature(TGlobalBuildContext build_context,TSCl
 	if (!IsSignatureLinked())
 		SetSignatureLinked();
 	else
-		return NULL;
+		return nullptr;
 
-	if(use_curr_class==NULL)
+	if(use_curr_class==nullptr)
 	{
 		use_curr_class = use_owner->GetClass(GetSyntax()->GetName());
-		if(use_curr_class==NULL)
+		if(use_curr_class==nullptr)
 			use_owner->GetSyntax()->Error("Неизвестный тип!");
 	}else
 	{
 		use_curr_class = use_curr_class->GetNested(GetSyntax()->GetName());
-		if(use_curr_class==NULL)
+		if(use_curr_class==nullptr)
 			use_owner->GetSyntax()->Error("Вложенного класса с таким именем не существует!");
 	}
 
@@ -124,7 +124,7 @@ TSClass* TSType_TClassName::LinkSignature(TGlobalBuildContext build_context,TSCl
 			}
 
 			TSClass* realization = use_curr_class->FindTemplateRealization(template_params_classes);
-			if (realization == NULL)
+			if (realization == nullptr)
 			{
 				realization = new TSClass(use_curr_class->GetOwner(), use_curr_class->GetSyntax(), TNodeWithTemplates::Realization);
 				use_curr_class->AddTemplateRealization(realization);

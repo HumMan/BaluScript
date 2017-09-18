@@ -50,10 +50,10 @@ public:
 	{
 		return parent.GetClass();
 	}
-	TSClass* GetNestedByFullName(std::vector<Lexer::TNameId> full_name, int curr_id);
+	TSClass* GetNestedByFullName(std::vector<Lexer::TNameId> full_name, size_t curr_id);
 	TSClassField* GetField(Lexer::TNameId name, bool only_in_this);
-	TSClassField* GetField(int i)const;
-	int GetFieldsCount()const;
+	TSClassField* GetField(size_t i)const;
+	size_t GetFieldsCount()const;
 	TSClassField* GetField(Lexer::TNameId name, bool is_static, bool only_in_this);
 	bool HasConversion(TSClass* target_type);
 	bool IsNestedIn(TSClass* use_parent);

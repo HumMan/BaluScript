@@ -54,7 +54,7 @@ TSClass* TNodeWithTemplates::FindTemplateRealization(const std::list<TSType_TTem
 		if (found)
 			return realization.get();
 	}
-	return NULL;
+	return nullptr;
 }
 
 TNodeWithTemplates::TNodeWithTemplates()
@@ -62,7 +62,7 @@ TNodeWithTemplates::TNodeWithTemplates()
 	type = Unknown;
 	template_class_set = false;
 	template_params_set = false;
-	template_class = NULL;
+	template_class = nullptr;
 }
 
 TNodeWithTemplates::~TNodeWithTemplates()

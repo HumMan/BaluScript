@@ -44,9 +44,9 @@ namespace SyntaxInternal
 		TClass* GetOwner()const;
 		Lexer::TOperator GetOperatorType()const;
 		SyntaxApi::TClassMember GetMemberType()const;
-		TParameter* GetParamT(int use_id)const;
-		SyntaxApi::IParameter* GetParam(int use_id)const;
-		int GetParamsCount()const;
+		TParameter* GetParamT(size_t use_id)const;
+		SyntaxApi::IParameter* GetParam(size_t use_id)const;
+		size_t GetParamsCount()const;
 		bool IsReturnRef()const;
 		bool IsStatic()const;
 		bool IsExternal()const;

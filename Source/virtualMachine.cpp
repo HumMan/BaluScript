@@ -1,4 +1,6 @@
-﻿#include "virtualMachine.h"
+﻿#include <stdlib.h>
+
+#include "virtualMachine.h"
 
 #include "VirtualMachine/Program.h"
 
@@ -11,7 +13,7 @@ typedef BaluLib::TVec2 TVec2;
 typedef BaluLib::TVec2i TVec2i;
 
 #define BALU_SCRIPT_OPCODE_BEGIN( ENUM_NAME ) \
-struct TOpcodeInfo{char* name;int count;bool f1,f2,v1,v2;};\
+struct TOpcodeInfo{const char* name;int count;bool f1,f2,v1,v2;};\
 	const TOpcodeInfo OpcodeInfo[]= 
 #define BALU_SCRIPT_OPCODE_ELEM4( element ,p0,p1,p2,p3) {"ASM_"#element,p0+p1+p2+p3,p0,p1,p2,p3}
 #define BALU_SCRIPT_OPCODE_ELEM2( element ,p2,p3) {"ASM_"#element,p2+p3,0,0,p2,p3}
@@ -24,12 +26,12 @@ struct TOpcodeInfo{char* name;int count;bool f1,f2,v1,v2;};\
 #undef BALU_SCRIPT_OPCODE_ELEM0
 #undef BALU_SCRIPT_OPCODE_BEGIN
 
-char* GetBytecodeString(TOpcode::Enum use_bytecode)
+const char* GetBytecodeString(TOpcode::Enum use_bytecode)
 {
 	return OpcodeInfo[use_bytecode].name;
 }
 
-int GetBytecodeParamsCount(TOpcode::Enum use_bytecode)
+size_t GetBytecodeParamsCount(TOpcode::Enum use_bytecode)
 {
 	return OpcodeInfo[use_bytecode].count;
 }
@@ -84,11 +86,11 @@ void TVirtualMachine::Execute(int method_id, int* stack_top, int* this_pointer)
 	{
 		assert(!m->is_static);
 		*(++sp) = (intptr_t)this_pointer;
-		Execute(m->pre_event, NULL, this_pointer);
+		Execute(m->pre_event, nullptr, this_pointer);
 	}
 	if (m->is_external)
 	{
-		assert(m->extern_method != NULL);//не забываем задать колбэки для внешних методов
+		assert(m->extern_method != nullptr);//не забываем задать колбэки для внешних методов
 		((TExternalMethod)m->extern_method)(sp, stack_top, this_pointer);
 		//чистим стек
 		//деструкторы естественно надо вызывать вручную
@@ -102,7 +104,7 @@ void TVirtualMachine::Execute(int method_id, int* stack_top, int* this_pointer)
 		if (m->post_event != -1)//TODO одно и то же в нескольких местах и в RETURN 
 		{
 			*(++sp) = (intptr_t)this_pointer;
-			Execute(m->post_event, NULL, this_pointer);
+			Execute(m->post_event, nullptr, this_pointer);
 		}
 		return;
 	}
@@ -182,7 +184,7 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 		d = sp;
 		sp += op->v1 - 1;
 		if (op->v2 != -1){
-			*(void**)(++sp) = NULL;
+			*(void**)(++sp) = nullptr;
 			*(void**)(++sp) = s;
 			Execute(op->v2, sp, d);
 		}
@@ -202,7 +204,7 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 		d = sp + 1;
 		sp += member_size;
 		if (copy_constr != -1){
-			*(void**)(++sp) = NULL;
+			*(void**)(++sp) = nullptr;
 			*(void**)(++sp) = s;
 			Execute(copy_constr, sp, d);
 		}
@@ -212,7 +214,7 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 		if (destr != -1)
 		{
 			s = sp - struct_size - 2;
-			*(void**)(++sp) = NULL;
+			*(void**)(++sp) = nullptr;
 			Execute(destr, sp + 1, s);
 		}
 		//
@@ -231,7 +233,7 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 	case CALL_METHOD:
 	{
 		TProgram::TMethod* m_call = &program->methods_table[op->v1];
-		Execute(op->v1, (sp + 1 - m_call->params_size), m_call->is_static ? NULL : (int*)sp[-m_call->params_size]);
+		Execute(op->v1, (sp + 1 - m_call->params_size), m_call->is_static ? nullptr : (int*)sp[-m_call->params_size]);
 	}
 	break;
 	case RETURN:
@@ -240,7 +242,7 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 		if (m->post_event != -1)
 		{
 			*(++sp) = (intptr_t)this_pointer;
-			Execute(m->post_event, NULL, this_pointer);
+			Execute(m->post_event, nullptr, this_pointer);
 		}
 		//TODO для надежности следует заполнять неиспользуемую память 0xfeefee
 		return;

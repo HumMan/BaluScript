@@ -514,7 +514,7 @@ namespace Test
 		}
 		TEST_METHOD(RecursiveTest)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"func static Factorial(int i):int\n"
@@ -644,7 +644,7 @@ namespace Test
 		}
 		TEST_METHOD(ClassDestructorTest)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"int static destr_count;\n"
@@ -958,7 +958,7 @@ namespace Test
 		}
 		TEST_METHOD(ConversionInLocalVarConstructor)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class B {\n"
@@ -977,7 +977,7 @@ namespace Test
 		}
 		TEST_METHOD(ConversionInLocalVarAssignInit)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class B {\n"
@@ -996,7 +996,7 @@ namespace Test
 		}
 		TEST_METHOD(ConversionInLocalVarAssign)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class B {\n"
@@ -1016,7 +1016,7 @@ namespace Test
 		}
 		TEST_METHOD(ConversionInMethodCall)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class B {\n"
@@ -1038,7 +1038,7 @@ namespace Test
 		}
 		TEST_METHOD(ConversionInConstructTempObject)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class B {\n"
@@ -1061,7 +1061,7 @@ namespace Test
 		}
 		TEST_METHOD(ConversionInOperatorCall)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class B {\n"
@@ -1097,7 +1097,7 @@ namespace Test
 		}
 		TEST_METHOD(ArithmenticOperatorsOverload)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T,Size> {\n"
@@ -1120,7 +1120,7 @@ namespace Test
 		}
 		TEST_METHOD(IncrementDecrementPostfixOperatorsOverload)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T,Size> {\n"
@@ -1140,7 +1140,7 @@ namespace Test
 		}
 		TEST_METHOD(SimpleTemplateParameters)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T, Size> {\n"
@@ -1156,7 +1156,7 @@ namespace Test
 		}
 		TEST_METHOD(ComplexTemplateParameters)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T, Size> {\n"
@@ -1172,7 +1172,7 @@ namespace Test
 		}
 		TEST_METHOD(UnaryMinusOverload)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T,Size> {\n"
@@ -1193,7 +1193,7 @@ namespace Test
 		}
 		TEST_METHOD(LogicalOperatorsOverload)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T> {\n"
@@ -1226,7 +1226,7 @@ namespace Test
 		}
 		TEST_METHOD(CompareOperatorsOverload)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T> {\n"
@@ -1280,7 +1280,7 @@ namespace Test
 		}
 		TEST_METHOD(AssignOperatorsOverload)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T,Size> {\n"
@@ -1321,7 +1321,7 @@ namespace Test
 		}
 		TEST_METHOD(GetArrayElementOverload)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T,Size> {\n"
@@ -1348,7 +1348,7 @@ namespace Test
 		}
 		TEST_METHOD(CallParamsOverload)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T,Size> {\n"
@@ -1382,7 +1382,7 @@ namespace Test
 		}
 		TEST_METHOD(ValueParameters)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class TemplateClass<T,Size> {\n"
@@ -1397,7 +1397,7 @@ namespace Test
 		}
 		TEST_METHOD(TemplateOfTemplate)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass{\n"
 				"class Test1<T>\n"
@@ -1421,7 +1421,7 @@ namespace Test
 		}
 		TEST_METHOD(TemplateSubclass)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass{\n"
 				"class Test1<T>\n"
@@ -1443,7 +1443,7 @@ namespace Test
 		}
 		TEST_METHOD(TemplateOfTemplateWithMethodBody)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass{\n"
 				"class Test1<T>\n"
@@ -1477,7 +1477,7 @@ namespace Test
 		}
 		TEST_METHOD(TemplateOfTemplateCrossRef)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass{\n"
 				"class Test1<T>\n"
@@ -1560,7 +1560,7 @@ namespace Test
 		}
 		TEST_METHOD(ConstructorDestructorCount)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"int static constr_count;"
@@ -1591,7 +1591,7 @@ namespace Test
 		}
 		TEST_METHOD(ElementsDestructor)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class TemplateClass {\n"
@@ -1632,7 +1632,7 @@ namespace Test
 		}
 		TEST_METHOD(CustomElementAssignTest0)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class TemplateClass {\n"
@@ -1652,7 +1652,7 @@ namespace Test
 		}
 		TEST_METHOD(CustomElementAssignTest1)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class TemplateClass {\n"
@@ -1689,7 +1689,7 @@ namespace Test
 		}
 		TEST_METHOD(Initialization)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"enum TestEnum{One,Two,Three}"
@@ -1731,7 +1731,7 @@ namespace Test
 			//TODO
 			return;
 			Assert::Fail();
-				TSClass* cl2 = NULL;
+				TSClass* cl2 = nullptr;
 				Assert::IsNotNull(cl2 = CreateClass(
 					"class TestClass {\n"
 					"int static constr_count;\n"
@@ -1771,7 +1771,7 @@ namespace Test
 		}
 		TEST_METHOD(CallMethodFromMember)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class ITestBase { func GetValue:int {return 547;}}"
@@ -1786,7 +1786,7 @@ namespace Test
 		}
 		TEST_METHOD(CallStaticMethodFromMember)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class ITestBase { TDynArray<int> s;func GetValue:int {s.resize(1);return 547;}}"
@@ -1801,7 +1801,7 @@ namespace Test
 		}
 		TEST_METHOD(CallMethodWithParamFromMember)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class ITestBase { func GetValue(string s):int {return 547;}}"
@@ -1945,7 +1945,7 @@ namespace Test
 
 		TEST_METHOD(StringGetMembersFromRef)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class ITest1 { vec2 v; string abc; default { v.x = 1; v.y = 2; abc = \"zopa\";}}"
@@ -1963,7 +1963,7 @@ namespace Test
 
 		TEST_METHOD(StringGetMembersFromRef0)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class ITest1 {string abc; int v; }"
@@ -1980,7 +1980,7 @@ namespace Test
 
 		TEST_METHOD(StringGetMembersFromRef1)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class ITest1 { vec2 v; string abc; default { v.x = 1; v.y = 2; abc = \"zopa\";}}"
@@ -1996,7 +1996,7 @@ namespace Test
 
 		TEST_METHOD(StringGetMemberStringFromRef)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class ITest1 { string abc; }"
@@ -2013,7 +2013,7 @@ namespace Test
 
 		TEST_METHOD(StringGetMemberStringFromRef2)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"class ITest1 { string abc; }"
@@ -2039,7 +2039,7 @@ namespace Test
 		}
 		/*TEST_METHOD(BasicRefErrorsCheck)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"func static DoWork(TDynArray<TDynArray<int>>& arr, TDynArray<int>& el):int\n"
@@ -2060,7 +2060,7 @@ namespace Test
 		}
 		TEST_METHOD(StackRefCheck)
 		{
-			TSClass* cl2 = NULL;
+			TSClass* cl2 = nullptr;
 			Assert::IsNotNull(cl2 = CreateClass(
 				"class TestClass {\n"
 				"func static DoWork:&TDynArray<int>\n"

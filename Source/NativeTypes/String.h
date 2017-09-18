@@ -50,7 +50,7 @@ public:
 	~TStringWrapper()
 	{
 		delete v;
-		v = NULL;
+		v = nullptr;
 	}
 	static void constructor(TMethodRunContext run_context);
 	static void destructor(TMethodRunContext run_context);
