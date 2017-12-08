@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../SyntaxTree/SyntaxTreeApi.h"
+#include "../SyntaxInterface/SyntaxTreeApi.h"
 
 #include "SStatement.h"
 #include "Variable.h"
@@ -14,8 +14,9 @@ class TSMethod;
 
 class TSStatements :public TSStatement
 {
-	struct TVarDecl
+	class TVarDecl
 	{
+	public:
 		int stmt_id;
 		TSLocalVar* pointer;
 		TVarDecl(){}

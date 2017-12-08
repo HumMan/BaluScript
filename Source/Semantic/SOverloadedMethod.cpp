@@ -1,10 +1,7 @@
 ﻿#include "SOverloadedMethod.h"
 
 #include "SMethod.h"
-#include "../Syntax/Method.h"
-#include "../Syntax/OverloadedMethod.h"
 #include "SStatements.h"
-#include "../Syntax/Statements.h"
 
 TSOverloadedMethod::TSOverloadedMethod(TSClass* use_owner, SyntaxApi::IOverloadedMethod* use_syntax)
 	:linked_signature(false), linked_body(false), TSyntaxNode(use_syntax), owner(use_owner)

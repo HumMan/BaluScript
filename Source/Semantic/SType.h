@@ -1,6 +1,6 @@
 #pragma once 
 
-#include "../SyntaxTree/SyntaxTreeApi.h"
+#include "../SyntaxInterface/SyntaxTreeApi.h"
 
 #include "SSyntaxNode.h"
 
@@ -9,15 +9,17 @@
 class TSClass;
 class TSType;
 
-struct TSType_TTemplateParameter
+class TSType_TTemplateParameter
 {
+public:
 	bool is_value;
 	int value;
 	std::unique_ptr<TSType> type;
 };
 
-struct TSType_TClassName :TSyntaxNode<SyntaxApi::IType_TClassName>, TNodeSignatureLinked, TNodeBodyLinked
+class TSType_TClassName :TSyntaxNode<SyntaxApi::IType_TClassName>, TNodeSignatureLinked, TNodeBodyLinked
 {
+public:
 	TSClass* class_of_type;
 	std::list<TSType_TTemplateParameter> template_params_classes;
 	TSType_TClassName(SyntaxApi::IType_TClassName* use_syntax) :TSyntaxNode(use_syntax)

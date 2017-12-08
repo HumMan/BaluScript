@@ -9,8 +9,9 @@ class TSClass;
 
 #include <stdlib.h>
 
-struct TDynArr
+class TDynArr
 {
+public:
 	std::vector<int>* v;//можно использовать не указатель, но учитывать move конструктор вектора, который хранит backpointer
 	TSClass* el_class;
 	void Init()

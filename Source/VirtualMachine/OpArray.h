@@ -12,8 +12,9 @@ public:
 	TListItem<T>() : prev(nullptr), next(nullptr){}
 };
 
-struct TOpArray
+class TOpArray
 {
+public:
 	TListItem<TOp>* first;
 	TListItem<TOp>* last;
 	TOpArray();

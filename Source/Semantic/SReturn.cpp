@@ -1,10 +1,5 @@
 ﻿#include "SReturn.h"
 
-#include "../Syntax/LocalVar.h"
-#include "../Syntax/Return.h"
-#include "../Syntax/Statements.h"
-#include "../Syntax/Method.h"
-
 #include "../semanticAnalyzer.h"
 
 #include "FormalParam.h"

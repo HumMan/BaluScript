@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "../SyntaxTree/SyntaxTreeApi.h"
+#include "../SyntaxInterface/SyntaxTreeApi.h"
 
 class TSClass;
-struct TSType_TTemplateParameter;
+class TSType_TTemplateParameter;
 
 class TNodeWithTemplates
 {

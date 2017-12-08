@@ -4,6 +4,8 @@
 #include <assert.h>
 #include <vector>
 
+#include "common.h"
+
 namespace Lexer
 {
 

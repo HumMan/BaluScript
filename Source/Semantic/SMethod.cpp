@@ -9,9 +9,6 @@
 #include "SType.h"
 #include "SClass.h"
 
-#include "../Syntax/Statements.h"
-#include "../Syntax/Method.h"
-
 TSpecialClassMethod::Type GetMethodTypeFromSyntax(SyntaxApi::IMethod* use_syntax)
 {
 	switch (use_syntax->GetMemberType())

@@ -1,6 +1,6 @@
 ﻿#pragma once 
 
-#include "../SyntaxTree/SyntaxTreeApi.h"
+#include "../SyntaxTreeApi.h"
 
 namespace SyntaxInternal
 {

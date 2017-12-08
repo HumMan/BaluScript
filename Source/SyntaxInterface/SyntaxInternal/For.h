@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../SyntaxTree/SyntaxTreeApi.h"
+#include "../SyntaxTreeApi.h"
 
 #include "Statements.h"
 #include "Expression.h"

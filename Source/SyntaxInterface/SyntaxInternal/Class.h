@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../SyntaxTree/SyntaxTreeApi.h"
+#include "../SyntaxTreeApi.h"
 
 #include "Accessible.h"
 
@@ -43,12 +43,12 @@ namespace SyntaxInternal
 			return -1;
 		}
 	};
+		
 
-	struct TClassInternal;
-
-	class TClass :public Lexer::TTokenPos, public TCanBeEnumeration, public SyntaxApi::IClass
+	class BALUSCRIPT_DLL_INTERFACE TClass :public Lexer::TTokenPos, public TCanBeEnumeration, public SyntaxApi::IClass
 	{
 	private:
+		class TClassInternal;
 		std::unique_ptr<TClassInternal> _this;
 		void AccessDecl(Lexer::ILexer* source, bool& readonly, SyntaxApi::TTypeOfAccess access);
 	public:

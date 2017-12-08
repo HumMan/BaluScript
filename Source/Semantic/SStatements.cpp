@@ -11,9 +11,6 @@
 #include "SFor.h"
 #include "SClass.h"
 
-#include "../Syntax/Statements.h"
-#include "../Syntax/Method.h"
-
 class TSStatementBuilder :public SyntaxApi::IStatementVisitor
 {
 	TSStatement* return_new_operation;

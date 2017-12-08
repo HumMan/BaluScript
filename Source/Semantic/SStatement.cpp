@@ -5,10 +5,6 @@
 
 #include "../semanticAnalyzer.h"
 
-#include "../Syntax/Statement.h"
-#include "../Syntax/Statements.h"
-#include "../Syntax/Method.h"
-
 void TSStatement::TestBoolExpr(TExpressionResult& compare_result, std::unique_ptr<TActualParamWithConversion>& conversion)
 {
 	int conv_needed;

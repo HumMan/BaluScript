@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -13,18 +13,19 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8F91B0F8-8BAA-4464-AD68-55FE67989C25}</ProjectGuid>
     <RootNamespace>BaluScript</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -39,11 +40,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)\Library\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\Output\$(Configuration)\</OutDir>
     <IntDir>obj\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)\Library\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\Output\$(Configuration)\</OutDir>
     <IntDir>obj\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -54,7 +55,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)\Include;$(ProjectDir)\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
       <ForcedIncludeFiles>memleaks.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BALUSCRIPT_DLL_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4566;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -72,6 +73,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)\Include;$(ProjectDir)\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BALUSCRIPT_DLL_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -148,67 +150,67 @@
     <ClInclude Include="Source\syntaxAnalyzer.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\SyntaxTree\IAccesible.h" />
-    <ClInclude Include="Source\SyntaxTree\IBytecode.h" />
-    <ClInclude Include="Source\SyntaxTree\IClass.h" />
-    <ClInclude Include="Source\SyntaxTree\IClassField.h" />
-    <ClInclude Include="Source\SyntaxTree\IExpression.h" />
-    <ClInclude Include="Source\SyntaxTree\IFor.h" />
-    <ClInclude Include="Source\SyntaxTree\IIf.h" />
-    <ClInclude Include="Source\SyntaxTree\ILocalVar.h" />
-    <ClInclude Include="Source\SyntaxTree\IMethod.h" />
-    <ClInclude Include="Source\SyntaxTree\IOverloadedMethod.h" />
-    <ClInclude Include="Source\SyntaxTree\IParameter.h" />
-    <ClInclude Include="Source\SyntaxTree\IReturn.h" />
-    <ClInclude Include="Source\SyntaxTree\IStatement.h" />
-    <ClInclude Include="Source\SyntaxTree\IStatements.h" />
-    <ClInclude Include="Source\SyntaxTree\IType.h" />
-    <ClInclude Include="Source\SyntaxTree\IWhile.h" />
-    <ClInclude Include="Source\SyntaxTree\SyntaxTreeApi.h" />
-    <ClInclude Include="Source\Syntax\Accessible.h">
+    <ClInclude Include="Source\SyntaxInterface\IAccesible.h" />
+    <ClInclude Include="Source\SyntaxInterface\IBytecode.h" />
+    <ClInclude Include="Source\SyntaxInterface\IClass.h" />
+    <ClInclude Include="Source\SyntaxInterface\IClassField.h" />
+    <ClInclude Include="Source\SyntaxInterface\IExpression.h" />
+    <ClInclude Include="Source\SyntaxInterface\IFor.h" />
+    <ClInclude Include="Source\SyntaxInterface\IIf.h" />
+    <ClInclude Include="Source\SyntaxInterface\ILocalVar.h" />
+    <ClInclude Include="Source\SyntaxInterface\IMethod.h" />
+    <ClInclude Include="Source\SyntaxInterface\IOverloadedMethod.h" />
+    <ClInclude Include="Source\SyntaxInterface\IParameter.h" />
+    <ClInclude Include="Source\SyntaxInterface\IReturn.h" />
+    <ClInclude Include="Source\SyntaxInterface\IStatement.h" />
+    <ClInclude Include="Source\SyntaxInterface\IStatements.h" />
+    <ClInclude Include="Source\SyntaxInterface\IType.h" />
+    <ClInclude Include="Source\SyntaxInterface\IWhile.h" />
+    <ClInclude Include="Source\SyntaxInterface\SyntaxTreeApi.h" />
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Accessible.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\Bytecode.h">
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Bytecode.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\Class.h">
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Class.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\ClassField.h">
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\ClassField.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\Expression.h">
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Expression.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\For.h">
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\For.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\If.h">
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\If.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\LocalVar.h">
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\LocalVar.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\Method.h">
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Method.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\OverloadedMethod.h" />
-    <ClInclude Include="Source\Syntax\Parameter.h">
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\OverloadedMethod.h" />
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Parameter.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\Return.h">
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Return.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\Statement.h">
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Statement.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\Statements.h">
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Statements.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\Type.h">
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Type.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\While.h">
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\While.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Source\virtualMachine.h">
@@ -296,50 +298,50 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\Accessible.cpp">
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Accessible.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\Bytecode.cpp">
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Bytecode.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\Class.cpp">
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Class.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\ClassField.cpp">
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\ClassField.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\Expression.cpp">
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Expression.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\For.cpp">
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\For.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\If.cpp">
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\If.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\LocalVar.cpp">
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\LocalVar.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\Method.cpp">
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Method.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\OverloadedMethod.cpp" />
-    <ClCompile Include="Source\Syntax\Parameter.cpp">
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\OverloadedMethod.cpp" />
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Parameter.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\Return.cpp">
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Return.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\Statement.cpp">
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Statement.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\Statements.cpp">
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Statements.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\Type.cpp">
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Type.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\While.cpp">
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\While.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Source\virtualMachine.cpp">

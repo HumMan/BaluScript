@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "../SyntaxTree/SyntaxTreeApi.h"
+#include "../SyntaxTreeApi.h"
 
-#include "../VirtualMachine/Op.h"
+#include "../../VirtualMachine/Op.h"
 
 #include "Statement.h"
 

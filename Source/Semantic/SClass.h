@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../SyntaxTree/SyntaxTreeApi.h"
+#include "../SyntaxInterface/SyntaxTreeApi.h"
 
 #include "TemplateRealizations.h"
 #include "SMethod.h"
@@ -11,45 +11,23 @@ class TSClassField;
 class TStaticValue;
 class TStackValue;
 
-class TSClass:public TSyntaxNode<SyntaxApi::IClass>, public TNodeWithSize,public TNodeSignatureLinked,public TNodeBodyLinked,public TNodeWithTemplates, public TNodeWithAutoMethods
+class BALUSCRIPT_DLL_INTERFACE TSClass:public TSyntaxNode<SyntaxApi::IClass>, public TNodeWithSize,public TNodeSignatureLinked,public TNodeBodyLinked,public TNodeWithTemplates, public TNodeWithAutoMethods
 {	
-	std::vector<std::unique_ptr<TSClassField>> fields;
-	std::list<TSOverloadedMethod> methods;
-
-	std::unique_ptr<TSMethod> default_constructor;
-	std::unique_ptr<TSOverloadedMethod> copy_constructors,move_constructors;
-	///<summary>ѕользовательский деструктор (автоматический деструктор, если существует, будет добавлен как PostEvent)</summary>
-	std::unique_ptr<TSMethod> destructor;
-	std::unique_ptr<TSOverloadedMethod> operators[(short)Lexer::TOperator::End];
-	std::unique_ptr<TSOverloadedMethod> conversions;
-
-	std::vector<std::unique_ptr<TSClass>> nested_classes;
-
-	std::unique_ptr<TSMethod> auto_def_constr;
-	std::unique_ptr<TSMethod> auto_copy_constr;
-	std::unique_ptr<TSMethod> auto_move_constr;
-	///<summary>јвтоматически созданный оператор присваивани€</summary>
-	std::unique_ptr<TSMethod> auto_assign_operator;
-	///<summary>јвтоматически созданный деструктор</summary>
-	std::unique_ptr<TSMethod> auto_destr;
-	///<summary>“ип от которого унаследован данный класс</summary>
-	TSType parent;
-	///<summary> ласс в пределах которого объ€влен данный класс</summary>
-	TSClass* owner;
+	class TPrivate;
+	std::unique_ptr<TPrivate> _this;
 
 public:
+	TSClass(TSClass* use_owner, SyntaxApi::IClass* use_syntax_node, TNodeWithTemplates::Type type = TNodeWithTemplates::Unknown);
+	~TSClass();
+
 	TSMethod* GetAutoDefConstr()const;
 	TSMethod* GetAutoDestr()const;
 	void AddClass(TSClass* use_class);
 	void CopyExternalMethodBindingsFrom(TSClass* source);
-	TSClass(TSClass* use_owner, SyntaxApi::IClass* use_syntax_node, TNodeWithTemplates::Type type = TNodeWithTemplates::Unknown);
 	TSClass* GetClass(Lexer::TNameId use_name);
 	void CheckForErrors();
 	TSClass* GetOwner();
-	TSClass* GetParent()
-	{
-		return parent.GetClass();
-	}
+	TSClass* GetParent();
 	TSClass* GetNestedByFullName(std::vector<Lexer::TNameId> full_name, size_t curr_id);
 	TSClassField* GetField(Lexer::TNameId name, bool only_in_this);
 	TSClassField* GetField(size_t i)const;

@@ -2,10 +2,6 @@
 #include "SExpression.h"
 #include "SStatements.h"
 
-#include "../Syntax/Expression.h"
-#include "../Syntax/Statements.h"
-#include "../Syntax/While.h"
-
 TSWhile::TSWhile(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IWhile* use_syntax)
 	:TSStatement(SyntaxApi::TStatementType::For, use_owner, use_method, use_parent, dynamic_cast<SyntaxApi::IStatement*>(use_syntax))
 {

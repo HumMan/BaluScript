@@ -4,6 +4,8 @@
 #include <vector>
 #include <memory>
 
+#include "SyntaxInterface/SyntaxTreeApi.h"
+
 namespace SyntaxInternal
 {
 	class TClass;
@@ -15,15 +17,22 @@ class TSMethod;
 class TTemplateRealizations;
 class TSLocalVar;
 
-class TSyntaxAnalyzer
+class ISyntaxAnalyzer
 {
-	std::unique_ptr<Lexer::ILexer> lexer;
-	std::unique_ptr<SyntaxInternal::TClass> base_class;
-	std::unique_ptr<TSClass> sem_base_class;
-	std::vector<TSClassField*> static_fields;
-	std::vector<TSLocalVar*> static_variables;
+	virtual SyntaxApi::IClass* GetBaseClass()const = 0;
+	virtual TSClass* GetCompiledBaseClass()const = 0;
+	virtual Lexer::ILexer* GetLexer()const = 0;
+	virtual TSMethod* GetMethod(char* use_method) = 0;
+	virtual TSClassField* GetStaticField(char* use_var) = 0;
+};
+
+class BALUSCRIPT_DLL_INTERFACE TSyntaxAnalyzer : public ISyntaxAnalyzer
+{
+	class TPrivate;
+	std::unique_ptr<TPrivate> _this;
 public:
-	SyntaxInternal::TClass* GetBaseClass()const;
+	SyntaxApi::IClass* GetBaseClass()const;
+	SyntaxInternal::TClass* GetBaseClass2()const;
 	TSClass* GetCompiledBaseClass()const;
 	Lexer::ILexer* GetLexer()const;
 	TSyntaxAnalyzer();
@@ -32,10 +41,5 @@ public:
 	void CreateInternalClasses();
 	TSMethod* GetMethod(char* use_method);
 	TSClassField* GetStaticField(char* use_var);
-
-};
-
-class ISyntaxAnalyzer
-{
 
 };

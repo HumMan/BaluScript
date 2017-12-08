@@ -3,9 +3,6 @@
 #include "SExpression.h"
 #include "SStatements.h"
 
-#include "../Syntax/If.h"
-#include "../Syntax/Statements.h"
-
 TSIf::TSIf(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IIf* use_syntax)
 	:TSStatement(SyntaxApi::TStatementType::For, use_owner, use_method, use_parent, dynamic_cast<SyntaxApi::IStatement*>(use_syntax))
 {

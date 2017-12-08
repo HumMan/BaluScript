@@ -27,7 +27,7 @@ namespace Test
 		
 		try
 		{
-			SyntaxInternal::TMethod* m = new SyntaxInternal::TMethod(syntax->GetBaseClass());
+			SyntaxInternal::TMethod* m = new SyntaxInternal::TMethod(syntax->GetBaseClass2());
 			syntax->GetLexer()->ParseSource(code);
 			m->AnalyzeSyntax(syntax->GetLexer());
 			syntax->GetLexer()->GetToken(Lexer::TTokenType::Done);
@@ -63,8 +63,8 @@ namespace Test
 	{
 		try
 		{
-			SyntaxInternal::TClass* cl = new SyntaxInternal::TClass(syntax->GetBaseClass());
-			syntax->GetBaseClass()->AddNested(cl);
+			SyntaxInternal::TClass* cl = new SyntaxInternal::TClass(syntax->GetBaseClass2());
+			syntax->GetBaseClass2()->AddNested(cl);
 			syntax->GetLexer()->ParseSource(code);
 			cl->AnalyzeSyntax(syntax->GetLexer());
 			syntax->GetLexer()->GetToken(Lexer::TTokenType::Done);

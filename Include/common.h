@@ -1,5 +1,11 @@
 #pragma once
 
+#ifdef BALUSCRIPT_DLL_EXPORT
+#define BALUSCRIPT_DLL_INTERFACE __declspec(dllexport) 
+#else
+#define BALUSCRIPT_DLL_INTERFACE __declspec(dllimport)
+#endif
+
 template<class T>
 inline bool LexerIsIn(T v, T v1, T v2)
 {

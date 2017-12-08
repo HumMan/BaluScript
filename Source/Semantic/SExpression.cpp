@@ -1,10 +1,5 @@
 ﻿#include "SExpression.h"
 
-#include "../Syntax/Expression.h"
-#include "../Syntax/Statements.h"
-#include "../Syntax/Method.h"
-#include "../Syntax/ClassField.h"
-
 #include "../semanticAnalyzer.h"
 
 #include "FormalParam.h"

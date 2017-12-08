@@ -12,8 +12,9 @@ typedef void(*TExternalMethod)(int*&, int*, int*);// параметры: вер�
 class TProgram
 {
 public:
-	struct TMethod
+	class TMethod
 	{
+	public:
 		bool is_static;
 		bool is_external;
 		int first_op;

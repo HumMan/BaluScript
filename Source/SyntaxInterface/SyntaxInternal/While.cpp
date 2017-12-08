@@ -3,8 +3,6 @@
 #include "Class.h"
 #include "ClassField.h"
 
-#include "../Syntax/Method.h"
-
 using namespace Lexer;
 using namespace SyntaxInternal;
 

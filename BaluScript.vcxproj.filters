@@ -48,21 +48,6 @@
     <ClInclude Include="Source\notOptimizedProgram.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\Class.h">
-      <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\ClassField.h">
-      <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\Method.h">
-      <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\Parameter.h">
-      <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\Type.h">
-      <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
     <ClInclude Include="Source\VirtualMachine\Op.h">
       <Filter>Source Files\VirtualMachine</Filter>
     </ClInclude>
@@ -87,9 +72,6 @@
     <ClInclude Include="Source\VirtualMachine\OpArray.h">
       <Filter>Source Files\VirtualMachine</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\Accessible.h">
-      <Filter>Source Files\Syntax</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Semantic\SClass.h">
       <Filter>Source Files\Semantic</Filter>
     </ClInclude>
@@ -101,9 +83,6 @@
     </ClInclude>
     <ClInclude Include="Source\Semantic\SType.h">
       <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\OverloadedMethod.h">
-      <Filter>Source Files\Syntax</Filter>
     </ClInclude>
     <ClInclude Include="Source\Semantic\TemplateRealizations.h">
       <Filter>Source Files\Semantic</Filter>
@@ -132,30 +111,6 @@
     <ClInclude Include="Source\Semantic\SWhile.h">
       <Filter>Source Files\Semantic\Statements</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Syntax\Expression.h">
-      <Filter>Source Files\Syntax\Statements</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\For.h">
-      <Filter>Source Files\Syntax\Statements</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\If.h">
-      <Filter>Source Files\Syntax\Statements</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\LocalVar.h">
-      <Filter>Source Files\Syntax\Statements</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\While.h">
-      <Filter>Source Files\Syntax\Statements</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\Statement.h">
-      <Filter>Source Files\Syntax\Statements</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\Statements.h">
-      <Filter>Source Files\Syntax\Statements</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\Return.h">
-      <Filter>Source Files\Syntax\Statements</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Semantic\SReturn.h">
       <Filter>Source Files\Semantic\Statements</Filter>
     </ClInclude>
@@ -173,9 +128,6 @@
     </ClInclude>
     <ClInclude Include="Source\Semantic\FormalParam.h">
       <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Syntax\Bytecode.h">
-      <Filter>Source Files\Syntax\Statements</Filter>
     </ClInclude>
     <ClInclude Include="Source\Semantic\SBytecode.h">
       <Filter>Source Files\Semantic\Statements</Filter>
@@ -204,56 +156,104 @@
     <ClInclude Include="Source\NativeTypes\base_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SyntaxTree\IClass.h">
+    <ClInclude Include="Source\SyntaxInterface\IAccesible.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SyntaxTree\SyntaxTreeApi.h">
+    <ClInclude Include="Source\SyntaxInterface\IBytecode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SyntaxTree\IStatements.h">
+    <ClInclude Include="Source\SyntaxInterface\IClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SyntaxTree\IWhile.h">
+    <ClInclude Include="Source\SyntaxInterface\IClassField.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SyntaxTree\IType.h">
+    <ClInclude Include="Source\SyntaxInterface\IExpression.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SyntaxTree\IStatement.h">
+    <ClInclude Include="Source\SyntaxInterface\IFor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SyntaxTree\IExpression.h">
+    <ClInclude Include="Source\SyntaxInterface\IIf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SyntaxTree\IFor.h">
+    <ClInclude Include="Source\SyntaxInterface\ILocalVar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SyntaxTree\IIf.h">
+    <ClInclude Include="Source\SyntaxInterface\IMethod.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SyntaxTree\ILocalVar.h">
+    <ClInclude Include="Source\SyntaxInterface\IOverloadedMethod.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SyntaxTree\IMethod.h">
+    <ClInclude Include="Source\SyntaxInterface\IParameter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SyntaxTree\IOverloadedMethod.h">
+    <ClInclude Include="Source\SyntaxInterface\IReturn.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SyntaxTree\IParameter.h">
+    <ClInclude Include="Source\SyntaxInterface\IStatement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SyntaxTree\IReturn.h">
+    <ClInclude Include="Source\SyntaxInterface\IStatements.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SyntaxTree\IClassField.h">
+    <ClInclude Include="Source\SyntaxInterface\IType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SyntaxTree\IBytecode.h">
+    <ClInclude Include="Source\SyntaxInterface\IWhile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SyntaxTree\IAccesible.h">
+    <ClInclude Include="Source\SyntaxInterface\SyntaxTreeApi.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Accessible.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Bytecode.h">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Class.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\ClassField.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Expression.h">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\For.h">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\If.h">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\LocalVar.h">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Method.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\OverloadedMethod.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Parameter.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Return.h">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Statement.h">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Statements.h">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\Type.h">
+      <Filter>Source Files\Syntax</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\While.h">
+      <Filter>Source Files\Syntax\Statements</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -271,21 +271,6 @@
     </ClCompile>
     <ClCompile Include="Source\virtualMachine.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\Class.cpp">
-      <Filter>Source Files\Syntax</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\Method.cpp">
-      <Filter>Source Files\Syntax</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\Type.cpp">
-      <Filter>Source Files\Syntax</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\Parameter.cpp">
-      <Filter>Source Files\Syntax</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\ClassField.cpp">
-      <Filter>Source Files\Syntax</Filter>
     </ClCompile>
     <ClCompile Include="Source\NativeTypes\DynArray.cpp">
       <Filter>Source Files\NativeTypes</Filter>
@@ -308,9 +293,6 @@
     <ClCompile Include="Source\VirtualMachine\Program.cpp">
       <Filter>Source Files\VirtualMachine</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\Accessible.cpp">
-      <Filter>Source Files\Syntax</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Semantic\SClass.cpp">
       <Filter>Source Files\Semantic</Filter>
     </ClCompile>
@@ -322,9 +304,6 @@
     </ClCompile>
     <ClCompile Include="Source\Semantic\SType.cpp">
       <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\OverloadedMethod.cpp">
-      <Filter>Source Files\Syntax</Filter>
     </ClCompile>
     <ClCompile Include="Source\Semantic\SClassField.cpp">
       <Filter>Source Files\Semantic</Filter>
@@ -350,30 +329,6 @@
     <ClCompile Include="Source\Semantic\SWhile.cpp">
       <Filter>Source Files\Semantic\Statements</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\Expression.cpp">
-      <Filter>Source Files\Syntax\Statements</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\For.cpp">
-      <Filter>Source Files\Syntax\Statements</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\If.cpp">
-      <Filter>Source Files\Syntax\Statements</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\LocalVar.cpp">
-      <Filter>Source Files\Syntax\Statements</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\While.cpp">
-      <Filter>Source Files\Syntax\Statements</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\Statement.cpp">
-      <Filter>Source Files\Syntax\Statements</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\Statements.cpp">
-      <Filter>Source Files\Syntax\Statements</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Syntax\Return.cpp">
-      <Filter>Source Files\Syntax\Statements</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Semantic\SReturn.cpp">
       <Filter>Source Files\Semantic\Statements</Filter>
     </ClCompile>
@@ -389,14 +344,59 @@
     <ClCompile Include="Source\Semantic\FormalParam.cpp">
       <Filter>Source Files\Semantic</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Syntax\Bytecode.cpp">
-      <Filter>Source Files\Syntax\Statements</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Semantic\SBytecode.cpp">
       <Filter>Source Files\Semantic\Statements</Filter>
     </ClCompile>
     <ClCompile Include="Source\Semantic\SConstructObject.cpp">
       <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Accessible.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Bytecode.cpp">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Class.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\ClassField.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Expression.cpp">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\For.cpp">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\If.cpp">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\LocalVar.cpp">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Method.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\OverloadedMethod.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Parameter.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Return.cpp">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Statement.cpp">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Statements.cpp">
+      <Filter>Source Files\Syntax\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Type.cpp">
+      <Filter>Source Files\Syntax</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\While.cpp">
+      <Filter>Source Files\Syntax\Statements</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -10,8 +10,9 @@ using namespace SyntaxInternal;
 
 namespace SyntaxInternal
 {
-	struct TClassInternal
+	class TClass::TClassInternal
 	{
+	public:
 		bool is_template;
 
 		std::vector<Lexer::TNameId> template_params;

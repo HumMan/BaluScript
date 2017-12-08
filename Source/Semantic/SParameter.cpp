@@ -1,8 +1,5 @@
 ﻿#include "SParameter.h"
 
-#include "../Syntax/Statements.h"
-#include "../Syntax/Method.h"
-
 #include "SClass.h"
 #include "SExpression.h"
 

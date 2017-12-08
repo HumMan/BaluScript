@@ -3,9 +3,6 @@
 #include "SClass.h"
 #include "SStatements.h"
 
-#include "../Syntax/Statements.h"
-#include "../Syntax/Method.h"
-
 TSType::TSType(TSClass* use_owner, SyntaxApi::IType* use_syntax_node) :TSyntaxNode(use_syntax_node)
 {
 	owner = use_owner;

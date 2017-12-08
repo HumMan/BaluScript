@@ -1,7 +1,7 @@
 ﻿
 #include "Bytecode.h"
 
-#include "../lexer.h"
+#include "../../lexer.h"
 #include <stdio.h>
 
 #include "Method.h"

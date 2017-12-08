@@ -41,7 +41,7 @@ public:
 
 typedef void(*TExternalSMethod)(TMethodRunContext run_context);
 
-class TSMethod :public TSyntaxNode<SyntaxApi::IMethod>, public TSpecialClassMethod, public TNodeSignatureLinked, public TNodeBodyLinked
+class BALUSCRIPT_DLL_INTERFACE TSMethod :public TSyntaxNode<SyntaxApi::IMethod>, public TSpecialClassMethod, public TNodeSignatureLinked, public TNodeBodyLinked
 {
 private:
 	TSType ret;

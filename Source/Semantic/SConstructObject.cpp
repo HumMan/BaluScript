@@ -1,8 +1,6 @@
 
 #include "SConstructObject.h"
 
-#include "../Syntax/Statements.h"
-
 #include "../semanticAnalyzer.h"
 
 #include "FormalParam.h"

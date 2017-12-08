@@ -19,9 +19,9 @@
 #include "../Source/Semantic/SClass.h"
 #include "../Source/Semantic/FormalParam.h"
 #include "../Source/Semantic/SStatements.h"
-#include "../Source/Syntax/Statements.h"
-#include "../Source/Syntax/Method.h"
+#include "../Source/SyntaxInterface/SyntaxInternal/Statements.h"
+#include "../Source/SyntaxInterface/SyntaxInternal/Method.h"
 #include "../Source/semanticAnalyzer.h"
 
 
-#include "../Source/Syntax/Class.h"
+#include "../Source/SyntaxInterface/SyntaxInternal/Class.h"

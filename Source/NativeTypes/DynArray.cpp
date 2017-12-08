@@ -5,9 +5,9 @@
 
 #include "../syntaxAnalyzer.h"
 
-#include "../Syntax/Statements.h"
-#include "../Syntax/Method.h"
-#include "../Syntax/Class.h"
+#include "../SyntaxInterface/SyntaxInternal/Statements.h"
+#include "../SyntaxInterface/SyntaxInternal//Method.h"
+#include "../SyntaxInterface/SyntaxInternal//Class.h"
 
 #include <string.h>
 
@@ -190,8 +190,8 @@ void TDynArr::get_size(TMethodRunContext run_context)
 
 void TDynArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 {
-	SyntaxInternal::TClass* cl = new SyntaxInternal::TClass(syntax->GetBaseClass());
-	syntax->GetBaseClass()->AddNested(cl);
+	SyntaxInternal::TClass* cl = new SyntaxInternal::TClass(syntax->GetBaseClass2());
+	syntax->GetBaseClass2()->AddNested(cl);
 	syntax->GetLexer()->ParseSource(
 		"class extern TDynArray<T>\n"
 		"{\n"

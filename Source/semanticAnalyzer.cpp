@@ -3,9 +3,6 @@
 #include "lexer.h"
 #include "Semantic/FormalParam.h"
 #include "Semantic/SClassField.h"
-#include "Syntax/ClassField.h"
-#include "Syntax/Statements.h"
-#include "Syntax/Method.h"
 #include "Semantic/SClass.h"
 #include "Semantic/SLocalVar.h"
 

@@ -6,9 +6,6 @@
 #include "SMethod.h"
 #include "SStatements.h"
 
-#include "../Syntax/Statements.h"
-#include "../Syntax/Method.h"
-
 void TExpressionResult::Init()
 {
 	result_value_type = nullptr;

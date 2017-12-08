@@ -1,10 +1,5 @@
 ﻿#include "SLocalVar.h"
 
-#include "../Syntax/Expression.h"
-#include "../Syntax/Statements.h"
-#include "../Syntax/LocalVar.h"
-#include "../Syntax/Method.h"
-
 #include "../semanticAnalyzer.h"
 
 #include "SMethod.h"

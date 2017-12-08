@@ -9,8 +9,6 @@
 #include "../Source/NativeTypes/StaticArray.h"
 #include "../Source/NativeTypes/DynArray.h"
 #include "../Source/NativeTypes/String.h"
-#include "../Source/Syntax/ClassField.h"
-#include "../Source/Syntax/Statements.h"
 #include "../Source/Semantic/FormalParam.h"
 #include "../Source/Semantic/SClass.h"
 #include "../Source/semanticAnalyzer.h"

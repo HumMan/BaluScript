@@ -21,7 +21,7 @@ extern const char* GetBytecodeString(TOpcode::Enum use_bytecode);
 extern size_t GetBytecodeParamsCount(TOpcode::Enum use_bytecode);
 extern bool GetBytecodeParamExists(TOpcode::Enum use_bytecode, int i);
 
-struct TOp
+class TOp
 {
 private:
 	void Init();

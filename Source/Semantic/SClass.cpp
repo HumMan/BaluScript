@@ -10,12 +10,40 @@
 
 #include "../semanticAnalyzer.h"
 
-#include "../Syntax/Statements.h"
-#include "../Syntax/ClassField.h"
-#include "../Syntax/Method.h"
+class TSClass::TPrivate
+{
+public:
+	TPrivate(TSClass* use_owner, SyntaxApi::IType* use_syntax_node)
+		:parent(use_owner, use_syntax_node)
+	{
+	}
+	std::vector<std::unique_ptr<TSClassField>> fields;
+	std::list<TSOverloadedMethod> methods;
+
+	std::unique_ptr<TSMethod> default_constructor;
+	std::unique_ptr<TSOverloadedMethod> copy_constructors, move_constructors;
+	///<summary>Пользовательский деструктор (автоматический деструктор, если существует, будет добавлен как PostEvent)</summary>
+	std::unique_ptr<TSMethod> destructor;
+	std::unique_ptr<TSOverloadedMethod> operators[(short)Lexer::TOperator::End];
+	std::unique_ptr<TSOverloadedMethod> conversions;
+
+	std::vector<std::unique_ptr<TSClass>> nested_classes;
+
+	std::unique_ptr<TSMethod> auto_def_constr;
+	std::unique_ptr<TSMethod> auto_copy_constr;
+	std::unique_ptr<TSMethod> auto_move_constr;
+	///<summary>Автоматически созданный оператор присваивания</summary>
+	std::unique_ptr<TSMethod> auto_assign_operator;
+	///<summary>Автоматически созданный деструктор</summary>
+	std::unique_ptr<TSMethod> auto_destr;
+	///<summary>Тип от которого унаследован данный класс</summary>
+	TSType parent;
+	///<summary>Класс в пределах которого объявлен данный класс</summary>
+	TSClass* owner;
+};
 
 TSClass::TSClass(TSClass* use_owner, SyntaxApi::IClass* use_syntax_node, TNodeWithTemplates::Type type)
-	:TSyntaxNode(use_syntax_node), parent(this,use_syntax_node->GetParent())
+	:TSyntaxNode(use_syntax_node), _this(std::make_unique<TPrivate>(this,use_syntax_node->GetParent()))
 {
 	if (type == TNodeWithTemplates::Unknown)
 	{
@@ -27,12 +55,17 @@ TSClass::TSClass(TSClass* use_owner, SyntaxApi::IClass* use_syntax_node, TNodeWi
 	else
 		SetType(type);
 
-	owner = use_owner;
+	_this->owner = use_owner;
 }
 
 TSClass* TSClass::GetOwner()
 {
-	return owner;
+	return _this->owner;
+}
+
+TSClass* TSClass::GetParent()
+{
+	return _this->parent.GetClass();
 }
 
 TSClass* TSClass::GetNestedByFullName(std::vector<Lexer::TNameId> full_name, size_t curr_id)
@@ -56,53 +89,53 @@ void TSClass::Build()
 {
 	for (size_t i = 0; i < GetSyntax()->GetFieldsCount(); i++)
 	{
-		fields.emplace_back(new TSClassField(this, GetSyntax()->GetField(i)));
+		_this->fields.emplace_back(new TSClassField(this, GetSyntax()->GetField(i)));
 	}
 
 	for (size_t i = 0; i < GetSyntax()->GetMethodsCount(); i++)
 	{
-		methods.emplace_back(this, GetSyntax()->GetMethod(i));
-		methods.back().Build();
+		_this->methods.emplace_back(this, GetSyntax()->GetMethod(i));
+		_this->methods.back().Build();
 	}
 
 	if (GetSyntax()->HasDefConstr())
 	{
 		SyntaxApi::IMethod* constr_syntax = GetSyntax()->GetDefaultConstructor();
-		default_constructor = std::unique_ptr<TSMethod>(new TSMethod(this, constr_syntax));
-		default_constructor->Build();
+		_this->default_constructor = std::unique_ptr<TSMethod>(new TSMethod(this, constr_syntax));
+		_this->default_constructor->Build();
 	}
 
-	copy_constructors = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, GetSyntax()->GetCopyConstr()));
-	copy_constructors->Build();
+	_this->copy_constructors = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, GetSyntax()->GetCopyConstr()));
+	_this->copy_constructors->Build();
 
-	move_constructors = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, GetSyntax()->GetMoveConstr()));
-	move_constructors->Build();
+	_this->move_constructors = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, GetSyntax()->GetMoveConstr()));
+	_this->move_constructors->Build();
 
 	if (GetSyntax()->HasDestructor())
 	{
-		destructor = std::unique_ptr<TSMethod>(new TSMethod(this, GetSyntax()->GetDestructor()));
-		destructor->Build();
+		_this->destructor = std::unique_ptr<TSMethod>(new TSMethod(this, GetSyntax()->GetDestructor()));
+		_this->destructor->Build();
 	}
 
 	for (size_t i = 0; i < (short)Lexer::TOperator::End; i++)
 	{
-		operators[i] = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, GetSyntax()->GetOperator(i)));
-		operators[i]->Build();
+		_this->operators[i] = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, GetSyntax()->GetOperator(i)));
+		_this->operators[i]->Build();
 	}
 
-	conversions = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, GetSyntax()->GetConversion()));
-	conversions->Build();
+	_this->conversions = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, GetSyntax()->GetConversion()));
+	_this->conversions->Build();
 
 	for (size_t i = 0; i < GetSyntax()->GetNestedCount(); i++)
 	{
 		auto nested_class = GetSyntax()->GetNested(i);
-		nested_classes.push_back(std::unique_ptr<TSClass>(new TSClass(this, nested_class)));
-		nested_classes.back()->Build();
+		_this->nested_classes.push_back(std::unique_ptr<TSClass>(new TSClass(this, nested_class)));
+		_this->nested_classes.back()->Build();
 	}
 }
 
 TSClass* TSClass::GetNested(Lexer::TNameId name) {
-	for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
+	for (const std::unique_ptr<TSClass>& nested_class : _this->nested_classes)
 		if (nested_class->GetSyntax()->GetName() == name)
 			return nested_class.get();
 	return nullptr;
@@ -133,41 +166,41 @@ bool TSClass::HasTemplateParameter(Lexer::TNameId name)
 
 void TSClass::CheckForErrors()
 {
-	if (owner != nullptr&&owner->GetOwner() != nullptr&&owner->GetOwner()->GetClass(GetSyntax()->GetName()))
+	if (_this->owner != nullptr&&_this->owner->GetOwner() != nullptr&&_this->owner->GetOwner()->GetClass(GetSyntax()->GetName()))
 		GetSyntax()->Error("Класс с таким именем уже существует!");//TODO как выводить ошибки если объекты были получены не из кода, а созданы вручную - исправить
 	//for (const std::unique_ptr<TSClass> nested_class : nested_classes)
-	for (size_t i = 0; i < nested_classes.size(); i++)
+	for (size_t i = 0; i < _this->nested_classes.size(); i++)
 	{
 		for (size_t k = 0; k < i; k++)
 		{
-			if (nested_classes[i]->GetSyntax()->GetName() == nested_classes[k]->GetSyntax()->GetName())
-				nested_classes[i]->GetSyntax()->Error("Класс с таким именем уже существует!");
+			if (_this->nested_classes[i]->GetSyntax()->GetName() == _this->nested_classes[k]->GetSyntax()->GetName())
+				_this->nested_classes[i]->GetSyntax()->Error("Класс с таким именем уже существует!");
 		}
 	}
-	for (std::unique_ptr<TSClassField>& field : fields)
+	for (std::unique_ptr<TSClassField>& field : _this->fields)
 	{
-		for (std::unique_ptr<TSClassField>& other_field : fields)
+		for (std::unique_ptr<TSClassField>& other_field : _this->fields)
 			//for(size_t k=0;k<i;k++)
 		{
 			if (&field == &other_field)
 				break;
-			if (owner == nullptr&&!field->GetSyntax()->IsStatic())
+			if (_this->owner == nullptr&&!field->GetSyntax()->IsStatic())
 				GetSyntax()->Error("Базовый класс может содержать только статические поля!");
 			if (field->GetSyntax()->GetName() == other_field->GetSyntax()->GetName())
 				field->GetSyntax()->Error("Поле класса с таким именем уже существует!");
 			//TODO как быть со статическими членами класса
 		}
 		std::vector<TSMethod*> m;
-		if ((owner != nullptr&&owner->GetField(GetSyntax()->GetName(), true, false) != nullptr) || GetMethods(m, GetSyntax()->GetName()))
+		if ((_this->owner != nullptr&&_this->owner->GetField(GetSyntax()->GetName(), true, false) != nullptr) || GetMethods(m, GetSyntax()->GetName()))
 			field->GetSyntax()->Error("Член класса с таким имененем уже существует!");
 	}
-	for (TSOverloadedMethod& method : methods)
+	for (TSOverloadedMethod& method : _this->methods)
 	{
-		if ((owner != nullptr&&owner->GetField(method.GetName(), true, false) != nullptr))
+		if ((_this->owner != nullptr&&_this->owner->GetField(method.GetName(), true, false) != nullptr))
 			method.GetMethod(0)->GetSyntax()->Error("Статическое поле класса с таким имененем уже существует!");
 		method.CheckForErrors();
 		std::vector<TSMethod*> owner_methods;
-		if (owner != nullptr&&owner->GetMethods(owner_methods, method.GetName()))
+		if (_this->owner != nullptr&&_this->owner->GetMethods(owner_methods, method.GetName()))
 		{
 			for (size_t k = 0; k < owner_methods.size(); k++)
 			{
@@ -195,7 +228,7 @@ TSClass* TSClass::GetClass(Lexer::TNameId use_name)
 	{
 		if (GetSyntax()->GetName() == use_name)
 			return this;
-		for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
+		for (const std::unique_ptr<TSClass>& nested_class : _this->nested_classes)
 		{
 			if (nested_class->GetSyntax()->GetName() == use_name)
 				return nested_class.get();
@@ -212,8 +245,8 @@ TSClass* TSClass::GetClass(Lexer::TNameId use_name)
 					return template_params[i].type;
 	}
 
-	if (owner != nullptr)
-		return owner->GetClass(use_name);
+	if (_this->owner != nullptr)
+		return _this->owner->GetClass(use_name);
 	return nullptr;
 }
 
@@ -228,23 +261,27 @@ TSClassField* TSClass::GetField(Lexer::TNameId name, bool only_in_this)
 }
 TSClassField* TSClass::GetField(size_t i)const
 {
-	return fields[i].get();
+	return _this->fields[i].get();
+}
+size_t TSClass::GetFieldsCount() const
+{
+	return _this->fields.size();
 }
 TSClassField* TSClass::GetField(Lexer::TNameId name, bool is_static, bool only_in_this)
 {
 	TSClassField* result_parent = nullptr;
-	if (parent.GetClass() != nullptr)
-		result_parent = parent.GetClass()->GetField(name, true);
+	if (_this->parent.GetClass() != nullptr)
+		result_parent = _this->parent.GetClass()->GetField(name, true);
 	if (result_parent != nullptr)
 		return result_parent;
-	for (std::unique_ptr<TSClassField>& field : fields)
+	for (std::unique_ptr<TSClassField>& field : _this->fields)
 	{
 		if (field->GetSyntax()->IsStatic() == is_static && field->GetSyntax()->GetName() == name) {
 			return field.get();
 		}
 	}
-	if (!only_in_this && is_static && owner != nullptr)
-		return owner->GetField(name, true, false);
+	if (!only_in_this && is_static && _this->owner != nullptr)
+		return _this->owner->GetField(name, true, false);
 	return nullptr;
 }
 
@@ -256,10 +293,10 @@ void TSClass::LinkSignature(TGlobalBuildContext build_context)
 		return;
 
 
-	parent.LinkSignature(build_context);
+	_this->parent.LinkSignature(build_context);
 	//определить присутствие конструктора по умолчанию, деструктора, конструктора копии
 
-	for (std::unique_ptr<TSClassField>& field : fields)
+	for (std::unique_ptr<TSClassField>& field : _this->fields)
 	{
 		field->LinkSignature(build_context);
 		if (field->GetSyntax()->IsStatic())
@@ -267,25 +304,25 @@ void TSClass::LinkSignature(TGlobalBuildContext build_context)
 	}
 
 	//слинковать сигнатуры методов
-	for (TSOverloadedMethod& method : methods)
+	for (TSOverloadedMethod& method : _this->methods)
 	{
 		method.LinkSignature(build_context);
 	}
 
-	if (default_constructor)
-		default_constructor->LinkSignature(build_context);
-	if (copy_constructors)
-		copy_constructors->LinkSignature(build_context);
-	if (move_constructors)
-		move_constructors->LinkSignature(build_context);
-	if (destructor)
-		destructor->LinkSignature(build_context);
+	if (_this->default_constructor)
+		_this->default_constructor->LinkSignature(build_context);
+	if (_this->copy_constructors)
+		_this->copy_constructors->LinkSignature(build_context);
+	if (_this->move_constructors)
+		_this->move_constructors->LinkSignature(build_context);
+	if (_this->destructor)
+		_this->destructor->LinkSignature(build_context);
 
 	for (size_t i = 0; i < (short)Lexer::TOperator::End; i++)
-		operators[i]->LinkSignature(build_context);
-	conversions->LinkSignature(build_context);
+		_this->operators[i]->LinkSignature(build_context);
+	_this->conversions->LinkSignature(build_context);
 
-	for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
+	for (const std::unique_ptr<TSClass>& nested_class : _this->nested_classes)
 		if (!nested_class->GetSyntax()->IsTemplate())
 			nested_class->LinkSignature(build_context);
 }
@@ -299,33 +336,33 @@ void TSClass::LinkBody(TGlobalBuildContext build_context)
 
 	CheckForErrors();
 
-	parent.LinkBody(build_context);
+	_this->parent.LinkBody(build_context);
 
-	for (std::unique_ptr<TSClassField>& field : fields)
+	for (std::unique_ptr<TSClassField>& field : _this->fields)
 	{
 		field->LinkBody(build_context);
 	}
 
 	//слинковать тела методов - требуется наличие инф. обо всех методах, conversion, операторах класса
-	for (TSOverloadedMethod& method : methods)
+	for (TSOverloadedMethod& method : _this->methods)
 	{
 		method.LinkBody(build_context);
 	}
-	if (default_constructor)
-		default_constructor->LinkBody(build_context);
-	if (copy_constructors)
-		copy_constructors->LinkBody(build_context);
-	if (move_constructors)
-		move_constructors->LinkBody(build_context);
-	if (destructor)
-		destructor->LinkBody(build_context);
+	if (_this->default_constructor)
+		_this->default_constructor->LinkBody(build_context);
+	if (_this->copy_constructors)
+		_this->copy_constructors->LinkBody(build_context);
+	if (_this->move_constructors)
+		_this->move_constructors->LinkBody(build_context);
+	if (_this->destructor)
+		_this->destructor->LinkBody(build_context);
 
 	for (size_t i = 0; i < (short)Lexer::TOperator::End; i++)
-		if (operators[i])
-			operators[i]->LinkBody(build_context);
-	conversions->LinkBody(build_context);
+		if (_this->operators[i])
+			_this->operators[i]->LinkBody(build_context);
+	_this->conversions->LinkBody(build_context);
 
-	for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
+	for (const std::unique_ptr<TSClass>& nested_class : _this->nested_classes)
 		if (!nested_class->GetSyntax()->IsTemplate())
 			nested_class->LinkBody(build_context);
 }
@@ -334,7 +371,7 @@ void TSClass::LinkBody(TGlobalBuildContext build_context)
 bool TSClass::GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_method_name)
 {
 	//assert(IsSignatureLinked());
-	for (TSOverloadedMethod& ov_method : methods)
+	for (TSOverloadedMethod& ov_method : _this->methods)
 	{
 		if (ov_method.GetName() == use_method_name)
 		{
@@ -342,17 +379,17 @@ bool TSClass::GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_meth
 				result.push_back(ov_method.GetMethod(i));
 		}
 	}
-	if (owner != nullptr)
-		owner->GetMethods(result, use_method_name, true);
-	if (parent.GetClass() != nullptr)
-		parent.GetClass()->GetMethods(result, use_method_name);
+	if (_this->owner != nullptr)
+		_this->owner->GetMethods(result, use_method_name, true);
+	if (_this->parent.GetClass() != nullptr)
+		_this->parent.GetClass()->GetMethods(result, use_method_name);
 	return result.size() > 0;
 }
 
 bool TSClass::GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_method_name, bool is_static)
 {
 	//assert(IsSignatureLinked());
-	for (TSOverloadedMethod& ov_method : methods)
+	for (TSOverloadedMethod& ov_method : _this->methods)
 	{
 		if (ov_method.GetName() == use_method_name)
 		{
@@ -364,19 +401,19 @@ bool TSClass::GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_meth
 			}
 		}
 	}
-	if (is_static && owner != nullptr)
-		owner->GetMethods(result, use_method_name, true);
-	if (parent.GetClass() != nullptr)
-		parent.GetClass()->GetMethods(result, use_method_name, is_static);
+	if (is_static && _this->owner != nullptr)
+		_this->owner->GetMethods(result, use_method_name, true);
+	if (_this->parent.GetClass() != nullptr)
+		_this->parent.GetClass()->GetMethods(result, use_method_name, is_static);
 	return result.size() > 0;
 }
 
 TSMethod* TSClass::GetConversion(bool source_ref, TSClass* target_type)
 {
 	assert(IsSignatureLinked());
-	for (size_t i = 0; i < conversions->GetMethodsCount(); i++)
+	for (size_t i = 0; i < _this->conversions->GetMethodsCount(); i++)
 	{
-		auto conversion = conversions->GetMethod(i);
+		auto conversion = _this->conversions->GetMethod(i);
 		if (conversion->GetRetClass() == target_type
 			&& conversion->GetParam(0)->GetSyntax()->IsRef() == source_ref) {
 			return conversion;
@@ -388,13 +425,13 @@ TSMethod* TSClass::GetConversion(bool source_ref, TSClass* target_type)
 bool TSClass::GetCopyConstructors(std::vector<TSMethod*> &result)
 {
 	assert(IsAutoMethodsInitialized());
-	for (size_t i = 0; i < copy_constructors->GetMethodsCount(); i++)
+	for (size_t i = 0; i < _this->copy_constructors->GetMethodsCount(); i++)
 	{
-		auto constructor = copy_constructors->GetMethod(i);
+		auto constructor = _this->copy_constructors->GetMethod(i);
 		result.push_back(constructor);
 	}
-	if (auto_copy_constr)
-		result.push_back(auto_copy_constr.get());
+	if (_this->auto_copy_constr)
+		result.push_back(_this->auto_copy_constr.get());
 	return result.size() > 0;
 }
 
@@ -402,35 +439,35 @@ bool TSClass::GetCopyConstructors(std::vector<TSMethod*> &result)
 bool TSClass::GetMoveConstructors(std::vector<TSMethod*> &result)
 {
 	assert(IsAutoMethodsInitialized());
-	for (size_t i = 0; i < move_constructors->GetMethodsCount(); i++)
+	for (size_t i = 0; i < _this->move_constructors->GetMethodsCount(); i++)
 	{
-		auto constructor = move_constructors->GetMethod(i);
+		auto constructor = _this->move_constructors->GetMethod(i);
 		result.push_back(constructor);
 	}
 
-	if (auto_move_constr)
-		result.push_back(auto_move_constr.get());
+	if (_this->auto_move_constr)
+		result.push_back(_this->auto_move_constr.get());
 	return result.size() > 0;
 }
 
 TSMethod* TSClass::GetDefConstr()
 {
 	assert(IsAutoMethodsInitialized());
-	if (default_constructor)
-		return default_constructor.get();
-	if (auto_def_constr)
-		return auto_def_constr.get();
+	if (_this->default_constructor)
+		return _this->default_constructor.get();
+	if (_this->auto_def_constr)
+		return _this->auto_def_constr.get();
 	return nullptr;
 }
 
 TSMethod* TSClass::GetCopyConstr()
 {
 	assert(IsAutoMethodsInitialized());
-	if (copy_constructors)
+	if (_this->copy_constructors)
 	{
-		for (size_t i = 0; i < copy_constructors->GetMethodsCount(); i++)
+		for (size_t i = 0; i < _this->copy_constructors->GetMethodsCount(); i++)
 		{
-			auto constructor = copy_constructors->GetMethod(i);
+			auto constructor = _this->copy_constructors->GetMethod(i);
 			if (constructor->GetParamsCount() == 1
 				&& constructor->GetParam(0)->GetClass() == this
 				&& constructor->GetParam(0)->GetSyntax()->IsRef() == true) {
@@ -438,19 +475,19 @@ TSMethod* TSClass::GetCopyConstr()
 			}
 		}
 	}
-	if (auto_copy_constr)
-		return auto_copy_constr.get();
+	if (_this->auto_copy_constr)
+		return _this->auto_copy_constr.get();
 	return nullptr;
 }
 
 TSMethod* TSClass::GetMoveConstr()
 {
 	assert(IsAutoMethodsInitialized());
-	if (move_constructors)
+	if (_this->move_constructors)
 	{
-		for (size_t i = 0; i < move_constructors->GetMethodsCount(); i++)
+		for (size_t i = 0; i < _this->move_constructors->GetMethodsCount(); i++)
 		{
-			auto constructor = move_constructors->GetMethod(i);
+			auto constructor = _this->move_constructors->GetMethod(i);
 			if (constructor->GetParamsCount() == 1
 				&& constructor->GetParam(0)->GetClass() == this
 				&& constructor->GetParam(0)->GetSyntax()->IsRef() == true) {
@@ -458,17 +495,17 @@ TSMethod* TSClass::GetMoveConstr()
 			}
 		}
 	}
-	if (auto_move_constr)
-		return auto_copy_constr.get();
+	if (_this->auto_move_constr)
+		return _this->auto_copy_constr.get();
 	return nullptr;
 }
 
 TSMethod* TSClass::GetAssignOperator()
 {
 	assert(IsAutoMethodsInitialized());
-	if (operators[(short)Lexer::TOperator::Assign])
+	if (_this->operators[(short)Lexer::TOperator::Assign])
 	{
-		auto assign_ops = operators[(short)Lexer::TOperator::Assign].get();
+		auto assign_ops = _this->operators[(short)Lexer::TOperator::Assign].get();
 		for (size_t i = 0; i < assign_ops->GetMethodsCount(); i++)
 		{
 
@@ -482,18 +519,18 @@ TSMethod* TSClass::GetAssignOperator()
 			}
 		}
 	}
-	if (auto_assign_operator)
-		return auto_assign_operator.get();
+	if (_this->auto_assign_operator)
+		return _this->auto_assign_operator.get();
 	return nullptr;
 }
 
 TSMethod* TSClass::GetDestructor()
 {
 	assert(IsAutoMethodsInitialized());
-	if (destructor)
-		return destructor.get();
-	if (auto_destr)
-		return auto_destr.get();
+	if (_this->destructor)
+		return _this->destructor.get();
+	if (_this->auto_destr)
+		return _this->auto_destr.get();
 	return nullptr;
 }
 
@@ -505,57 +542,60 @@ bool TSClass::HasConversion(TSClass* target_type)
 
 bool TSClass::IsNestedIn(TSClass* use_parent)
 {
-	if (parent.GetClass() == nullptr)
+	if (_this->parent.GetClass() == nullptr)
 		return false;
-	if (parent.GetClass() == use_parent)
+	if (_this->parent.GetClass() == use_parent)
 		return true;
-	return parent.GetClass()->IsNestedIn(use_parent);
+	return _this->parent.GetClass()->IsNestedIn(use_parent);
 }
 bool TSClass::GetOperators(std::vector<TSMethod*> &result, Lexer::TOperator op)
 {
 	assert(IsAutoMethodsInitialized());
-	operators[(short)op]->GetMethods(result);
+	_this->operators[(short)op]->GetMethods(result);
 	if (result.size() == 0 && op == Lexer::TOperator::Assign)
-		if (auto_assign_operator)
-			result.push_back(auto_assign_operator.get());
+		if (_this->auto_assign_operator)
+			result.push_back(_this->auto_assign_operator.get());
 	return result.size() > 0;
 }
 
 void TSClass::AddClass(TSClass* use_class)
 {
-	nested_classes.push_back(std::unique_ptr<TSClass>(use_class));
+	_this->nested_classes.push_back(std::unique_ptr<TSClass>(use_class));
+}
+TSClass::~TSClass()
+{
 }
 TSMethod* TSClass::GetAutoDefConstr()const
 {
-	return auto_def_constr.get();
+	return _this->auto_def_constr.get();
 }
 TSMethod* TSClass::GetAutoDestr()const
 {
-	return auto_destr.get();
+	return _this->auto_destr.get();
 }
 void TSClass::CopyExternalMethodBindingsFrom(TSClass* source)
 {
 	//слинковать сигнатуры методов
-	auto i = methods.begin();
-	auto k = source->methods.begin();
-	while( i != methods.end())
+	auto i = _this->methods.begin();
+	auto k = source->_this->methods.begin();
+	while( i != _this->methods.end())
 	{
 		i->CopyExternalMethodBindingsFrom(&(*k));
 		i++;
 		k++;
 	}
-	if (default_constructor)
-		default_constructor->CopyExternalMethodBindingsFrom(source->default_constructor.get());
-	if (copy_constructors)
-		copy_constructors->CopyExternalMethodBindingsFrom(source->copy_constructors.get());
-	if (move_constructors)
-		move_constructors->CopyExternalMethodBindingsFrom(source->move_constructors.get());
-	if (destructor)
-		destructor->CopyExternalMethodBindingsFrom(source->destructor.get());
+	if (_this->default_constructor)
+		_this->default_constructor->CopyExternalMethodBindingsFrom(source->_this->default_constructor.get());
+	if (_this->copy_constructors)
+		_this->copy_constructors->CopyExternalMethodBindingsFrom(source->_this->copy_constructors.get());
+	if (_this->move_constructors)
+		_this->move_constructors->CopyExternalMethodBindingsFrom(source->_this->move_constructors.get());
+	if (_this->destructor)
+		_this->destructor->CopyExternalMethodBindingsFrom(source->_this->destructor.get());
 
 	for (size_t i = 0; i < (short)Lexer::TOperator::End; i++)
-		operators[i]->CopyExternalMethodBindingsFrom(source->operators[i].get());
-	conversions->CopyExternalMethodBindingsFrom(source->conversions.get());
+		_this->operators[i]->CopyExternalMethodBindingsFrom(source->_this->operators[i].get());
+	_this->conversions->CopyExternalMethodBindingsFrom(source->_this->conversions.get());
 
 	//assert(nested_classes.size() == 0); //внешние классы с вложенными классами не допускаются
 	//TODO разобраться
@@ -584,9 +624,9 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 				}
 				else {
 					owners.push_back(this);
-					if (parent.GetClass() != nullptr)
+					if (_this->parent.GetClass() != nullptr)
 					{
-						TSClass* parent_class = parent.GetClass();
+						TSClass* parent_class = _this->parent.GetClass();
 						parent_class->CalculateSizes(owners);
 						class_size += parent_class->GetSize();
 
@@ -606,7 +646,7 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 							parent_class = parent_class->GetParent();
 						} while (parent_class != nullptr);
 					}
-					for (std::unique_ptr<TSClassField>& field : fields)
+					for (std::unique_ptr<TSClassField>& field : _this->fields)
 					{
 						field->GetClass()->CalculateSizes(owners);
 						if (!field->GetSyntax()->IsStatic())
@@ -634,7 +674,7 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 				owners.pop_back();
 				SetSize(class_size);
 			}
-			for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
+			for (const std::unique_ptr<TSClass>& nested_class : _this->nested_classes)
 				nested_class->CalculateSizes(owners);
 		}
 		if (GetType() == TNodeWithTemplates::Template)
@@ -648,26 +688,26 @@ void TSClass::CalculateMethodsSizes()
 	if (GetType() != TNodeWithTemplates::Template)
 	{
 
-		for (TSOverloadedMethod& method : methods)
+		for (TSOverloadedMethod& method : _this->methods)
 		{
 			method.CalculateParametersOffsets();
 		}
-		if (default_constructor)
-			default_constructor->CalculateParametersOffsets();
-		if (copy_constructors)
-			copy_constructors->CalculateParametersOffsets();
-		if (move_constructors)
-			move_constructors->CalculateParametersOffsets();
-		if (destructor)
-			destructor->CalculateParametersOffsets();
+		if (_this->default_constructor)
+			_this->default_constructor->CalculateParametersOffsets();
+		if (_this->copy_constructors)
+			_this->copy_constructors->CalculateParametersOffsets();
+		if (_this->move_constructors)
+			_this->move_constructors->CalculateParametersOffsets();
+		if (_this->destructor)
+			_this->destructor->CalculateParametersOffsets();
 
 		for (size_t i = 0; i < (short)Lexer::TOperator::End; i++)
-			if (operators[i])
-				operators[i]->CalculateParametersOffsets();
-		if (conversions)
-			conversions->CalculateParametersOffsets();
+			if (_this->operators[i])
+				_this->operators[i]->CalculateParametersOffsets();
+		if (_this->conversions)
+			_this->conversions->CalculateParametersOffsets();
 
-		for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
+		for (const std::unique_ptr<TSClass>& nested_class : _this->nested_classes)
 			nested_class->CalculateMethodsSizes();
 	}
 	if (GetType() == TNodeWithTemplates::Template)
@@ -682,7 +722,7 @@ void TSClass::InitAutoMethods()
 	if (IsAutoMethodsInitialized())
 		return;
 
-	for (std::unique_ptr<TSClassField>& field : fields)
+	for (std::unique_ptr<TSClassField>& field : _this->fields)
 	{
 		field->GetClass()->InitAutoMethods();
 	}
@@ -692,7 +732,7 @@ void TSClass::InitAutoMethods()
 	bool has_destr = false;
 	bool has_assign_op = false;
 
-	for (std::unique_ptr<TSClassField>& field : fields)
+	for (std::unique_ptr<TSClassField>& field : _this->fields)
 	{
 		TSClass* field_class = field->GetClass();
 		if (field_class->GetDefConstr() != nullptr)
@@ -707,40 +747,40 @@ void TSClass::InitAutoMethods()
 
 	//TODO проверка наследуемых классов на наличие конструктора, деструктора и т.д.
 
-	assert(!auto_def_constr);
-	assert(!auto_copy_constr);
-	assert(!auto_destr);
-	assert(!auto_assign_operator);
+	assert(!_this->auto_def_constr);
+	assert(!_this->auto_copy_constr);
+	assert(!_this->auto_destr);
+	assert(!_this->auto_assign_operator);
 
 	if (has_def_constr)
 	{
-		auto_def_constr.reset(new TSMethod(this, TSpecialClassMethod::AutoDefConstr));
+		_this->auto_def_constr.reset(new TSMethod(this, TSpecialClassMethod::AutoDefConstr));
 	}
 	//if (has_copy_constr)
 	{
-		auto_copy_constr.reset(new TSMethod(this, TSpecialClassMethod::AutoCopyConstr));
-		TSParameter* p = new TSParameter(this, auto_copy_constr.get(), this, true);
-		auto_copy_constr->AddParameter(p);
+		_this->auto_copy_constr.reset(new TSMethod(this, TSpecialClassMethod::AutoCopyConstr));
+		TSParameter* p = new TSParameter(this, _this->auto_copy_constr.get(), this, true);
+		_this->auto_copy_constr->AddParameter(p);
 		
 	}
 	if (has_destr)
 	{
-		auto_destr.reset(new TSMethod(this, TSpecialClassMethod::AutoDestructor));
+		_this->auto_destr.reset(new TSMethod(this, TSpecialClassMethod::AutoDestructor));
 	}
 
 
 	//if (has_assign_op)
 	{
-		auto_assign_operator.reset(new TSMethod(this, TSpecialClassMethod::AutoAssignOperator));
-		TSParameter* p = new TSParameter(this, auto_assign_operator.get(), this, true);
-		auto_assign_operator->AddParameter(p);
-		p = new TSParameter(this, auto_assign_operator.get(), this, true);
-		auto_assign_operator->AddParameter(p);
+		_this->auto_assign_operator.reset(new TSMethod(this, TSpecialClassMethod::AutoAssignOperator));
+		TSParameter* p = new TSParameter(this, _this->auto_assign_operator.get(), this, true);
+		_this->auto_assign_operator->AddParameter(p);
+		p = new TSParameter(this, _this->auto_assign_operator.get(), this, true);
+		_this->auto_assign_operator->AddParameter(p);
 	}
 
 	SetAutoMethodsInitialized();
 
-	for (const std::unique_ptr<TSClass>& nested_class : nested_classes)
+	for (const std::unique_ptr<TSClass>& nested_class : _this->nested_classes)
 		nested_class->InitAutoMethods();
 
 	if (GetType() == TNodeWithTemplates::Template)
@@ -751,7 +791,7 @@ void TSClass::InitAutoMethods()
 void TSClass::RunAutoDefConstr(std::vector<TStaticValue> &static_fields, TStackValue& object)
 {
 	assert(IsAutoMethodsInitialized());
-	assert(auto_def_constr);
+	assert(_this->auto_def_constr);
 
 	//bool field_has_def_constr = false;
 	//bool parent_has_def_constr = parent.GetClass() == nullptr ? false : parent.GetClass()->HasDefConstr();
@@ -759,7 +799,7 @@ void TSClass::RunAutoDefConstr(std::vector<TStaticValue> &static_fields, TStackV
 	std::vector<TStackValue> formal_params;
 	TStackValue result;
 
-	for (std::unique_ptr<TSClassField>& field : fields)
+	for (std::unique_ptr<TSClassField>& field : _this->fields)
 	{
 		assert(field->GetClass()->IsAutoMethodsInitialized());
 		TSMethod* field_def_constr = field->GetClass()->GetDefConstr();
@@ -789,12 +829,12 @@ void TSClass::RunAutoDefConstr(std::vector<TStaticValue> &static_fields, TStackV
 void TSClass::RunAutoDestr(std::vector<TStaticValue> &static_fields, TStackValue& object)
 {
 	assert(IsAutoMethodsInitialized());
-	assert(auto_destr);
+	assert(_this->auto_destr);
 
 	std::vector<TStackValue> formal_params;
 	TStackValue result;
 
-	for (std::unique_ptr<TSClassField>& field : fields)
+	for (std::unique_ptr<TSClassField>& field : _this->fields)
 	{
 		assert(field->GetClass()->IsAutoMethodsInitialized());
 		TSMethod* field_destr = field->GetClass()->GetDestructor();
@@ -824,7 +864,7 @@ void TSClass::RunAutoDestr(std::vector<TStaticValue> &static_fields, TStackValue
 void TSClass::RunAutoCopyConstr(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object)
 {
 	assert(IsAutoMethodsInitialized());
-	assert(auto_copy_constr);
+	assert(_this->auto_copy_constr);
 
 	//конструктор копии должен принимать один аргумент (кроме ссылки на объект) с тем же типом что и данный класс
 	assert(formal_params.size() == 1);
@@ -832,10 +872,10 @@ void TSClass::RunAutoCopyConstr(std::vector<TStaticValue> &static_fields, std::v
 	
 	TStackValue result;
 
-	if (fields.size() > 0)
+	if (_this->fields.size() > 0)
 	{
 
-		for (std::unique_ptr<TSClassField>& field : fields)
+		for (std::unique_ptr<TSClassField>& field : _this->fields)
 		{
 			assert(field->GetClass()->IsAutoMethodsInitialized());
 			TSMethod* field_copy_constr = field->GetClass()->GetCopyConstr();
@@ -886,17 +926,17 @@ void TSClass::RunAutoCopyConstr(std::vector<TStaticValue> &static_fields, std::v
 void TSClass::RunAutoAssign(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params)
 {
 	assert(IsAutoMethodsInitialized());
-	assert(auto_assign_operator);
+	assert(_this->auto_assign_operator);
 
 	//оператор присваиваиня должен принимать два аргумента с тем же типом что и данный класс по ссылке
 	assert(formal_params.size() == 2);
 	assert(formal_params[0].GetClass() == this);
 	assert(formal_params[1].GetClass() == this);
 
-	if (fields.size() > 0)
+	if (_this->fields.size() > 0)
 	{
 		TStackValue result;
-		for (std::unique_ptr<TSClassField>& field : fields)
+		for (std::unique_ptr<TSClassField>& field : _this->fields)
 		{
 			assert(field->GetClass()->IsAutoMethodsInitialized());
 			TSMethod* field_assign_op = field->GetClass()->GetAssignOperator();

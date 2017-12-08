@@ -4,8 +4,6 @@
 #include "../Source/Semantic/SMethod.h"
 #include "../Source/Semantic/FormalParam.h"
 #include "../Source/Semantic/SStatements.h"
-#include "../Source/Syntax/Statements.h"
-#include "../Source/Syntax/Method.h"
 
 #include <fstream>
 #include <streambuf>

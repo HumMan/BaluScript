@@ -5,10 +5,10 @@
 
 #include "../syntaxAnalyzer.h"
 
-#include "../Syntax/Statements.h"
-#include "../Syntax/Method.h"
+#include "../SyntaxInterface/SyntaxInternal/Statements.h"
+#include "../SyntaxInterface/SyntaxInternal/Method.h"
 
-#include "../Syntax/Class.h"
+#include "../SyntaxInterface/SyntaxInternal/Class.h"
 
 void TStaticArr::get_element_op(TMethodRunContext run_context)
 {
@@ -30,8 +30,8 @@ void TStaticArr::get_size(TMethodRunContext run_context)
 
 void TStaticArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 {
-	SyntaxInternal::TClass* cl = new SyntaxInternal::TClass(syntax->GetBaseClass());
-	syntax->GetBaseClass()->AddNested(cl);
+	SyntaxInternal::TClass* cl = new SyntaxInternal::TClass(syntax->GetBaseClass2());
+	syntax->GetBaseClass2()->AddNested(cl);
 	syntax->GetLexer()->ParseSource(
 		"class TStaticArray<T,Size>\n"
 		"{\n"

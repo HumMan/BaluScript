@@ -4,9 +4,6 @@
 #include "SClass.h"
 #include "SStatements.h"
 
-#include "../Syntax/Method.h"
-#include "../Syntax/Statements.h"
-
 int TNodeWithTemplates::FindTemplateIntParameter(Lexer::TNameId parameter_id)
 {
 	assert(type == Realization);

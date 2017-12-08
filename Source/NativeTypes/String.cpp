@@ -47,10 +47,10 @@
 
 #include "../syntaxAnalyzer.h"
 
-#include "../Syntax/Statements.h"
-#include "../Syntax/Method.h"
+#include "../SyntaxInterface/SyntaxInternal/Statements.h"
+#include "../SyntaxInterface/SyntaxInternal/Method.h"
 
-#include "../Syntax/Class.h"
+#include "../SyntaxInterface/SyntaxInternal/Class.h"
 
 template<>
 void TString::constructor(TMethodRunContext run_context)
@@ -116,8 +116,8 @@ void TString::get_length(TMethodRunContext run_context)
 template<>
 void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 {
-	SyntaxInternal::TClass* cl = new SyntaxInternal::TClass(syntax->GetBaseClass());
-	syntax->GetBaseClass()->AddNested(cl);
+	SyntaxInternal::TClass* cl = new SyntaxInternal::TClass(syntax->GetBaseClass2());
+	syntax->GetBaseClass2()->AddNested(cl);
 	syntax->GetLexer()->ParseSource(
 		"class extern string\n"
 		"{\n"

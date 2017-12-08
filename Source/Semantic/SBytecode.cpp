@@ -6,10 +6,6 @@
 
 #include "../virtualMachine.h"
 
-#include "../Syntax/Statements.h"
-#include "../Syntax/Bytecode.h"
-#include "../Syntax/Method.h"
-
 TSBytecode::TSBytecode(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IBytecode* use_syntax)
 	:TSStatement(SyntaxApi::TStatementType::Bytecode, use_owner, use_method, use_parent, dynamic_cast<SyntaxApi::IStatement*>(use_syntax))
 {
