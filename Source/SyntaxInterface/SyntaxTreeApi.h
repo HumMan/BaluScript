@@ -32,6 +32,10 @@ namespace SyntaxApi
 	class IWhile;
 	class IStatementVisitor;
 	class IParameter;
+
+	BALUSCRIPT_DLL_INTERFACE IClass* Analyze(Lexer::ILexer* source);
+	BALUSCRIPT_DLL_INTERFACE IClass* AnalyzeNestedClass(Lexer::ILexer * lexer, IClass* parent);
+	BALUSCRIPT_DLL_INTERFACE IMethod* AnalyzeNestedMethod(Lexer::ILexer * lexer, IClass* parent);
 }
 
 #include "../VirtualMachine/Op.h"

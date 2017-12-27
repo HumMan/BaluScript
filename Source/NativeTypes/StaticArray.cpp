@@ -5,11 +5,6 @@
 
 #include "../syntaxAnalyzer.h"
 
-#include "../SyntaxInterface/SyntaxInternal/Statements.h"
-#include "../SyntaxInterface/SyntaxInternal/Method.h"
-
-#include "../SyntaxInterface/SyntaxInternal/Class.h"
-
 void TStaticArr::get_element_op(TMethodRunContext run_context)
 {
 	TSClass* obj_class = (*run_context.formal_params)[0].GetClass();
@@ -30,8 +25,6 @@ void TStaticArr::get_size(TMethodRunContext run_context)
 
 void TStaticArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 {
-	SyntaxInternal::TClass* cl = new SyntaxInternal::TClass(syntax->GetBaseClass2());
-	syntax->GetBaseClass2()->AddNested(cl);
 	syntax->GetLexer()->ParseSource(
 		"class TStaticArray<T,Size>\n"
 		"{\n"
@@ -40,8 +33,7 @@ void TStaticArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 		"	func extern size:int;\n"
 		"}\n"
 		);
-	cl->AnalyzeSyntax(syntax->GetLexer());
-	syntax->GetLexer()->GetToken(Lexer::TTokenType::Done);
+	auto cl = SyntaxApi::AnalyzeNestedClass(syntax->GetLexer(), syntax->GetBaseClass());
 
 	TSClass* scl = new TSClass(syntax->GetCompiledBaseClass(), cl);
 	syntax->GetCompiledBaseClass()->AddClass(scl);

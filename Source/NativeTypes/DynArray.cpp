@@ -5,10 +5,6 @@
 
 #include "../syntaxAnalyzer.h"
 
-#include "../SyntaxInterface/SyntaxInternal/Statements.h"
-#include "../SyntaxInterface/SyntaxInternal//Method.h"
-#include "../SyntaxInterface/SyntaxInternal//Class.h"
-
 #include <string.h>
 
 void TDynArr::constructor(TMethodRunContext run_context)
@@ -190,8 +186,6 @@ void TDynArr::get_size(TMethodRunContext run_context)
 
 void TDynArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 {
-	SyntaxInternal::TClass* cl = new SyntaxInternal::TClass(syntax->GetBaseClass2());
-	syntax->GetBaseClass2()->AddNested(cl);
 	syntax->GetLexer()->ParseSource(
 		"class extern TDynArray<T>\n"
 		"{\n"
@@ -203,9 +197,9 @@ void TDynArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 		"func resize(int new_size);\n"
 		"func size:int;\n"
 		"}\n"
-		);
-	cl->AnalyzeSyntax(syntax->GetLexer());
-	syntax->GetLexer()->GetToken(Lexer::TTokenType::Done);
+	);
+
+	auto cl = SyntaxApi::AnalyzeNestedClass(syntax->GetLexer(), syntax->GetBaseClass());
 
 	TSClass* scl = new TSClass(syntax->GetCompiledBaseClass(), cl);
 	syntax->GetCompiledBaseClass()->AddClass(scl);

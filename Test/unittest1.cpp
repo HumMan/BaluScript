@@ -27,10 +27,8 @@ namespace Test
 		
 		try
 		{
-			SyntaxInternal::TMethod* m = new SyntaxInternal::TMethod(syntax->GetBaseClass2());
 			syntax->GetLexer()->ParseSource(code);
-			m->AnalyzeSyntax(syntax->GetLexer());
-			syntax->GetLexer()->GetToken(Lexer::TTokenType::Done);
+			SyntaxApi::IMethod* m = SyntaxApi::AnalyzeNestedMethod(syntax->GetLexer(), syntax->GetBaseClass());
 
 			TSMethod* ms = new TSMethod(syntax->GetCompiledBaseClass(), m);
 			smethods->push_back(std::unique_ptr<TSMethod>(ms));
@@ -63,11 +61,8 @@ namespace Test
 	{
 		try
 		{
-			SyntaxInternal::TClass* cl = new SyntaxInternal::TClass(syntax->GetBaseClass2());
-			syntax->GetBaseClass2()->AddNested(cl);
 			syntax->GetLexer()->ParseSource(code);
-			cl->AnalyzeSyntax(syntax->GetLexer());
-			syntax->GetLexer()->GetToken(Lexer::TTokenType::Done);
+			auto cl = SyntaxApi::AnalyzeNestedClass(syntax->GetLexer(), syntax->GetBaseClass());
 
 			TSClass* scl = new TSClass(syntax->GetCompiledBaseClass(), cl);
 			syntax->GetCompiledBaseClass()->AddClass(scl);

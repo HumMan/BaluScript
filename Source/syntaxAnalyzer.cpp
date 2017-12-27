@@ -1,9 +1,5 @@
 ﻿#include "syntaxAnalyzer.h"
 
-#include "Syntax/Class.h"
-#include "Syntax/Method.h"
-#include "Syntax/Statements.h"
-
 #include "Semantic/SClass.h"
 #include "Semantic/SStatements.h"
 
@@ -17,7 +13,7 @@ class TSyntaxAnalyzer::TPrivate
 {
 public:
 	std::unique_ptr<Lexer::ILexer> lexer;
-	std::unique_ptr<SyntaxInternal::TClass> base_class;
+	std::unique_ptr<SyntaxApi::IClass> base_class;
 	std::unique_ptr<TSClass> sem_base_class;
 	std::vector<TSClassField*> static_fields;
 	std::vector<TSLocalVar*> static_variables;
@@ -32,18 +28,16 @@ TSyntaxAnalyzer::~TSyntaxAnalyzer()
 {
 }
 
-SyntaxApi::IClass* TSyntaxAnalyzer::GetBaseClass()const
-{
-	return GetBaseClass2();
-}
-SyntaxInternal::TClass * TSyntaxAnalyzer::GetBaseClass2() const
+SyntaxApi::IClass * TSyntaxAnalyzer::GetBaseClass() const
 {
 	return _this->base_class.get();
 }
+
 TSClass* TSyntaxAnalyzer::GetCompiledBaseClass()const
 {
 	return _this->sem_base_class.get();
 }
+
 Lexer::ILexer* TSyntaxAnalyzer::GetLexer()const
 {
 	return _this->lexer.get();
@@ -55,10 +49,7 @@ void TSyntaxAnalyzer::Compile(char* use_source/*, TTime& time*/)
 	_this->lexer->ParseSource(use_source);
 	//printf("Source parsing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
 	//t = time.GetTime();
-	_this->base_class.reset(new SyntaxInternal::TClass(nullptr));
-
-	_this->base_class->AnalyzeSyntax(_this->lexer.get());
-	_this->lexer->GetToken(Lexer::TTokenType::Done);
+	_this->base_class.reset(SyntaxApi::Analyze(_this->lexer.get()));
 
 	_this->sem_base_class.reset(new TSClass(nullptr, _this->base_class.get()));
 
@@ -82,10 +73,9 @@ void TSyntaxAnalyzer::Compile(char* use_source/*, TTime& time*/)
 
 void TSyntaxAnalyzer::CreateInternalClasses()
 {
-	TNameId name_id = _this->lexer->GetIdFromName("dword");
-	SyntaxInternal::TClass* t_syntax = new SyntaxInternal::TClass(_this->base_class.get());
-	_this->base_class->AddNested(t_syntax);
-	t_syntax->SetName(name_id);
+	_this->lexer->ParseSource("class dword {}");
+	SyntaxApi::IClass* t_syntax = SyntaxApi::AnalyzeNestedClass(_this->lexer.get(), _this->base_class.get());
+
 	TSClass* t = new TSClass(_this->sem_base_class.get(), t_syntax);
 	t->SetSize(1);
 	t->SetSignatureLinked();
@@ -95,7 +85,8 @@ void TSyntaxAnalyzer::CreateInternalClasses()
 
 TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 {
-	_this->lexer->ParseSource(use_method);
+	//TODO
+		/*_this->lexer->ParseSource(use_method);
 	std::unique_ptr<SyntaxInternal::TMethod> method_decl_syntax(new SyntaxInternal::TMethod(_this->base_class.get()));
 	method_decl_syntax->AnalyzeSyntax(_this->lexer.get(), false);
 	_this->lexer->GetToken(TTokenType::Done);
@@ -164,12 +155,14 @@ TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 	}
 	else
 		_this->lexer->Error("Такого метода не существует!");
+	return nullptr;*/
 	return nullptr;
 }
 
 TSClassField* TSyntaxAnalyzer::GetStaticField(char* use_var)
 {
-	_this->lexer->ParseSource(use_var);
+	//TODO
+	/*_this->lexer->ParseSource(use_var);
 	if (_this->lexer->NameId() != _this->base_class->GetName())
 		_this->lexer->Error("Ожидалось имя класса!");
 	_this->lexer->GetToken();
@@ -190,7 +183,8 @@ TSClassField* TSyntaxAnalyzer::GetStaticField(char* use_var)
 	}
 	if (result == nullptr)_this->lexer->Error("Статического члена класса с таким именем не существует!");
 	_this->lexer->GetToken(TTokenType::Done);
-	return result;
+	return result;*/
+	return nullptr;
 }
 
 

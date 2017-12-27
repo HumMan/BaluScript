@@ -398,5 +398,8 @@
     <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\While.cpp">
       <Filter>Source Files\Syntax\Statements</Filter>
     </ClCompile>
+    <ClCompile Include="Source\SyntaxInterface\SyntaxTreeApi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

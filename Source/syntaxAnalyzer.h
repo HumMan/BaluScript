@@ -6,11 +6,6 @@
 
 #include "SyntaxInterface/SyntaxTreeApi.h"
 
-namespace SyntaxInternal
-{
-	class TClass;
-}
-
 class TSClassField;
 class TSClass;
 class TSMethod;
@@ -32,7 +27,6 @@ class BALUSCRIPT_DLL_INTERFACE TSyntaxAnalyzer : public ISyntaxAnalyzer
 	std::unique_ptr<TPrivate> _this;
 public:
 	SyntaxApi::IClass* GetBaseClass()const;
-	SyntaxInternal::TClass* GetBaseClass2()const;
 	TSClass* GetCompiledBaseClass()const;
 	Lexer::ILexer* GetLexer()const;
 	TSyntaxAnalyzer();
