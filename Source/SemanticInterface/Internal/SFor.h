@@ -2,7 +2,6 @@
 #include "SStatement.h"
 
 #include "BuildContext.h"
-#include "RunContext.h"
 
 class TSClass;
 class TSMethod;
@@ -19,5 +18,5 @@ public:
 	TSFor(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IFor* use_syntax);
 	void Build(TGlobalBuildContext build_context);
 	SyntaxApi::IFor* GetSyntax();
-	void Run(TStatementRunContext run_context);
+	//void Run(TStatementRunContext run_context);
 };

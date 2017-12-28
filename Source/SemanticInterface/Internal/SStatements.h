@@ -5,7 +5,6 @@
 #include "SStatement.h"
 #include "Variable.h"
 
-#include "RunContext.h"
 #include "BuildContext.h"
 
 class TSLocalVar;
@@ -38,5 +37,5 @@ public:
 	TSStatements(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IStatements* use_syntax);
 	void Build(TGlobalBuildContext build_context);
 	//void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value);
-	void Run(TStatementRunContext run_context);
+	/*void Run(TStatementRunContext run_context);*/
 };

@@ -7,10 +7,10 @@
 class TVariable: public SemanticApi::IVariable
 {
 private:
-	SemanticApi::TVariableType var_type;
+	SemanticApi::VariableType var_type;
 public:
-	TVariable(SemanticApi::TVariableType use_var_type) :var_type(use_var_type){}
-	SemanticApi::TVariableType GetType()const{
+	TVariable(SemanticApi::VariableType use_var_type) :var_type(use_var_type){}
+	SemanticApi::VariableType GetType()const{
 		return var_type;
 	}
 };

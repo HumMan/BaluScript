@@ -21,7 +21,7 @@ TSClass* TNodeWithTemplates::FindTemplateRealization(const std::list<TSType_TTem
 	assert(type == Template);
 	for (const std::unique_ptr<TSClass>& realization : realizations)
 	{
-		const std::vector<TNodeWithTemplates::TTemplateParameter>& r_params = realization->GetTemplateParams();
+		const std::vector<SemanticApi::TTemplateParameter>& r_params = realization->GetTemplateParams();
 		if (r_params.size() != params_to_find.size())
 		{
 			continue;
@@ -71,17 +71,17 @@ const std::vector<std::unique_ptr<TSClass>>& TNodeWithTemplates::GetRealizations
 	assert(type == Template);
 	return realizations;
 }
-TSClass* TNodeWithTemplates::GetTemplateClass()
+TSClass* TNodeWithTemplates::GetTemplateClass()const
 {
 	assert(type == Realization);
 	return template_class;
 }
-std::vector<TNodeWithTemplates::TTemplateParameter> TNodeWithTemplates::GetTemplateParams()
+std::vector<SemanticApi::TTemplateParameter> TNodeWithTemplates::GetTemplateParams()
 {
 	assert(type == Realization);
 	return template_params;
 }
-TNodeWithTemplates::TTemplateParameter TNodeWithTemplates::GetTemplateParam(int i)
+SemanticApi::TTemplateParameter TNodeWithTemplates::GetTemplateParam(int i)const
 {
 	return template_params[i];
 }
@@ -91,12 +91,12 @@ void TNodeWithTemplates::SetType(Type use_type)
 	assert(use_type != Unknown);
 	type = use_type;
 }
-TNodeWithTemplates::Type TNodeWithTemplates::GetType()
+TNodeWithTemplates::Type TNodeWithTemplates::GetType()const
 {
 	assert(type != Unknown);
 	return type;
 }
-void TNodeWithTemplates::SetTemplateParams(std::vector<TTemplateParameter> params)
+void TNodeWithTemplates::SetTemplateParams(std::vector<SemanticApi::TTemplateParameter> params)
 {
 	assert(!template_params_set);
 	assert(type == Realization);
@@ -115,3 +115,18 @@ void TNodeWithTemplates::AddTemplateRealization(TSClass* realization)
 	assert(type == Template);
 	realizations.push_back(std::unique_ptr<TSClass>(realization));
 }
+
+//bool TNodeWithTemplates::TTemplateParameter::IsValue()const
+//{
+//	return is_value;
+//}
+//int TNodeWithTemplates::TTemplateParameter::GetValue()const
+//{
+//	assert(is_value);
+//	return value;
+//}
+//SemanticApi::ISClass* TNodeWithTemplates::TTemplateParameter::GetType()const
+//{
+//	assert(!is_value);
+//	return type;
+//}

@@ -3,7 +3,6 @@
 #include "SStatement.h"
 
 #include "BuildContext.h"
-#include "RunContext.h"
 
 class TSClass;
 class TSMethod;
@@ -18,5 +17,5 @@ class TSWhile :public TSStatement
 public:
 	TSWhile(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IWhile* use_syntax);
 	void Build(TGlobalBuildContext build_context);
-	void Run(TStatementRunContext run_context);
+	//void Run(TStatementRunContext run_context);
 };

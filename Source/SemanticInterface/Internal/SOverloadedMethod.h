@@ -22,9 +22,9 @@ public:
 	Lexer::TNameId GetName()const;
 	TSMethod* FindParams(const std::vector<TSParameter*>& params)const;
 	TSMethod* FindConversion(const std::vector<TSParameter*>& params, TSClass* ret_class)const;
-	bool ParamsExists(TSMethod* use_method)const;
-	TSMethod* FindParams(TSMethod* use_method)const;
-	void GetMethods(std::vector<TSMethod*> &result)const;
+	bool ParamsExists(SemanticApi::ISMethod* use_method)const;
+	TSMethod* FindParams(SemanticApi::ISMethod* use_method)const;
+	void GetMethods(std::vector<SemanticApi::ISMethod*> &result)const;
 	void CheckForErrors(bool is_conversion = false);
 	void LinkSignature(TGlobalBuildContext build_context);
 	void LinkBody(TGlobalBuildContext build_context);

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../SemanticInterface/Internal/RunContext.h"
+#include "../TreeRunner/RunContext.h"
 
 #include <string>
 
@@ -52,14 +52,14 @@ public:
 		delete v;
 		v = nullptr;
 	}
-	static void constructor(TMethodRunContext run_context);
-	static void destructor(TMethodRunContext run_context);
-	static void copy_constr(TMethodRunContext run_context);
-	static void assign_op(TMethodRunContext run_context);
-	static void assign_plus_op(TMethodRunContext run_context);
-	static void plus_op(TMethodRunContext run_context);
-	static void get_char_op(TMethodRunContext run_context);
-	static void get_length(TMethodRunContext run_context);
+	static void constructor(TMethodRunContext* run_context);
+	static void destructor(TMethodRunContext* run_context);
+	static void copy_constr(TMethodRunContext* run_context);
+	static void assign_op(TMethodRunContext* run_context);
+	static void assign_plus_op(TMethodRunContext* run_context);
+	static void plus_op(TMethodRunContext* run_context);
+	static void get_char_op(TMethodRunContext* run_context);
+	static void get_length(TMethodRunContext* run_context);
 
 	static void DeclareExternalClass(TSyntaxAnalyzer* syntax);
 };

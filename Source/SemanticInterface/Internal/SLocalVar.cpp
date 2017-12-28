@@ -5,7 +5,6 @@
 #include "SMethod.h"
 #include "SSyntaxNode.h"
 #include "SStatements.h"
-#include "FormalParam.h"
 #include "SExpression.h"
 #include "SClass.h"
 #include "SConstructObject.h"
@@ -15,7 +14,7 @@ void TSLocalVar::Build(TGlobalBuildContext build_context)
 	type.LinkSignature(build_context);
 	type.LinkBody(build_context);
 
-	std::vector<TSMethod*> methods;
+	std::vector<SemanticApi::ISMethod*> methods;
 	if (GetOwner()->GetMethods(methods, GetSyntax()->GetName()))
 		GetSyntax()->Error("Метод не может быть именем переменной!");
 	if (GetOwner()->GetClass(GetSyntax()->GetName()) != nullptr)
@@ -25,11 +24,11 @@ void TSLocalVar::Build(TGlobalBuildContext build_context)
 	{
 		switch (t->GetType())
 		{
-		case SemanticApi::TVariableType::ClassField:
+		case SemanticApi::VariableType::ClassField:
 			GetSyntax()->Error("Локальная переменная перекрывает член класса!");
-		case SemanticApi::TVariableType::Parameter:
+		case SemanticApi::VariableType::Parameter:
 			GetSyntax()->Error("Локальная переменная перекрывает параметр!");
-		case SemanticApi::TVariableType::Local:
+		case SemanticApi::VariableType::Local:
 			GetSyntax()->Error("Локальная переменная с таким именем уже существует!");
 		default:assert(false);
 		}
@@ -54,7 +53,7 @@ void TSLocalVar::Build(TGlobalBuildContext build_context)
 
 TSLocalVar::TSLocalVar(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::ILocalVar* use_syntax)
 	:TSStatement(SyntaxApi::TStatementType::VarDecl, use_owner, use_method, use_parent, use_syntax)
-	, TVariable(SemanticApi::TVariableType::Local)
+	, TVariable(SemanticApi::VariableType::Local)
 	, type(use_owner, use_syntax->GetVarType())
 {
 
@@ -78,44 +77,4 @@ TSClass* TSLocalVar::GetClass()
 bool TSLocalVar::IsStatic()
 {
 	return GetSyntax()->IsStatic();
-}
-
-void TSLocalVar::Run(TStatementRunContext run_context)
-{
-	if (!IsStatic())
-		run_context.local_variables->push_back(TStackValue(false, type.GetClass()));
-
-	//TODO т.к. в GetClassMember создаются временные объекты
-	//if (!IsStatic())
-	//	assert(GetOffset() == local_variables.size() - 1);//иначе ошибка Build локальных переменных
-
-	if (IsStatic() && (*run_context.static_fields)[GetOffset()].IsInitialized())
-	{
-		return;
-	}
-	TStackValue var_object(true, GetClass());
-	if (IsStatic())
-		var_object.SetAsReference((*run_context.static_fields)[GetOffset()].get());
-	else
-		var_object.SetAsReference(run_context.local_variables->back().get());
-
-	construct_object->Construct(var_object, run_context);
-
-	if (IsStatic())
-	{
-		(*run_context.static_fields)[GetOffset()].Initialize();
-	}
-
-	if (assign_expr)
-		assign_expr->Run(run_context);
-}
-
-void TSLocalVar::Destruct(std::vector<TStaticValue> &static_fields, std::vector<TStackValue>& local_variables)
-{
-	if (!IsStatic())
-	{
-		TStackValue without_result, var_object(true, GetClass());
-		var_object.SetAsReference(local_variables.back().get());
-		construct_object->Destruct(var_object, TGlobalRunContext(&static_fields));
-	}
 }

@@ -2,7 +2,6 @@
 
 #include "SLocalVar.h"
 #include "SMethod.h"
-#include "FormalParam.h"
 #include "SExpression.h"
 #include "SBytecode.h"
 #include "SReturn.h"
@@ -138,23 +137,4 @@ SemanticApi::IVariable* TSStatements::GetVar(Lexer::TNameId name, int sender_id)
 	else if (GetMethod() != nullptr)
 		return  GetMethod()->GetVar(name);
 	else return nullptr;
-}
-
-void TSStatements::Run(TStatementRunContext run_context)
-{
-	for (const std::unique_ptr<TSStatement>& statement : statements)
-	{
-		statement->Run(run_context);
-		if (*run_context.result_returned)
-			break;
-	}
-	//for (TSStatements::TVarDecl& var_decl : var_declarations)
-	auto size = var_declarations.size();
-	for (size_t i = 0; i < size; i++)
-	{
-		auto& var_decl = var_declarations[size-i-1];
-		var_decl.pointer->Destruct(*run_context.static_fields,*run_context.local_variables);
-		if(!var_decl.pointer->IsStatic())
-			run_context.local_variables->pop_back();
-	}
 }

@@ -2,7 +2,6 @@
 
 #include "SCommon.h"
 
-#include "FormalParam.h"
 #include "SStatements.h"
 #include "SLocalVar.h"
 #include "SClass.h"
@@ -68,7 +67,7 @@ public:
 		param_expressions.push_back(left);
 		param_expressions.push_back(right);
 
-		TSMethod *bin_operator = nullptr;
+		SemanticApi::ISMethod *bin_operator = nullptr;
 
 		std::vector<TExpressionResult> param;
 		std::vector<SyntaxApi::IMethod*> bin_operators;
@@ -82,7 +81,7 @@ public:
 		if (param[1].IsVoid())
 			syntax_node->Error("К правому операнду нельзя применить бинарный оператор (нужен тип отличающийся от void)!");
 
-		std::vector<TSMethod*> operators;
+		std::vector<SemanticApi::ISMethod*> operators;
 
 		//список доступных операторов получаем из левого операнда
 		param[0].GetClass()->GetOperators(operators, operation_node->GetOp());
@@ -99,7 +98,7 @@ public:
 		TSExpression_TMethodCall* method_call = nullptr;
 
 		method_call = new TSExpression_TMethodCall(TSExpression_TMethodCall::Operator);
-		method_call->Build(param_expressions, bin_operator);
+		method_call->Build(param_expressions, dynamic_cast<TSMethod*>(bin_operator));
 
 		Return(method_call);
 	}
@@ -116,12 +115,12 @@ public:
 		param.resize(1);
 		param[0] = left->GetFormalParameter();
 
-		TSMethod *unary_operator = nullptr;
+		SemanticApi::ISMethod *unary_operator = nullptr;
 
 		if (param[0].GetClass() == nullptr)
 			syntax_node->Error("К данному операнду нельзя применить унарный оператор (нужен тип отличающийся от void)!");
 
-		std::vector<TSMethod*> operators;
+		std::vector<SemanticApi::ISMethod*> operators;
 		param[0].GetClass()->GetOperators(operators, operation_node->GetOp());
 
 		unary_operator = FindMethod(syntax_node, operators, param);
@@ -131,7 +130,7 @@ public:
 			ValidateAccess(syntax_node, owner, unary_operator);
 
 			TSExpression_TMethodCall* method_call = new TSExpression_TMethodCall(TSExpression_TMethodCall::Operator);
-			method_call->Build(param_expressions, unary_operator);
+			method_call->Build(param_expressions, dynamic_cast<TSMethod*>(unary_operator));
 			Return(method_call);
 		}
 		else syntax_node->Error("Унарного оператора для данного типа не существует!");
@@ -152,14 +151,14 @@ public:
 		
 		std::vector<TExpressionResult> params_result;
 		std::vector<TSOperation*> param_expressions;
-		std::vector<TFormalParameter> params_formals;
+		std::vector<SemanticApi::TFormalParameter> params_formals;
 		auto param = operation_node->GetParam();
 		for (size_t i = 0; i < param.size(); i++)
 		{
 			TSOperation* return_new_operation = VisitNode(param[i]);
 			param_expressions.push_back(return_new_operation);
 			params_result.push_back(return_new_operation->GetFormalParameter());
-			params_formals.push_back(TFormalParameter(params_result.back().GetClass(), params_result.back().IsRef()));
+			params_formals.push_back(SemanticApi::TFormalParameter(params_result.back().GetClass(), params_result.back().IsRef()));
 		}
 		
 		if (left_result.IsMethods())
@@ -167,8 +166,8 @@ public:
 			//вызов метода
 			if (operation_node->IsBracket())
 				assert(false);//при вызове метода используются круглые скобки
-			TSMethod* invoke = nullptr;
-			TSMethod* method = FindMethod(syntax_node, left_result.GetMethods(), params_result);
+			SemanticApi::ISMethod* invoke = nullptr;
+			SemanticApi::ISMethod* method = FindMethod(syntax_node, left_result.GetMethods(), params_result);
 			if (method != nullptr)
 			{
 				ValidateAccess(syntax_node, owner, method);
@@ -178,7 +177,7 @@ public:
 				syntax_node->Error("Метода с такими параметрами не существует");
 
 			TSExpression_TMethodCall* method_call = new TSExpression_TMethodCall(TSExpression_TMethodCall::Method);
-			method_call->Build(param_expressions, invoke);
+			method_call->Build(param_expressions, dynamic_cast<TSMethod*>(invoke));
 			method_call->left.reset(left);
 			//method_call->construct_temp_object->Build()
 			Return(method_call);
@@ -205,10 +204,10 @@ public:
 			params_result.insert(params_result.begin(), left_result);
 			
 			left = nullptr;
-			TSMethod* invoke = nullptr;
-			std::vector<TSMethod*> operators;
+			SemanticApi::ISMethod* invoke = nullptr;
+			std::vector<SemanticApi::ISMethod*> operators;
 			left_result.GetClass()->GetOperators(operators, operation_node->IsBracket() ? (Lexer::TOperator::GetArrayElement) : (Lexer::TOperator::ParamsCall));
-			TSMethod* method = FindMethod(syntax_node, operators, params_result);
+			SemanticApi::ISMethod* method = FindMethod(syntax_node, operators, params_result);
 			if (method != nullptr)
 			{
 				ValidateAccess(syntax_node, owner, method);
@@ -218,7 +217,7 @@ public:
 				syntax_node->Error("Оператора с такими параметрами не существует!");
 
 			TSExpression_TMethodCall* method_call = new TSExpression_TMethodCall(TSExpression_TMethodCall::Operator);
-			method_call->Build(param_expressions, invoke);
+			method_call->Build(param_expressions, dynamic_cast<TSMethod*>(invoke));
 
 			Return(method_call);
 		}		
@@ -260,7 +259,7 @@ public:
 				}
 				else
 				{
-					std::vector<TSMethod*> methods;
+					std::vector<SemanticApi::ISMethod*> methods;
 					if (left_result.GetType()->GetMethods(methods, operation_node->GetName(), true))
 					{
 						TSExpression::TGetMethods* result = new TSExpression::TGetMethods();
@@ -328,7 +327,7 @@ public:
 			}
 			else
 			{
-				std::vector<TSMethod*> methods;
+				std::vector<SemanticApi::ISMethod*> methods;
 				if (left_result.GetClass()->GetMethods(methods, operation_node->GetName(), false))
 				{
 					TSExpression::TGetMethods* result = new TSExpression::TGetMethods();
@@ -349,7 +348,7 @@ public:
 		{
 			switch (var->GetType())
 			{
-			case SemanticApi::TVariableType::ClassField:
+			case SemanticApi::VariableType::ClassField:
 			{
 				ValidateAccess(syntax_node, owner, (TSClassField*)var);
 				if ((!(static_cast<TSClassField*>(var))->GetSyntax()->IsStatic()) && method->GetSyntax()->IsStatic())
@@ -357,16 +356,16 @@ public:
 				TSExpression::TGetClassField* result = new TSExpression::TGetClassField();
 				result->left = nullptr;
 				result->field = (TSClassField*)var;
-				result->left_result = TExpressionResult(result->field->GetClass(), true);
+				result->left_result = TExpressionResult(dynamic_cast<TSClass*>(result->field->GetClass()), true);
 				Return(result);
 			}break;
-			case SemanticApi::TVariableType::Local:
+			case SemanticApi::VariableType::Local:
 			{
 				TSExpression::TGetLocal* result = new TSExpression::TGetLocal();
 				result->variable=(TSLocalVar*)var;
 				Return(result);
 			}break;
-			case SemanticApi::TVariableType::Parameter:
+			case SemanticApi::VariableType::Parameter:
 			{
 				TSExpression::TGetParameter* result = new TSExpression::TGetParameter();
 				result->parameter = (TSParameter*)var;
@@ -378,13 +377,13 @@ public:
 		}
 		else
 		{
-			std::vector<TSMethod*> methods;
+			std::vector<SemanticApi::ISMethod*> methods;
 			if (method->GetSyntax()->IsStatic())
 			{
 				owner->GetMethods(methods, operation_node->GetName(), true);
 				if (methods.size() == 0)
 				{
-					std::vector<TSMethod*> temp;
+					std::vector<SemanticApi::ISMethod*> temp;
 					if (owner->GetMethods(temp, operation_node->GetName(), false))
 					{
 						syntax_node->Error("К нестатическому методу класса нельзя обращаться из статического метода!");
@@ -483,7 +482,7 @@ SemanticApi::IVariable* TSExpression::GetVar(Lexer::TNameId name)
 
 void TSExpression_TMethodCall::Build(const std::vector<TSOperation*>& param_expressions, TSMethod* method)
 {
-	std::vector<TFormalParameter> formal_params;
+	std::vector<SemanticApi::TFormalParameter> formal_params;
 	{
 		assert(param_expressions.size() == method->GetParamsCount());
 		invoke = method;
@@ -499,20 +498,12 @@ TSExpression::TInt::TInt(TSClass* owner, SyntaxApi::IType* syntax_node)
 	:type(owner,syntax_node)
 {
 }
-void TSExpression::TInt::Run(TExpressionRunContext run_context)
-{
-	*run_context.expression_result = TStackValue(false, type.GetClass());
-	run_context.expression_result->get_as<int>() = val;
-}
+
 TSExpression::TFloat::TFloat(TSClass* owner, SyntaxApi::IType* syntax_node)
-	:type(owner, syntax_node)
+	: type(owner, syntax_node)
 {
 }
-void TSExpression::TFloat::Run(TExpressionRunContext run_context)
-{
-	*run_context.expression_result = TStackValue(false, type.GetClass());
-	run_context.expression_result->get_as<float>() = val;
-}
+
 TExpressionResult TSExpression::TFloat::GetFormalParameter()
 {
 	return TExpressionResult(type.GetClass(), false);
@@ -522,11 +513,7 @@ TSExpression::TBool::TBool(TSClass* owner, SyntaxApi::IType* syntax_node)
 	:type(owner, syntax_node)
 {
 }
-void TSExpression::TBool::Run(TExpressionRunContext run_context)
-{
-	*run_context.expression_result = TStackValue(false, type.GetClass());
-	run_context.expression_result->get_as<int>() = val;
-}
+
 TExpressionResult TSExpression::TBool::GetFormalParameter()
 {
 	return TExpressionResult(type.GetClass(), false);
@@ -536,11 +523,7 @@ TSExpression::TString::TString(TSClass* owner, SyntaxApi::IType* syntax_node)
 	:type(owner, syntax_node)
 {
 }
-void TSExpression::TString::Run(TExpressionRunContext run_context)
-{
-	*run_context.expression_result = TStackValue(false, type.GetClass());
-	run_context.expression_result->get_as< ::TString>().Init(val);
-}
+
 TExpressionResult TSExpression::TString::GetFormalParameter()
 {
 	return TExpressionResult(type.GetClass(), false);
@@ -550,11 +533,7 @@ TSExpression::TEnumValue::TEnumValue(TSClass* owner, TSClass* _type)
 	:type(_type)
 {
 }
-void TSExpression::TEnumValue::Run(TExpressionRunContext run_context)
-{
-	*run_context.expression_result = TStackValue(false, type);
-	run_context.expression_result->get_as<int>() = val;
-}
+
 TExpressionResult TSExpression::TEnumValue::GetFormalParameter()
 {
 	return TExpressionResult(type, false);
@@ -564,47 +543,7 @@ TExpressionResult TSExpression_TMethodCall::GetFormalParameter()
 {
 	return TExpressionResult(invoke->GetRetClass(), invoke->GetSyntax()->IsReturnRef());
 }
-void TSExpression_TMethodCall::Run(TExpressionRunContext run_context)
-{
-	//соглашение о вызовах - вызывающий инициализирует параметры, резервирует место для возвращаемого значения, вызывает деструкторы параметров
-	std::vector<TStackValue> method_call_formal_params;
-	params.Construct(method_call_formal_params, run_context);
-	switch (type)
-	{
-	//case TSExpression_TMethodCall::DefaultAssignOperator:
-	//{
-	//	memcpy(method_call_formal_params[0].get(), method_call_formal_params[1].get(), method_call_formal_params[0].GetClass()->GetSize()*sizeof(int));
-	//}break;
 
-	case TSExpression_TMethodCall::Method:
-	{
-		TStackValue left_result;
-		if (left != nullptr)
-			left->Run(TExpressionRunContext(run_context, &left_result));
-
-		if (invoke->GetRetClass() != nullptr)
-			*run_context.expression_result = TStackValue(invoke->GetSyntax()->IsReturnRef(), invoke->GetRetClass());
-
-		invoke->Run(TMethodRunContext(run_context.static_fields, &method_call_formal_params, run_context.expression_result, &left_result));
-	}break;
-
-	case TSExpression_TMethodCall::Operator:
-	{
-		if (invoke->GetRetClass() != nullptr)
-			*run_context.expression_result = TStackValue(invoke->GetSyntax()->IsReturnRef(), invoke->GetRetClass());
-		invoke->Run(TMethodRunContext(run_context.static_fields, &method_call_formal_params, run_context.expression_result, nullptr));
-	}break;
-
-	case TSExpression_TMethodCall::ObjectConstructor:
-	{
-		invoke->Run(TMethodRunContext(run_context.static_fields, &method_call_formal_params, nullptr, run_context.object));
-	}break;
-
-	default:
-		assert(false);
-	}
-	params.Destroy(method_call_formal_params, run_context);
-}
 //void TSExpression_TMethodCall::Run(TStackValue& object_to_construct, TMethodRunContext run_context, std::vector<TStackValue>& local_variables)
 //{
 //	//соглашение о вызовах - вызывающий инициализирует параметры, резервирует место для возвращаемого значения, вызывает деструкторы параметров
@@ -636,103 +575,29 @@ TExpressionResult TSExpression::TGetMethods::GetFormalParameter()
 {
 	return result;
 }
-void TSExpression::TGetMethods::Run(TExpressionRunContext run_context)
-{
-	if (left == nullptr)
-		return;
 
-	//auto exp_result_type = left->GetFormalParameter();
-	//if (!exp_result_type.IsRef())
-	//{
-	//	//TODO не в пустоту, а в массив временных объектов выражения
-	//	left->Run(static_fields, formal_params, result, *new TStackValue(false, exp_result_type.GetClass()), local_variables);
-	//}
-	//else
-		left->Run(run_context);
-}
 TExpressionResult TSExpression::TGetClassField::GetFormalParameter()
 {
 	//при получении статической переменной возвращается ссылка
 	if (left_result.IsType())
-		return TExpressionResult(field->GetClass(), true);
+		return TExpressionResult(dynamic_cast<TSClass*>(field->GetClass()), true);
 	else
 		//return TExpressionResult(field->GetClass(),left_result.IsRef());
-		return TExpressionResult(field->GetClass(), true);
+		return TExpressionResult(dynamic_cast<TSClass*>(field->GetClass()), true);
 }
-void TSExpression::TGetClassField::Run(TExpressionRunContext run_context)
-{
-	if (field->GetSyntax()->IsStatic())
-	{ 
-		*run_context.expression_result = TStackValue(true, field->GetClass());
-		run_context.expression_result->SetAsReference((*run_context.static_fields)[field->GetOffset()].get());
-	}
-	else
-	{
-		if (left != nullptr)
-		{
-			auto exp_result_type = left->GetFormalParameter();
-			if (!exp_result_type.IsRef())
-			{
-				//TODO не в пустоту, а в массив временных объектов выражения
-				auto temp = new TStackValue(false, exp_result_type.GetClass());
-				left->Run(TExpressionRunContext(run_context, temp));
-				*run_context.expression_result = TStackValue(true, field->GetClass());
-				run_context.expression_result->SetAsReference(((int*)(*temp).get()) + field->GetOffset());
-			}
-			else
-			{
-				TStackValue exp_result;
-				left->Run(TExpressionRunContext(run_context, &exp_result));
-				*run_context.expression_result = TStackValue(true, field->GetClass());
-				run_context.expression_result->SetAsReference(((int*)exp_result.get()) + field->GetOffset());
-			}			
-		}
-		else
-			//иначе необходимо получить ссылку на поле данного класса
-		{
-			*run_context.expression_result = TStackValue(true, field->GetClass());
-			run_context.expression_result->SetAsReference(((int*)run_context.object->get()) + field->GetOffset());
-		}
-	}
-}
+
 TExpressionResult TSExpression::TGetParameter::GetFormalParameter()
 {
 	return TExpressionResult(parameter->GetClass(), true);
-}
-void TSExpression::TGetParameter::Run(TExpressionRunContext run_context)
-{
-	//sp_base - parameter offset
-	void* param = (*run_context.formal_params)[parameter->GetOffset()].get();
-	*run_context.expression_result = TStackValue(true, parameter->GetClass());
-	run_context.expression_result->SetAsReference(param);
 }
 TExpressionResult TSExpression::TGetLocal::GetFormalParameter()
 {
 	return TExpressionResult(variable->GetClass(), true);
 }
-void TSExpression::TGetLocal::Run(TExpressionRunContext run_context)
-{
-	void* variable_value = nullptr;
-	if (variable->IsStatic())
-	{
-		variable_value = (*run_context.static_fields)[variable->GetOffset()].get();
-	}
-	else
-	{
-		variable_value = (*run_context.local_variables)[variable->GetOffset()].get();
-	}
-	*run_context.expression_result = TStackValue(true, variable->GetClass());
-	run_context.expression_result->SetAsReference(variable_value);
-}
 
 TExpressionResult TSExpression_TGetClass::GetFormalParameter()
 {
 	return TExpressionResult(get_class);
-}
-
-void TSExpression_TGetClass::Run(TExpressionRunContext run_context)
-{
-	//nothing to do
 }
 
 void TSExpression_TCreateTempObject::Build(const std::vector<SyntaxApi::IExpression*>& param_expressions)
@@ -748,38 +613,13 @@ TExpressionResult TSExpression_TCreateTempObject::GetFormalParameter()
 	return TExpressionResult(left->GetFormalParameter().GetType(),false);
 }
 
-void TSExpression_TCreateTempObject::Run(TExpressionRunContext run_context)
-{
-	*run_context.expression_result = TStackValue(false, left->GetFormalParameter().GetType());
-	construct_object->Construct(*run_context.expression_result, run_context);
-}
 TExpressionResult TSExpression_TempObjectType::GetFormalParameter()
 {
 	return TExpressionResult(type.GetClass());
 }
-void TSExpression_TempObjectType::Run(TExpressionRunContext run_context)
-{
-	//nothing to do
-}
 TExpressionResult TSExpression::TGetThis::GetFormalParameter()
 {
 	return TExpressionResult(owner, true);
-}
-void TSExpression::TGetThis::Run(TExpressionRunContext run_context)
-{
-	*run_context.expression_result = TStackValue(true, owner);
-	run_context.expression_result->SetAsReference(run_context.object->get());
-}
-
-void TSExpression::Run(TStatementRunContext run_context)
-{
-	TStackValue exp_result;
-	first_op->Run(TExpressionRunContext(run_context, &exp_result));
-}
-
-void TSExpression::Run(TExpressionRunContext run_context)
-{
-	first_op->Run(run_context);
 }
 
 SyntaxApi::IExpression* TSExpression::GetSyntax()

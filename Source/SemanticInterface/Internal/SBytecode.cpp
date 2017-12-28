@@ -1,6 +1,5 @@
 ﻿#include "SBytecode.h"
 
-#include "FormalParam.h"
 #include "SMethod.h"
 #include "SClass.h"
 
@@ -39,63 +38,3 @@ void TSBytecode::Build(TGlobalBuildContext build_context)
 	}
 }
 
-void PackToStack(std::vector<TStackValue> &formal_params, int* &sp)
-{
-	int i = 0;
-	for (TStackValue& v : formal_params)
-	{
-		if (v.IsRef())
-		{
-			*(void**)sp = v.get();
-			(*(int**)&sp) ++;
-		}
-		else
-		{
-			memcpy(sp, v.get(), v.GetClass()->GetSize()*sizeof(int));
-			*(int**)&sp += v.GetClass()->GetSize();
-		}
-		if (i == (formal_params.size() - 1))
-			(*(int**)&sp)--;
-		i++;
-	}
-}
-
-void TSBytecode::Run(TStatementRunContext run_context)
-{
-	int stack[255];
-	int* sp = stack;
-	PackToStack(*run_context.formal_params, sp);
-
-	auto object = (run_context.object!=nullptr)?(int*)run_context.object->get():nullptr;
-	auto code = GetSyntax()->GetBytecode();
-	for (const SyntaxApi::TBytecodeOp& op : code)
-	{
-		
-		if (
-			TVirtualMachine::ExecuteIntOps(op.op, sp, object) ||
-			TVirtualMachine::ExecuteFloatOps(op.op, sp, object) ||
-			TVirtualMachine::ExecuteBoolOps(op.op, sp, object) ||
-			TVirtualMachine::ExecuteBaseOps(op.op, sp, object) ||
-			TVirtualMachine::ExecuteVec2Ops(op.op, sp, object) ||
-			TVirtualMachine::ExecuteVec2iOps(op.op, sp, object))
-		{
-
-		}
-		else
-		{
-			throw;//GetSyntax()->Error("Неизвестная команда!");
-		}
-	}
-	if (GetMethod()->GetRetClass() != nullptr)
-	{
-		*run_context.result = TStackValue(GetMethod()->GetSyntax()->IsReturnRef(), GetMethod()->GetRetClass());
-		if (GetMethod()->GetSyntax()->IsReturnRef())
-		{
-			run_context.result->SetAsReference(*(void**)stack);
-		}
-		else
-		{
-			memcpy(run_context.result->get(), stack, GetMethod()->GetReturnSize()*sizeof(int));
-		}
-	}
-}

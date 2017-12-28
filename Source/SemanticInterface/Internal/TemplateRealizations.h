@@ -2,10 +2,12 @@
 
 #include "../../SyntaxInterface/SyntaxTreeApi.h"
 
+#include "../SemanticTreeApi.h"
+
 class TSClass;
 class TSType_TTemplateParameter;
 
-class TNodeWithTemplates
+class TNodeWithTemplates: public virtual SemanticApi::INodeWithTemplates
 {
 public:
 	enum Type
@@ -15,17 +17,11 @@ public:
 		Realization,
 		Unknown
 	};
-	class TTemplateParameter
-	{
-	public:
-		bool is_value;
-		int value;
-		TSClass* type;
-	};
+	
 private:
 	Type type;
-	///<summary>Если класс является реализацией одного из шаблонов, то содержит указатели на классы, заданные в параметрах шаблона</summary>
-	std::vector<TTemplateParameter> template_params;
+	///<summary>Если класс является реализацией одного из шаблонов, то массив содержит указатели на классы, заданные в параметрах шаблона</summary>
+	std::vector<SemanticApi::TTemplateParameter> template_params;
 	bool template_params_set;
 	///<summary>Если класс является реализацией одного из шаблонов, то содержит указатель на шаблонный класс по которому была сгенерирована данная реализация</summary>
 	TSClass* template_class;
@@ -38,17 +34,17 @@ public:
 	TSClass* FindTemplateRealization(const std::list<TSType_TTemplateParameter>& params_to_find);
 	int FindTemplateIntParameter(Lexer::TNameId parameter_id);
 	const std::vector<std::unique_ptr<TSClass>>& GetRealizations();
-	TSClass* GetTemplateClass();
-	std::vector<TTemplateParameter> GetTemplateParams();
-	TTemplateParameter GetTemplateParam(int i);
+	TSClass* GetTemplateClass()const;
+	std::vector<SemanticApi::TTemplateParameter> GetTemplateParams();
+	SemanticApi::TTemplateParameter GetTemplateParam(int i)const;
 	void SetType(Type use_type);
-	Type GetType();
-	void SetTemplateParams(std::vector<TTemplateParameter> params);
+	Type GetType()const;
+	void SetTemplateParams(std::vector<SemanticApi::TTemplateParameter> params);
 	void SetTemplateClass(TSClass* template_class);
 	void AddTemplateRealization(TSClass* realization);
 };
 
-class TSMultifield
+class TSMultifield: public virtual SemanticApi::ISMultifield
 {
 	size_t size_multiplier;
 	bool size_multiplier_set;
@@ -64,11 +60,11 @@ public:
 		size_multiplier = mul;
 		size_multiplier_set = true;
 	}
-	bool HasSizeMultiplier()
+	bool HasSizeMultiplier()const
 	{
 		return size_multiplier_set;
 	}
-	size_t GetSizeMultiplier()
+	size_t GetSizeMultiplier()const
 	{
 		return size_multiplier;
 	}

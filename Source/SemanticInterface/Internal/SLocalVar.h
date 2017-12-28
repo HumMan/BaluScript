@@ -19,6 +19,6 @@ public:
 	TSClass* GetClass();
 	bool IsStatic();
 	void Build(TGlobalBuildContext build_context);
-	void Run(TStatementRunContext run_context);
-	void Destruct(std::vector<TStaticValue> &static_fields, std::vector<TStackValue>& local_variables);
+	/*void Run(TStatementRunContext run_context);
+	void Destruct(std::vector<TStaticValue> &static_fields, std::vector<TStackValue>& local_variables);*/
 };

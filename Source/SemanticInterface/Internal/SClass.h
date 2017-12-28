@@ -34,30 +34,30 @@ public:
 	TSClass* GetParent();
 	TSClass* GetNestedByFullName(std::vector<Lexer::TNameId> full_name, size_t curr_id);
 	TSClassField* GetField(Lexer::TNameId name, bool only_in_this);
-	TSClassField* GetField(size_t i)const;
+	SemanticApi::ISClassField* GetField(size_t i)const;
 	size_t GetFieldsCount()const;
 	TSClassField* GetField(Lexer::TNameId name, bool is_static, bool only_in_this);
-	bool HasConversion(TSClass* target_type);
-	bool IsNestedIn(TSClass* use_parent);
+	bool HasConversion(SemanticApi::ISClass* target_type);
+	bool IsNestedIn(SemanticApi::ISClass* use_parent);
 	
-	TSMethod* GetDefConstr();
-	TSMethod* GetDestructor();
+	SemanticApi::ISMethod* GetDefConstr()const;
+	SemanticApi::ISMethod* GetDestructor()const;
 	//
-	TSMethod* GetCopyConstr();
-	TSMethod* GetMoveConstr();
-	TSMethod* GetAssignOperator();
+	SemanticApi::ISMethod* GetCopyConstr()const;
+	SemanticApi::ISMethod* GetMoveConstr()const;
+	SemanticApi::ISMethod* GetAssignOperator()const;
 	//
-	bool GetCopyConstructors(std::vector<TSMethod*> &result);
-	bool GetMoveConstructors(std::vector<TSMethod*> &result);
-	bool GetOperators(std::vector<TSMethod*> &result, Lexer::TOperator op);
-	bool GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_method_name);
-	bool GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_method_name, bool is_static);
-	TSMethod* GetConversion(bool source_ref, TSClass* target_type);
+	bool GetCopyConstructors(std::vector<SemanticApi::ISMethod*> &result)const;
+	bool GetMoveConstructors(std::vector<SemanticApi::ISMethod*> &result)const;
+	bool GetOperators(std::vector<SemanticApi::ISMethod*> &result, Lexer::TOperator op)const;
+	bool GetMethods(std::vector<SemanticApi::ISMethod*> &result, Lexer::TNameId use_method_name)const;
+	bool GetMethods(std::vector<SemanticApi::ISMethod*> &result, Lexer::TNameId use_method_name, bool is_static)const;
+	SemanticApi::ISMethod* GetConversion(bool source_ref, SemanticApi::ISClass* target_type)const;
 
-	TSClass* GetNested(Lexer::TNameId name);
+	TSClass* GetNested(Lexer::TNameId name)const;
 
-	bool GetTemplateParameter(Lexer::TNameId name, TNodeWithTemplates::TTemplateParameter& result);
-	bool HasTemplateParameter(Lexer::TNameId name);
+	bool GetTemplateParameter(Lexer::TNameId name, SemanticApi::TTemplateParameter& result)const;
+	bool HasTemplateParameter(Lexer::TNameId name)const;
 	///<summary>ѕостоение семанитческого дерева по синтаксическому(дл€ всех кроме тел методов) без какого либо анализа типов</summary>
 	void Build();
 	///<param name = 'static_fields'>—писок статических полей класса - необходим дл€ их дальнейшей инициализации</param>
@@ -69,8 +69,8 @@ public:
 	void InitAutoMethods();
 
 	//TODO добавить в дальнейшем проверку - можно ли заменить на memcpy операторы copy и assign
-	void RunAutoDefConstr(std::vector<TStaticValue> &static_fields, TStackValue& object);
+	/*void RunAutoDefConstr(std::vector<TStaticValue> &static_fields, TStackValue& object);
 	void RunAutoDestr(std::vector<TStaticValue> &static_fields, TStackValue& object);
 	void RunAutoCopyConstr(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object);
-	void RunAutoAssign(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params);
+	void RunAutoAssign(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params);*/
 };

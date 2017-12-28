@@ -26,25 +26,3 @@ SyntaxApi::IIf* TSIf::GetSyntax()
 {
 	return dynamic_cast<SyntaxApi::IIf*>(TSyntaxNode::GetSyntax());
 }
-
-void TSIf::Run(TStatementRunContext run_context)
-{
-	TStackValue compare_result;
-
-
-
-	bool_expr->Run(TExpressionRunContext(run_context, &compare_result));
-	bool_expr_conversion->RunConversion(*run_context.static_fields, compare_result);
-	if (*(bool*)compare_result.get())
-	{
-		statements->Run(run_context);
-		if (*run_context.result_returned)
-			return;
-	}
-	else
-	{
-		else_statements->Run(run_context);
-		if (*run_context.result_returned)
-			return;
-	}
-}

@@ -189,12 +189,6 @@
     <ClInclude Include="Source\SemanticInterface\Internal\BuildContext.h">
       <Filter>Source Files\Semantic</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SemanticInterface\Internal\FormalParam.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\SemanticInterface\Internal\RunContext.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
     <ClInclude Include="Source\SemanticInterface\Internal\SBytecode.h">
       <Filter>Source Files\Semantic\Statements</Filter>
     </ClInclude>
@@ -262,6 +256,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\SemanticInterface\IMethod.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TreeRunner\RunContext.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TreeRunner\FormalParam.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\ExpressionResult.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TreeRunner\AllRunCode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TreeRunner\ExpressionRun.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -350,9 +359,6 @@
     <ClCompile Include="Source\SyntaxInterface\SyntaxTreeApi.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SemanticInterface\Internal\FormalParam.cpp">
-      <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
     <ClCompile Include="Source\SemanticInterface\Internal\SBytecode.cpp">
       <Filter>Source Files\Semantic\Statements</Filter>
     </ClCompile>
@@ -411,6 +417,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\SemanticInterface\Internal\SCommon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\ExpressionResult.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TreeRunner\FormalParam.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

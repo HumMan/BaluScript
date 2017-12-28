@@ -95,7 +95,7 @@ TSClass* TSType_TClassName::LinkSignature(TGlobalBuildContext build_context,TSCl
 					//проверяем не является ли идентификатор шаблонным параметром
 					if (use_owner->GetType() == TNodeWithTemplates::Realization && use_owner->HasTemplateParameter(t->GetType()->GetClassNames().back()->GetName()))
 					{
-						TNodeWithTemplates::TTemplateParameter val;
+						SemanticApi::TTemplateParameter val;
 						if (!use_owner->GetTemplateParameter(t->GetType()->GetClassNames().back()->GetName(), val))
 						{
 							use_owner->GetSyntax()->Error("Не найден шаблонный параметр!");
@@ -127,7 +127,7 @@ TSClass* TSType_TClassName::LinkSignature(TGlobalBuildContext build_context,TSCl
 				use_curr_class->AddTemplateRealization(realization);
 				realization->SetTemplateClass(use_curr_class);
 				{
-					std::vector<TNodeWithTemplates::TTemplateParameter> template_params;
+					std::vector<SemanticApi::TTemplateParameter> template_params;
 					for (TSType_TTemplateParameter& t_par : template_params_classes)
 					{
 						template_params.emplace_back();

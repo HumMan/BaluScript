@@ -5,7 +5,6 @@
 
 #include "SStatements.h"
 #include "SOverloadedMethod.h"
-#include "FormalParam.h"
 #include "SType.h"
 #include "SClass.h"
 
@@ -26,24 +25,32 @@ public:
 	TExternalSMethod external_func;
 	TPrivate(TSClass *use_owner, SyntaxApi::IType *use_syntax_node) 
 		: ret(use_owner, use_syntax_node)
-	{}
+	{
+		owner = nullptr;
+		is_external = false;
+		external_func = nullptr;
+	}
 	TPrivate(TSClass *use_owner, TSClass *use_class)
 		: ret(use_owner, use_class)
-	{}
+	{
+		owner = nullptr;
+		is_external = false;
+		external_func = nullptr;
+	}
 };
 
-TSpecialClassMethod::Type GetMethodTypeFromSyntax(SyntaxApi::IMethod* use_syntax)
+SemanticApi::SpecialClassMethodType GetMethodTypeFromSyntax(SyntaxApi::IMethod* use_syntax)
 {
 	switch (use_syntax->GetMemberType())
 	{
 	case SyntaxApi::TClassMember::DefaultConstr:
-		return TSpecialClassMethod::Default;
+		return SemanticApi::SpecialClassMethodType::Default;
 	case SyntaxApi::TClassMember::CopyConstr:
-		return TSpecialClassMethod::CopyConstr;
+		return SemanticApi::SpecialClassMethodType::CopyConstr;
 	case SyntaxApi::TClassMember::Destr:
-		return TSpecialClassMethod::Destructor;
+		return SemanticApi::SpecialClassMethodType::Destructor;
 	default:
-		return TSpecialClassMethod::NotSpecial;
+		return SemanticApi::SpecialClassMethodType::NotSpecial;
 	}
 }
 
@@ -52,21 +59,18 @@ TSMethod::TSMethod(TSClass* use_owner, SyntaxApi::IMethod* use_syntax)
 {
 	_this.reset(new TPrivate(use_owner, use_syntax->GetRetType()));
 	_this->owner = use_owner;
-	_this->is_external = false;
-	_this->external_func = nullptr;
 	_this->has_return = use_syntax->HasReturn();
 	_this->ret_ref = use_syntax->IsReturnRef();
 	
 }
 
-TSMethod::TSMethod(TSClass* use_owner, TSpecialClassMethod::Type special_method_type)
+TSMethod::TSMethod(TSClass* use_owner, SemanticApi::SpecialClassMethodType special_method_type)
 	:TSyntaxNode(nullptr), TSpecialClassMethod(special_method_type)
 {
 	_this.reset(new TPrivate(use_owner, (TSClass*)nullptr));
 	_this->owner = use_owner;
 	SetBodyLinked();
 	SetSignatureLinked();
-	_this->is_external = false;
 	_this->has_return=false;
 	_this->ret_ref=false;
 }
@@ -82,7 +86,7 @@ void TSMethod::CopyExternalMethodBindingsFrom(TSMethod* source)
 
 void TSMethod::AddParameter(TSParameter* use_par)
 {
-	assert(GetType() != TSpecialClassMethod::NotSpecial);
+	assert(GetType() != SemanticApi::SpecialClassMethodType::NotSpecial);
 	_this->parameters.push_back(std::unique_ptr<TSParameter>(use_par));
 }
 
@@ -177,93 +181,6 @@ void TSMethod::CalculateParametersOffsets()
 	}
 	else
 		_this->ret_size = 0;
-}
-
-void TSMethod::Run(TMethodRunContext method_run_context)
-{
-	if (_this->is_external)
-	{
-		_this->external_func(method_run_context);
-	}
-	else
-	{
-		bool result_returned = false;
-
-		std::vector<TStackValue> local_variables;
-
-		TStatementRunContext run_context;
-		*(TMethodRunContext*)&run_context = method_run_context;
-		run_context.result_returned = &result_returned;
-		run_context.local_variables = &local_variables;
-
-		if (GetType() == TSpecialClassMethod::NotSpecial)
-		{
-			_this->statements->Run(run_context);
-			//TODO заглушка для отслеживания завершения метода без возврата значения
-			//if (has_return)
-			//	assert(result_returned);
-		}
-		else
-		{
-			auto owner = _this->owner;
-			switch (GetType())
-			{
-			case TSpecialClassMethod::AutoDefConstr:
-			{
-				owner->RunAutoDefConstr(*run_context.static_fields, *run_context.object);
-			}break;
-			case TSpecialClassMethod::AutoCopyConstr:
-			{
-				owner->RunAutoCopyConstr(*run_context.static_fields, *run_context.formal_params, *run_context.object);
-			}break;
-			case TSpecialClassMethod::AutoDestructor:
-			{
-				owner->RunAutoDestr(*run_context.static_fields, *run_context.object);
-			}break;
-			case TSpecialClassMethod::Default:
-			{
-				if (owner->GetAutoDefConstr())
-					owner->RunAutoDefConstr(*run_context.static_fields, *run_context.object);
-				_this->statements->Run(run_context);
-			}break;
-			case TSpecialClassMethod::CopyConstr:
-			{
-				if (owner->GetAutoDefConstr())
-					owner->RunAutoDefConstr(*run_context.static_fields, *run_context.object);
-				_this->statements->Run(run_context);
-			}break;
-			case TSpecialClassMethod::Destructor:
-			{
-				_this->statements->Run(run_context);
-				if (owner->GetAutoDestr())
-					owner->RunAutoDestr(*run_context.static_fields, *run_context.object);
-			}break;
-			case TSpecialClassMethod::AutoAssignOperator:
-			{
-				owner->RunAutoAssign(*run_context.static_fields, *run_context.formal_params);
-			}break;
-			default:
-				assert(false);
-			}
-		}
-	}
-	//statements->Run(sp,result_returned,&sp[-GetParametersSize()->GetRuturnSize()]);
-
-	//int locals_size=0;
-	//result_result.GetOps()+=BuildLocalsAndParamsDestructor(program,locals_size);
-	//if(method->GetMemberType()==TClassMember::Destr)
-	//{
-	//	TMethod* auto_destr=owner->GetAutoDestructor();
-	//	if(auto_destr!=nullptr)
-	//	{
-	//		program.Push(TOp(TOpcode::PUSH_THIS),result_result.GetOps());
-	//		result_result.GetOps()+=auto_destr->BuildCall(program).GetOps();
-	//	}
-	//}
-	//program.Push(TOp(TOpcode::RETURN,
-	//	method->GetParamsSize()+locals_size+!method->IsStatic(),method->GetRetSize()),result_result.GetOps());
-	//method->SetHasReturn(true);
-	//return TVoid();
 }
 
 void TSMethod::Build()
@@ -399,7 +316,9 @@ TSClass* TSMethod::GetOwner()const
 
 void TSMethod::SetAsExternal(TExternalSMethod method)
 {
+	assert(_this->external_func == nullptr);
 	_this->external_func = method;
+	_this->is_external = true;
 }
 
 size_t TSMethod::GetParametersSize()const

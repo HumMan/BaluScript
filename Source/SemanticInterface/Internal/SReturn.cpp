@@ -2,7 +2,6 @@
 
 #include "SCommon.h"
 
-#include "FormalParam.h"
 #include "SMethod.h"
 #include "SExpression.h"
 #include "SParameter.h"
@@ -18,10 +17,10 @@ void TSReturn::Build(TGlobalBuildContext build_context)
 		int conv_needed;
 		if(result_result.IsVoid())
 			GetSyntax()->Error("После оператора return должно следовать какое-то выражение!");
-		if (!IsEqualClasses(result_result, TFormalParameter(GetMethod()->GetRetClass(), GetMethod()->GetSyntax()->IsReturnRef()), conv_needed))
+		if (!IsEqualClasses(result_result, SemanticApi:: TFormalParameter(GetMethod()->GetRetClass(), GetMethod()->GetSyntax()->IsReturnRef()), conv_needed))
 			GetSyntax()->Error("Выражение невозможно преобразовать в тип возвращаемого значения!");
 		conversions.reset(new TActualParamWithConversion());
-		conversions->BuildConvert(result_result, TFormalParameter(GetMethod()->GetRetClass(), GetMethod()->GetSyntax()->IsReturnRef()));
+		conversions->BuildConvert(result_result, SemanticApi::TFormalParameter(GetMethod()->GetRetClass(), GetMethod()->GetSyntax()->IsReturnRef()));
 	}
 	else 
 		if(result_result.GetClass()!=nullptr)
@@ -35,13 +34,4 @@ TSReturn::TSReturn(TSClass* use_owner, TSMethod* use_method, TSStatements* use_p
 SyntaxApi::IReturn* TSReturn::GetSyntax()
 {
 	return dynamic_cast<SyntaxApi::IReturn*>(TSyntaxNode::GetSyntax());
-}
-
-void TSReturn::Run(TStatementRunContext run_context)
-{
-	TStackValue return_value;
-	result->Run(TExpressionRunContext(run_context, &return_value));
-	*run_context.result_returned = true;
-	conversions->RunConversion(*run_context.static_fields, return_value);
-	*run_context.result = return_value;
 }

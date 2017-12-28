@@ -19,21 +19,3 @@ void TSWhile::Build(TGlobalBuildContext build_context)
 	statements = std::unique_ptr<TSStatements>(new TSStatements(GetOwner(), GetMethod(), GetParentStatements(), syntax->GetStatements()));
 	statements->Build(build_context);
 }
-
-void TSWhile::Run(TStatementRunContext run_context)
-{
-	TStackValue compare_result;
-	while (true)
-	{
-		TExpressionRunContext while_run_context(run_context, &compare_result);
-		compare->Run(while_run_context);
-		compare_conversion->RunConversion(*run_context.static_fields, compare_result);
-		if (*(bool*)compare_result.get())
-		{
-			statements->Run(run_context);
-			if (*run_context.result_returned)
-				break;
-		}
-		else break;
-	}
-}

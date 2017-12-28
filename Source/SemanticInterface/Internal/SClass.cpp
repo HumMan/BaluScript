@@ -134,14 +134,15 @@ void TSClass::Build()
 	}
 }
 
-TSClass* TSClass::GetNested(Lexer::TNameId name) {
+TSClass* TSClass::GetNested(Lexer::TNameId name)const
+{
 	for (const std::unique_ptr<TSClass>& nested_class : _this->nested_classes)
 		if (nested_class->GetSyntax()->GetName() == name)
 			return nested_class.get();
 	return nullptr;
 }
 
-bool TSClass::GetTemplateParameter(Lexer::TNameId name, TNodeWithTemplates::TTemplateParameter& result)
+bool TSClass::GetTemplateParameter(Lexer::TNameId name, SemanticApi::TTemplateParameter& result)const
 {
 	assert(GetType() == TNodeWithTemplates::Realization);
 	SyntaxApi::IClass* template_class_syntax = GetTemplateClass()->GetSyntax();
@@ -158,9 +159,9 @@ bool TSClass::GetTemplateParameter(Lexer::TNameId name, TNodeWithTemplates::TTem
 	return false;
 }
 
-bool TSClass::HasTemplateParameter(Lexer::TNameId name)
+bool TSClass::HasTemplateParameter(Lexer::TNameId name)const
 {
-	TNodeWithTemplates::TTemplateParameter result;
+	SemanticApi::TTemplateParameter result;
 	return GetTemplateParameter(name, result);
 }
 
@@ -190,7 +191,7 @@ void TSClass::CheckForErrors()
 				field->GetSyntax()->Error("Поле класса с таким именем уже существует!");
 			//TODO как быть со статическими членами класса
 		}
-		std::vector<TSMethod*> m;
+		std::vector<SemanticApi::ISMethod*> m;
 		if ((_this->owner != nullptr&&_this->owner->GetField(GetSyntax()->GetName(), true, false) != nullptr) || GetMethods(m, GetSyntax()->GetName()))
 			field->GetSyntax()->Error("Член класса с таким имененем уже существует!");
 	}
@@ -199,14 +200,14 @@ void TSClass::CheckForErrors()
 		if ((_this->owner != nullptr&&_this->owner->GetField(method.GetName(), true, false) != nullptr))
 			method.GetMethod(0)->GetSyntax()->Error("Статическое поле класса с таким имененем уже существует!");
 		method.CheckForErrors();
-		std::vector<TSMethod*> owner_methods;
+		std::vector<SemanticApi::ISMethod*> owner_methods;
 		if (_this->owner != nullptr&&_this->owner->GetMethods(owner_methods, method.GetName()))
 		{
 			for (size_t k = 0; k < owner_methods.size(); k++)
 			{
-				TSMethod* temp = method.FindParams(owner_methods[k]);
+				SemanticApi::ISMethod* temp = method.FindParams(owner_methods[k]);
 				if (temp != nullptr)
-					temp->GetSyntax()->Error("Статический метод с такими параметрами уже существует!");
+					dynamic_cast<TSMethod*>(temp)->GetSyntax()->Error("Статический метод с такими параметрами уже существует!");
 			}
 		}
 	}
@@ -238,11 +239,11 @@ TSClass* TSClass::GetClass(Lexer::TNameId use_name)
 	//если реализация класса, то не забываем проверить не является ли идентификатор одним из параметров класса
 	if (GetType() == TNodeWithTemplates::Realization)
 	{
-		std::vector<TNodeWithTemplates::TTemplateParameter> template_params = GetTemplateParams();
+		std::vector<SemanticApi::TTemplateParameter> template_params = GetTemplateParams();
 		for (size_t i = 0; i < template_params.size(); i++)
 			if (!template_params[i].is_value)
 				if (GetTemplateClass()->GetSyntax()->GetTemplateParam(i) == use_name)
-					return template_params[i].type;
+					return dynamic_cast<TSClass*>(template_params[i].type);
 	}
 
 	if (_this->owner != nullptr)
@@ -259,7 +260,7 @@ TSClassField* TSClass::GetField(Lexer::TNameId name, bool only_in_this)
 	else
 		return result_s;
 }
-TSClassField* TSClass::GetField(size_t i)const
+SemanticApi::ISClassField* TSClass::GetField(size_t i)const
 {
 	return _this->fields[i].get();
 }
@@ -368,7 +369,7 @@ void TSClass::LinkBody(TGlobalBuildContext build_context)
 }
 
 
-bool TSClass::GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_method_name)
+bool TSClass::GetMethods(std::vector<SemanticApi::ISMethod*> &result, Lexer::TNameId use_method_name)const
 {
 	//assert(IsSignatureLinked());
 	for (TSOverloadedMethod& ov_method : _this->methods)
@@ -386,7 +387,7 @@ bool TSClass::GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_meth
 	return result.size() > 0;
 }
 
-bool TSClass::GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_method_name, bool is_static)
+bool TSClass::GetMethods(std::vector<SemanticApi::ISMethod*> &result, Lexer::TNameId use_method_name, bool is_static)const
 {
 	//assert(IsSignatureLinked());
 	for (TSOverloadedMethod& ov_method : _this->methods)
@@ -408,7 +409,7 @@ bool TSClass::GetMethods(std::vector<TSMethod*> &result, Lexer::TNameId use_meth
 	return result.size() > 0;
 }
 
-TSMethod* TSClass::GetConversion(bool source_ref, TSClass* target_type)
+SemanticApi::ISMethod* TSClass::GetConversion(bool source_ref, SemanticApi::ISClass* target_type)const
 {
 	assert(IsSignatureLinked());
 	for (size_t i = 0; i < _this->conversions->GetMethodsCount(); i++)
@@ -422,7 +423,7 @@ TSMethod* TSClass::GetConversion(bool source_ref, TSClass* target_type)
 	return nullptr;
 }
 
-bool TSClass::GetCopyConstructors(std::vector<TSMethod*> &result)
+bool TSClass::GetCopyConstructors(std::vector<SemanticApi::ISMethod*> &result)const
 {
 	assert(IsAutoMethodsInitialized());
 	for (size_t i = 0; i < _this->copy_constructors->GetMethodsCount(); i++)
@@ -436,7 +437,7 @@ bool TSClass::GetCopyConstructors(std::vector<TSMethod*> &result)
 }
 
 
-bool TSClass::GetMoveConstructors(std::vector<TSMethod*> &result)
+bool TSClass::GetMoveConstructors(std::vector<SemanticApi::ISMethod*> &result)const
 {
 	assert(IsAutoMethodsInitialized());
 	for (size_t i = 0; i < _this->move_constructors->GetMethodsCount(); i++)
@@ -450,7 +451,7 @@ bool TSClass::GetMoveConstructors(std::vector<TSMethod*> &result)
 	return result.size() > 0;
 }
 
-TSMethod* TSClass::GetDefConstr()
+SemanticApi::ISMethod* TSClass::GetDefConstr()const
 {
 	assert(IsAutoMethodsInitialized());
 	if (_this->default_constructor)
@@ -460,7 +461,7 @@ TSMethod* TSClass::GetDefConstr()
 	return nullptr;
 }
 
-TSMethod* TSClass::GetCopyConstr()
+SemanticApi::ISMethod* TSClass::GetCopyConstr()const
 {
 	assert(IsAutoMethodsInitialized());
 	if (_this->copy_constructors)
@@ -480,7 +481,7 @@ TSMethod* TSClass::GetCopyConstr()
 	return nullptr;
 }
 
-TSMethod* TSClass::GetMoveConstr()
+SemanticApi::ISMethod* TSClass::GetMoveConstr()const
 {
 	assert(IsAutoMethodsInitialized());
 	if (_this->move_constructors)
@@ -500,7 +501,7 @@ TSMethod* TSClass::GetMoveConstr()
 	return nullptr;
 }
 
-TSMethod* TSClass::GetAssignOperator()
+SemanticApi::ISMethod* TSClass::GetAssignOperator()const
 {
 	assert(IsAutoMethodsInitialized());
 	if (_this->operators[(short)Lexer::TOperator::Assign])
@@ -524,7 +525,7 @@ TSMethod* TSClass::GetAssignOperator()
 	return nullptr;
 }
 
-TSMethod* TSClass::GetDestructor()
+SemanticApi::ISMethod* TSClass::GetDestructor()const
 {
 	assert(IsAutoMethodsInitialized());
 	if (_this->destructor)
@@ -534,13 +535,13 @@ TSMethod* TSClass::GetDestructor()
 	return nullptr;
 }
 
-bool TSClass::HasConversion(TSClass* target_type)
+bool TSClass::HasConversion(SemanticApi::ISClass* target_type)
 {
 	return GetConversion(true, target_type)
 		|| GetConversion(false, target_type);
 }
 
-bool TSClass::IsNestedIn(TSClass* use_parent)
+bool TSClass::IsNestedIn(SemanticApi::ISClass* use_parent)
 {
 	if (_this->parent.GetClass() == nullptr)
 		return false;
@@ -548,7 +549,7 @@ bool TSClass::IsNestedIn(TSClass* use_parent)
 		return true;
 	return _this->parent.GetClass()->IsNestedIn(use_parent);
 }
-bool TSClass::GetOperators(std::vector<TSMethod*> &result, Lexer::TOperator op)
+bool TSClass::GetOperators(std::vector<SemanticApi::ISMethod*> &result, Lexer::TOperator op)const
 {
 	assert(IsAutoMethodsInitialized());
 	_this->operators[(short)op]->GetMethods(result);
@@ -648,7 +649,7 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 					}
 					for (std::unique_ptr<TSClassField>& field : _this->fields)
 					{
-						field->GetClass()->CalculateSizes(owners);
+						dynamic_cast<TSClass*>(field->GetClass())->CalculateSizes(owners);
 						if (!field->GetSyntax()->IsStatic())
 						{
 							field->SetOffset(class_size);
@@ -724,7 +725,7 @@ void TSClass::InitAutoMethods()
 
 	for (std::unique_ptr<TSClassField>& field : _this->fields)
 	{
-		field->GetClass()->InitAutoMethods();
+		dynamic_cast<TSClass*>(field->GetClass())->InitAutoMethods();
 	}
 
 	bool has_def_constr = false;
@@ -734,7 +735,7 @@ void TSClass::InitAutoMethods()
 
 	for (std::unique_ptr<TSClassField>& field : _this->fields)
 	{
-		TSClass* field_class = field->GetClass();
+		SemanticApi::ISClass* field_class = field->GetClass();
 		if (field_class->GetDefConstr() != nullptr)
 			has_def_constr = true;
 		if (field_class->GetCopyConstr() != nullptr)
@@ -754,24 +755,24 @@ void TSClass::InitAutoMethods()
 
 	if (has_def_constr)
 	{
-		_this->auto_def_constr.reset(new TSMethod(this, TSpecialClassMethod::AutoDefConstr));
+		_this->auto_def_constr.reset(new TSMethod(this, SemanticApi::SpecialClassMethodType::AutoDefConstr));
 	}
 	//if (has_copy_constr)
 	{
-		_this->auto_copy_constr.reset(new TSMethod(this, TSpecialClassMethod::AutoCopyConstr));
+		_this->auto_copy_constr.reset(new TSMethod(this, SemanticApi::SpecialClassMethodType::AutoCopyConstr));
 		TSParameter* p = new TSParameter(this, _this->auto_copy_constr.get(), this, true);
 		_this->auto_copy_constr->AddParameter(p);
 		
 	}
 	if (has_destr)
 	{
-		_this->auto_destr.reset(new TSMethod(this, TSpecialClassMethod::AutoDestructor));
+		_this->auto_destr.reset(new TSMethod(this, SemanticApi::SpecialClassMethodType::AutoDestructor));
 	}
 
 
 	//if (has_assign_op)
 	{
-		_this->auto_assign_operator.reset(new TSMethod(this, TSpecialClassMethod::AutoAssignOperator));
+		_this->auto_assign_operator.reset(new TSMethod(this, SemanticApi::SpecialClassMethodType::AutoAssignOperator));
 		TSParameter* p = new TSParameter(this, _this->auto_assign_operator.get(), this, true);
 		_this->auto_assign_operator->AddParameter(p);
 		p = new TSParameter(this, _this->auto_assign_operator.get(), this, true);
@@ -788,200 +789,3 @@ void TSClass::InitAutoMethods()
 			realization->InitAutoMethods();
 }
 
-void TSClass::RunAutoDefConstr(std::vector<TStaticValue> &static_fields, TStackValue& object)
-{
-	assert(IsAutoMethodsInitialized());
-	assert(_this->auto_def_constr);
-
-	//bool field_has_def_constr = false;
-	//bool parent_has_def_constr = parent.GetClass() == nullptr ? false : parent.GetClass()->HasDefConstr();
-
-	std::vector<TStackValue> formal_params;
-	TStackValue result;
-
-	for (std::unique_ptr<TSClassField>& field : _this->fields)
-	{
-		assert(field->GetClass()->IsAutoMethodsInitialized());
-		TSMethod* field_def_constr = field->GetClass()->GetDefConstr();
-		if (field_def_constr != nullptr&& !field->GetSyntax()->IsStatic())
-		{
-			TSClass* field_class = field->GetClass();
-
-			ValidateAccess(field->GetSyntax(), this, field_def_constr);
-			TStackValue field_object(true, field_class);
-			if (field->HasSizeMultiplier())
-			{
-				for (size_t i = 0; i < field->GetSizeMultiplier(); i++)
-				{
-					field_object.SetAsReference(&(((int*)object.get())[field->GetOffset()+i*field->GetClass()->GetSize()]));
-					field_def_constr->Run(TMethodRunContext(&static_fields, &formal_params, &result, &field_object));
-				}
-			}
-			else
-			{
-				field_object.SetAsReference(&(((int*)object.get())[field->GetOffset()]));
-				field_def_constr->Run(TMethodRunContext(&static_fields, &formal_params, &result, &field_object));
-			}
-		}
-	}
-}
-
-void TSClass::RunAutoDestr(std::vector<TStaticValue> &static_fields, TStackValue& object)
-{
-	assert(IsAutoMethodsInitialized());
-	assert(_this->auto_destr);
-
-	std::vector<TStackValue> formal_params;
-	TStackValue result;
-
-	for (std::unique_ptr<TSClassField>& field : _this->fields)
-	{
-		assert(field->GetClass()->IsAutoMethodsInitialized());
-		TSMethod* field_destr = field->GetClass()->GetDestructor();
-		if (field_destr != nullptr&& !field->GetSyntax()->IsStatic())
-		{
-			TSClass* field_class = field->GetClass();
-
-			ValidateAccess(field->GetSyntax(), this, field_destr);
-			TStackValue field_object(true, field_class);
-			if (field->HasSizeMultiplier())
-			{
-				for (size_t i = 0; i < field->GetSizeMultiplier(); i++)
-				{
-					field_object.SetAsReference(&(((int*)object.get())[field->GetOffset() + i*field->GetClass()->GetSize()]));
-					field_destr->Run(TMethodRunContext(&static_fields, &formal_params, &result, &field_object));
-				}
-			}
-			else
-			{
-				field_object.SetAsReference(&(((int*)object.get())[field->GetOffset()]));
-				field_destr->Run(TMethodRunContext(&static_fields, &formal_params, &result, &field_object));
-			}
-		}
-	}
-}
-
-void TSClass::RunAutoCopyConstr(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object)
-{
-	assert(IsAutoMethodsInitialized());
-	assert(_this->auto_copy_constr);
-
-	//конструктор копии должен принимать один аргумент (кроме ссылки на объект) с тем же типом что и данный класс
-	assert(formal_params.size() == 1);
-	assert(formal_params[0].GetClass() == this);
-	
-	TStackValue result;
-
-	if (_this->fields.size() > 0)
-	{
-
-		for (std::unique_ptr<TSClassField>& field : _this->fields)
-		{
-			assert(field->GetClass()->IsAutoMethodsInitialized());
-			TSMethod* field_copy_constr = field->GetClass()->GetCopyConstr();
-			if (!field->GetSyntax()->IsStatic())
-			{
-				TSClass* field_class = field->GetClass();
-				//если у поля имеется конструктор копии - вызываем его
-				if (field_copy_constr != nullptr)
-				{
-					ValidateAccess(field->GetSyntax(), this, field_copy_constr);
-					TStackValue field_object(true, field_class);
-					if (field->HasSizeMultiplier())
-					{
-						for (size_t i = 0; i < field->GetSizeMultiplier(); i++)
-						{
-							//настраиваем указатель this - инициализируемый объект
-							field_object.SetAsReference(&(((int*)object.get())[field->GetOffset() + i*field->GetClass()->GetSize()]));
-							std::vector<TStackValue> field_formal_params;
-
-							//передаем в качестве параметра ссылку на копируемый объект
-							field_formal_params.push_back(TStackValue(true, field_class));
-							field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field->GetOffset() + i*field->GetClass()->GetSize()]);
-							field_copy_constr->Run(TMethodRunContext(&static_fields, &field_formal_params, &result, &field_object));
-						}
-					}
-					else
-					{
-						//настраиваем указатель this - инициализируемый объект
-						field_object.SetAsReference(&(((int*)object.get())[field->GetOffset()]));
-						std::vector<TStackValue> field_formal_params;
-
-						//передаем в качестве параметра ссылку на копируемый объект
-						field_formal_params.push_back(TStackValue(true, field_class));
-						field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field->GetOffset()]);
-						field_copy_constr->Run(TMethodRunContext(&static_fields, &field_formal_params, &result, &field_object));
-					}
-				}
-			}
-		}
-	}
-	else
-	{
-		memcpy(object.get(), formal_params[0].get(), object.GetSize()*sizeof(int));
-	}
-}
-
-
-void TSClass::RunAutoAssign(std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params)
-{
-	assert(IsAutoMethodsInitialized());
-	assert(_this->auto_assign_operator);
-
-	//оператор присваиваиня должен принимать два аргумента с тем же типом что и данный класс по ссылке
-	assert(formal_params.size() == 2);
-	assert(formal_params[0].GetClass() == this);
-	assert(formal_params[1].GetClass() == this);
-
-	if (_this->fields.size() > 0)
-	{
-		TStackValue result;
-		for (std::unique_ptr<TSClassField>& field : _this->fields)
-		{
-			assert(field->GetClass()->IsAutoMethodsInitialized());
-			TSMethod* field_assign_op = field->GetClass()->GetAssignOperator();
-			if (!field->GetSyntax()->IsStatic())
-			{
-				TSClass* field_class = field->GetClass();
-				//если у поля имеется конструктор копии - вызываем его
-				if (field_assign_op != nullptr)
-				{
-					ValidateAccess(field->GetSyntax(), this, field_assign_op);
-
-					if (field->HasSizeMultiplier())
-					{
-						for (size_t i = 0; i < field->GetSizeMultiplier(); i++)
-						{
-							std::vector<TStackValue> field_formal_params;
-							//передаем в качестве параметра ссылку на копируемый объект
-							field_formal_params.push_back(TStackValue(true, field_class));
-							field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field->GetOffset() + i*field->GetClass()->GetSize()]);
-
-							field_formal_params.push_back(TStackValue(true, field_class));
-							field_formal_params.back().SetAsReference(&((int*)formal_params[1].get())[field->GetOffset() + i*field->GetClass()->GetSize()]);
-
-							field_assign_op->Run(TMethodRunContext(&static_fields, &field_formal_params, &result, nullptr));
-						}
-					}
-					else
-					{
-						std::vector<TStackValue> field_formal_params;
-
-						//передаем в качестве параметра ссылку на копируемый объект
-						field_formal_params.push_back(TStackValue(true, field_class));
-						field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field->GetOffset()]);
-
-						field_formal_params.push_back(TStackValue(true, field_class));
-						field_formal_params.back().SetAsReference(&((int*)formal_params[1].get())[field->GetOffset()]);
-
-						field_assign_op->Run(TMethodRunContext(&static_fields, &field_formal_params, &result, nullptr));
-					}
-				}
-			}
-		}
-	}
-	else
-	{
-		memcpy(formal_params[0].get(), formal_params[1].get(), formal_params[0].GetClass()->GetSize()*sizeof(int));
-	}
-}

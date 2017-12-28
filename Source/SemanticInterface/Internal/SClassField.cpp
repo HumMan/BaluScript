@@ -2,19 +2,21 @@
 
 #include "SType.h"
 
+#include "SClass.h"
+
 TSClassField::TSClassField(TSClass* use_owner, SyntaxApi::IClassField* use_syntax) 
-	:TSyntaxNode(use_syntax), TVariable(SemanticApi::TVariableType::ClassField)
+	:TSyntaxNode(use_syntax), TVariable(SemanticApi::VariableType::ClassField)
 	, type(use_owner, use_syntax->GetType())
 {
 	owner = use_owner;
 }
 
-TSClass* TSClassField::GetClass()const
+SemanticApi::ISClass* TSClassField::GetClass()const
 {
 	return type.GetClass();
 }
 
-TSClass* TSClassField::GetOwner()const
+SemanticApi::ISClass* TSClassField::GetOwner()const
 {
 	return owner;
 }

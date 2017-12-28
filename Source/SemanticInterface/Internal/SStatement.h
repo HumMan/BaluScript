@@ -4,8 +4,6 @@
 
 #include "SSyntaxNode.h"
 
-#include "RunContext.h"
-
 class TSMethod;
 class TSStatements;
 class TSClass;
@@ -28,7 +26,7 @@ public:
 		TSyntaxNode(use_syntax),
 		method(use_method), parent(use_parent), owner(use_owner){}
 	//virtual void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value, int method_base) = 0;
-	virtual void Run(TStatementRunContext run_context) = 0;
+	//virtual void Run(TStatementRunContext run_context) = 0;
 	virtual ~TSStatement(){}
 	TSClass* GetOwner()const
 	{

@@ -26,23 +26,3 @@ SyntaxApi::IFor* TSFor::GetSyntax()
 	return dynamic_cast<SyntaxApi::IFor*>(TSyntaxNode::GetSyntax());
 }
 
-void TSFor::Run(TStatementRunContext run_context)
-{
-	TStackValue compare_result;
-	while (true)
-	{
-		compare->Run(TExpressionRunContext(run_context, &compare_result));
-		compare_conversion->RunConversion(*run_context.static_fields, compare_result);
-		if (*(bool*)compare_result.get())
-		{
-
-			statements->Run(run_context);
-			if (*run_context.result_returned)
-				break;
-			increment->Run(run_context);
-			if (*run_context.result_returned)
-				break;
-		}
-		else break;
-	}
-}

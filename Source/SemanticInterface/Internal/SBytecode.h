@@ -1,7 +1,6 @@
 #include "SStatement.h"
 
 #include "BuildContext.h"
-#include "RunContext.h"
 
 class TSBytecode :public TSStatement
 {
@@ -9,6 +8,6 @@ class TSBytecode :public TSStatement
 public:
 	TSBytecode(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IBytecode* use_syntax);
 	SyntaxApi::IBytecode* GetSyntax();
-	void Run(TStatementRunContext run_context);
+	//void Run(TStatementRunContext run_context);
 	void Build(TGlobalBuildContext build_context);
 };

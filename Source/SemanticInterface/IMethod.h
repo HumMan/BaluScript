@@ -2,22 +2,127 @@
 
 namespace SemanticApi
 {
-	class ISpecialClassMethod
+	enum SpecialClassMethodType
 	{
+		NotSpecial,
+		AutoDefConstr,
+		AutoCopyConstr,
+		AutoDestructor,
+		AutoAssignOperator,
 
+		Default,
+		CopyConstr,
+		Destructor
 	};
 
-	class ISClass: public virtual ISNodeWithSize, public virtual ISNodeSignatureLinked, public virtual ISNodeBodyLinked, public virtual ISNodeWithAutoMethods
+	class ISpecialClassMethod
 	{
+	public:
+		virtual SpecialClassMethodType GetType()const = 0;
+	};
 
+	/*class ITemplateParameter
+	{
+	public:
+		virtual bool IsValue()const = 0;
+		virtual int GetValue()const = 0;
+		virtual ISClass* GetType()const = 0;
+	};*/
+
+	class TTemplateParameter
+	{
+	public:
+		bool is_value;
+		int value;
+		ISClass* type;
+
+		//bool IsValue()const;
+		//int GetValue()const;
+		//SemanticApi::ISClass* GetType()const;
+
+		bool IsValue()const
+		{
+			return is_value;
+		}
+		int GetValue()const
+		{
+			return value;
+		}
+		SemanticApi::ISClass* GetType()const
+		{
+			return type;
+		}
+	};
+
+	class INodeWithTemplates
+	{
+	public:
+		virtual TTemplateParameter GetTemplateParam(int i)const = 0;
+	};
+
+	class ISMultifield
+	{
+	public:
+		virtual bool HasSizeMultiplier()const=0;
+		virtual size_t GetSizeMultiplier()const=0;
+	};
+
+	class ISClassField: public virtual ISMultifield
+	{
+	public:
+		virtual ISClass* GetClass()const=0;
+		virtual ISClass* GetOwner()const = 0;
+	};
+
+	class ISClass: public virtual ISNodeWithSize, public virtual ISNodeSignatureLinked, public virtual ISNodeBodyLinked, public virtual INodeWithTemplates, public virtual ISNodeWithAutoMethods
+	{
+	public:
+		virtual ISMethod* GetDefConstr()const=0;
+		virtual ISMethod* GetDestructor()const = 0;
+		virtual ISMethod* GetCopyConstr()const = 0;
+		virtual ISMethod* GetMoveConstr()const = 0;
+		virtual ISMethod* GetAssignOperator()const = 0;
+
+		virtual bool GetOperators(std::vector<ISMethod*> &result, Lexer::TOperator op)const=0;
+		virtual ISClassField* GetField(size_t i)const=0;
+		virtual bool GetCopyConstructors(std::vector<ISMethod*> &result)const=0;
+	};
+
+	class TFormalParameter
+	{
+		ISClass* type;
+		bool is_ref;
+	public:
+		TFormalParameter()
+		{
+			type = nullptr;
+			is_ref = false;
+		}
+		TFormalParameter(ISClass* type, bool is_ref)
+		{
+			assert(type != nullptr);
+			this->type = type;
+			this->is_ref = is_ref;
+		}
+		ISClass* GetClass()
+		{
+			assert(type != nullptr);
+			return type;
+		}
+		bool IsRef()
+		{
+			assert(type != nullptr);
+			return is_ref;
+		}
 	};
 
 	class ISParameter
 	{
-
+	public:
+		virtual SemanticApi::TFormalParameter AsFormalParameter()const=0;
 	};
 
-	enum class TVariableType
+	enum class VariableType
 	{
 		ClassField,
 		Parameter,
@@ -29,7 +134,7 @@ namespace SemanticApi
 	class IVariable
 	{
 	public:
-		virtual TVariableType GetType()const = 0;
+		virtual VariableType GetType()const = 0;
 	};
 
 	class ISMethod: public virtual ISpecialClassMethod

@@ -1,14 +1,14 @@
 #include "SCommon.h"
 
 #include "lexer.h"
-#include "FormalParam.h"
+
 #include "SClassField.h"
 #include "SClass.h"
 #include "SLocalVar.h"
 
 //actual_parameter - параметр который был передан методу
 //formal_parameter - параметр указаный в сигнатуре метода
-bool IsEqualClasses(TExpressionResult actual_parameter, TFormalParameter formal_parameter, int& need_conv)
+bool IsEqualClasses(TExpressionResult actual_parameter, SemanticApi::TFormalParameter formal_parameter, int& need_conv)
 //============== На выходе =========================================
 //результат - равенство классов или возможность преобразования (conversion) класса
 {
@@ -25,7 +25,7 @@ bool IsEqualClasses(TExpressionResult actual_parameter, TFormalParameter formal_
 	return true;
 }
 
-TSMethod* FindMethod(Lexer::ITokenPos* source, std::vector<TSMethod*> &methods_to_call, const std::vector<TExpressionResult> &actual_params)
+SemanticApi::ISMethod* FindMethod(Lexer::ITokenPos* source, std::vector<SemanticApi::ISMethod*> &methods_to_call, const std::vector<TExpressionResult> &actual_params)
 {
 	int conv_needed;
 	for (size_t k = 0; k<actual_params.size(); k++) {
@@ -44,7 +44,7 @@ TSMethod* FindMethod(Lexer::ITokenPos* source, std::vector<TSMethod*> &methods_t
 		temp_conv = 0;
 		conv = 0;
 		for (size_t k = 0; k<actual_params.size(); k++) {
-			TSParameter* p = methods_to_call[i]->GetParam(k);
+			SemanticApi::ISParameter* p = methods_to_call[i]->GetParam(k);
 			if (!IsEqualClasses(actual_params[k], p->AsFormalParameter(), conv))goto end_search;
 			else temp_conv += conv;
 		}
@@ -61,22 +61,23 @@ TSMethod* FindMethod(Lexer::ITokenPos* source, std::vector<TSMethod*> &methods_t
 }
 
 
-void ValidateAccess(Lexer::ITokenPos* field_pos, TSClass* source, TSClassField* target)
+void ValidateAccess(Lexer::ITokenPos* field_pos, SemanticApi::ISClass* source, TSClassField* target)
 {
 	if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Public)return;
 	if (source == target->GetOwner())return;
-	if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Protected && !source->IsNestedIn(target->GetOwner()))
+	if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Protected && !dynamic_cast<TSClass*>(source)->IsNestedIn(dynamic_cast<TSClass*>(target->GetOwner())))
 		field_pos->Error("Данное поле класса доступно только из классов наследников (protected)!");
 	else if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Private&&source != target->GetOwner())
 		field_pos->Error("Данное поле класса доступно только из класса в котором оно объявлено (private)!");
 }
 
-void ValidateAccess(Lexer::ITokenPos* field_pos, TSClass* source, TSMethod* target)
+void ValidateAccess(Lexer::ITokenPos* field_pos, SemanticApi::ISClass* source, SemanticApi::ISMethod* _target)
 {
-	if (target->GetType() != TSpecialClassMethod::NotSpecial)return;
+	auto target = dynamic_cast<TSMethod*>(_target);
+	if (target->GetType() != SemanticApi::SpecialClassMethodType::NotSpecial)return;
 	if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Public)return;
 	if (source == target->GetOwner())return;
-	if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Protected && !source->IsNestedIn(target->GetOwner()))
+	if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Protected && !dynamic_cast<TSClass*>(source)->IsNestedIn(target->GetOwner()))
 		field_pos->Error("Данный метод доступен только из классов наследников (protected)!");
 	else if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Private&&source != target->GetOwner())
 		field_pos->Error("Данный метод доступен только из класса в котором он объявлен (private)!");
@@ -85,27 +86,27 @@ void ValidateAccess(Lexer::ITokenPos* field_pos, TSClass* source, TSMethod* targ
 
 void InitializeStaticClassFields(std::vector<TSClassField*> static_fields, std::vector<TStaticValue> &static_objects)
 {
-	for (TSClassField* v : static_fields)
-	{
-		v->SetOffset(static_objects.size());
-		static_objects.emplace_back(false, v->GetClass());
-		TSMethod* def_constr = v->GetClass()->GetDefConstr();
-		static_objects[v->GetOffset()].Initialize();
-		if (def_constr != nullptr)
-		{
-			std::vector<TStackValue> constr_formal_params;
-			TStackValue without_result, var_object(true, v->GetClass());
-			var_object.SetAsReference(static_objects[v->GetOffset()].get());
-			def_constr->Run(TMethodRunContext(&static_objects, &constr_formal_params, &without_result, &var_object));
-		}
+	//for (TSClassField* v : static_fields)
+	//{
+	//	v->SetOffset(static_objects.size());
+	//	static_objects.emplace_back(false, v->GetClass());
+	//	TSMethod* def_constr = v->GetClass()->GetDefConstr();
+	//	static_objects[v->GetOffset()].Initialize();
+	//	if (def_constr != nullptr)
+	//	{
+	//		std::vector<TStackValue> constr_formal_params;
+	//		TStackValue without_result, var_object(true, v->GetClass());
+	//		var_object.SetAsReference(static_objects[v->GetOffset()].get());
+	//		def_constr->Run(TMethodRunContext(&static_objects, &constr_formal_params, &without_result, &var_object));
+	//	}
 
-	}
+	//}
 }
 void InitializeStaticVariables(std::vector<TSLocalVar*> static_variables, std::vector<TStaticValue> &static_objects)
 {
-	for (TSLocalVar* v : static_variables)
-	{
-		v->SetOffset(static_objects.size());
-		static_objects.emplace_back(false, v->GetClass());
-	}
+	//for (TSLocalVar* v : static_variables)
+	//{
+	//	v->SetOffset(static_objects.size());
+	//	static_objects.emplace_back(false, v->GetClass());
+	//}
 }

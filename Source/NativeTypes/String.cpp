@@ -42,72 +42,70 @@
 #include "String.h"
 #include "DynArray.h"
 
-#include "../SemanticInterface/Internal/FormalParam.h"
-#include "../SemanticInterface/Internal/SClass.h"
-#include "../SemanticInterface/Internal/SMethod.h"
+#include "../TreeRunner/FormalParam.h"
 
 #include "../syntaxAnalyzer.h"
 
 template<>
-void TString::constructor(TMethodRunContext run_context)
+void TString::constructor(TMethodRunContext* run_context)
 {
-	run_context.object->get_as<TString>().Init();
+	run_context->object->get_as<TString>().Init();
 }
 template<>
-void TString::destructor(TMethodRunContext run_context)
+void TString::destructor(TMethodRunContext* run_context)
 {
 	//TODO не должен вызываться конструктор для ссылочного типа
 	//if (object.IsRef())
 	//	return;
 
-	TString* obj = ((TString*)run_context.object->get());
+	TString* obj = ((TString*)run_context->object->get());
 	obj->~TString();
 }
 template<>
-void TString::copy_constr(TMethodRunContext run_context)
+void TString::copy_constr(TMethodRunContext* run_context)
 {
-	TString* obj = ((TString*)run_context.object->get());
-	TString* copy_from = (TString*)(*run_context.formal_params)[0].get();
+	TString* obj = ((TString*)run_context->object->get());
+	TString* copy_from = (TString*)(*run_context->formal_params)[0].get();
 	obj->Init(*copy_from->v);
 }
 template<>
-void TString::assign_op(TMethodRunContext run_context)
+void TString::assign_op(TMethodRunContext* run_context)
 {
-	TString* left = ((TString*)(*run_context.formal_params)[0].get());
-	TString* right = ((TString*)(*run_context.formal_params)[1].get());
+	TString* left = ((TString*)(*run_context->formal_params)[0].get());
+	TString* right = ((TString*)(*run_context->formal_params)[1].get());
 
 	*(left->v) = *right->v;
 }
 template<>
-void TString::assign_plus_op(TMethodRunContext run_context)
+void TString::assign_plus_op(TMethodRunContext* run_context)
 {
-	TString* left = ((TString*)(*run_context.formal_params)[0].get());
-	TString* right = ((TString*)(*run_context.formal_params)[1].get());
+	TString* left = ((TString*)(*run_context->formal_params)[0].get());
+	TString* right = ((TString*)(*run_context->formal_params)[1].get());
 
 	*(left->v) += *right->v;
 }
 template<>
-void TString::plus_op(TMethodRunContext run_context)
+void TString::plus_op(TMethodRunContext* run_context)
 {
-	TString* left = ((TString*)(*run_context.formal_params)[0].get());
-	TString* right = ((TString*)(*run_context.formal_params)[1].get());
+	TString* left = ((TString*)(*run_context->formal_params)[0].get());
+	TString* right = ((TString*)(*run_context->formal_params)[1].get());
 
 	auto temp = (*left->v + *right->v);
 
-	run_context.result->get_as<TString>().Init(temp);
+	run_context->result->get_as<TString>().Init(temp);
 }
 template<>
-void TString::get_char_op(TMethodRunContext run_context)
+void TString::get_char_op(TMethodRunContext* run_context)
 {
-	TString* obj = ((TString*)(*run_context.formal_params)[0].get());
-	int index = *((int*)(*run_context.formal_params)[1].get());
-	run_context.result->SetAsReference(&(*(obj->v))[index]);
+	TString* obj = ((TString*)(*run_context->formal_params)[0].get());
+	int index = *((int*)(*run_context->formal_params)[1].get());
+	run_context->result->SetAsReference(&(*(obj->v))[index]);
 }
 template<>
-void TString::get_length(TMethodRunContext run_context)
+void TString::get_length(TMethodRunContext* run_context)
 {
-	TString* obj = ((TString*)run_context.object->get());
-	*(int*)run_context.result->get() = obj->GetLength();
+	TString* obj = ((TString*)run_context->object->get());
+	*(int*)run_context->result->get() = obj->GetLength();
 }
 template<>
 void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
@@ -127,42 +125,42 @@ void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 		);
 	auto cl = SyntaxApi::AnalyzeNestedClass(syntax->GetLexer(), syntax->GetBaseClass());
 
-	TSClass* scl = new TSClass(syntax->GetCompiledBaseClass(), cl);
-	syntax->GetCompiledBaseClass()->AddClass(scl);
-	scl->Build();
+	//TSClass* scl = new TSClass(syntax->GetCompiledBaseClass(), cl);
+	//syntax->GetCompiledBaseClass()->AddClass(scl);
+	//scl->Build();
 
-	scl->SetSize(LexerIntSizeOf(sizeof(TString)) / sizeof(int));
-	scl->SetAutoMethodsInitialized();
+	//scl->SetSize(LexerIntSizeOf(sizeof(TString)) / sizeof(int));
+	//scl->SetAutoMethodsInitialized();
 
-	scl->GetDefConstr()->SetAsExternal(TString::constructor);
+	//scl->GetDefConstr()->SetAsExternal(TString::constructor);
 
-	std::vector<TSMethod*> m;
-	m.clear();
-	scl->GetCopyConstructors(m);
-	m[0]->SetAsExternal(TString::copy_constr);
+	//std::vector<TSMethod*> m;
+	//m.clear();
+	//scl->GetCopyConstructors(m);
+	//m[0]->SetAsExternal(TString::copy_constr);
 
-	scl->GetDestructor()->SetAsExternal(TString::destructor);
+	//scl->GetDestructor()->SetAsExternal(TString::destructor);
 
-	m.clear();
-	scl->GetOperators(m, Lexer::TOperator::GetArrayElement);
-	m[0]->SetAsExternal(TString::get_char_op);
+	//m.clear();
+	//scl->GetOperators(m, Lexer::TOperator::GetArrayElement);
+	//m[0]->SetAsExternal(TString::get_char_op);
 
-	m.clear();
-	scl->GetOperators(m, Lexer::TOperator::Assign);
-	//TODO ввести использование ссылки на временный объект
-	m[0]->SetAsExternal(TString::assign_op);
+	//m.clear();
+	//scl->GetOperators(m, Lexer::TOperator::Assign);
+	////TODO ввести использование ссылки на временный объект
+	//m[0]->SetAsExternal(TString::assign_op);
 
-	m.clear();
-	scl->GetOperators(m, Lexer::TOperator::PlusA);
-	//TODO ввести использование ссылки на временный объект
-	m[0]->SetAsExternal(TString::assign_plus_op);
+	//m.clear();
+	//scl->GetOperators(m, Lexer::TOperator::PlusA);
+	////TODO ввести использование ссылки на временный объект
+	//m[0]->SetAsExternal(TString::assign_plus_op);
 
-	m.clear();
-	scl->GetOperators(m, Lexer::TOperator::Plus);
-	//TODO ввести использование ссылки на временный объект
-	m[0]->SetAsExternal(TString::plus_op);
+	//m.clear();
+	//scl->GetOperators(m, Lexer::TOperator::Plus);
+	////TODO ввести использование ссылки на временный объект
+	//m[0]->SetAsExternal(TString::plus_op);
 
-	m.clear();
-	scl->GetMethods(m, syntax->GetLexer()->GetIdFromName("length"));
-	m[0]->SetAsExternal(TString::get_length);
+	//m.clear();
+	//scl->GetMethods(m, syntax->GetLexer()->GetIdFromName("length"));
+	//m[0]->SetAsExternal(TString::get_length);
 }

@@ -10,7 +10,7 @@ void TSStatement::TestBoolExpr(TExpressionResult& compare_result, std::unique_pt
 	int conv_needed;
 	
 	TSClass* bool_class = owner->GetClass(GetSyntax()->GetLexer()->GetIdFromName("bool"));
-	TFormalParameter formal_param(bool_class, false);
+	SemanticApi::TFormalParameter formal_param(bool_class, false);
 	if (!IsEqualClasses(compare_result, formal_param, conv_needed))
 		GetSyntax()->Error("Выражение невозможно преобразовать в логический тип!");
 

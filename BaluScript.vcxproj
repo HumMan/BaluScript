@@ -82,6 +82,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\SemanticInterface\Internal\ExpressionResult.h" />
     <ClInclude Include="Include\baluScript.h" />
     <ClInclude Include="Include\common.h" />
     <ClInclude Include="Source\lexer.h">
@@ -99,8 +100,10 @@
     </ClInclude>
     <ClInclude Include="Source\SemanticInterface\IMethod.h" />
     <ClInclude Include="Source\SemanticInterface\Internal\BuildContext.h" />
-    <ClInclude Include="Source\SemanticInterface\Internal\FormalParam.h" />
-    <ClInclude Include="Source\SemanticInterface\Internal\RunContext.h" />
+    <ClInclude Include="Source\TreeRunner\AllRunCode.h" />
+    <ClInclude Include="Source\TreeRunner\ExpressionRun.h" />
+    <ClInclude Include="Source\TreeRunner\FormalParam.h" />
+    <ClInclude Include="Source\TreeRunner\RunContext.h" />
     <ClInclude Include="Source\SemanticInterface\Internal\SBytecode.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
@@ -233,6 +236,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\SemanticInterface\Internal\ExpressionResult.cpp" />
     <ClCompile Include="Source\lexer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
@@ -243,7 +247,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Source\SemanticInterface\Internal\FormalParam.cpp" />
     <ClCompile Include="Source\SemanticInterface\Internal\SBytecode.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
@@ -343,6 +346,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Source\SyntaxInterface\SyntaxTreeApi.cpp" />
+    <ClCompile Include="Source\TreeRunner\FormalParam.cpp" />
     <ClCompile Include="Source\virtualMachine.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>

@@ -47,17 +47,17 @@ void TSOverloadedMethod::CopyExternalMethodBindingsFrom(TSOverloadedMethod* sour
 		methods[i]->CopyExternalMethodBindingsFrom(source->methods[i].get());
 }
 
-bool TSOverloadedMethod::ParamsExists(TSMethod* use_method)const
+bool TSOverloadedMethod::ParamsExists(SemanticApi::ISMethod* use_method)const
 {
-	return FindParams(use_method->GetParameters()) != nullptr;
+	return FindParams(dynamic_cast<TSMethod*>(use_method)->GetParameters()) != nullptr;
 }
 
-TSMethod* TSOverloadedMethod::FindParams(TSMethod* use_method)const
+TSMethod* TSOverloadedMethod::FindParams(SemanticApi::ISMethod* use_method)const
 {
-	return FindParams(use_method->GetParameters());
+	return FindParams(dynamic_cast<TSMethod*>(use_method)->GetParameters());
 }
 
-void TSOverloadedMethod::GetMethods(std::vector<TSMethod*> &result)const
+void TSOverloadedMethod::GetMethods(std::vector<SemanticApi::ISMethod*> &result)const
 {
 	for (const std::unique_ptr<TSMethod>& i : methods)
 		result.push_back(i.get());
