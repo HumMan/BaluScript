@@ -72,77 +72,8 @@
     <ClInclude Include="Source\VirtualMachine\OpArray.h">
       <Filter>Source Files\VirtualMachine</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Semantic\SClass.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SMethod.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SParameter.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SType.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\TemplateRealizations.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SClassField.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SSyntaxNode.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SOverloadedMethod.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SFor.h">
-      <Filter>Source Files\Semantic\Statements</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SIf.h">
-      <Filter>Source Files\Semantic\Statements</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SLocalVar.h">
-      <Filter>Source Files\Semantic\Statements</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SExpression.h">
-      <Filter>Source Files\Semantic\Statements</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SWhile.h">
-      <Filter>Source Files\Semantic\Statements</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SReturn.h">
-      <Filter>Source Files\Semantic\Statements</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SStatements.h">
-      <Filter>Source Files\Semantic\Statements</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SStatement.h">
-      <Filter>Source Files\Semantic\Statements</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\Variable.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\semanticAnalyzer.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\FormalParam.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SBytecode.h">
-      <Filter>Source Files\Semantic\Statements</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\SConstructObject.h">
-      <Filter>Source Files\Semantic\Statements</Filter>
-    </ClInclude>
     <ClInclude Include="Source\memleaks.h">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\RunContext.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Semantic\BuildContext.h">
-      <Filter>Source Files\Semantic</Filter>
     </ClInclude>
     <ClInclude Include="Include\common.h">
       <Filter>Header Files</Filter>
@@ -255,15 +186,90 @@
     <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\While.h">
       <Filter>Source Files\Syntax\Statements</Filter>
     </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\BuildContext.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\FormalParam.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\RunContext.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\SBytecode.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\SClass.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\SClassField.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\SConstructObject.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\SExpression.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\SFor.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\SIf.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\SLocalVar.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\SMethod.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\SOverloadedMethod.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\SParameter.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\SReturn.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\SStatement.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\SStatements.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\SSyntaxNode.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\SType.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\SWhile.h">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\TemplateRealizations.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\Variable.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\SemanticTreeApi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\SCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\ISyntaxNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\IMethod.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\lexer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\notOptimizedProgram.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\semanticAnalyzer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\syntaxAnalyzer.cpp">
@@ -292,63 +298,6 @@
     </ClCompile>
     <ClCompile Include="Source\VirtualMachine\Program.cpp">
       <Filter>Source Files\VirtualMachine</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SClass.cpp">
-      <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SMethod.cpp">
-      <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SParameter.cpp">
-      <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SType.cpp">
-      <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SClassField.cpp">
-      <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SOverloadedMethod.cpp">
-      <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\TemplateRealizations.cpp">
-      <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SFor.cpp">
-      <Filter>Source Files\Semantic\Statements</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SIf.cpp">
-      <Filter>Source Files\Semantic\Statements</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SLocalVar.cpp">
-      <Filter>Source Files\Semantic\Statements</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SExpression.cpp">
-      <Filter>Source Files\Semantic\Statements</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SWhile.cpp">
-      <Filter>Source Files\Semantic\Statements</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SReturn.cpp">
-      <Filter>Source Files\Semantic\Statements</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SStatement.cpp">
-      <Filter>Source Files\Semantic\Statements</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SStatements.cpp">
-      <Filter>Source Files\Semantic\Statements</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\Variable.cpp">
-      <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\FormalParam.cpp">
-      <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SBytecode.cpp">
-      <Filter>Source Files\Semantic\Statements</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Semantic\SConstructObject.cpp">
-      <Filter>Source Files\Semantic\Statements</Filter>
     </ClCompile>
     <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Accessible.cpp">
       <Filter>Source Files\Syntax</Filter>
@@ -399,6 +348,69 @@
       <Filter>Source Files\Syntax\Statements</Filter>
     </ClCompile>
     <ClCompile Include="Source\SyntaxInterface\SyntaxTreeApi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\FormalParam.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\SBytecode.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\SClass.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\SClassField.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\SConstructObject.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\SExpression.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\SFor.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\SIf.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\SLocalVar.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\SMethod.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\SOverloadedMethod.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\SParameter.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\SReturn.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\SStatement.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\SStatements.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\SType.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\SWhile.cpp">
+      <Filter>Source Files\Semantic\Statements</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\TemplateRealizations.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\Variable.cpp">
+      <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\SemanticTreeApi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\SCommon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

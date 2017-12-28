@@ -3,7 +3,7 @@
 #include "../VirtualMachine/Program.h"
 #include "../virtualMachine.h"
 
-#include "../Semantic/RunContext.h"
+#include "../SemanticInterface/Internal/RunContext.h"
 
 class TStaticValue;
 class TStackValue;

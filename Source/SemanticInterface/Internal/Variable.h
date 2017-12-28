@@ -2,22 +2,15 @@
 
 #include <assert.h>
 
-enum class TVariableType
-{
-	ClassField,
-	Parameter,
-	Local,
-	This,
-	TemplateValue
-};
+#include "../SemanticTreeApi.h"
 
-class TVariable
+class TVariable: public SemanticApi::IVariable
 {
 private:
-	TVariableType var_type;
+	SemanticApi::TVariableType var_type;
 public:
-	TVariable(TVariableType use_var_type) :var_type(use_var_type){}
-	TVariableType GetType()const{
+	TVariable(SemanticApi::TVariableType use_var_type) :var_type(use_var_type){}
+	SemanticApi::TVariableType GetType()const{
 		return var_type;
 	}
 };

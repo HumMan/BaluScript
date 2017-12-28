@@ -1,7 +1,9 @@
 #pragma once
 
+#include "../SemanticTreeApi.h"
+
 template<class T>
-class TSyntaxNode
+class TSyntaxNode: public virtual SemanticApi::ISSyntaxNode<T>
 {
 	T* syntax_node;
 public:
@@ -19,7 +21,7 @@ public:
 	}
 };
 
-class TNodeWithSize
+class TNodeWithSize: public virtual SemanticApi::ISNodeWithSize
 {
 	size_t size;
 	bool size_initialized;
@@ -35,19 +37,19 @@ public:
 		size = use_size;
 		size_initialized = true;
 	}
-	size_t GetSize()
+	size_t GetSize()const
 	{
 		assert(size_initialized);
 		return size;
 	}
-	bool IsSizeInitialized()
+	bool IsSizeInitialized()const
 	{
 		return size_initialized;
 	}
 };
 
 
-class TNodeSignatureLinked
+class TNodeSignatureLinked: public virtual SemanticApi::ISNodeSignatureLinked
 {
 	bool signature_linked;
 public:
@@ -60,13 +62,13 @@ public:
 		assert(!signature_linked);
 		signature_linked = true;
 	}
-	bool IsSignatureLinked()
+	bool IsSignatureLinked()const
 	{
 		return signature_linked;
 	}
 };
 
-class TNodeBodyLinked
+class TNodeBodyLinked : public virtual SemanticApi::ISNodeBodyLinked
 {
 	bool body_linked;
 public:
@@ -79,13 +81,13 @@ public:
 		assert(!body_linked);
 		body_linked = true;
 	}
-	bool IsBodyLinked()
+	bool IsBodyLinked()const
 	{
 		return body_linked;
 	}
 };
 
-class TNodeWithAutoMethods
+class TNodeWithAutoMethods : public virtual SemanticApi::ISNodeWithAutoMethods
 {
 	bool auto_methods_initialized;
 public:
@@ -98,7 +100,7 @@ public:
 		assert(!auto_methods_initialized);
 		auto_methods_initialized = true;
 	}
-	bool IsAutoMethodsInitialized()
+	bool IsAutoMethodsInitialized()const
 	{
 		return auto_methods_initialized;
 	}

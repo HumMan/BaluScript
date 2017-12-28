@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../SyntaxInterface/SyntaxTreeApi.h"
+#include "../../SyntaxInterface/SyntaxTreeApi.h"
 
 #include "SSyntaxNode.h"
 #include "SType.h"
@@ -41,7 +41,8 @@ public:
 };
 
 ///<summary>Класс описывает параметр сигнатуры метода</summary>
-class TSParameter :public TSyntaxNode<SyntaxApi::IParameter>, public TVariable,public TNodeWithOffset,public TNodeWithSize
+class TSParameter :public TSyntaxNode<SyntaxApi::IParameter>, public TVariable,public TNodeWithOffset,public TNodeWithSize,
+	public SemanticApi::ISParameter
 {
 	TSType type;
 	TSClass* owner;

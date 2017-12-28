@@ -1,7 +1,7 @@
 ﻿#include "syntaxAnalyzer.h"
 
-#include "Semantic/SClass.h"
-#include "Semantic/SStatements.h"
+//#include "Semantic/SClass.h"
+//#include "Semantic/SStatements.h"
 
 #include "NativeTypes/DynArray.h"
 #include "NativeTypes/StaticArray.h"
@@ -14,7 +14,7 @@ class TSyntaxAnalyzer::TPrivate
 public:
 	std::unique_ptr<Lexer::ILexer> lexer;
 	SyntaxApi::IClass* base_class;
-	std::unique_ptr<TSClass> sem_base_class;
+	//std::unique_ptr<TSClass> sem_base_class;
 	std::vector<TSClassField*> static_fields;
 	std::vector<TSLocalVar*> static_variables;
 };
@@ -36,7 +36,8 @@ SyntaxApi::IClass * TSyntaxAnalyzer::GetBaseClass() const
 
 TSClass* TSyntaxAnalyzer::GetCompiledBaseClass()const
 {
-	return _this->sem_base_class.get();
+	//return _this->sem_base_class.get();
+	return nullptr;
 }
 
 Lexer::ILexer* TSyntaxAnalyzer::GetLexer()const
@@ -46,42 +47,42 @@ Lexer::ILexer* TSyntaxAnalyzer::GetLexer()const
 
 void TSyntaxAnalyzer::Compile(char* use_source/*, TTime& time*/)
 {
-	//unsigned long long t = time.GetTime();
-	_this->lexer->ParseSource(use_source);
-	//printf("Source parsing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
-	//t = time.GetTime();
-	_this->base_class=SyntaxApi::Analyze(_this->lexer.get());
+	////unsigned long long t = time.GetTime();
+	//_this->lexer->ParseSource(use_source);
+	////printf("Source parsing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
+	////t = time.GetTime();
+	//_this->base_class=SyntaxApi::Analyze(_this->lexer.get());
 
-	_this->sem_base_class.reset(new TSClass(nullptr, _this->base_class));
+	//_this->sem_base_class.reset(new TSClass(nullptr, _this->base_class));
 
-	_this->sem_base_class->Build();
+	//_this->sem_base_class->Build();
 
-	TDynArr::DeclareExternalClass(this);
-	TStaticArr::DeclareExternalClass(this);
-	TString::DeclareExternalClass(this);
+	//TDynArr::DeclareExternalClass(this);
+	//TStaticArr::DeclareExternalClass(this);
+	//TString::DeclareExternalClass(this);
 
-	CreateInternalClasses();
-	_this->sem_base_class->LinkSignature(TGlobalBuildContext(&_this->static_fields, &_this->static_variables));
-	_this->sem_base_class->InitAutoMethods();
-	_this->sem_base_class->LinkBody(TGlobalBuildContext(&_this->static_fields, &_this->static_variables));
+	//CreateInternalClasses();
+	//_this->sem_base_class->LinkSignature(TGlobalBuildContext(&_this->static_fields, &_this->static_variables));
+	//_this->sem_base_class->InitAutoMethods();
+	//_this->sem_base_class->LinkBody(TGlobalBuildContext(&_this->static_fields, &_this->static_variables));
 
-	std::vector<TSClass*> owners;
-	_this->sem_base_class->CalculateSizes(owners);
-	_this->sem_base_class->CalculateMethodsSizes();
+	//std::vector<TSClass*> owners;
+	//_this->sem_base_class->CalculateSizes(owners);
+	//_this->sem_base_class->CalculateMethodsSizes();
 
-	//printf("Syntax analyzing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
+	////printf("Syntax analyzing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
 }
 
 void TSyntaxAnalyzer::CreateInternalClasses()
 {
-	_this->lexer->ParseSource("class dword {}");
-	SyntaxApi::IClass* t_syntax = SyntaxApi::AnalyzeNestedClass(_this->lexer.get(), _this->base_class);
+	//_this->lexer->ParseSource("class dword {}");
+	//SyntaxApi::IClass* t_syntax = SyntaxApi::AnalyzeNestedClass(_this->lexer.get(), _this->base_class);
 
-	TSClass* t = new TSClass(_this->sem_base_class.get(), t_syntax);
-	t->SetSize(1);
-	t->SetSignatureLinked();
-	t->SetBodyLinked();
-	_this->sem_base_class->AddClass(t);
+	//TSClass* t = new TSClass(_this->sem_base_class.get(), t_syntax);
+	//t->SetSize(1);
+	//t->SetSignatureLinked();
+	//t->SetBodyLinked();
+	//_this->sem_base_class->AddClass(t);
 }
 
 TSMethod* TSyntaxAnalyzer::GetMethod(char* use_method)

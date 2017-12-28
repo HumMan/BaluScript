@@ -1,6 +1,6 @@
 ﻿#include "SLocalVar.h"
 
-#include "../semanticAnalyzer.h"
+#include "SCommon.h"
 
 #include "SMethod.h"
 #include "SSyntaxNode.h"
@@ -20,16 +20,16 @@ void TSLocalVar::Build(TGlobalBuildContext build_context)
 		GetSyntax()->Error("Метод не может быть именем переменной!");
 	if (GetOwner()->GetClass(GetSyntax()->GetName()) != nullptr)
 		GetSyntax()->Error("Класс не может быть именем переменной!");
-	TVariable* t = GetParentStatements()->GetVar(GetSyntax()->GetName(), GetSyntax()->GetStmtId());
+	SemanticApi::IVariable* t = GetParentStatements()->GetVar(GetSyntax()->GetName(), GetSyntax()->GetStmtId());
 	if (t != nullptr&&t != this)
 	{
 		switch (t->GetType())
 		{
-		case TVariableType::ClassField:
+		case SemanticApi::TVariableType::ClassField:
 			GetSyntax()->Error("Локальная переменная перекрывает член класса!");
-		case TVariableType::Parameter:
+		case SemanticApi::TVariableType::Parameter:
 			GetSyntax()->Error("Локальная переменная перекрывает параметр!");
-		case TVariableType::Local:
+		case SemanticApi::TVariableType::Local:
 			GetSyntax()->Error("Локальная переменная с таким именем уже существует!");
 		default:assert(false);
 		}
@@ -54,7 +54,7 @@ void TSLocalVar::Build(TGlobalBuildContext build_context)
 
 TSLocalVar::TSLocalVar(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::ILocalVar* use_syntax)
 	:TSStatement(SyntaxApi::TStatementType::VarDecl, use_owner, use_method, use_parent, use_syntax)
-	, TVariable(TVariableType::Local)
+	, TVariable(SemanticApi::TVariableType::Local)
 	, type(use_owner, use_syntax->GetVarType())
 {
 

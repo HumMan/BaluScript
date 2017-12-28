@@ -1809,7 +1809,7 @@ namespace Test
 			Assert::AreEqual((int)547, *(int*)RunClassMethod(cl2, "Test").get());
 		}
 	};
-	//TODO Вызов авто коснтруктора из пользовательского
+	//TODO Вызов авто конструктора из пользовательского
 
 	TEST_CLASS(StringTesting)
 	{

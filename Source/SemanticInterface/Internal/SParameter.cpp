@@ -3,18 +3,20 @@
 #include "SClass.h"
 #include "SExpression.h"
 
+#include "SMethod.h"
+
 #include <stdexcept>
 
 TSParameter::TSParameter(TSClass* use_owner, TSMethod* use_method, SyntaxApi::IParameter* use_syntax_node, SyntaxApi::IType* use_type_syntax_node)
 	: TSyntaxNode(use_syntax_node)
-	, TVariable(TVariableType::Parameter)
+	, TVariable(SemanticApi::TVariableType::Parameter)
 	, type(use_owner, use_type_syntax_node), owner(use_owner), method(use_method), is_ref(use_syntax_node->IsRef())
 {
 }
 
 TSParameter::TSParameter(TSClass* use_owner, TSMethod* use_method, TSClass* use_class, bool use_is_ref)
 	: TSyntaxNode(nullptr)
-	, TVariable(TVariableType::Parameter)
+	, TVariable(SemanticApi::TVariableType::Parameter)
 	, type(use_owner, use_class), owner(use_owner), method(use_method), is_ref(use_is_ref)
 {
 

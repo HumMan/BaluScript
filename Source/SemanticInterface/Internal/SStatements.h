@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../SyntaxInterface/SyntaxTreeApi.h"
+#include "../../SyntaxInterface/SyntaxTreeApi.h"
 
 #include "SStatement.h"
 #include "Variable.h"
@@ -25,7 +25,7 @@ class TSStatements :public TSStatement
 	std::vector<std::unique_ptr<TSStatement>> statements;
 	std::vector<TVarDecl> var_declarations;
 public:
-	SyntaxApi::IStatements* GetSyntax()
+	SyntaxApi::IStatements* GetSyntax()const
 	{
 		return dynamic_cast<SyntaxApi::IStatements*>(TSyntaxNode::GetSyntax());
 	}
@@ -34,7 +34,7 @@ public:
 	int GetLastVariableOffset();
 	TSStatement* GetStatement(int i);
 	//TSStatement* CreateNode(TStatement* use_syntax_node);
-	TVariable* GetVar(Lexer::TNameId name, int sender_id);
+	SemanticApi::IVariable* GetVar(Lexer::TNameId name, int sender_id)const;
 	TSStatements(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IStatements* use_syntax);
 	void Build(TGlobalBuildContext build_context);
 	//void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value);

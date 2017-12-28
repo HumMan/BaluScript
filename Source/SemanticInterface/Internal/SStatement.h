@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../SyntaxInterface/SyntaxTreeApi.h"
+#include "../../SyntaxInterface/SyntaxTreeApi.h"
 
 #include "SSyntaxNode.h"
 
@@ -20,7 +20,7 @@ private:
 	TSStatements* parent;
 	TSClass* owner;
 public:
-	TSStatements* GetParentStatements()
+	TSStatements* GetParentStatements()const
 	{
 		return parent;
 	}
@@ -30,11 +30,11 @@ public:
 	//virtual void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value, int method_base) = 0;
 	virtual void Run(TStatementRunContext run_context) = 0;
 	virtual ~TSStatement(){}
-	TSClass* GetOwner()
+	TSClass* GetOwner()const
 	{
 		return owner;
 	}
-	TSMethod* GetMethod()
+	TSMethod* GetMethod()const
 	{
 		return method;
 	}

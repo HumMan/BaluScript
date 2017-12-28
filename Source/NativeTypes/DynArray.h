@@ -5,7 +5,7 @@ class TStackValue;
 class TSyntaxAnalyzer;
 class TSClass;
 
-#include "../Semantic/RunContext.h"
+#include "../SemanticInterface/Internal/RunContext.h"
 
 #include <stdlib.h>
 

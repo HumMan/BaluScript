@@ -1,6 +1,6 @@
 ﻿#include "SExpression.h"
 
-#include "../semanticAnalyzer.h"
+#include "SCommon.h"
 
 #include "FormalParam.h"
 #include "SStatements.h"
@@ -9,7 +9,7 @@
 #include "SClassField.h"
 #include "SConstructObject.h"
 
-#include "../NativeTypes/String.h"
+#include "../../NativeTypes/String.h"
 
 class TSemanticTreeBuilder :public SyntaxApi::IExpressionTreeVisitor
 {
@@ -344,12 +344,12 @@ public:
 	}
 	void Visit(SyntaxApi::IOperations::IId* operation_node)
 	{
-		TVariable* var = parent->GetVar(operation_node->GetName());
+		SemanticApi::IVariable* var = parent->GetVar(operation_node->GetName());
 		if (var != nullptr)
 		{
 			switch (var->GetType())
 			{
-			case TVariableType::ClassField:
+			case SemanticApi::TVariableType::ClassField:
 			{
 				ValidateAccess(syntax_node, owner, (TSClassField*)var);
 				if ((!(static_cast<TSClassField*>(var))->GetSyntax()->IsStatic()) && method->GetSyntax()->IsStatic())
@@ -360,13 +360,13 @@ public:
 				result->left_result = TExpressionResult(result->field->GetClass(), true);
 				Return(result);
 			}break;
-			case TVariableType::Local:
+			case SemanticApi::TVariableType::Local:
 			{
 				TSExpression::TGetLocal* result = new TSExpression::TGetLocal();
 				result->variable=(TSLocalVar*)var;
 				Return(result);
 			}break;
-			case TVariableType::Parameter:
+			case SemanticApi::TVariableType::Parameter:
 			{
 				TSExpression::TGetParameter* result = new TSExpression::TGetParameter();
 				result->parameter = (TSParameter*)var;
@@ -476,7 +476,7 @@ void TSExpression::Build(TGlobalBuildContext build_context)
 		first_op.reset(b.VisitNode(syntax));
 }
 
-TVariable* TSExpression::GetVar(Lexer::TNameId name)
+SemanticApi::IVariable* TSExpression::GetVar(Lexer::TNameId name)
 {
 	return GetParentStatements()->GetVar(name, GetSyntax()->GetStmtId());
 }

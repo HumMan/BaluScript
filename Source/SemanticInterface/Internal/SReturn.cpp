@@ -1,6 +1,6 @@
 ﻿#include "SReturn.h"
 
-#include "../semanticAnalyzer.h"
+#include "SCommon.h"
 
 #include "FormalParam.h"
 #include "SMethod.h"

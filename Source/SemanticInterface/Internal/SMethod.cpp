@@ -9,6 +9,29 @@
 #include "SType.h"
 #include "SClass.h"
 
+class TSMethod::TPrivate
+{
+public:	
+	TSType ret;
+	bool has_return;
+	bool ret_ref;
+	TSClass* owner;
+	std::vector<std::unique_ptr<TSParameter>> parameters;
+	size_t ret_size;
+	size_t parameters_size;
+
+	std::unique_ptr<TSStatements> statements;
+
+	bool is_external;
+	TExternalSMethod external_func;
+	TPrivate(TSClass *use_owner, SyntaxApi::IType *use_syntax_node) 
+		: ret(use_owner, use_syntax_node)
+	{}
+	TPrivate(TSClass *use_owner, TSClass *use_class)
+		: ret(use_owner, use_class)
+	{}
+};
+
 TSpecialClassMethod::Type GetMethodTypeFromSyntax(SyntaxApi::IMethod* use_syntax)
 {
 	switch (use_syntax->GetMemberType())
@@ -25,25 +48,27 @@ TSpecialClassMethod::Type GetMethodTypeFromSyntax(SyntaxApi::IMethod* use_syntax
 }
 
 TSMethod::TSMethod(TSClass* use_owner, SyntaxApi::IMethod* use_syntax)
-	:TSyntaxNode(use_syntax), TSpecialClassMethod(GetMethodTypeFromSyntax(use_syntax)), ret(use_owner, use_syntax->GetRetType())
+	:TSyntaxNode(use_syntax), TSpecialClassMethod(GetMethodTypeFromSyntax(use_syntax))
 {
-	owner = use_owner;
-	is_external = false;
-	external_func = nullptr;
-	has_return = use_syntax->HasReturn();
-	ret_ref = use_syntax->IsReturnRef();
+	_this.reset(new TPrivate(use_owner, use_syntax->GetRetType()));
+	_this->owner = use_owner;
+	_this->is_external = false;
+	_this->external_func = nullptr;
+	_this->has_return = use_syntax->HasReturn();
+	_this->ret_ref = use_syntax->IsReturnRef();
 	
 }
 
 TSMethod::TSMethod(TSClass* use_owner, TSpecialClassMethod::Type special_method_type)
-	:TSyntaxNode(nullptr), TSpecialClassMethod(special_method_type), ret(use_owner, (TSClass*)nullptr)
+	:TSyntaxNode(nullptr), TSpecialClassMethod(special_method_type)
 {
-	owner = use_owner;
+	_this.reset(new TPrivate(use_owner, (TSClass*)nullptr));
+	_this->owner = use_owner;
 	SetBodyLinked();
 	SetSignatureLinked();
-	is_external = false;
-	has_return=false;
-	ret_ref=false;
+	_this->is_external = false;
+	_this->has_return=false;
+	_this->ret_ref=false;
 }
 
 TSMethod::~TSMethod()
@@ -52,13 +77,13 @@ TSMethod::~TSMethod()
 
 void TSMethod::CopyExternalMethodBindingsFrom(TSMethod* source)
 {
-	external_func = source->external_func;
+	_this->external_func = source->_this->external_func;
 }
 
 void TSMethod::AddParameter(TSParameter* use_par)
 {
 	assert(GetType() != TSpecialClassMethod::NotSpecial);
-	parameters.push_back(std::unique_ptr<TSParameter>(use_par));
+	_this->parameters.push_back(std::unique_ptr<TSParameter>(use_par));
 }
 
 void TSMethod::LinkSignature(TGlobalBuildContext build_context)
@@ -67,64 +92,64 @@ void TSMethod::LinkSignature(TGlobalBuildContext build_context)
 		return;
 	SetSignatureLinked();
 	if(GetSyntax()->HasReturn())
-		ret.LinkSignature(build_context);
-	for (const std::unique_ptr<TSParameter>& v : parameters)
+		_this->ret.LinkSignature(build_context);
+	for (const std::unique_ptr<TSParameter>& v : _this->parameters)
 	{
 		v->LinkSignature(build_context);
 	}
 	
 }
 
-TSClass* TSMethod::GetRetClass()
+TSClass* TSMethod::GetRetClass()const
 {
-	if (has_return)
-		return ret.GetClass();
+	if (_this->has_return)
+		return _this->ret.GetClass();
 	else
 		return nullptr;
 }
 
-TSParameter* TSMethod::GetParam(int id)
+TSParameter* TSMethod::GetParam(int id)const
 {
-	return parameters[id].get();
+	return _this->parameters[id].get();
 }
 std::vector<TSParameter*>  TSMethod::GetParameters()const
 {
 	std::vector<TSParameter*> result;
-	result.resize(parameters.size());
-	for (size_t i = 0; i < parameters.size(); i++)
-		result[i] = parameters[i].get();
+	result.resize(_this->parameters.size());
+	for (size_t i = 0; i < _this->parameters.size(); i++)
+		result[i] = _this->parameters[i].get();
 	return result;
 }
-int TSMethod::GetParamsCount()
+size_t TSMethod::GetParamsCount()const
 {
-	return parameters.size();
+	return _this->parameters.size();
 }
 
 bool TSMethod::HasParams(const std::vector<TSParameter*> &use_params)const
 {
-	if (use_params.size() != parameters.size())
+	if (use_params.size() != _this->parameters.size())
 		return false;
-	for (size_t i = 0; i<parameters.size(); i++)
-		if (!parameters[i]->IsEqualTo(*(use_params[i])))
+	for (size_t i = 0; i<_this->parameters.size(); i++)
+		if (!_this->parameters[i]->IsEqualTo(*(use_params[i])))
 			return false;
 	return true;
 }
 
 void TSMethod::LinkBody(TGlobalBuildContext build_context)
 {
-	if (is_external)
+	if (_this->is_external)
 		return;
 	if (IsBodyLinked())
 		return;
 	SetBodyLinked();
-	statements = std::unique_ptr<TSStatements>(new TSStatements(owner, this, nullptr, GetSyntax()->GetStatements()));
-	statements->Build(build_context);
+	_this->statements = std::unique_ptr<TSStatements>(new TSStatements(_this->owner, this, nullptr, GetSyntax()->GetStatements()));
+	_this->statements->Build(build_context);
 	//if (!GetSyntax()->IsBytecode())
 	//	statements->Build();
 
 	if (GetSyntax()->HasReturn())
-		ret.LinkBody(build_context);
-	for (const std::unique_ptr<TSParameter>& v : parameters)
+		_this->ret.LinkBody(build_context);
+	for (const std::unique_ptr<TSParameter>& v : _this->parameters)
 	{
 		v->LinkBody(build_context);
 	}
@@ -132,33 +157,33 @@ void TSMethod::LinkBody(TGlobalBuildContext build_context)
 
 void TSMethod::CalculateParametersOffsets()
 {
-	parameters_size = 0;
-	for (size_t i = 0; i<parameters.size(); i++)
+	_this->parameters_size = 0;
+	for (size_t i = 0; i<_this->parameters.size(); i++)
 	{
-		if (!parameters[i]->IsOffsetInitialized())
+		if (!_this->parameters[i]->IsOffsetInitialized())
 		{
 			//parameters[i]->SetOffset(parameters_size);
-			parameters[i]->SetOffset(i);
-			parameters[i]->CalculateSize();
-			parameters_size += parameters[i]->GetSize();
+			_this->parameters[i]->SetOffset(i);
+			_this->parameters[i]->CalculateSize();
+			_this->parameters_size += _this->parameters[i]->GetSize();
 		}
 	}
 	if (GetRetClass() != nullptr)
 	{
 		if (GetSyntax()->IsReturnRef())
-			ret_size = 1;
+			_this->ret_size = 1;
 		else
-			ret_size = ret.GetClass()->GetSize();
+			_this->ret_size = _this->ret.GetClass()->GetSize();
 	}
 	else
-		ret_size = 0;
+		_this->ret_size = 0;
 }
 
 void TSMethod::Run(TMethodRunContext method_run_context)
 {
-	if (is_external)
+	if (_this->is_external)
 	{
-		external_func(method_run_context);
+		_this->external_func(method_run_context);
 	}
 	else
 	{
@@ -173,13 +198,14 @@ void TSMethod::Run(TMethodRunContext method_run_context)
 
 		if (GetType() == TSpecialClassMethod::NotSpecial)
 		{
-			statements->Run(run_context);
+			_this->statements->Run(run_context);
 			//TODO заглушка для отслеживания завершения метода без возврата значения
 			//if (has_return)
 			//	assert(result_returned);
 		}
 		else
 		{
+			auto owner = _this->owner;
 			switch (GetType())
 			{
 			case TSpecialClassMethod::AutoDefConstr:
@@ -198,17 +224,17 @@ void TSMethod::Run(TMethodRunContext method_run_context)
 			{
 				if (owner->GetAutoDefConstr())
 					owner->RunAutoDefConstr(*run_context.static_fields, *run_context.object);
-				statements->Run(run_context);
+				_this->statements->Run(run_context);
 			}break;
 			case TSpecialClassMethod::CopyConstr:
 			{
 				if (owner->GetAutoDefConstr())
 					owner->RunAutoDefConstr(*run_context.static_fields, *run_context.object);
-				statements->Run(run_context);
+				_this->statements->Run(run_context);
 			}break;
 			case TSpecialClassMethod::Destructor:
 			{
-				statements->Run(run_context);
+				_this->statements->Run(run_context);
 				if (owner->GetAutoDestr())
 					owner->RunAutoDestr(*run_context.static_fields, *run_context.object);
 			}break;
@@ -245,13 +271,16 @@ void TSMethod::Build()
 	for (size_t i = 0; i < GetSyntax()->GetParamsCount(); i++)
 	{
 		SyntaxApi::IParameter* v = GetSyntax()->GetParam(i);
-		parameters.push_back(std::unique_ptr<TSParameter>(new TSParameter(owner, this, v, v->GetType())));
+		_this->parameters.push_back(std::unique_ptr<TSParameter>(new TSParameter(_this->owner, this, v, v->GetType())));
 	}
-	is_external = GetSyntax()->IsExternal();
+	_this->is_external = GetSyntax()->IsExternal();
 }
 
 void TSMethod::CheckForErrors()
 {
+	auto& owner = _this->owner;
+	auto& parameters = _this->parameters;
+
 	if (owner->GetOwner() == nullptr&&!GetSyntax()->IsStatic())
 		GetSyntax()->Error("Базовый класс может содержать только статические методы!");
 	for (size_t i = 0; i<parameters.size(); i++)
@@ -299,15 +328,15 @@ void TSMethod::CheckForErrors()
 		case SyntaxApi::TClassMember::Func:
 			break;
 		case SyntaxApi::TClassMember::DefaultConstr:
-			if (ret.GetClass() != nullptr)GetSyntax()->Error("Конструктор по умолчанию не должен возвращать значение!");
+			if (_this->ret.GetClass() != nullptr)GetSyntax()->Error("Конструктор по умолчанию не должен возвращать значение!");
 			if (parameters.size() != 0)GetSyntax()->Error("Конструктор по умолчанию не имеет параметров!");
 			break;
 		case SyntaxApi::TClassMember::CopyConstr:
 		case SyntaxApi::TClassMember::MoveConstr:
-			if (ret.GetClass() != nullptr)GetSyntax()->Error("Конструктор не должен возвращать значение!");
+			if (_this->ret.GetClass() != nullptr)GetSyntax()->Error("Конструктор не должен возвращать значение!");
 			break;
 		case SyntaxApi::TClassMember::Destr:
-			if (ret.GetClass() != nullptr)GetSyntax()->Error("Деструктор не должен возвращать значение!");
+			if (_this->ret.GetClass() != nullptr)GetSyntax()->Error("Деструктор не должен возвращать значение!");
 			if (parameters.size() != 0)GetSyntax()->Error("Деструктор не имеет параметров!");
 			break;
 		case SyntaxApi::TClassMember::Operator:
@@ -320,7 +349,7 @@ void TSMethod::CheckForErrors()
 			}
 			else if (GetSyntax()->GetOperatorType() == Lexer::TOperator::UnaryMinus)
 			{
-				if (!LexerIsIn(GetParamsCount(), 1, 2))
+				if (!LexerIsIn((int)GetParamsCount(), 1, 2))
 					GetSyntax()->Error("У унарного оператора ""-"" должнен быть 1 параметр!");
 				if (GetParam(0)->GetClass() != owner
 					&& (GetParamsCount() == 2 && GetParam(1)->GetClass() != owner))
@@ -336,7 +365,7 @@ void TSMethod::CheckForErrors()
 			else //остальные бинарные операторы
 			{
 				if ((GetSyntax()->GetOperatorType() == Lexer::TOperator::Equal || GetSyntax()->GetOperatorType() == Lexer::TOperator::NotEqual)
-					&& ret.GetClass() != owner->GetClass(GetSyntax()->GetLexer()->GetIdFromName("bool")))
+					&& _this->ret.GetClass() != owner->GetClass(GetSyntax()->GetLexer()->GetIdFromName("bool")))
 					GetSyntax()->Error("Оператор сравнения должен возвращать логическое значение!");
 				if (GetParamsCount() != 2)
 					GetSyntax()->Error("У бинарного оператора должно быть 2 параметра!");
@@ -355,15 +384,30 @@ void TSMethod::CheckForErrors()
 	}
 }
 
-TVariable* TSMethod::GetVar(Lexer::TNameId name)
+SemanticApi::IVariable* TSMethod::GetVar(Lexer::TNameId name)const
 {
-	for (size_t i = 0; i<parameters.size(); i++)
-		if (parameters[i]->GetSyntax()->GetName() == name)
-			return (TVariable*)parameters[i].get();
-	return (TVariable*)owner->GetField(name, false);
+	for (size_t i = 0; i<_this->parameters.size(); i++)
+		if (_this->parameters[i]->GetSyntax()->GetName() == name)
+			return (TVariable*)_this->parameters[i].get();
+	return (TVariable*)_this->owner->GetField(name, false);
 }
 
 TSClass* TSMethod::GetOwner()const
 {
-	return owner;
+	return _this->owner;
+}
+
+void TSMethod::SetAsExternal(TExternalSMethod method)
+{
+	_this->external_func = method;
+}
+
+size_t TSMethod::GetParametersSize()const
+{
+	return _this->parameters_size;
+}
+
+size_t TSMethod::GetReturnSize()const
+{
+	return _this->ret_size;
 }

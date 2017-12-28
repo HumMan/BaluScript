@@ -117,7 +117,7 @@ void TSStatements::Build(TGlobalBuildContext build_context)
 	}
 }
 
-TVariable* TSStatements::GetVar(Lexer::TNameId name, int sender_id)
+SemanticApi::IVariable* TSStatements::GetVar(Lexer::TNameId name, int sender_id)const
 {
 	for (size_t i = 0; i < var_declarations.size(); i++)
 	{

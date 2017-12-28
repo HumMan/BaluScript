@@ -11,7 +11,7 @@ namespace SyntaxInternal
 	class TParameter;
 	class TType;
 
-	class BALUSCRIPT_DLL_INTERFACE TMethod :public Lexer::TTokenPos, public TAccessible, public SyntaxApi::IMethod
+	class TMethod :public Lexer::TTokenPos, public TAccessible, public SyntaxApi::IMethod
 	{
 	private:
 		std::unique_ptr<TType> ret;

@@ -178,7 +178,7 @@ public:
 	TSExpression(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IExpression* syntax_node)
 		:TSStatement(SyntaxApi::TStatementType::Expression, use_owner, use_method, use_parent, (SyntaxApi::IStatement*)(syntax_node)){}
 	void Build(TGlobalBuildContext build_context);
-	TVariable* GetVar(Lexer::TNameId name);
+	SemanticApi::IVariable* GetVar(Lexer::TNameId name);
 	SyntaxApi::IExpression* GetSyntax();
 	TExpressionResult GetFormalParameter()
 	{

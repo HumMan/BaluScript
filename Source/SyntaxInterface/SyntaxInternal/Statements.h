@@ -16,7 +16,7 @@ namespace SyntaxInternal
 		void Add(TStatement* use_statement);
 		void AddVar(TLocalVar* use_var);
 		TStatement* GetStatement(int i);
-		int GetStatementsCount()const;
+		size_t GetStatementsCount()const;
 		TStatements(const TStatements& use_source);
 		TStatements(TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);
 		void AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon);

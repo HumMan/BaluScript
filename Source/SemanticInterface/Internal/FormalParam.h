@@ -34,7 +34,7 @@ public:
 	bool IsVoid()const;
 };
 
-class BALUSCRIPT_DLL_INTERFACE TStackValue
+class TStackValue
 {
 	void* internal_buf;
 	bool is_ref;

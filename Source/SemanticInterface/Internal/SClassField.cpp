@@ -3,7 +3,7 @@
 #include "SType.h"
 
 TSClassField::TSClassField(TSClass* use_owner, SyntaxApi::IClassField* use_syntax) 
-	:TSyntaxNode(use_syntax), TVariable(TVariableType::ClassField)
+	:TSyntaxNode(use_syntax), TVariable(SemanticApi::TVariableType::ClassField)
 	, type(use_owner, use_syntax->GetType())
 {
 	owner = use_owner;

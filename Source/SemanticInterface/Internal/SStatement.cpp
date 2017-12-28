@@ -3,7 +3,7 @@
 #include "SClass.h"
 #include "SExpression.h"
 
-#include "../semanticAnalyzer.h"
+#include "SCommon.h"
 
 void TSStatement::TestBoolExpr(TExpressionResult& compare_result, std::unique_ptr<TActualParamWithConversion>& conversion)
 {

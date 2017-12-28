@@ -6,6 +6,6 @@ namespace SyntaxApi
 	{
 	public:
 		virtual IStatement* GetStatement(int i)=0;
-		virtual int GetStatementsCount()const=0;
+		virtual size_t GetStatementsCount()const=0;
 	};
 }

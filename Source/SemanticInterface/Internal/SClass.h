@@ -1,17 +1,21 @@
 #pragma once
 
-#include "../SyntaxInterface/SyntaxTreeApi.h"
+#include "../../SyntaxInterface/SyntaxTreeApi.h"
+
+#include "BuildContext.h"
 
 #include "TemplateRealizations.h"
-#include "SMethod.h"
-#include "SOverloadedMethod.h"
+//#include "SMethod.h"
+//#include "SOverloadedMethod.h"
 #include "SSyntaxNode.h"
 
 class TSClassField;
+class TSMethod;
 class TStaticValue;
 class TStackValue;
 
-class BALUSCRIPT_DLL_INTERFACE TSClass:public TSyntaxNode<SyntaxApi::IClass>, public TNodeWithSize,public TNodeSignatureLinked,public TNodeBodyLinked,public TNodeWithTemplates, public TNodeWithAutoMethods
+class TSClass:public TSyntaxNode<SyntaxApi::IClass>, public TNodeWithSize,public TNodeSignatureLinked,public TNodeBodyLinked,public TNodeWithTemplates, public TNodeWithAutoMethods,
+	public SemanticApi::ISClass
 {	
 	class TPrivate;
 	std::unique_ptr<TPrivate> _this;

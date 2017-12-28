@@ -1,7 +1,7 @@
 
 #include "SConstructObject.h"
 
-#include "../semanticAnalyzer.h"
+#include "SCommon.h"
 
 #include "FormalParam.h"
 #include "SExpression.h"

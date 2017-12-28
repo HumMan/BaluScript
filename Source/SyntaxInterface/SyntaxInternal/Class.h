@@ -45,7 +45,7 @@ namespace SyntaxInternal
 	};
 		
 
-	class BALUSCRIPT_DLL_INTERFACE TClass :public Lexer::TTokenPos, public TCanBeEnumeration, public SyntaxApi::IClass
+	class TClass :public Lexer::TTokenPos, public TCanBeEnumeration, public SyntaxApi::IClass
 	{
 	private:
 		class TClassInternal;

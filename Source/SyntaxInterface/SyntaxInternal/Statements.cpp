@@ -173,7 +173,7 @@ void TStatements::AddVar(TLocalVar* use_var)
 	statements.push_back(std::unique_ptr<TStatement>(use_var));
 	use_var->SetStmtId(statements.size() - 1);
 }
-int TStatements::GetStatementsCount()const
+size_t TStatements::GetStatementsCount()const
 {
 	return statements.size();
 }

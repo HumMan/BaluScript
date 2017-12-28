@@ -63,7 +63,7 @@ public:
 	///<summary>Используется для вызова автоматически созданного конструктора для пользовательского/внешнего метода</summary>
 	//void SetPreEvent(TSMethod* use_event);
 	//void SetPostEvent(TSMethod* use_event);
-	
+
 	//TSMethod* GetPreEvent();
 	//TSMethod* GetPostEvent();
 
@@ -75,7 +75,7 @@ public:
 	TSMethod(TSClass* use_owner, TSpecialClassMethod::Type special_method_type);
 	void AddParameter(TSParameter* use_par);
 
-	TSMethod(TSClass* use_owner,SyntaxApi::IMethod* use_syntax);
+	TSMethod(TSClass* use_owner, SyntaxApi::IMethod* use_syntax);
 
 	int GetParametersSize()
 	{

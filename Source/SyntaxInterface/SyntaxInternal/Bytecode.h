@@ -2,8 +2,6 @@
 
 #include "../SyntaxTreeApi.h"
 
-#include "../../VirtualMachine/Op.h"
-
 #include "Statement.h"
 
 namespace SyntaxInternal

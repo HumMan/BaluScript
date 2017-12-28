@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../Semantic/RunContext.h"
+#include "../SemanticInterface/Internal/RunContext.h"
 
 #include <string>
 

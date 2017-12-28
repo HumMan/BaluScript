@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../SyntaxInterface/SyntaxTreeApi.h"
+#include "../../SyntaxInterface/SyntaxTreeApi.h"
 
 class TSClass;
 class TSType_TTemplateParameter;

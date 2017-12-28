@@ -1,7 +1,8 @@
 ﻿#include "DynArray.h"
 
-#include "../Semantic/FormalParam.h"
-#include "../Semantic/SClass.h"
+#include "../SemanticInterface/Internal/FormalParam.h"
+#include "../SemanticInterface/Internal/SClass.h"
+#include "../SemanticInterface/Internal/SMethod.h"
 
 #include "../syntaxAnalyzer.h"
 

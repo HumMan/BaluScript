@@ -8,7 +8,7 @@
 #include "SType.h"
 #include "SStatements.h"
 
-#include "../semanticAnalyzer.h"
+#include "SCommon.h"
 
 class TSClass::TPrivate
 {
