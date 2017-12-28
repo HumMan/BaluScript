@@ -17,7 +17,6 @@ namespace SyntaxApi
 	{
 		auto parent = dynamic_cast<SyntaxInternal::TClass*>(_parent);
 		auto cl = new SyntaxInternal::TClass(parent);
-		parent->AddNested(cl);
 		cl->AnalyzeSyntax(lexer);
 		lexer->GetToken(Lexer::TTokenType::Done);
 		return cl;
@@ -29,6 +28,15 @@ namespace SyntaxApi
 		m->AnalyzeSyntax(lexer);
 		lexer->GetToken(Lexer::TTokenType::Done);
 		return m;
+	}
+
+	void Destroy(IClass* p)
+	{
+		delete (dynamic_cast<SyntaxInternal::TClass*>(p));
+	}
+	void Destroy(IMethod* p)
+	{
+		delete (dynamic_cast<SyntaxInternal::TMethod*>(p));
 	}
 
 }

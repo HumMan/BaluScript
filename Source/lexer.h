@@ -58,7 +58,6 @@ namespace Lexer
 		New,
 
 		Func,
-		/*Constr,*/
 		Default,
 		Copy,
 		Move,

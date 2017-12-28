@@ -13,7 +13,7 @@ class TSyntaxAnalyzer::TPrivate
 {
 public:
 	std::unique_ptr<Lexer::ILexer> lexer;
-	std::unique_ptr<SyntaxApi::IClass> base_class;
+	SyntaxApi::IClass* base_class;
 	std::unique_ptr<TSClass> sem_base_class;
 	std::vector<TSClassField*> static_fields;
 	std::vector<TSLocalVar*> static_variables;
@@ -26,11 +26,12 @@ TSyntaxAnalyzer::TSyntaxAnalyzer():_this(std::make_unique<TPrivate>())
 
 TSyntaxAnalyzer::~TSyntaxAnalyzer()
 {
+	SyntaxApi::Destroy(_this->base_class);
 }
 
 SyntaxApi::IClass * TSyntaxAnalyzer::GetBaseClass() const
 {
-	return _this->base_class.get();
+	return _this->base_class;
 }
 
 TSClass* TSyntaxAnalyzer::GetCompiledBaseClass()const
@@ -49,9 +50,9 @@ void TSyntaxAnalyzer::Compile(char* use_source/*, TTime& time*/)
 	_this->lexer->ParseSource(use_source);
 	//printf("Source parsing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
 	//t = time.GetTime();
-	_this->base_class.reset(SyntaxApi::Analyze(_this->lexer.get()));
+	_this->base_class=SyntaxApi::Analyze(_this->lexer.get());
 
-	_this->sem_base_class.reset(new TSClass(nullptr, _this->base_class.get()));
+	_this->sem_base_class.reset(new TSClass(nullptr, _this->base_class));
 
 	_this->sem_base_class->Build();
 
@@ -74,7 +75,7 @@ void TSyntaxAnalyzer::Compile(char* use_source/*, TTime& time*/)
 void TSyntaxAnalyzer::CreateInternalClasses()
 {
 	_this->lexer->ParseSource("class dword {}");
-	SyntaxApi::IClass* t_syntax = SyntaxApi::AnalyzeNestedClass(_this->lexer.get(), _this->base_class.get());
+	SyntaxApi::IClass* t_syntax = SyntaxApi::AnalyzeNestedClass(_this->lexer.get(), _this->base_class);
 
 	TSClass* t = new TSClass(_this->sem_base_class.get(), t_syntax);
 	t->SetSize(1);

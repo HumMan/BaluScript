@@ -143,7 +143,6 @@ namespace Test
 	{
 		delete static_objects;
 		delete smethods;
-
 		delete syntax;
 
 		_CrtDumpMemoryLeaks();

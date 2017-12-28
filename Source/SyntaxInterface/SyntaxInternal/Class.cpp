@@ -257,6 +257,9 @@ void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 {
 	InitPos(source);
 
+	if(_this->owner!=nullptr)
+		_this->owner->AddNested(this);
+
 	if (source->TestAndGet(TResWord::Enum))
 	{
 		SetAsEnumeration();
@@ -322,19 +325,16 @@ void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 				case TResWord::Class: 
 				{
 					TClass* nested = new TClass(this);
-					AddNested(nested);
 					nested->AnalyzeSyntax(source);
 				}
 				break;
 				case TResWord::Enum:
 				{
 					TClass* enumeraiton = new TClass(this);
-					AddNested(enumeraiton);
 					enumeraiton->AnalyzeSyntax(source);
 				}
 				break;
 				case TResWord::Func:
-				//case TResWord::Constr:
 				case TResWord::Default:
 				case TResWord::Copy:
 				case TResWord::Move:

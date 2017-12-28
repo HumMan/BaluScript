@@ -51,11 +51,11 @@ namespace SyntaxInternal
 		class TClassInternal;
 		std::unique_ptr<TClassInternal> _this;
 		void AccessDecl(Lexer::ILexer* source, bool& readonly, SyntaxApi::TTypeOfAccess access);
+		void AddNested(TClass* use_class);
 	public:
 		TClass(TClass* use_owner);
 		~TClass();
 		void AnalyzeSyntax(Lexer::ILexer* source);
-		void AddNested(TClass* use_class);
 		void SetName(Lexer::TNameId name);
 
 		bool IsTemplate()const;
