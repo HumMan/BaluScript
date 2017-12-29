@@ -4,8 +4,6 @@
 
 #include "SSyntaxNode.h"
 
-#include "BuildContext.h"
-
 class TSParameter;
 class TSMethod;
 class TSClass;
@@ -26,8 +24,8 @@ public:
 	TSMethod* FindParams(SemanticApi::ISMethod* use_method)const;
 	void GetMethods(std::vector<SemanticApi::ISMethod*> &result)const;
 	void CheckForErrors(bool is_conversion = false);
-	void LinkSignature(TGlobalBuildContext build_context);
-	void LinkBody(TGlobalBuildContext build_context);
+	void LinkSignature(SemanticApi::TGlobalBuildContext build_context);
+	void LinkBody(SemanticApi::TGlobalBuildContext build_context);
 	void Build();
 	void CalculateParametersOffsets();
 

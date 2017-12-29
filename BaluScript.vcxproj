@@ -99,7 +99,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Source\SemanticInterface\IMethod.h" />
-    <ClInclude Include="Source\SemanticInterface\Internal\BuildContext.h" />
+    <ClInclude Include="Source\SemanticInterface\IBuildContext.h" />
     <ClInclude Include="Source\TreeRunner\AllRunCode.h" />
     <ClInclude Include="Source\TreeRunner\ExpressionRun.h" />
     <ClInclude Include="Source\TreeRunner\FormalParam.h" />

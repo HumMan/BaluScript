@@ -108,9 +108,11 @@ void TString::get_length(TMethodRunContext* run_context)
 	*(int*)run_context->result->get() = obj->GetLength();
 }
 template<>
-void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
+SemanticApi::TExternalClassDecl TString::DeclareExternalClass()
 {
-	syntax->GetLexer()->ParseSource(
+	SemanticApi::TExternalClassDecl decl;
+
+	decl.source =
 		"class extern string\n"
 		"{\n"
 		"default();\n"
@@ -121,9 +123,9 @@ void TString::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 		"operator static +=(string& v,string& l);\n"
 		"operator static +(string& v,string& l):string;\n"
 		"func length:int;\n"
-		"}\n"
-		);
-	auto cl = SyntaxApi::AnalyzeNestedClass(syntax->GetLexer(), syntax->GetBaseClass());
+		"}\n";
+
+	return decl;
 
 	//TSClass* scl = new TSClass(syntax->GetCompiledBaseClass(), cl);
 	//syntax->GetCompiledBaseClass()->AddClass(scl);

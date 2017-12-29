@@ -2,8 +2,6 @@
 
 #include "SStatement.h"
 
-#include "BuildContext.h"
-
 class TSClass;
 class TSMethod;
 class TSStatements;
@@ -16,6 +14,6 @@ class TSWhile :public TSStatement
 	std::unique_ptr<TSStatements> statements;
 public:
 	TSWhile(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IWhile* use_syntax);
-	void Build(TGlobalBuildContext build_context);
+	void Build(SemanticApi::TGlobalBuildContext build_context);
 	//void Run(TStatementRunContext run_context);
 };

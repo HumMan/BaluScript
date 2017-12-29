@@ -186,8 +186,29 @@
     <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\While.h">
       <Filter>Source Files\Syntax\Statements</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SemanticInterface\Internal\BuildContext.h">
+    <ClInclude Include="Source\SemanticInterface\SemanticTreeApi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\ISyntaxNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\IMethod.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TreeRunner\RunContext.h">
       <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TreeRunner\FormalParam.h">
+      <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TreeRunner\AllRunCode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TreeRunner\ExpressionRun.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\ExpressionResult.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\SemanticInterface\Internal\SBytecode.h">
       <Filter>Source Files\Semantic\Statements</Filter>
@@ -197,6 +218,9 @@
     </ClInclude>
     <ClInclude Include="Source\SemanticInterface\Internal\SClassField.h">
       <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\Internal\SCommon.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\SemanticInterface\Internal\SConstructObject.h">
       <Filter>Source Files\Semantic\Statements</Filter>
@@ -246,32 +270,8 @@
     <ClInclude Include="Source\SemanticInterface\Internal\Variable.h">
       <Filter>Source Files\Semantic</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SemanticInterface\SemanticTreeApi.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\SemanticInterface\Internal\SCommon.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\SemanticInterface\ISyntaxNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\SemanticInterface\IMethod.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\TreeRunner\RunContext.h">
+    <ClInclude Include="Source\SemanticInterface\IBuildContext.h">
       <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\TreeRunner\FormalParam.h">
-      <Filter>Source Files\Semantic</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\SemanticInterface\Internal\ExpressionResult.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\TreeRunner\AllRunCode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\TreeRunner\ExpressionRun.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -359,6 +359,15 @@
     <ClCompile Include="Source\SyntaxInterface\SyntaxTreeApi.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\SemanticTreeApi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TreeRunner\FormalParam.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\ExpressionResult.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Source\SemanticInterface\Internal\SBytecode.cpp">
       <Filter>Source Files\Semantic\Statements</Filter>
     </ClCompile>
@@ -367,6 +376,9 @@
     </ClCompile>
     <ClCompile Include="Source\SemanticInterface\Internal\SClassField.cpp">
       <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SemanticInterface\Internal\SCommon.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\SemanticInterface\Internal\SConstructObject.cpp">
       <Filter>Source Files\Semantic\Statements</Filter>
@@ -412,18 +424,6 @@
     </ClCompile>
     <ClCompile Include="Source\SemanticInterface\Internal\Variable.cpp">
       <Filter>Source Files\Semantic</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\SemanticInterface\SemanticTreeApi.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\SemanticInterface\Internal\SCommon.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\SemanticInterface\Internal\ExpressionResult.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\TreeRunner\FormalParam.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -16,7 +16,7 @@ SyntaxApi::IBytecode* TSBytecode::GetSyntax()
 	return dynamic_cast<SyntaxApi::IBytecode*>(TSyntaxNode::GetSyntax());
 }
 
-void TSBytecode::Build(TGlobalBuildContext build_context)
+void TSBytecode::Build(SemanticApi::TGlobalBuildContext build_context)
 {
 	auto code = GetSyntax()->GetBytecode();
 	for (size_t i = 0; i<code.size(); i++)

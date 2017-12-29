@@ -22,17 +22,19 @@ void TStaticArr::get_size(TMethodRunContext* run_context)
 	*(int*)run_context->result->get() = size;
 }
 
-void TStaticArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
+SemanticApi::TExternalClassDecl TStaticArr::DeclareExternalClass()
 {
-	syntax->GetLexer()->ParseSource(
+	SemanticApi::TExternalClassDecl decl;
+
+	decl.source =
 		"class TStaticArray<T,Size>\n"
 		"{\n"
 		"	multifield(Size) T value;\n"
 		"	operator extern static [](TStaticArray& v,int id):&T;\n"
 		"	func extern size:int;\n"
-		"}\n"
-		);
-	auto cl = SyntaxApi::AnalyzeNestedClass(syntax->GetLexer(), syntax->GetBaseClass());
+		"}\n";
+
+	return decl;
 
 	//SemanticApi::ISClass* scl = new TSClass(syntax->GetCompiledBaseClass(), cl);
 	//syntax->GetCompiledBaseClass()->AddClass(scl);

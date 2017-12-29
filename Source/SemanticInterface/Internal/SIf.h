@@ -1,8 +1,6 @@
 
 #include "SStatement.h"
 
-#include "BuildContext.h"
-
 class TSClass;
 class TSMethod;
 class TSStatements;
@@ -15,7 +13,7 @@ class TSIf :public TSStatement
 	std::unique_ptr<TSStatements> statements, else_statements;
 public:
 	TSIf(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IIf* use_syntax);
-	void Build(TGlobalBuildContext build_context);
+	void Build(SemanticApi::TGlobalBuildContext build_context);
 	SyntaxApi::IIf* GetSyntax();
 	//void Run(TStatementRunContext run_context);
 };

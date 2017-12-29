@@ -22,11 +22,11 @@ TSParameter::TSParameter(TSClass* use_owner, TSMethod* use_method, TSClass* use_
 
 }
 
-void TSParameter::LinkBody(TGlobalBuildContext build_context)
+void TSParameter::LinkBody(SemanticApi::TGlobalBuildContext build_context)
 {
 	type.LinkBody(build_context);
 }
-void TSParameter::LinkSignature(TGlobalBuildContext build_context)
+void TSParameter::LinkSignature(SemanticApi::TGlobalBuildContext build_context)
 {
 	type.LinkSignature(build_context);
 }

@@ -286,7 +286,7 @@ TSClassField* TSClass::GetField(Lexer::TNameId name, bool is_static, bool only_i
 	return nullptr;
 }
 
-void TSClass::LinkSignature(TGlobalBuildContext build_context)
+void TSClass::LinkSignature(SemanticApi::TGlobalBuildContext build_context)
 {
 	if (!IsSignatureLinked())
 		SetSignatureLinked();
@@ -328,7 +328,7 @@ void TSClass::LinkSignature(TGlobalBuildContext build_context)
 			nested_class->LinkSignature(build_context);
 }
 
-void TSClass::LinkBody(TGlobalBuildContext build_context)
+void TSClass::LinkBody(SemanticApi::TGlobalBuildContext build_context)
 {
 	if (!IsBodyLinked())
 		SetBodyLinked();

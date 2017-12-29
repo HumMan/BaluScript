@@ -15,7 +15,7 @@ TSType::TSType(TSClass* use_owner, TSClass* use_class) : TSyntaxNode(nullptr)
 	classes.back().class_of_type = use_class;
 }
 
-void TSType::LinkSignature(TGlobalBuildContext build_context, TSClass* use_curr_class)
+void TSType::LinkSignature(SemanticApi::TGlobalBuildContext build_context, TSClass* use_curr_class)
 {
 	for (auto v : GetSyntax()->GetClassNames())
 	{
@@ -24,7 +24,7 @@ void TSType::LinkSignature(TGlobalBuildContext build_context, TSClass* use_curr_
 	}
 }
 
-void TSType::LinkSignature(TGlobalBuildContext build_context)
+void TSType::LinkSignature(SemanticApi::TGlobalBuildContext build_context)
 { 
 	if (!IsSignatureLinked())
 		SetSignatureLinked();
@@ -33,7 +33,7 @@ void TSType::LinkSignature(TGlobalBuildContext build_context)
 	LinkSignature(build_context, nullptr);
 }
 
-void TSType::LinkBody(TGlobalBuildContext build_context)
+void TSType::LinkBody(SemanticApi::TGlobalBuildContext build_context)
 {
 	if (!IsBodyLinked())
 		SetBodyLinked();
@@ -51,7 +51,7 @@ bool TSType::IsEqualTo(const TSType& use_right)const
 	return GetClass() == use_right.GetClass();
 }
 
-TSClass* TSType_TClassName::LinkSignature(TGlobalBuildContext build_context,TSClass* use_owner, TSClass* use_curr_class)
+TSClass* TSType_TClassName::LinkSignature(SemanticApi::TGlobalBuildContext build_context,TSClass* use_owner, TSClass* use_curr_class)
 {
 	if (!IsSignatureLinked())
 		SetSignatureLinked();
@@ -178,7 +178,7 @@ TSClass* TSType_TClassName::LinkSignature(TGlobalBuildContext build_context,TSCl
 }
 
 
-void TSType_TClassName::LinkBody(TGlobalBuildContext build_context)
+void TSType_TClassName::LinkBody(SemanticApi::TGlobalBuildContext build_context)
 {
 	if (!IsBodyLinked())
 		SetBodyLinked();

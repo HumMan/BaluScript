@@ -2,8 +2,6 @@
 
 #include "../../SyntaxInterface/SyntaxTreeApi.h"
 
-#include "BuildContext.h"
-
 #include "TemplateRealizations.h"
 //#include "SMethod.h"
 //#include "SOverloadedMethod.h"
@@ -62,8 +60,8 @@ public:
 	void Build();
 	///<param name = 'static_fields'>Список статических полей класса - необходим для их дальнейшей инициализации</param>
 	///<param name = 'static_fields'>Список статических локальных переменных</param>
-	void LinkSignature(TGlobalBuildContext build_context);
-	void LinkBody(TGlobalBuildContext build_context);
+	void LinkSignature(SemanticApi::TGlobalBuildContext build_context);
+	void LinkBody(SemanticApi::TGlobalBuildContext build_context);
 	void CalculateSizes(std::vector<TSClass*> &owners);
 	void CalculateMethodsSizes();
 	void InitAutoMethods();

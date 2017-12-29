@@ -152,5 +152,8 @@ namespace SemanticApi
 		//virtual bool HasParams(const std::vector<ISParameter*> &use_params)const = 0;
 	};
 
+	class ISLocalVar
+	{
 
+	};
 }

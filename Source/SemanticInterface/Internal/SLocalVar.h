@@ -7,7 +7,8 @@
 class TSExpression;
 class TSConstructObject;
 
-class TSLocalVar :public TSStatement, public TVariable, public TNodeWithOffset
+class TSLocalVar :public TSStatement, public TVariable, public TNodeWithOffset,
+	public SemanticApi::ISLocalVar
 {
 	std::unique_ptr<TSExpression> assign_expr;
 	std::unique_ptr<TSConstructObject> construct_object;
@@ -18,7 +19,7 @@ public:
 	Lexer::TNameId GetName();
 	TSClass* GetClass();
 	bool IsStatic();
-	void Build(TGlobalBuildContext build_context);
+	void Build(SemanticApi::TGlobalBuildContext build_context);
 	/*void Run(TStatementRunContext run_context);
 	void Destruct(std::vector<TStaticValue> &static_fields, std::vector<TStackValue>& local_variables);*/
 };

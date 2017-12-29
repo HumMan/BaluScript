@@ -7,7 +7,7 @@
 #include "SParameter.h"
 #include "SClass.h"
 
-void TSReturn::Build(TGlobalBuildContext build_context)
+void TSReturn::Build(SemanticApi::TGlobalBuildContext build_context)
 {
 	result = std::unique_ptr<TSExpression>(new TSExpression(GetOwner(), GetMethod(), GetParentStatements(), GetSyntax()->GetResult()));
 	result->Build(build_context);

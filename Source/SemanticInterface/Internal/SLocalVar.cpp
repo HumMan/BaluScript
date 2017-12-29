@@ -9,7 +9,7 @@
 #include "SClass.h"
 #include "SConstructObject.h"
 
-void TSLocalVar::Build(TGlobalBuildContext build_context)
+void TSLocalVar::Build(SemanticApi::TGlobalBuildContext build_context)
 {
 	type.LinkSignature(build_context);
 	type.LinkBody(build_context);

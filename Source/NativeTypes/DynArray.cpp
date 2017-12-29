@@ -3,6 +3,7 @@
 #include "../TreeRunner/FormalParam.h"
 
 #include "../syntaxAnalyzer.h"
+#include "../SemanticInterface/SemanticTreeApi.h"
 
 #include <string.h>
 
@@ -183,9 +184,11 @@ void TDynArr::get_size(TMethodRunContext* run_context)
 	*(int*)run_context->result->get() = obj->v->size() / obj->el_class->GetSize();
 }
 
-void TDynArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
+SemanticApi::TExternalClassDecl TDynArr::DeclareExternalClass()
 {
-	syntax->GetLexer()->ParseSource(
+	SemanticApi::TExternalClassDecl decl;
+
+	decl.source=
 		"class extern TDynArray<T>\n"
 		"{\n"
 		"default();\n"
@@ -195,40 +198,19 @@ void TDynArr::DeclareExternalClass(TSyntaxAnalyzer* syntax)
 		"operator static =(TDynArray& v,TDynArray& l);\n"
 		"func resize(int new_size);\n"
 		"func size:int;\n"
-		"}\n"
-	);
+		"}\n";
 
-	auto cl = SyntaxApi::AnalyzeNestedClass(syntax->GetLexer(), syntax->GetBaseClass());
 
-	/*TSClass* scl = new TSClass(syntax->GetCompiledBaseClass(), cl);
-	syntax->GetCompiledBaseClass()->AddClass(scl);
-	scl->Build();
-
-	scl->SetSize(LexerIntSizeOf(sizeof(TDynArr)) / sizeof(int));
-	scl->SetAutoMethodsInitialized();
-
-	scl->GetDefConstr()->SetAsExternal(TDynArr::constructor);
+	decl.size = LexerIntSizeOf(sizeof(TDynArr)) / sizeof(int);
 	
-	std::vector<TSMethod*> m;
-	m.clear();
-	scl->GetCopyConstructors(m);
-	m[0]->SetAsExternal(TDynArr::copy_constr);
-	scl->GetDestructor()->SetAsExternal(TDynArr::destructor);
+	decl.def_constr = TDynArr::constructor;	
+	decl.copy_constr = TDynArr::copy_constr;
+	decl.destr = TDynArr::destructor;
 
+	decl.operators[(int)Lexer::TOperator::GetArrayElement] = TDynArr::get_element_op;
+	decl.operators[(int)Lexer::TOperator::Assign] = TDynArr::assign_op;
 	
-	m.clear();
-	scl->GetOperators(m, Lexer::TOperator::GetArrayElement);
-	m[0]->SetAsExternal(TDynArr::get_element_op);
-	
-	m.clear();
-	scl->GetOperators(m, Lexer::TOperator::Assign);
-	m[0]->SetAsExternal(TDynArr::assign_op);
-
-	m.clear();
-	scl->GetMethods(m, syntax->GetLexer()->GetIdFromName("resize"));
-	m[0]->SetAsExternal(TDynArr::resize);
-
-	m.clear();
-	scl->GetMethods(m, syntax->GetLexer()->GetIdFromName("size"));
-	m[0]->SetAsExternal(TDynArr::get_size);*/
+	decl.methods.insert(std::make_pair(std::string("resize"), TDynArr::resize));
+	decl.methods.insert(std::make_pair(std::string("size"), TDynArr::get_size));
+	return decl;
 }

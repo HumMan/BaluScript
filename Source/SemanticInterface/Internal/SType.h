@@ -4,8 +4,6 @@
 
 #include "SSyntaxNode.h"
 
-#include "BuildContext.h"
-
 class TSClass;
 class TSType;
 
@@ -32,8 +30,8 @@ public:
 		SetSignatureLinked();
 		SetBodyLinked();
 	}
-	TSClass* LinkSignature(TGlobalBuildContext build_context, TSClass* use_owner, TSClass* use_curr_class);
-	void LinkBody(TGlobalBuildContext build_context);
+	TSClass* LinkSignature(SemanticApi::TGlobalBuildContext build_context, TSClass* use_owner, TSClass* use_curr_class);
+	void LinkBody(SemanticApi::TGlobalBuildContext build_context);
 };
 
 class TSType :public TSyntaxNode<SyntaxApi::IType>, public TNodeSignatureLinked, public TNodeBodyLinked
@@ -41,14 +39,14 @@ class TSType :public TSyntaxNode<SyntaxApi::IType>, public TNodeSignatureLinked,
 private:
 	TSClass* owner;
 	std::list<TSType_TClassName> classes;
-	void LinkSignature(TGlobalBuildContext build_context, TSClass* use_curr_class);
+	void LinkSignature(SemanticApi::TGlobalBuildContext build_context, TSClass* use_curr_class);
 public:
 	bool IsEqualTo(const TSType& use_right)const;
 	TSType(TSClass* use_owner,SyntaxApi::IType* use_syntax_node);
 	///<summary>Используется при создании автоматических методов</summary>
 	TSType(TSClass* use_owner, TSClass* use_class);
-	void LinkSignature(TGlobalBuildContext build_context);
-	void LinkBody(TGlobalBuildContext build_context);
+	void LinkSignature(SemanticApi::TGlobalBuildContext build_context);
+	void LinkBody(SemanticApi::TGlobalBuildContext build_context);
 	TSClass* GetClass()const
 	{
 		if (classes.size() == 0)

@@ -14,7 +14,7 @@ TSConstructObject::TSConstructObject(SemanticApi::ISClass* use_owner, SemanticAp
 {
 }
 
-void TSConstructObject::Build(Lexer::ITokenPos* source, std::vector<TExpressionResult>& params_result, std::vector<TSOperation*>& params, std::vector<SemanticApi::TFormalParameter>& params_formals, TGlobalBuildContext build_context)
+void TSConstructObject::Build(Lexer::ITokenPos* source, std::vector<TExpressionResult>& params_result, std::vector<TSOperation*>& params, std::vector<SemanticApi::TFormalParameter>& params_formals, SemanticApi::TGlobalBuildContext build_context)
 {
 	SemanticApi::ISMethod* constructor = nullptr;
 	if (params_result.size() > 0)
@@ -45,7 +45,7 @@ void TSConstructObject::Build(Lexer::ITokenPos* source, std::vector<TExpressionR
 	}
 }
 
-void TSConstructObject::Build(Lexer::ITokenPos* source, const std::vector<SyntaxApi::IExpression*>& syntax_params, TGlobalBuildContext build_context)
+void TSConstructObject::Build(Lexer::ITokenPos* source, const std::vector<SyntaxApi::IExpression*>& syntax_params, SemanticApi::TGlobalBuildContext build_context)
 {
 	std::vector<TExpressionResult> params_result;
 	std::vector<SemanticApi::TFormalParameter> params_formals;

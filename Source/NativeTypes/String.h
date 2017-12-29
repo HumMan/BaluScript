@@ -4,6 +4,8 @@
 
 #include <string>
 
+#include "../SemanticInterface/SemanticTreeApi.h"
+
 class TStaticValue;
 class TStackValue;
 class TSyntaxAnalyzer;
@@ -61,7 +63,7 @@ public:
 	static void get_char_op(TMethodRunContext* run_context);
 	static void get_length(TMethodRunContext* run_context);
 
-	static void DeclareExternalClass(TSyntaxAnalyzer* syntax);
+	static SemanticApi::TExternalClassDecl DeclareExternalClass();
 };
 
 typedef TStringWrapper<std::string> TString;

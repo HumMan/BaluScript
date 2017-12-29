@@ -8,7 +8,7 @@ TSFor::TSFor(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent,
 
 }
 
-void TSFor::Build(TGlobalBuildContext build_context)
+void TSFor::Build(SemanticApi::TGlobalBuildContext build_context)
 {
 	compare = std::unique_ptr<TSExpression>(new TSExpression(GetOwner(), GetMethod(), GetParentStatements(), GetSyntax()->GetCompare()));
 	compare->Build(build_context);

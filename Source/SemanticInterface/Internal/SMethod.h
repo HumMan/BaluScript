@@ -27,9 +27,6 @@ public:
 	}
 };
 
-class TMethodRunContext;
-typedef void(*TExternalSMethod)(TMethodRunContext* run_context);
-
 class TSMethod :public TSyntaxNode<SyntaxApi::IMethod>, public TSpecialClassMethod, public TNodeSignatureLinked, public TNodeBodyLinked,
 	public SemanticApi::ISMethod
 {
@@ -37,7 +34,7 @@ private:
 	class TPrivate;
 	std::unique_ptr<TPrivate> _this;
 public:
-	void SetAsExternal(TExternalSMethod method);
+	void SetAsExternal(SemanticApi::TExternalSMethod method);
 	void CopyExternalMethodBindingsFrom(TSMethod* source);
 	TSMethod(TSClass* use_owner, SemanticApi::SpecialClassMethodType special_method_type);
 	void AddParameter(TSParameter* use_par);
@@ -58,8 +55,8 @@ public:
 
 	void Build();
 
-	void LinkSignature(TGlobalBuildContext build_context);
-	void LinkBody(TGlobalBuildContext build_context);
+	void LinkSignature(SemanticApi::TGlobalBuildContext build_context);
+	void LinkBody(SemanticApi::TGlobalBuildContext build_context);
 
 	void CalculateParametersOffsets();
 

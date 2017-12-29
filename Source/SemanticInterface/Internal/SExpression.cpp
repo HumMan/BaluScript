@@ -17,11 +17,11 @@ class TSemanticTreeBuilder :public SyntaxApi::IExpressionTreeVisitor
 	TSClass* owner;
 	TSMethod* method;
 	TSExpression* parent;
-	TGlobalBuildContext build_context;
+	SemanticApi::TGlobalBuildContext build_context;
 
 	TSOperation* visit_result;
 public:
-	TSemanticTreeBuilder(TGlobalBuildContext build_context, SyntaxApi::IExpression* syntax_node, TSClass* owner, TSMethod* method, TSExpression* parent)
+	TSemanticTreeBuilder(SemanticApi::TGlobalBuildContext build_context, SyntaxApi::IExpression* syntax_node, TSClass* owner, TSMethod* method, TSExpression* parent)
 	{
 		this->syntax_node = syntax_node;
 		this->owner = owner;
@@ -467,7 +467,7 @@ public:
 	}
 };
 
-void TSExpression::Build(TGlobalBuildContext build_context)
+void TSExpression::Build(SemanticApi::TGlobalBuildContext build_context)
 {
 	TSemanticTreeBuilder b(build_context, GetSyntax(), GetOwner(), GetMethod(), this);
 	auto syntax = GetSyntax();

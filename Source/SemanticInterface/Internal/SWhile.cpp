@@ -8,7 +8,7 @@ TSWhile::TSWhile(TSClass* use_owner, TSMethod* use_method, TSStatements* use_par
 
 }
 
-void TSWhile::Build(TGlobalBuildContext build_context)
+void TSWhile::Build(SemanticApi::TGlobalBuildContext build_context)
 {
 	auto syntax = dynamic_cast<SyntaxApi::IWhile*>(GetSyntax());
 	compare = std::unique_ptr<TSExpression>(new TSExpression(GetOwner(), GetMethod(), GetParentStatements(), syntax->GetCompare()));

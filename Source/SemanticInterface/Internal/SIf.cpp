@@ -9,7 +9,7 @@ TSIf::TSIf(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, S
 
 }
 
-void TSIf::Build(TGlobalBuildContext build_context)
+void TSIf::Build(SemanticApi::TGlobalBuildContext build_context)
 {
 	bool_expr = std::unique_ptr<TSExpression>(new TSExpression(GetOwner(), GetMethod(), GetParentStatements(), GetSyntax()->GetBoolExpr()));
 	bool_expr->Build(build_context);

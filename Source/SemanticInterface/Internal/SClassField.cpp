@@ -21,13 +21,13 @@ SemanticApi::ISClass* TSClassField::GetOwner()const
 	return owner;
 }
 
-void TSClassField::LinkSignature(TGlobalBuildContext build_context)
+void TSClassField::LinkSignature(SemanticApi::TGlobalBuildContext build_context)
 {
 
 	type.LinkSignature(build_context);
 }
 
-void TSClassField::LinkBody(TGlobalBuildContext build_context)
+void TSClassField::LinkBody(SemanticApi::TGlobalBuildContext build_context)
 {
 
 	type.LinkBody(build_context);

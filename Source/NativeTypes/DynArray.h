@@ -48,5 +48,5 @@ public:
 	static void resize(TMethodRunContext* run_context);
 	static void get_size(TMethodRunContext* run_context);
 
-	static void DeclareExternalClass(TSyntaxAnalyzer* syntax);
+	static SemanticApi::TExternalClassDecl DeclareExternalClass();
 };

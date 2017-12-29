@@ -7,8 +7,6 @@
 #include "Variable.h"
 #include "ExpressionResult.h"
 
-#include "BuildContext.h"
-
 class TSMethod;
 
 ///<summary>Класс описывает параметр сигнатуры метода</summary>
@@ -23,8 +21,8 @@ class TSParameter :public TSyntaxNode<SyntaxApi::IParameter>, public TVariable,p
 public:
 	TSParameter(TSClass* use_owner, TSMethod* use_method, SyntaxApi::IParameter* use_syntax_node, SyntaxApi::IType* use_type_syntax_node);
 	TSParameter(TSClass* use_owner, TSMethod* use_method, TSClass* use_class, bool use_is_ref);
-	void LinkBody(TGlobalBuildContext build_context);
-	void LinkSignature(TGlobalBuildContext build_context);
+	void LinkBody(SemanticApi::TGlobalBuildContext build_context);
+	void LinkSignature(SemanticApi::TGlobalBuildContext build_context);
 	TSClass* GetClass();
 	bool IsEqualTo(const TSParameter& right)const;
 	void CalculateSize();

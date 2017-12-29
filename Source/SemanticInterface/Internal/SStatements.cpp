@@ -16,13 +16,13 @@ class TSStatementBuilder :public SyntaxApi::IStatementVisitor
 	TSClass* owner;
 	TSMethod* method;
 	TSStatements* parent;
-	TGlobalBuildContext build_context;
+	SemanticApi::TGlobalBuildContext build_context;
 public:
 	TSStatement* GetResult()
 	{
 		return return_new_operation;
 	}
-	TSStatementBuilder(TGlobalBuildContext build_context, TSClass* owner, TSMethod* method, TSStatements* parent)
+	TSStatementBuilder(SemanticApi::TGlobalBuildContext build_context, TSClass* owner, TSMethod* method, TSStatements* parent)
 	{
 		this->owner = owner;
 		this->method = method;
@@ -104,7 +104,7 @@ int TSStatements::GetLastVariableOffset()
 	}
 }
 
-void TSStatements::Build(TGlobalBuildContext build_context)
+void TSStatements::Build(SemanticApi::TGlobalBuildContext build_context)
 {
 	auto syntax = dynamic_cast<SyntaxApi::IStatements*>(GetSyntax());
 	for (size_t i = 0; i < syntax->GetStatementsCount(); i++)

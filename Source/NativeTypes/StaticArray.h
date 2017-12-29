@@ -3,6 +3,8 @@
 #include "../VirtualMachine/Program.h"
 #include "../virtualMachine.h"
 
+#include "../SemanticInterface/SemanticTreeApi.h"
+
 #include "../TreeRunner/RunContext.h"
 
 class TStaticValue;
@@ -16,5 +18,5 @@ public:
 	static void get_element_op(TMethodRunContext* run_context);
 	static void get_size(TMethodRunContext* run_context);
 
-	static void DeclareExternalClass(TSyntaxAnalyzer* syntax);
+	static SemanticApi::TExternalClassDecl DeclareExternalClass();
 };

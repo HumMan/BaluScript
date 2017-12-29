@@ -22,7 +22,7 @@ public:
 	std::unique_ptr<TSStatements> statements;
 
 	bool is_external;
-	TExternalSMethod external_func;
+	SemanticApi::TExternalSMethod external_func;
 	TPrivate(TSClass *use_owner, SyntaxApi::IType *use_syntax_node) 
 		: ret(use_owner, use_syntax_node)
 	{
@@ -90,7 +90,7 @@ void TSMethod::AddParameter(TSParameter* use_par)
 	_this->parameters.push_back(std::unique_ptr<TSParameter>(use_par));
 }
 
-void TSMethod::LinkSignature(TGlobalBuildContext build_context)
+void TSMethod::LinkSignature(SemanticApi::TGlobalBuildContext build_context)
 {
 	if (IsSignatureLinked())
 		return;
@@ -139,7 +139,7 @@ bool TSMethod::HasParams(const std::vector<TSParameter*> &use_params)const
 	return true;
 }
 
-void TSMethod::LinkBody(TGlobalBuildContext build_context)
+void TSMethod::LinkBody(SemanticApi::TGlobalBuildContext build_context)
 {
 	if (_this->is_external)
 		return;
@@ -314,7 +314,7 @@ TSClass* TSMethod::GetOwner()const
 	return _this->owner;
 }
 
-void TSMethod::SetAsExternal(TExternalSMethod method)
+void TSMethod::SetAsExternal(SemanticApi::TExternalSMethod method)
 {
 	assert(_this->external_func == nullptr);
 	_this->external_func = method;

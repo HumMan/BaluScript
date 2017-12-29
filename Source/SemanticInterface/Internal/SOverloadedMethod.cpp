@@ -81,7 +81,7 @@ void TSOverloadedMethod::CheckForErrors(bool is_conversion)
 	}
 }
 
-void TSOverloadedMethod::LinkSignature(TGlobalBuildContext build_context)
+void TSOverloadedMethod::LinkSignature(SemanticApi::TGlobalBuildContext build_context)
 {
 	if (linked_signature)
 		return;
@@ -90,7 +90,7 @@ void TSOverloadedMethod::LinkSignature(TGlobalBuildContext build_context)
 	linked_signature = true;
 }
 
-void TSOverloadedMethod::LinkBody(TGlobalBuildContext build_context)
+void TSOverloadedMethod::LinkBody(SemanticApi::TGlobalBuildContext build_context)
 {
 	if (linked_body)
 		return;
