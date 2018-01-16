@@ -65,7 +65,7 @@ TSClass* TSClass::GetOwner()
 
 TSClass* TSClass::GetParent()
 {
-	return _this->parent.GetClass();
+	return dynamic_cast<TSClass*>(_this->parent.GetClass());
 }
 
 TSClass* TSClass::GetNestedByFullName(std::vector<Lexer::TNameId> full_name, size_t curr_id)
@@ -272,7 +272,7 @@ TSClassField* TSClass::GetField(Lexer::TNameId name, bool is_static, bool only_i
 {
 	TSClassField* result_parent = nullptr;
 	if (_this->parent.GetClass() != nullptr)
-		result_parent = _this->parent.GetClass()->GetField(name, true);
+		result_parent = dynamic_cast<TSClass*>(_this->parent.GetClass())->GetField(name, true);
 	if (result_parent != nullptr)
 		return result_parent;
 	for (std::unique_ptr<TSClassField>& field : _this->fields)
@@ -383,7 +383,7 @@ bool TSClass::GetMethods(std::vector<SemanticApi::ISMethod*> &result, Lexer::TNa
 	if (_this->owner != nullptr)
 		_this->owner->GetMethods(result, use_method_name, true);
 	if (_this->parent.GetClass() != nullptr)
-		_this->parent.GetClass()->GetMethods(result, use_method_name);
+		dynamic_cast<TSClass*>(_this->parent.GetClass())->GetMethods(result, use_method_name);
 	return result.size() > 0;
 }
 
@@ -405,7 +405,7 @@ bool TSClass::GetMethods(std::vector<SemanticApi::ISMethod*> &result, Lexer::TNa
 	if (is_static && _this->owner != nullptr)
 		_this->owner->GetMethods(result, use_method_name, true);
 	if (_this->parent.GetClass() != nullptr)
-		_this->parent.GetClass()->GetMethods(result, use_method_name, is_static);
+		dynamic_cast<TSClass*>(_this->parent.GetClass())->GetMethods(result, use_method_name, is_static);
 	return result.size() > 0;
 }
 
@@ -547,7 +547,7 @@ bool TSClass::IsNestedIn(SemanticApi::ISClass* use_parent)
 		return false;
 	if (_this->parent.GetClass() == use_parent)
 		return true;
-	return _this->parent.GetClass()->IsNestedIn(use_parent);
+	return dynamic_cast<TSClass*>(_this->parent.GetClass())->IsNestedIn(use_parent);
 }
 bool TSClass::GetOperators(std::vector<SemanticApi::ISMethod*> &result, Lexer::TOperator op)const
 {
@@ -627,7 +627,7 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 					owners.push_back(this);
 					if (_this->parent.GetClass() != nullptr)
 					{
-						TSClass* parent_class = _this->parent.GetClass();
+						TSClass* parent_class = dynamic_cast<TSClass*>(_this->parent.GetClass());
 						parent_class->CalculateSizes(owners);
 						class_size += parent_class->GetSize();
 

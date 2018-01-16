@@ -28,7 +28,6 @@ namespace SyntaxInternal
 		TClass* GetOwnerT()const;
 		TStatement(SyntaxApi::TStatementType use_stmt_type, TClass* use_owner, TMethod* use_method, TStatements* use_parent, int use_stmt_id);
 		SyntaxApi::TStatementType GetType()const;
-		virtual void Accept(SyntaxApi::IStatementVisitor* visitor) = 0;
 		virtual ~TStatement();
 	};
 }

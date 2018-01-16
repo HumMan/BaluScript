@@ -23,7 +23,7 @@ public:
 	TSParameter(TSClass* use_owner, TSMethod* use_method, TSClass* use_class, bool use_is_ref);
 	void LinkBody(SemanticApi::TGlobalBuildContext build_context);
 	void LinkSignature(SemanticApi::TGlobalBuildContext build_context);
-	TSClass* GetClass();
+	SemanticApi::ISClass* GetClass()const;
 	bool IsEqualTo(const TSParameter& right)const;
 	void CalculateSize();
 	bool IsRef()const;
@@ -34,7 +34,7 @@ public:
 class TSOperation;
 class TExpressionResult;
 
-class TActualParamWithConversion
+class TActualParamWithConversion: public SemanticApi::IActualParamWithConversion
 {
 public:
 	std::unique_ptr<TSOperation> expression;//выражение являющееся параметром
@@ -45,9 +45,13 @@ public:
 	TActualParamWithConversion();
 	void BuildConvert(TExpressionResult from_result, SemanticApi::TFormalParameter to_formal_param);
 	//void RunConversion(std::vector<TStaticValue> &static_fields, TStackValue &value);
+	SemanticApi::ISOperations::ISOperation* GetExpression()const;
+	SemanticApi::ISMethod* GetCopyConstr()const;
+	bool IsRefToRValue()const;
+	SemanticApi::ISMethod* GetConverstion()const;
 };
 
-class TActualParameters
+class TActualParameters: public SemanticApi::IActualParameters
 {
 	std::list<TActualParamWithConversion> input;
 public:

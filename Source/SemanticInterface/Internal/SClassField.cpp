@@ -33,3 +33,8 @@ void TSClassField::LinkBody(SemanticApi::TGlobalBuildContext build_context)
 	type.LinkBody(build_context);
 }
 
+bool TSClassField::IsStatic() const
+{
+	return GetSyntax()->IsStatic();
+}
+

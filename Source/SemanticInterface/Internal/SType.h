@@ -34,7 +34,7 @@ public:
 	void LinkBody(SemanticApi::TGlobalBuildContext build_context);
 };
 
-class TSType :public TSyntaxNode<SyntaxApi::IType>, public TNodeSignatureLinked, public TNodeBodyLinked
+class TSType :public TSyntaxNode<SyntaxApi::IType>, public TNodeSignatureLinked, public TNodeBodyLinked, public SemanticApi::ISType
 {
 private:
 	TSClass* owner;
@@ -47,11 +47,6 @@ public:
 	TSType(TSClass* use_owner, TSClass* use_class);
 	void LinkSignature(SemanticApi::TGlobalBuildContext build_context);
 	void LinkBody(SemanticApi::TGlobalBuildContext build_context);
-	TSClass* GetClass()const
-	{
-		if (classes.size() == 0)
-			return nullptr;
-		return classes.back().class_of_type;
-	}
+	SemanticApi::ISClass* GetClass()const;
 };
 

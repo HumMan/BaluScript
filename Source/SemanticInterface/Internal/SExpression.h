@@ -12,163 +12,182 @@ class TSParameter;
 class TSLocalVar;
 class TSConstructObject;
 
-class TSOperation : public Lexer::TTokenPos
+class TSOperation : public Lexer::TTokenPos, public virtual SemanticApi::ISOperations::ISOperation
 {
+protected:
+	TExpressionResult expression_result;
 public:
-	///<summary>Получить тип возвращаемого подвыражением значения</summary>
-	virtual TExpressionResult GetFormalParameter() = 0;
 	virtual ~TSOperation(){}
-	//virtual void Run(TExpressionRunContext run_context) = 0;
+	const SemanticApi::IExpressionResult* GetFormalParam()const;
+	TExpressionResult GetFormalParameter()const;
 };
 
-class TSExpression_TMethodCall : public TSOperation
+class TSExpression_TMethodCall : public TSOperation, public SemanticApi::ISOperations::ISExpression_TMethodCall
 {
 	TActualParameters params;
 	TSMethod* invoke;
 	
 	bool is_static;
 	bool with_external_object;
+	
 public:
 	std::unique_ptr<TSOperation> left;
-	enum TMethodCallType
-	{
-		Method,
-		ObjectConstructor,
-		//ObjectConstructorInitWithAssign,
-		Operator,
-		//DefaultAssignOperator
-	}type;
-	TSExpression_TMethodCall(TMethodCallType type)
+	SemanticApi::TMethodCallType type;
+	TSExpression_TMethodCall(SemanticApi::TMethodCallType type)
 	{
 		invoke = nullptr;
 		this->type = type;
 	}
 	void Build(const std::vector<TSOperation*>& param_expressions, TSMethod* method);
 	//void Build(const std::vector<TSOperation*>& param_expressions);
-	TExpressionResult GetFormalParameter();
-	//void Run(TExpressionRunContext run_context);
+	
+	void Accept(ISExpressionVisitor*);
+
+	const SemanticApi::IActualParameters* GetParams()const;
+	SemanticApi::TMethodCallType GetType()const;
+	SemanticApi::ISMethod* GetInvoke()const;
+	SemanticApi::ISOperations::ISOperation* GetLeft()const;
 };
 
-class TSExpression_TGetClass : public TSOperation
+class TSExpression_TGetClass : public TSOperation, public SemanticApi::ISOperations::ISExpression_TGetClass
 {
-public:
+private:
 	std::unique_ptr<TSExpression_TGetClass> left;
 	TSClass* get_class;
-	TExpressionResult GetFormalParameter();
-	//void Run(TExpressionRunContext run_context);
+public:
+	TSExpression_TGetClass(TSExpression_TGetClass* left, TSClass* get_class);
+	void Accept(ISExpressionVisitor*);
 };
 
 class TSExpression_TempObjectType;
 
-class TSExpression_TCreateTempObject : public TSOperation
+class TSExpression_TCreateTempObject : public TSOperation, public SemanticApi::ISOperations::ISExpression_TCreateTempObject
 {
-	
-public:
+private:
 	std::unique_ptr<TSExpression_TempObjectType> left;
 	std::unique_ptr<TSConstructObject> construct_object;
-	void Build(const std::vector<SyntaxApi::IExpression*>& param_expressions);
-	TExpressionResult GetFormalParameter();
-	//void Run(TExpressionRunContext run_context);
+public:
+	TSExpression_TCreateTempObject(TSExpression_TempObjectType* left, TSConstructObject* construct_object);
+	//void Build(const std::vector<SyntaxApi::IExpression*>& param_expressions);
+	void Accept(ISExpressionVisitor*);
+
+	SemanticApi::ISOperations::ISExpression_TempObjectType* GetLeft()const;
+	SemanticApi::ISConstructObject* GetConstructObject()const;
 };
 
-class TSExpression_TempObjectType : public TSOperation
+class TSExpression_TempObjectType : public TSOperation, public SemanticApi::ISOperations::ISExpression_TempObjectType
 {
 public:
 	TSExpression_TempObjectType(TSClass* owner, SyntaxApi::IType* syntax_node);
 	TSType type;
-	TExpressionResult GetFormalParameter();
-	//void Run(TExpressionRunContext run_context);
+	void Accept(ISExpressionVisitor*);
 };
 
-class TSExpression :public TSStatement,public TSOperation
+class TSExpression :public TSStatement,public TSOperation, public SemanticApi::ISOperations::ISExpression
 {
 	std::unique_ptr<TSOperation> first_op;
 public:
 	
 	
-	class TInt : public TSOperation
+	class TInt : public TSOperation, public SemanticApi::ISOperations::IInt
 	{
 	public:
 		TInt(TSClass* owner, SyntaxApi::IType* syntax_node);
 		int val;
 		TSType type;
-		TExpressionResult GetFormalParameter();
-		//void Run(TExpressionRunContext run_context);
+		void Accept(ISExpressionVisitor*);
+		int GetValue()const;
+		const SemanticApi::ISType* GetType()const;
 	};
-	class TFloat : public TSOperation
+	class TFloat : public TSOperation, public SemanticApi::ISOperations::IFloat
 	{
 	public:
 		TFloat(TSClass* owner, SyntaxApi::IType* syntax_node);
 		float val;
 		TSType type;
-		TExpressionResult GetFormalParameter();
-		//void Run(TExpressionRunContext run_context);
+		void Accept(ISExpressionVisitor*);
+		float GetValue()const;
+		const SemanticApi::ISType* GetType()const;
 	};
-	class TBool : public TSOperation
+	class TBool : public TSOperation, public SemanticApi::ISOperations::IBool
 	{
 	public:
 		TBool(TSClass* owner, SyntaxApi::IType* syntax_node);
 		bool val;
 		TSType type;
-		TExpressionResult GetFormalParameter();
-		//void Run(TExpressionRunContext run_context);
+		void Accept(ISExpressionVisitor*);
+		bool GetValue()const;
+		const SemanticApi::ISType* GetType()const;
 	};
-	class TString : public TSOperation
+	class TString : public TSOperation, public SemanticApi::ISOperations::IString
 	{
 	public:
 		TString(TSClass* owner, SyntaxApi::IType* syntax_node);
 		std::string val;
 		TSType type;
-		TExpressionResult GetFormalParameter();
-		////void Run(TExpressionRunContext run_context);
+		void Accept(ISExpressionVisitor*);
+		std::string GetValue()const;
+		const SemanticApi::ISType* GetType()const;
 	};
-	class TEnumValue : public TSOperation
+	class TEnumValue : public TSOperation, public SemanticApi::ISOperations::IEnumValue
 	{
 	public:
 		TEnumValue(TSClass* owner, TSClass* type);
 		int val;
 		TSClass* type;
-		TExpressionResult GetFormalParameter();
-		//void Run(TExpressionRunContext run_context);
+		void Accept(ISExpressionVisitor*);
+		SemanticApi::ISClass* GetType()const;
+		int GetValue()const;
 	};
-	class TGetMethods :public TSOperation
+	class TGetMethods :public TSOperation, public SemanticApi::ISOperations::IGetMethods
 	{
-	public:
+	private:
 		std::unique_ptr<TSOperation> left;
 		TExpressionResult left_result;
 		TExpressionResult result;
-		TExpressionResult GetFormalParameter();
-		//void Run(TExpressionRunContext run_context);
-	};
-	class TGetClassField :public TSOperation
-	{
 	public:
+		TGetMethods(TSOperation* left, TExpressionResult left_result, TExpressionResult result);
+		void Accept(ISExpressionVisitor*);
+		SemanticApi::ISOperations::ISOperation* GetLeft()const;
+	};
+	class TGetClassField :public TSOperation, public SemanticApi::ISOperations::IGetClassField
+	{
+	private:
 		std::unique_ptr<TSOperation>  left;
 		TExpressionResult left_result;
 		TSClassField* field;
-		TExpressionResult GetFormalParameter();
-		//void Run(TExpressionRunContext run_context);
-	};
-	class TGetParameter :public TSOperation
-	{
 	public:
+		TGetClassField(TSOperation* left, TExpressionResult left_result, TSClassField* field);
+		void Accept(ISExpressionVisitor*);
+		SemanticApi::ISClassField* GetField()const;
+		SemanticApi::ISOperations::ISOperation* GetLeft()const;
+	};
+	class TGetParameter :public TSOperation, public SemanticApi::ISOperations::IGetParameter
+	{
+	private:
 		TSParameter* parameter;
-		TExpressionResult GetFormalParameter();
-		//void Run(TExpressionRunContext run_context);
+	public:		
+		TGetParameter(TSParameter* parameter);
+		void Accept(ISExpressionVisitor*);
+		SemanticApi::ISParameter* GetParameter()const;
 	};
-	class TGetLocal :public TSOperation
+	class TGetLocal :public TSOperation, public SemanticApi::ISOperations::IGetLocal
 	{
-	public:
+	private:
 		TSLocalVar* variable;
-		TExpressionResult GetFormalParameter();
-		//void Run(TExpressionRunContext run_context);
-	};
-	class TGetThis :public TSOperation
-	{
 	public:
+		TGetLocal(TSLocalVar* variable);
+		void Accept(ISExpressionVisitor*);
+		SemanticApi::ISLocalVar* GetVariable()const;
+	};
+	class TGetThis :public TSOperation, public SemanticApi::ISOperations::IGetThis
+	{
+	private:
 		TSClass* owner;
-		TExpressionResult GetFormalParameter();
-		//void Run(TExpressionRunContext run_context);
+	public:
+		TGetThis(TSClass* owner);
+		void Accept(ISExpressionVisitor*);
+		SemanticApi::ISClass* GetOwner()const;
 	};
 	
 public:
@@ -177,13 +196,16 @@ public:
 	void Build(SemanticApi::TGlobalBuildContext build_context);
 	SemanticApi::IVariable* GetVar(Lexer::TNameId name);
 	SyntaxApi::IExpression* GetSyntax();
-	TExpressionResult GetFormalParameter()
+	const SemanticApi::IExpressionResult* GetFormalParam()
 	{
-		if (first_op != nullptr)
-			return first_op->GetFormalParameter();
-		else 
-			return TExpressionResult();
+		assert(first_op != nullptr);
+		return first_op->GetFormalParam();
 	}
-	//void Run(TStatementRunContext run_context);
-	//void Run(TExpressionRunContext run_context);
+	const TExpressionResult GetFormalParameter()
+	{
+		assert(first_op != nullptr);
+		return first_op->GetFormalParameter();
+	}
+	SemanticApi::ISOperations::ISOperation* GetFirstOp()const;
+	void Accept(ISExpressionVisitor*);
 };

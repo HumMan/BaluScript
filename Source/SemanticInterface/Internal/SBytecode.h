@@ -1,6 +1,6 @@
 #include "SStatement.h"
 
-class TSBytecode :public TSStatement
+class TSBytecode :public TSStatement, public SemanticApi::ISBytecode
 {
 	std::vector<TSClass*> array_element_classes;
 public:

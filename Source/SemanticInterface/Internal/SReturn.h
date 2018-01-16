@@ -5,7 +5,7 @@ class TSClass;
 class TSMethod;
 class TActualParamWithConversion;
 
-class TSReturn :public TSStatement
+class TSReturn :public TSStatement, public SemanticApi::ISReturn
 {
 	std::unique_ptr<TSExpression> result;
 	std::unique_ptr<TActualParamWithConversion> conversions;

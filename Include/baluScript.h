@@ -9,9 +9,6 @@
 #include "../Source/NativeTypes/StaticArray.h"
 #include "../Source/NativeTypes/DynArray.h"
 #include "../Source/NativeTypes/String.h"
-#include "../Source/Semantic/FormalParam.h"
-#include "../Source/Semantic/SClass.h"
-#include "../Source/semanticAnalyzer.h"
 
 #define BSCRIPT_VOID_METHOD(class_name,name) \
 	void static name(std::vector<TStackValue> &_formal_params, TStackValue& _result, TStackValue& _obj)\

@@ -9,7 +9,7 @@ class TSLocalVar;
 class TSClass;
 class TSMethod;
 
-class TSStatements :public TSStatement
+class TSStatements :public TSStatement, public virtual SemanticApi::ISStatement, public SemanticApi::ISStatements
 {
 	class TVarDecl
 	{

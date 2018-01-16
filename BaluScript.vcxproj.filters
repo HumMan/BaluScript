@@ -201,9 +201,6 @@
     <ClInclude Include="Source\TreeRunner\FormalParam.h">
       <Filter>Source Files\Semantic</Filter>
     </ClInclude>
-    <ClInclude Include="Source\TreeRunner\AllRunCode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\TreeRunner\ExpressionRun.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -272,6 +269,18 @@
     </ClInclude>
     <ClInclude Include="Source\SemanticInterface\IBuildContext.h">
       <Filter>Source Files\Semantic</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TreeRunner\TreeRunner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\IExpressionRunner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\IStatementRunner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SemanticInterface\IOperations.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -424,6 +433,12 @@
     </ClCompile>
     <ClCompile Include="Source\SemanticInterface\Internal\Variable.cpp">
       <Filter>Source Files\Semantic</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TreeRunner\TreeRunner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TreeRunner\ExpressionRun.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

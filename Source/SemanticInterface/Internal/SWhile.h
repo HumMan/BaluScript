@@ -7,7 +7,7 @@ class TSMethod;
 class TSStatements;
 class TSExpression;
 
-class TSWhile :public TSStatement
+class TSWhile :public TSStatement, public SemanticApi::ISWhile
 {
 	std::unique_ptr<TSExpression> compare;
 	std::unique_ptr<TActualParamWithConversion> compare_conversion;

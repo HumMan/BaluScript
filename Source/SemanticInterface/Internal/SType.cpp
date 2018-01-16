@@ -197,3 +197,9 @@ void TSType_TClassName::LinkBody(SemanticApi::TGlobalBuildContext build_context)
 	//class_of_type->CalculateMethodsSizes();
 }
 
+SemanticApi::ISClass* TSType::GetClass()const
+{
+	if (classes.size() == 0)
+		return nullptr;
+	return classes.back().class_of_type;
+}

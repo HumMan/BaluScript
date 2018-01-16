@@ -84,6 +84,17 @@ void TSMethod::CopyExternalMethodBindingsFrom(TSMethod* source)
 	_this->external_func = source->_this->external_func;
 }
 
+SemanticApi::TExternalSMethod TSMethod::GetExternal() const
+{
+	assert(_this->is_external);
+	return _this->external_func;
+}
+
+bool TSMethod::IsExternal() const
+{
+	return _this->is_external;
+}
+
 void TSMethod::AddParameter(TSParameter* use_par)
 {
 	assert(GetType() != SemanticApi::SpecialClassMethodType::NotSpecial);
@@ -107,7 +118,7 @@ void TSMethod::LinkSignature(SemanticApi::TGlobalBuildContext build_context)
 TSClass* TSMethod::GetRetClass()const
 {
 	if (_this->has_return)
-		return _this->ret.GetClass();
+		return dynamic_cast<TSClass*>(_this->ret.GetClass());
 	else
 		return nullptr;
 }
@@ -181,6 +192,11 @@ void TSMethod::CalculateParametersOffsets()
 	}
 	else
 		_this->ret_size = 0;
+}
+
+bool TSMethod::IsReturnRef() const
+{
+	return this->GetSyntax()->IsReturnRef();
 }
 
 void TSMethod::Build()

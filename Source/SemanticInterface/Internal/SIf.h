@@ -6,7 +6,7 @@ class TSMethod;
 class TSStatements;
 class TSExpression;
 
-class TSIf :public TSStatement
+class TSIf :public TSStatement, public SemanticApi::ISIf
 {
 	std::unique_ptr<TSExpression> bool_expr;
 	std::unique_ptr<TActualParamWithConversion> bool_expr_conversion;

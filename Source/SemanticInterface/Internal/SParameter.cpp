@@ -30,7 +30,7 @@ void TSParameter::LinkSignature(SemanticApi::TGlobalBuildContext build_context)
 {
 	type.LinkSignature(build_context);
 }
-TSClass* TSParameter::GetClass()
+SemanticApi::ISClass* TSParameter::GetClass()const
 {
 	return type.GetClass();
 }
@@ -65,18 +65,18 @@ TActualParamWithConversion::TActualParamWithConversion()
 void TActualParamWithConversion::BuildConvert(TExpressionResult from_result, SemanticApi::TFormalParameter to_formal_param)
 {
 	result = from_result;
-
+	auto result_class = dynamic_cast<TSClass*>(result.GetClass());
 	//если необходимо преобразование типа формального параметра то добавляем его
 	if (result.GetClass() != to_formal_param.GetClass())
 	{
-		conversion = result.GetClass()->GetConversion(result.IsRef(), to_formal_param.GetClass());
+		conversion = result_class->GetConversion(result.IsRef(), to_formal_param.GetClass());
 		if (result.IsRef() && !to_formal_param.IsRef())
 		{
 			if (conversion == nullptr)
 			{
 				//если отсутствует преобразование, но имеется конструктор копии
-				copy_constr = result.GetClass()->GetCopyConstr();
-				conversion = result.GetClass()->GetConversion(false, to_formal_param.GetClass());
+				copy_constr = result_class->GetCopyConstr();
+				conversion = result_class->GetConversion(false, to_formal_param.GetClass());
 			}
 		}
 		if(conversion == nullptr)
@@ -85,9 +85,29 @@ void TActualParamWithConversion::BuildConvert(TExpressionResult from_result, Sem
 	//если в стеке находится ссылка, а в качестве параметра требуется значение, то добавляем преобразование
 	else if (result.IsRef() && !to_formal_param.IsRef())
 	{
-		copy_constr = result.GetClass()->GetCopyConstr();
+		copy_constr = result_class->GetCopyConstr();
 		ref_to_rvalue = true;
 	}
+}
+
+SemanticApi::ISOperations::ISOperation * TActualParamWithConversion::GetExpression() const
+{
+	return expression.get();
+}
+
+SemanticApi::ISMethod * TActualParamWithConversion::GetCopyConstr() const
+{
+	return copy_constr;
+}
+
+bool TActualParamWithConversion::IsRefToRValue() const
+{
+	return ref_to_rvalue;
+}
+
+SemanticApi::ISMethod * TActualParamWithConversion::GetConverstion() const
+{
+	return conversion;
 }
 
 void TActualParameters::Build(const std::vector<TSOperation*>& actual_params, const std::vector<SemanticApi::TFormalParameter>& formal_params)

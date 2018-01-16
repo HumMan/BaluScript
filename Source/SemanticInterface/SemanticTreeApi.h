@@ -13,6 +13,7 @@
 #endif
 
 class TMethodRunContext;
+class ISExpressionVisitor;
 
 namespace SemanticApi
 {
@@ -26,6 +27,14 @@ namespace SemanticApi
 	class IVariable;
 	class ISClassField;
 	class ISLocalVar;
+
+	namespace ISOperations
+	{
+		class ISOperation;
+		class ISExpression_TMethodCall;
+		class ISExpression_TempObjectType;
+	}
+	
 	
 	typedef void(*TExternalSMethod)(TMethodRunContext* run_context);
 
@@ -69,3 +78,6 @@ namespace SemanticApi
 #include "ISyntaxNode.h"
 #include "IMethod.h"
 #include "IBuildContext.h"
+#include "IOperations.h"
+#include "IStatementRunner.h"
+#include "IExpressionRunner.h"

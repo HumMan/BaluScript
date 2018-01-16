@@ -39,7 +39,7 @@ void TSConstructObject::Build(Lexer::ITokenPos* source, std::vector<TExpressionR
 
 	if (constructor != nullptr)
 	{
-		constructor_call.reset(new TSExpression_TMethodCall(TSExpression_TMethodCall::ObjectConstructor));
+		constructor_call.reset(new TSExpression_TMethodCall(SemanticApi::TMethodCallType::ObjectConstructor));
 		constructor_call->Build(params, dynamic_cast<TSMethod*>(constructor));
 		ValidateAccess(source, owner, constructor);
 	}
@@ -60,6 +60,11 @@ void TSConstructObject::Build(Lexer::ITokenPos* source, const std::vector<Syntax
 		params_formals.push_back(SemanticApi::TFormalParameter(params_result.back().GetClass(), params_result.back().IsRef()));
 	}
 	Build(source, params_result, params, params_formals, build_context);
+}
+
+SemanticApi::ISOperations::ISExpression_TMethodCall * TSConstructObject::GetConstructorCall() const
+{
+	return constructor_call.get();
 }
 
 

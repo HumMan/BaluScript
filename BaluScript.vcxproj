@@ -82,6 +82,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\SemanticInterface\IExpressionRunner.h" />
     <ClInclude Include="Source\SemanticInterface\Internal\ExpressionResult.h" />
     <ClInclude Include="Include\baluScript.h" />
     <ClInclude Include="Include\common.h" />
@@ -100,7 +101,8 @@
     </ClInclude>
     <ClInclude Include="Source\SemanticInterface\IMethod.h" />
     <ClInclude Include="Source\SemanticInterface\IBuildContext.h" />
-    <ClInclude Include="Source\TreeRunner\AllRunCode.h" />
+    <ClInclude Include="Source\SemanticInterface\IOperations.h" />
+    <ClInclude Include="Source\SemanticInterface\IStatementRunner.h" />
     <ClInclude Include="Source\TreeRunner\ExpressionRun.h" />
     <ClInclude Include="Source\TreeRunner\FormalParam.h" />
     <ClInclude Include="Source\TreeRunner\RunContext.h" />
@@ -234,6 +236,7 @@
     <ClInclude Include="Source\VirtualMachine\Program.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Source\TreeRunner\TreeRunner.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\SemanticInterface\Internal\ExpressionResult.cpp" />
@@ -346,6 +349,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Source\SyntaxInterface\SyntaxTreeApi.cpp" />
+    <ClCompile Include="Source\TreeRunner\ExpressionRun.cpp" />
     <ClCompile Include="Source\TreeRunner\FormalParam.cpp" />
     <ClCompile Include="Source\virtualMachine.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -363,6 +367,7 @@
     <ClCompile Include="Source\VirtualMachine\Program.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Source\TreeRunner\TreeRunner.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

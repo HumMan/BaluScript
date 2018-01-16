@@ -11,7 +11,7 @@ class TSClass;
 class TSMethod;
 
 
-class TExpressionResult
+class TExpressionResult: public SemanticApi::IExpressionResult
 {
 	//если возвращается значение - то его тип и ссылочность
 	TSClass* result_value_type;
@@ -30,9 +30,9 @@ public:
 	void SetIsRef(bool use_is_ref);
 	bool IsMethods()const;
 	bool IsType()const;
-	TSClass* GetType()const;
+	SemanticApi::ISClass* GetType()const;
 	std::vector<SemanticApi::ISMethod*>& GetMethods();
-	TSClass* GetClass()const;
+	SemanticApi::ISClass* GetClass()const;
 	bool IsVoid()const;
 };
 

@@ -3,14 +3,10 @@
 #include "../../SyntaxInterface/SyntaxTreeApi.h"
 
 #include "TemplateRealizations.h"
-//#include "SMethod.h"
-//#include "SOverloadedMethod.h"
 #include "SSyntaxNode.h"
 
 class TSClassField;
 class TSMethod;
-class TStaticValue;
-class TStackValue;
 
 class TSClass:public TSyntaxNode<SyntaxApi::IClass>, public TNodeWithSize,public TNodeSignatureLinked,public TNodeBodyLinked,public TNodeWithTemplates, public TNodeWithAutoMethods,
 	public SemanticApi::ISClass

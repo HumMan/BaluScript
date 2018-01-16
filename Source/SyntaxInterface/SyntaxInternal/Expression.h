@@ -16,7 +16,6 @@ namespace SyntaxInternal
 			return &operation_source;
 		}
 		virtual ~TOperation(){}
-		virtual void Accept(SyntaxApi::IExpressionTreeVisitor* visitor) = 0;
 	};
 
 	class TExpression :public TStatement, public TOperation, public SyntaxApi::IExpression

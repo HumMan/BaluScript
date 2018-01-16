@@ -13,5 +13,5 @@ bool IsEqualClasses(TExpressionResult actual_parameter, SemanticApi::TFormalPara
 
 SemanticApi::ISMethod* FindMethod(Lexer::ITokenPos* source, std::vector<SemanticApi::ISMethod*> &methods_to_call, const std::vector<TExpressionResult> &formal_params);
 
-void InitializeStaticClassFields(std::vector<TSClassField*> static_fields, std::vector<TStaticValue> &static_objects);
-void InitializeStaticVariables(std::vector<TSLocalVar*> static_variables, std::vector<TStaticValue> &static_objects);
+void InitializeStaticClassFieldsOffset(std::vector<TSClassField*> static_fields);
+void InitializeStaticVariablesOffset(std::vector<TSLocalVar*> static_variables);

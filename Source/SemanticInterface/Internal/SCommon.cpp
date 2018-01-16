@@ -16,9 +16,11 @@ bool IsEqualClasses(TExpressionResult actual_parameter, SemanticApi::TFormalPara
 	if (actual_parameter.IsMethods() || actual_parameter.IsType())return false;
 	if (formal_parameter.GetClass() != actual_parameter.GetClass())
 	{
-		if (!actual_parameter.GetClass()->HasConversion(formal_parameter.GetClass()))return false;
+		if (!dynamic_cast<TSClass*>(actual_parameter.GetClass())->HasConversion(formal_parameter.GetClass()))
+			return false;
 		//TODO
-		//if (formal_parameter.IsRef() && !actual_parameter.GetClass()->IsNestedIn(formal_parameter.GetClass()))return false;
+		//if (formal_parameter.IsRef() && !actual_parameter.GetClass()->IsNestedIn(formal_parameter.GetClass()))
+		return false;
 		need_conv += 1;
 	}
 	if (actual_parameter.IsRef() && !formal_parameter.IsRef())need_conv += 1;
@@ -84,29 +86,21 @@ void ValidateAccess(Lexer::ITokenPos* field_pos, SemanticApi::ISClass* source, S
 }
 
 
-void InitializeStaticClassFields(std::vector<TSClassField*> static_fields, std::vector<TStaticValue> &static_objects)
+void InitializeStaticClassFieldsOffset(std::vector<TSClassField*> static_fields)
 {
-	//for (TSClassField* v : static_fields)
-	//{
-	//	v->SetOffset(static_objects.size());
-	//	static_objects.emplace_back(false, v->GetClass());
-	//	TSMethod* def_constr = v->GetClass()->GetDefConstr();
-	//	static_objects[v->GetOffset()].Initialize();
-	//	if (def_constr != nullptr)
-	//	{
-	//		std::vector<TStackValue> constr_formal_params;
-	//		TStackValue without_result, var_object(true, v->GetClass());
-	//		var_object.SetAsReference(static_objects[v->GetOffset()].get());
-	//		def_constr->Run(TMethodRunContext(&static_objects, &constr_formal_params, &without_result, &var_object));
-	//	}
-
-	//}
+	int curr_offset = 0;
+	for (TSClassField* v : static_fields)
+	{
+		v->SetOffset(curr_offset);
+		curr_offset++;
+	}
 }
-void InitializeStaticVariables(std::vector<TSLocalVar*> static_variables, std::vector<TStaticValue> &static_objects)
+void InitializeStaticVariablesOffset(std::vector<TSLocalVar*> static_variables)
 {
-	//for (TSLocalVar* v : static_variables)
-	//{
-	//	v->SetOffset(static_objects.size());
-	//	static_objects.emplace_back(false, v->GetClass());
-	//}
+	int curr_offset = 0;
+	for (TSLocalVar* v : static_variables)
+	{
+		v->SetOffset(curr_offset);
+		curr_offset++;
+	}
 }

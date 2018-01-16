@@ -59,22 +59,22 @@ TSLocalVar::TSLocalVar(TSClass* use_owner, TSMethod* use_method, TSStatements* u
 
 }
 
-Lexer::TNameId TSLocalVar::GetName()
+Lexer::TNameId TSLocalVar::GetName()const
 {
 	return GetSyntax()->GetName();
 }
 
-SyntaxApi::ILocalVar* TSLocalVar::GetSyntax()
+SyntaxApi::ILocalVar* TSLocalVar::GetSyntax()const
 {
 	return dynamic_cast<SyntaxApi::ILocalVar*>(TSyntaxNode::GetSyntax());
 }
 
-TSClass* TSLocalVar::GetClass()
+TSClass* TSLocalVar::GetClass()const
 {
-	return type.GetClass();
+	return dynamic_cast<TSClass*>(type.GetClass());
 }
 
-bool TSLocalVar::IsStatic()
+bool TSLocalVar::IsStatic()const
 {
 	return GetSyntax()->IsStatic();
 }

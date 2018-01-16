@@ -36,6 +36,10 @@ private:
 public:
 	void SetAsExternal(SemanticApi::TExternalSMethod method);
 	void CopyExternalMethodBindingsFrom(TSMethod* source);
+	SemanticApi::TExternalSMethod GetExternal()const;
+
+	bool IsExternal()const;
+
 	TSMethod(TSClass* use_owner, SemanticApi::SpecialClassMethodType special_method_type);
 	void AddParameter(TSParameter* use_par);
 
@@ -59,6 +63,8 @@ public:
 	void LinkBody(SemanticApi::TGlobalBuildContext build_context);
 
 	void CalculateParametersOffsets();
+
+	bool IsReturnRef()const;
 
 	~TSMethod();
 };

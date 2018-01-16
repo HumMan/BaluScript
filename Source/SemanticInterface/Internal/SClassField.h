@@ -18,4 +18,5 @@ public:
 	SemanticApi::ISClass* GetOwner()const;
 	void LinkSignature(SemanticApi::TGlobalBuildContext build_context);
 	void LinkBody(SemanticApi::TGlobalBuildContext build_context);
+	bool IsStatic()const;
 };

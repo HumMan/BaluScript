@@ -7,6 +7,8 @@
 
 #include <string.h>
 
+#include "../TreeRunner/TreeRunner.h"
+
 void TDynArr::constructor(TMethodRunContext* run_context)
 {
 	run_context->object->get_as<TDynArr>().Init();
@@ -23,7 +25,7 @@ void CallMethod(std::vector<TStaticValue> &static_fields, int* v, int first_elem
 		
 		el_obj.SetAsReference(&v[i]);
 
-		//method->Run(TMethodRunContext(&static_fields, &without_params, &without_result, &el_obj));
+		TreeRunner::Run(method, TMethodRunContext(&static_fields, &without_params, &without_result, &el_obj));
 	}
 }
 
@@ -40,7 +42,7 @@ void CallCopyConstr(std::vector<TStaticValue> &static_fields, int* v, int* copy_
 		params[0] = TStackValue(true, el_class);
 		params[0].SetAsReference(&copy_from[i]);
 		
-		//method->Run(TMethodRunContext(&static_fields, &params, &without_result, &el_obj));
+		TreeRunner::Run(method, TMethodRunContext(&static_fields, &params, &without_result, &el_obj));
 	}
 }
 
@@ -56,7 +58,7 @@ void CallAssignOp(std::vector<TStaticValue> &static_fields, int* left, int* righ
 		params[0].SetAsReference(&left[i]);
 		params[1] = TStackValue(true, el_class);
 		params[1].SetAsReference(&right[i]);
-		//method->Run(TMethodRunContext(&static_fields, &params, &without_result, &el_obj));
+		TreeRunner::Run(method, TMethodRunContext(&static_fields, &params, &without_result, &el_obj));
 	}
 }
 

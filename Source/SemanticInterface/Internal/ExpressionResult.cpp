@@ -48,7 +48,7 @@ bool TExpressionResult::IsType()const
 {
 	return type != nullptr;
 }
-TSClass* TExpressionResult::GetType()const
+SemanticApi::ISClass* TExpressionResult::GetType()const
 {
 	return type;
 }
@@ -56,7 +56,7 @@ std::vector<SemanticApi::ISMethod*>& TExpressionResult::GetMethods()
 {
 	return methods;
 }
-TSClass* TExpressionResult::GetClass()const
+SemanticApi::ISClass* TExpressionResult::GetClass()const
 {
 	return result_value_type;
 }

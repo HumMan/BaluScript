@@ -1,14 +1,11 @@
 
 #include "baluScript.h"
 
-#include "../Source/Semantic/SMethod.h"
-#include "../Source/Semantic/FormalParam.h"
-#include "../Source/Semantic/SStatements.h"
-
 #include <fstream>
 #include <streambuf>
 
-#include "../Source/NativeTypes/base_types.h"
+#include "../Source/SemanticInterface/SemanticTreeApi.h"
+#include "../Source/TreeRunner/FormalParam.h"
 
 int main(int argc, char* argv[])
 {
@@ -21,13 +18,12 @@ int main(int argc, char* argv[])
 		//time.Start();
 		printf("Compiling ... \n");
 
-		std::string source = base_types;
-		std::string source2;
+		std::string source;
 		{
 			std::ifstream file("../Data/base_types_test.bscript");
 			std::string str((std::istreambuf_iterator<char>(file)),
 				std::istreambuf_iterator<char>());
-			source2 = str;
+			source = str;
 		}
 		{
 			
@@ -37,9 +33,9 @@ int main(int argc, char* argv[])
 			TSyntaxAnalyzer syntax;
 			try
 			{
-				syntax.Compile((char*)(("class Script{" + source + source2 + "}").c_str()));
+				syntax.Compile((char*)(("class Script{" + source + "}").c_str()));
 
-				TSMethod* main_func = syntax.GetMethod("func static Script.Main");
+				SemanticApi::ISMethod* main_func = syntax.GetMethod("func static Script.Main");
 				//int sp[200];
 				std::vector<TStackValue> params;
 				std::vector<TStaticValue> static_fields;

@@ -15,7 +15,7 @@ public:
 	}
 };
 
-class TNodeWithOffset
+class TNodeWithOffset: public virtual SemanticApi::INodeWithOffset
 {
 	int offset;
 	bool offset_initialized;
@@ -31,12 +31,12 @@ public:
 		offset = use_offset;
 		offset_initialized = true;
 	}
-	int GetOffset()
+	int GetOffset()const
 	{
 		assert(offset_initialized);
 		return offset;
 	}
-	bool IsOffsetInitialized()
+	bool IsOffsetInitialized()const
 	{
 		return offset_initialized;
 	}
