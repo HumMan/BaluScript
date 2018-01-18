@@ -10,30 +10,25 @@ class TSClass;
 class TSMethod;
 
 class TSStatements :public TSStatement, public virtual SemanticApi::ISStatement, public SemanticApi::ISStatements
-{
-	class TVarDecl
-	{
-	public:
-		int stmt_id;
-		TSLocalVar* pointer;
-		TVarDecl(){}
-		TVarDecl(int use_stmt_id, TSLocalVar* use_pointer) :stmt_id(use_stmt_id), pointer(use_pointer){}
-	};
+{	
 	std::vector<std::unique_ptr<TSStatement>> statements;
-	std::vector<TVarDecl> var_declarations;
+	std::vector<SemanticApi::TVarDecl> var_declarations;
 public:
 	SyntaxApi::IStatements* GetSyntax()const
 	{
 		return dynamic_cast<SyntaxApi::IStatements*>(TSyntaxNode::GetSyntax());
 	}
-	void Add(TSStatement* use_statement);
+	//void Add(TSStatement* use_statement);
 	void AddVar(TSLocalVar* use_var,int stmt_id);
 	int GetLastVariableOffset();
-	TSStatement* GetStatement(int i);
+	//TSStatement* GetStatement(int i);
 	//TSStatement* CreateNode(TStatement* use_syntax_node);
 	SemanticApi::IVariable* GetVar(Lexer::TNameId name, int sender_id)const;
 	TSStatements(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IStatements* use_syntax);
 	void Build(SemanticApi::TGlobalBuildContext build_context);
-	//void Run(std::vector<TStackValue> &stack, bool& result_returned, TStackValue* return_value);
-	/*void Run(TStatementRunContext run_context);*/
+	
+	std::vector<SemanticApi::ISStatement*> GetStatements()const;
+	std::vector<SemanticApi::TVarDecl> GetVarDeclarations()const;
+
+	void Accept(SemanticApi::ISStatementVisitor* visitor);
 };

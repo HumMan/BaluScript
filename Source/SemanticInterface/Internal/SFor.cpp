@@ -26,3 +26,28 @@ SyntaxApi::IFor* TSFor::GetSyntax()
 	return dynamic_cast<SyntaxApi::IFor*>(TSyntaxNode::GetSyntax());
 }
 
+SemanticApi::ISOperations::ISExpression * TSFor::GetCompare() const
+{
+	return compare.get();
+}
+
+SemanticApi::IActualParamWithConversion * TSFor::GetCompareConversion() const
+{
+	return compare_conversion.get();
+}
+
+SemanticApi::ISStatements * TSFor::GetStatements() const
+{
+	return statements.get();
+}
+
+SemanticApi::ISStatements * TSFor::GetIncrement() const
+{
+	return increment.get();
+}
+
+void TSFor::Accept(SemanticApi::ISStatementVisitor * visitor)
+{
+	visitor->Visit(this);
+}
+

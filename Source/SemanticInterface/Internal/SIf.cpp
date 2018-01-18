@@ -26,3 +26,28 @@ SyntaxApi::IIf* TSIf::GetSyntax()
 {
 	return dynamic_cast<SyntaxApi::IIf*>(TSyntaxNode::GetSyntax());
 }
+
+SemanticApi::ISOperations::ISExpression * TSIf::GetBoolExpr() const
+{
+	return bool_expr.get();
+}
+
+SemanticApi::IActualParamWithConversion * TSIf::GetBoolExprConversion() const
+{
+	return bool_expr_conversion.get();
+}
+
+SemanticApi::ISStatements * TSIf::GetStatements() const
+{
+	return statements.get();
+}
+
+SemanticApi::ISStatements * TSIf::GetElseStatements() const
+{
+	return else_statements.get();
+}
+
+void TSIf::Accept(SemanticApi::ISStatementVisitor * visitor)
+{
+	visitor->Visit(this);
+}

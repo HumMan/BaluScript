@@ -5,6 +5,26 @@
 
 #include "SCommon.h"
 
+SemanticApi::ISClass * TSStatement::IGetOwner() const
+{
+	return owner;
+}
+
+SemanticApi::ISMethod * TSStatement::IGetMethod() const
+{
+	return method;
+}
+
+TSClass * TSStatement::GetOwner() const
+{
+	return owner;
+}
+
+TSMethod * TSStatement::GetMethod() const
+{
+	return method;
+}
+
 void TSStatement::TestBoolExpr(TExpressionResult& compare_result, std::unique_ptr<TActualParamWithConversion>& conversion)
 {
 	int conv_needed;

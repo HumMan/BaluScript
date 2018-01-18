@@ -27,12 +27,20 @@ namespace SemanticApi
 	class IVariable;
 	class ISClassField;
 	class ISLocalVar;
+	class IExpressionResult;
+	class ISType;
+	class ISConstructObject;
+	class ISStatement;
+	class ISStatements;
+	class IActualParamWithConversion;
+	class ISStatementVisitor;
 
 	namespace ISOperations
 	{
 		class ISOperation;
 		class ISExpression_TMethodCall;
 		class ISExpression_TempObjectType;
+		class ISExpression;
 	}
 	
 	
@@ -41,6 +49,15 @@ namespace SemanticApi
 	class TExternalClassDecl
 	{
 	public:
+		TExternalClassDecl()
+		{
+			def_constr = nullptr;
+			copy_constr = nullptr;
+			destr = nullptr;
+			size = 0;
+			for (int i = 0; i < (int)Lexer::TOperator::End; i++)
+				operators[i] = nullptr;
+		}
 		std::string source;
 		TExternalSMethod def_constr,
 			copy_constr,
@@ -79,5 +96,5 @@ namespace SemanticApi
 #include "IMethod.h"
 #include "IBuildContext.h"
 #include "IOperations.h"
-#include "IStatementRunner.h"
 #include "IExpressionRunner.h"
+#include "IStatementRunner.h"

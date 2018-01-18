@@ -27,6 +27,21 @@ void TSReturn::Build(SemanticApi::TGlobalBuildContext build_context)
 			GetSyntax()->Error("Метод не должен ничего возвращать!");
 }
 
+SemanticApi::ISOperations::ISExpression * TSReturn::GetResult() const
+{
+	return result.get();
+}
+
+SemanticApi::IActualParamWithConversion * TSReturn::GetConverstion() const
+{
+	return conversions.get();
+}
+
+void TSReturn::Accept(SemanticApi::ISStatementVisitor * visitor)
+{
+	visitor->Visit(this);
+}
+
 TSReturn::TSReturn(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IReturn* use_syntax)
 	:TSStatement(SyntaxApi::TStatementType::Return, use_owner, use_method, use_parent, dynamic_cast<SyntaxApi::IStatement*>(use_syntax))
 {}

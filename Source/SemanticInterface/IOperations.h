@@ -104,7 +104,7 @@ namespace SemanticApi
 			virtual ISClass* GetOwner()const = 0;
 		};
 
-		class ISExpression : public virtual ISOperation
+		class ISExpression : public virtual ISOperation, public virtual ISStatement
 		{
 		public:
 			virtual ISOperations::ISOperation* GetFirstOp()const=0;

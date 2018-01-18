@@ -251,7 +251,7 @@ void TVirtualMachine::Execute(TOp* op, int* stack_top, int* this_pointer, TProgr
 	}
 	op++;
 }
-bool TVirtualMachine::ExecuteBaseOps(const TOp& op, int*& sp, int* object)
+bool TSimpleOps::ExecuteBaseOps(const TOp& op, int*& sp, int* object)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
@@ -280,7 +280,7 @@ bool TVirtualMachine::ExecuteBaseOps(const TOp& op, int*& sp, int* object)
 	}
 	return true;
 }
-bool TVirtualMachine::ExecuteVec2Ops(const TOp& op, int*& sp, int* object)
+bool TSimpleOps::ExecuteVec2Ops(const TOp& op, int*& sp, int* object)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
@@ -356,7 +356,7 @@ bool TVirtualMachine::ExecuteVec2Ops(const TOp& op, int*& sp, int* object)
 	}
 	return true;
 }
-bool TVirtualMachine::ExecuteVec2iOps(const TOp& op, int*& sp, int* object)
+bool TSimpleOps::ExecuteVec2iOps(const TOp& op, int*& sp, int* object)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
@@ -432,7 +432,20 @@ bool TVirtualMachine::ExecuteVec2iOps(const TOp& op, int*& sp, int* object)
 	}
 	return true;
 }
-bool TVirtualMachine::ExecuteBoolOps(const TOp& op, int*& sp, int* object)
+
+void Compare(const TOp op, int* &sp)
+{
+	int *s, *d;
+	if (op.f2)s = &sp[0];
+	else s = &sp[1 - op.v1];
+	if (op.f1) d = (int*)s[-1];
+	else d = s - op.v1;
+	if (op.f2)s = (int*)*s;
+	sp -= (op.f1 ? 1 : op.v1) + (op.f2 ? 1 : op.v1) - 1;
+	*sp = (memcmp(d, s, op.v1 * 4) == 0);
+}
+
+bool TSimpleOps::ExecuteBoolOps(const TOp& op, int*& sp, int* object)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
@@ -464,7 +477,7 @@ bool TVirtualMachine::ExecuteBoolOps(const TOp& op, int*& sp, int* object)
 	}
 	return true;
 }
-bool TVirtualMachine::ExecuteFloatOps(const TOp& op, int*& sp, int* object)
+bool TSimpleOps::ExecuteFloatOps(const TOp& op, int*& sp, int* object)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////
@@ -605,7 +618,7 @@ bool TVirtualMachine::ExecuteFloatOps(const TOp& op, int*& sp, int* object)
 	return true;
 }
 
-bool TVirtualMachine::ExecuteIntOps(const TOp& op, int*& sp, int* object)
+bool TSimpleOps::ExecuteIntOps(const TOp& op, int*& sp, int* object)
 {
 	using namespace TOpcode;
 	//////////////////////////////////////////////////

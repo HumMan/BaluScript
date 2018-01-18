@@ -208,4 +208,5 @@ public:
 	}
 	SemanticApi::ISOperations::ISOperation* GetFirstOp()const;
 	void Accept(ISExpressionVisitor*);
+	void Accept(SemanticApi::ISStatementVisitor* visitor);
 };

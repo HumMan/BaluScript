@@ -11,7 +11,7 @@ TSBytecode::TSBytecode(TSClass* use_owner, TSMethod* use_method, TSStatements* u
 
 }
 
-SyntaxApi::IBytecode* TSBytecode::GetSyntax()
+SyntaxApi::IBytecode* TSBytecode::GetSyntax()const
 {
 	return dynamic_cast<SyntaxApi::IBytecode*>(TSyntaxNode::GetSyntax());
 }
@@ -36,5 +36,15 @@ void TSBytecode::Build(SemanticApi::TGlobalBuildContext build_context)
 			array_element_classes.push_back(temp);
 		}//TODO сделать нормально без повторений
 	}
+}
+
+const std::vector<SyntaxApi::TBytecodeOp>& TSBytecode::GetBytecode() const
+{
+	return GetSyntax()->GetBytecode();
+}
+
+void TSBytecode::Accept(SemanticApi::ISStatementVisitor * visitor)
+{
+	visitor->Visit(this);
 }
 

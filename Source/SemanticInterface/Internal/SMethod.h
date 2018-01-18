@@ -66,6 +66,8 @@ public:
 
 	bool IsReturnRef()const;
 
+	SemanticApi::ISStatements* GetStatements()const;
+
 	~TSMethod();
 };
 

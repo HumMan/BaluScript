@@ -85,6 +85,9 @@ namespace SemanticApi
 		public virtual ISNodeBodyLinked, public virtual INodeWithTemplates, public virtual ISNodeWithAutoMethods
 	{
 	public:
+		virtual ISMethod* GetAutoDefConstr()const=0;
+		virtual ISMethod* GetAutoDestr()const=0;
+
 		virtual ISMethod* GetDefConstr()const=0;
 		virtual ISMethod* GetDestructor()const = 0;
 		virtual ISMethod* GetCopyConstr()const = 0;
@@ -93,7 +96,10 @@ namespace SemanticApi
 
 		virtual bool GetOperators(std::vector<ISMethod*> &result, Lexer::TOperator op)const=0;
 		virtual ISClassField* GetField(size_t i)const=0;
+		virtual std::vector<ISClassField*> GetFields()const = 0;
 		virtual bool GetCopyConstructors(std::vector<ISMethod*> &result)const=0;
+		virtual ISMethod* GetAutoCopyConstr()const=0;
+		virtual ISMethod* GetAutoAssignOperator()const=0;
 	};
 
 	class TFormalParameter
@@ -143,7 +149,7 @@ namespace SemanticApi
 	class IVariable
 	{
 	public:
-		virtual VariableType GetType()const = 0;
+		virtual VariableType GetVariableType()const = 0;
 	};
 
 	class ISMethod: public virtual ISpecialClassMethod
@@ -161,18 +167,34 @@ namespace SemanticApi
 		//virtual bool HasParams(const std::vector<ISParameter*> &use_params)const = 0;
 		virtual TExternalSMethod GetExternal()const=0;
 		virtual bool IsReturnRef()const = 0;
+		virtual ISStatements* GetStatements()const=0;
 	};
 
-	class ISLocalVar: public virtual INodeWithOffset
+	class ISStatement
+	{
+	public:
+		virtual ISClass* IGetOwner()const = 0;
+		virtual ISMethod* IGetMethod()const = 0;
+		virtual void Accept(ISStatementVisitor* visitor) = 0;
+	};
+
+	class ISLocalVar: public virtual INodeWithOffset, public virtual ISStatement
 	{
 	public:
 		virtual ISClass* GetClass()const = 0;
 		virtual bool IsStatic()const=0;
+		virtual const ISType* GetType()const = 0;
+		virtual ISConstructObject* GetConstructObject()const=0;
+		virtual ISOperations::ISExpression* GetAssignExpression()const=0;
 	};
 
-	class ISFor
+	class ISFor : public virtual ISStatement
 	{
 	public:
+		virtual ISOperations::ISExpression* GetCompare()const = 0;
+		virtual IActualParamWithConversion* GetCompareConversion()const = 0;
+		virtual ISStatements* GetStatements()const = 0;
+		virtual ISStatements* GetIncrement()const=0;
 	};
 
 	class IActualParamWithConversion
@@ -182,47 +204,68 @@ namespace SemanticApi
 		virtual ISMethod* GetCopyConstr()const=0;
 		virtual bool IsRefToRValue()const=0;
 		virtual ISMethod* GetConverstion()const=0;
+		virtual const IExpressionResult* GetResult()const = 0;
 	};
 
 	class IActualParameters
 	{
 	public:
+		virtual std::vector<const IActualParamWithConversion*> GetInput()const=0;
 	};
 
 	class ISConstructObject
 	{
 	public:
 		virtual ISOperations::ISExpression_TMethodCall* GetConstructorCall()const=0;
+		virtual ISClass* GetObjectType()const = 0;
 	};
-
-	class ISBytecode
+	
+	class ISIf: public virtual ISStatement
 	{
 	public:
+		virtual ISOperations::ISExpression* GetBoolExpr()const=0;
+		virtual IActualParamWithConversion* GetBoolExprConversion()const = 0;
+		virtual ISStatements* GetStatements()const = 0;
+		virtual ISStatements* GetElseStatements()const = 0;
 	};
 
-	class ISIf
+	class TVarDecl
 	{
 	public:
+		int stmt_id;
+		SemanticApi::ISLocalVar* pointer;
+		TVarDecl() {}
+		TVarDecl(int use_stmt_id, SemanticApi::ISLocalVar* use_pointer) :stmt_id(use_stmt_id), pointer(use_pointer) {}
 	};
 
-	class ISStatements
+	class ISStatements : public virtual ISStatement
 	{
 	public:
+		virtual std::vector<ISStatement*> GetStatements()const=0;
+		virtual std::vector<TVarDecl> GetVarDeclarations()const=0;
 	};
 
-	class ISStatement
+	
+
+	class ISBytecode : public virtual ISStatement
 	{
 	public:
+		virtual const std::vector<SyntaxApi::TBytecodeOp>& GetBytecode()const = 0;
 	};
 
-	class ISReturn
+	class ISReturn : public virtual ISStatement
 	{
 	public:
+		virtual ISOperations::ISExpression* GetResult()const=0;
+		virtual IActualParamWithConversion* GetConverstion()const=0;
 	};
 
-	class ISWhile
+	class ISWhile : public virtual ISStatement
 	{
 	public:
+		virtual ISOperations::ISExpression* GetCompare()const=0;
+		virtual IActualParamWithConversion* GetCompareConversion()const=0;
+		virtual ISStatements* GetStatements()const=0;
 	};
 
 	class ISType

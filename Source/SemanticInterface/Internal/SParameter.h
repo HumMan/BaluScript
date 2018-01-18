@@ -42,13 +42,14 @@ public:
 	SemanticApi::ISMethod* copy_constr;//используется если необходимо преобразование из lvalue в rvalue
 	bool ref_to_rvalue;
 	SemanticApi::ISMethod* conversion;//используется если необходимо преобразование параметра
+
 	TActualParamWithConversion();
 	void BuildConvert(TExpressionResult from_result, SemanticApi::TFormalParameter to_formal_param);
-	//void RunConversion(std::vector<TStaticValue> &static_fields, TStackValue &value);
 	SemanticApi::ISOperations::ISOperation* GetExpression()const;
 	SemanticApi::ISMethod* GetCopyConstr()const;
 	bool IsRefToRValue()const;
 	SemanticApi::ISMethod* GetConverstion()const;
+	const SemanticApi::IExpressionResult* GetResult()const;
 };
 
 class TActualParameters: public SemanticApi::IActualParameters
@@ -56,6 +57,5 @@ class TActualParameters: public SemanticApi::IActualParameters
 	std::list<TActualParamWithConversion> input;
 public:
 	void Build(const std::vector<TSOperation*>& actual_params, const std::vector<SemanticApi::TFormalParameter>& formal_params);
-	/*void Construct(std::vector<TStackValue> &method_call_formal_params, TStatementRunContext run_context);
-	void Destroy(std::vector<TStackValue> &method_call_formal_params, TStatementRunContext run_context);*/
+	std::vector<const SemanticApi::IActualParamWithConversion*> GetInput()const;
 };

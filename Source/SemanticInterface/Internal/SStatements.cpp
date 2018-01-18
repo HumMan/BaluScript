@@ -86,10 +86,10 @@ TSStatements::TSStatements(TSClass* use_owner, TSMethod* use_method, TSStatement
 }
 void TSStatements::AddVar(TSLocalVar* var, int stmt_id)
 {
-	var_declarations.push_back(TVarDecl(stmt_id, var));
+	var_declarations.push_back(SemanticApi::TVarDecl(stmt_id, var));
 	//для статических локальных переменных смещение будет задано при инициализации всех статических переменных
 	if (!var->IsStatic())
-		var_declarations.back().pointer->SetOffset(GetLastVariableOffset());//на единицу не увеличиваем, т.к. переменная уже добавлена
+		dynamic_cast<TSLocalVar*>(var_declarations.back().pointer)->SetOffset(GetLastVariableOffset());//на единицу не увеличиваем, т.к. переменная уже добавлена
 }
 
 int TSStatements::GetLastVariableOffset()
@@ -116,13 +116,33 @@ void TSStatements::Build(SemanticApi::TGlobalBuildContext build_context)
 	}
 }
 
+std::vector<SemanticApi::ISStatement*> TSStatements::GetStatements() const
+{
+	std::vector<SemanticApi::ISStatement*> result;
+	result.reserve(statements.size());
+	for (auto& v : statements)
+		result.push_back(v.get());
+	return result;
+}
+
+std::vector<SemanticApi::TVarDecl> TSStatements::GetVarDeclarations() const
+{
+	return var_declarations;
+}
+
+void TSStatements::Accept(SemanticApi::ISStatementVisitor * visitor)
+{
+	visitor->Visit(this);
+}
+
 SemanticApi::IVariable* TSStatements::GetVar(Lexer::TNameId name, int sender_id)const
 {
 	for (size_t i = 0; i < var_declarations.size(); i++)
 	{
+		auto pointer = dynamic_cast<TSLocalVar*>(var_declarations[i].pointer);
 		if (var_declarations[i].stmt_id <= sender_id
-			&&var_declarations[i].pointer->GetName() == name)
-			return var_declarations[i].pointer;
+			&&pointer->GetName() == name)
+			return pointer;
 	}
 	//for(int i=0;i<=statement.GetHigh();i++)
 	//	//TODO из-за этого перебора тормоза при большом количестве операторных скобок + невозможность искать локальную переменную за не линейную скорость

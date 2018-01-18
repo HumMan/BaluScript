@@ -138,8 +138,6 @@ public:
 
 public:
 
-	
-	
 	void Execute(int method_id)
 	{
 		Execute(method_id,sp+1,0);
@@ -149,21 +147,16 @@ public:
 		Push((intptr_t)this_pointer);
 		Execute(method_id,sp+1,this_pointer);
 	}
-	char buf[10000];
-	static void Compare(const TOp op, int* &sp)
-	{
-		int *s,*d;
-		if(op.f2)s=&sp[0];
-		else s=&sp[1-op.v1];
-		if(op.f1) d=(int*)s[-1];
-		else d=s-op.v1;
-		if(op.f2)s=(int*)*s;
-		sp-=(op.f1?1:op.v1)+(op.f2?1:op.v1)-1;
-		*sp=(memcmp(d,s,op.v1*4)==0);
-	}
+	
 	void Execute(int method_id,int* stack_top,int* this_pointer);
 	void Execute(TOp* op, int* stack_top, int* this_pointer, TProgram::TMethod* m);
-	static bool ExecuteIntOps(const TOp& op, int*& sp,int* object);
+
+};
+
+class TSimpleOps
+{
+public:
+	static bool ExecuteIntOps(const TOp& op, int*& sp, int* object);
 	static bool ExecuteFloatOps(const TOp& op, int*& sp, int* object);
 	static bool ExecuteBoolOps(const TOp& op, int*& sp, int* object);
 	static bool ExecuteVec2Ops(const TOp& op, int*& sp, int* object);

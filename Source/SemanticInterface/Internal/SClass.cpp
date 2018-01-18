@@ -566,11 +566,27 @@ void TSClass::AddClass(TSClass* use_class)
 TSClass::~TSClass()
 {
 }
-TSMethod* TSClass::GetAutoDefConstr()const
+std::vector<SemanticApi::ISClassField*> TSClass::GetFields() const
+{
+	std::vector<SemanticApi::ISClassField*> result;
+	result.reserve(_this->fields.size());
+	for (auto& v : _this->fields)
+		result.push_back(v.get());
+	return result;
+}
+SemanticApi::ISMethod* TSClass::GetAutoDefConstr()const
 {
 	return _this->auto_def_constr.get();
 }
-TSMethod* TSClass::GetAutoDestr()const
+SemanticApi::ISMethod * TSClass::GetAutoCopyConstr() const
+{
+	return _this->auto_copy_constr.get();
+}
+SemanticApi::ISMethod * TSClass::GetAutoAssignOperator() const
+{
+	return _this->auto_assign_operator.get();
+}
+SemanticApi::ISMethod* TSClass::GetAutoDestr()const
 {
 	return _this->auto_destr.get();
 }

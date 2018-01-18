@@ -1,14 +1,18 @@
 #pragma once
 
-class ISStatementVisitor
+namespace SemanticApi
 {
-public:
-	//virtual void Visit(TSIf* node) = 0;
-	//virtual void Visit(TSExpression* node) = 0;
-	//virtual void Visit(TSFor* node) = 0;
-	//virtual void Visit(TSLocalVar* node) = 0;
-	//virtual void Visit(TSReturn* node) = 0;
-	//virtual void Visit(TSStatements* node) = 0;
-	//virtual void Visit(TSWhile* node) = 0;
-	//virtual void Visit(TSBytecode* node) = 0;
-};
+
+	class ISStatementVisitor
+	{
+	public:
+		virtual void Visit(SemanticApi::ISIf* node) = 0;
+		virtual void Visit(SemanticApi::ISOperations::ISExpression* node) = 0;
+		virtual void Visit(SemanticApi::ISFor* node) = 0;
+		virtual void Visit(SemanticApi::ISLocalVar* node) = 0;
+		virtual void Visit(SemanticApi::ISReturn* node) = 0;
+		virtual void Visit(SemanticApi::ISStatements* node) = 0;
+		virtual void Visit(SemanticApi::ISWhile* node) = 0;
+		virtual void Visit(SemanticApi::ISBytecode* node) = 0;
+	};
+}

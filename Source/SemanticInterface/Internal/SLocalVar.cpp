@@ -22,7 +22,7 @@ void TSLocalVar::Build(SemanticApi::TGlobalBuildContext build_context)
 	SemanticApi::IVariable* t = GetParentStatements()->GetVar(GetSyntax()->GetName(), GetSyntax()->GetStmtId());
 	if (t != nullptr&&t != this)
 	{
-		switch (t->GetType())
+		switch (t->GetVariableType())
 		{
 		case SemanticApi::VariableType::ClassField:
 			GetSyntax()->Error("Локальная переменная перекрывает член класса!");
@@ -49,6 +49,26 @@ void TSLocalVar::Build(SemanticApi::TGlobalBuildContext build_context)
 		assign_expr.reset(new TSExpression(GetOwner(), GetMethod(), GetParentStatements(), GetSyntax()->GetAssignExpr()));
 		assign_expr->Build(build_context);
 	}
+}
+
+const SemanticApi::ISType * TSLocalVar::GetType() const
+{
+	return &type;
+}
+
+SemanticApi::ISConstructObject * TSLocalVar::GetConstructObject() const
+{
+	return construct_object.get();
+}
+
+SemanticApi::ISOperations::ISExpression * TSLocalVar::GetAssignExpression() const
+{
+	return assign_expr.get();
+}
+
+void TSLocalVar::Accept(SemanticApi::ISStatementVisitor * visitor)
+{
+	visitor->Visit(this);
 }
 
 TSLocalVar::TSLocalVar(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::ILocalVar* use_syntax)

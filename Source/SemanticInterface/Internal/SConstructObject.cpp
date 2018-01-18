@@ -67,4 +67,9 @@ SemanticApi::ISOperations::ISExpression_TMethodCall * TSConstructObject::GetCons
 	return constructor_call.get();
 }
 
+SemanticApi::ISClass * TSConstructObject::GetObjectType() const
+{
+	return object_type;
+}
+
 

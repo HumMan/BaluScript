@@ -199,6 +199,11 @@ bool TSMethod::IsReturnRef() const
 	return this->GetSyntax()->IsReturnRef();
 }
 
+SemanticApi::ISStatements * TSMethod::GetStatements() const
+{
+	return _this->statements.get();
+}
+
 void TSMethod::Build()
 {
 	for (size_t i = 0; i < GetSyntax()->GetParamsCount(); i++)

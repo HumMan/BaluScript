@@ -6,7 +6,7 @@ class TSMethod;
 class TSStatements;
 class TSExpression;
 
-class TSFor :public TSStatement
+class TSFor :public TSStatement, public SemanticApi::ISFor
 {
 	std::unique_ptr<TSExpression> compare;
 	std::unique_ptr<TActualParamWithConversion> compare_conversion;
@@ -17,4 +17,9 @@ public:
 	void Build(SemanticApi::TGlobalBuildContext build_context);
 	SyntaxApi::IFor* GetSyntax();
 	//void Run(TStatementRunContext run_context);
+	SemanticApi::ISOperations::ISExpression* GetCompare()const;
+	SemanticApi::IActualParamWithConversion* GetCompareConversion()const;
+	SemanticApi::ISStatements* GetStatements()const;
+	SemanticApi::ISStatements* GetIncrement()const;
+	void Accept(SemanticApi::ISStatementVisitor* visitor);
 };

@@ -18,8 +18,8 @@ public:
 	TSClass(TSClass* use_owner, SyntaxApi::IClass* use_syntax_node, TNodeWithTemplates::Type type = TNodeWithTemplates::Unknown);
 	~TSClass();
 
-	TSMethod* GetAutoDefConstr()const;
-	TSMethod* GetAutoDestr()const;
+	std::vector<SemanticApi::ISClassField*> GetFields()const;
+
 	void AddClass(TSClass* use_class);
 	void CopyExternalMethodBindingsFrom(TSClass* source);
 	TSClass* GetClass(Lexer::TNameId use_name);
@@ -33,6 +33,11 @@ public:
 	TSClassField* GetField(Lexer::TNameId name, bool is_static, bool only_in_this);
 	bool HasConversion(SemanticApi::ISClass* target_type);
 	bool IsNestedIn(SemanticApi::ISClass* use_parent);
+
+	SemanticApi::ISMethod* GetAutoDefConstr()const;
+	SemanticApi::ISMethod* GetAutoCopyConstr()const;
+	SemanticApi::ISMethod* GetAutoAssignOperator()const;
+	SemanticApi::ISMethod* GetAutoDestr()const;
 	
 	SemanticApi::ISMethod* GetDefConstr()const;
 	SemanticApi::ISMethod* GetDestructor()const;

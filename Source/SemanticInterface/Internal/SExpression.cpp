@@ -345,7 +345,7 @@ public:
 		SemanticApi::IVariable* var = parent->GetVar(operation_node->GetName());
 		if (var != nullptr)
 		{
-			switch (var->GetType())
+			switch (var->GetVariableType())
 			{
 			case SemanticApi::VariableType::ClassField:
 			{
@@ -558,6 +558,10 @@ SemanticApi::ISOperations::ISOperation * TSExpression::GetFirstOp() const
 }
 
 void TSExpression::Accept(ISExpressionVisitor * visitor)
+{
+	visitor->Visit(this);
+}
+void TSExpression::Accept(SemanticApi::ISStatementVisitor * visitor)
 {
 	visitor->Visit(this);
 }

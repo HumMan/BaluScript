@@ -22,4 +22,5 @@ public:
 	void Build(Lexer::ITokenPos* source, const std::vector<SyntaxApi::IExpression*>& params, SemanticApi::TGlobalBuildContext build_context);
 
 	SemanticApi::ISOperations::ISExpression_TMethodCall* GetConstructorCall()const;
+	SemanticApi::ISClass* GetObjectType()const;
 };

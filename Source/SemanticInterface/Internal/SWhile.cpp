@@ -19,3 +19,23 @@ void TSWhile::Build(SemanticApi::TGlobalBuildContext build_context)
 	statements = std::unique_ptr<TSStatements>(new TSStatements(GetOwner(), GetMethod(), GetParentStatements(), syntax->GetStatements()));
 	statements->Build(build_context);
 }
+
+SemanticApi::ISOperations::ISExpression * TSWhile::GetCompare() const
+{
+	return compare.get();
+}
+
+SemanticApi::IActualParamWithConversion * TSWhile::GetCompareConversion() const
+{
+	return compare_conversion.get();
+}
+
+SemanticApi::ISStatements * TSWhile::GetStatements() const
+{
+	return statements.get();
+}
+
+void TSWhile::Accept(SemanticApi::ISStatementVisitor * visitor)
+{
+	visitor->Visit(this);
+}

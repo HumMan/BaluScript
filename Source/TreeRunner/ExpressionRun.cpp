@@ -190,3 +190,10 @@ void TExpressionRunner::Run(SemanticApi::ISOperations::ISExpression* _this, TSta
 	TSemanticTreeVisitor visitor;
 	visitor.AcceptNode(_this, TExpressionRunContext(run_context, &exp_result));
 }
+
+void TExpressionRunner::Run(SemanticApi::ISOperations::ISOperation * _this, TExpressionRunContext run_context)
+{
+	TStackValue exp_result;
+	TSemanticTreeVisitor visitor;
+	visitor.AcceptNode(_this, run_context);
+}

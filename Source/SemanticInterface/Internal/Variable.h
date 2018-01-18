@@ -10,7 +10,7 @@ private:
 	SemanticApi::VariableType var_type;
 public:
 	TVariable(SemanticApi::VariableType use_var_type) :var_type(use_var_type){}
-	SemanticApi::VariableType GetType()const{
+	SemanticApi::VariableType GetVariableType()const{
 		return var_type;
 	}
 };

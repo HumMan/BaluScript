@@ -33,14 +33,25 @@ namespace SemanticApi
 		scl->SetSize(decl.size);
 		scl->SetAutoMethodsInitialized();
 
-		dynamic_cast<TSMethod*>(scl->GetDefConstr())->SetAsExternal(decl.def_constr);
+		if (decl.def_constr != nullptr)
+		{
+			assert(scl->GetDefConstr() != nullptr);
+			dynamic_cast<TSMethod*>(scl->GetDefConstr())->SetAsExternal(decl.def_constr);
+		}
 
 		std::vector<ISMethod*> m;
-		m.clear();
-		scl->GetCopyConstructors(m);
-		dynamic_cast<TSMethod*>(m[0])->SetAsExternal(decl.copy_constr);
 
-		dynamic_cast<TSMethod*>(scl->GetDestructor())->SetAsExternal(decl.destr);
+		if (decl.copy_constr != nullptr)
+		{
+			m.clear();
+			scl->GetCopyConstructors(m);
+			dynamic_cast<TSMethod*>(m[0])->SetAsExternal(decl.copy_constr);
+		}
+
+		if (decl.destr != nullptr)
+		{
+			dynamic_cast<TSMethod*>(scl->GetDestructor())->SetAsExternal(decl.destr);
+		}
 
 		for (int i = 0; i<(int)Lexer::TOperator::End; i++)
 		{

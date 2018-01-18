@@ -26,17 +26,13 @@ public:
 		TSyntaxNode(use_syntax),
 		method(use_method), parent(use_parent), owner(use_owner){}
 
-	//virtual void Accept(ISStatementVisitor* visitor) = 0;
+	virtual void Accept(SemanticApi::ISStatementVisitor* visitor) = 0;
 
 	virtual ~TSStatement(){}
-	TSClass* GetOwner()const
-	{
-		return owner;
-	}
-	TSMethod* GetMethod()const
-	{
-		return method;
-	}
+	SemanticApi::ISClass* IGetOwner()const;
+	SemanticApi::ISMethod* IGetMethod()const;
+	TSClass * TSStatement::GetOwner() const;
+	TSMethod * TSStatement::GetMethod() const;
 	void TestBoolExpr(TExpressionResult& compare_result, std::unique_ptr<TActualParamWithConversion>& conversion);
 };
 

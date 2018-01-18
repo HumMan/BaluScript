@@ -21,6 +21,8 @@ public:
 	TSClass* GetClass()const;
 	bool IsStatic()const;
 	void Build(SemanticApi::TGlobalBuildContext build_context);
-	/*void Run(TStatementRunContext run_context);
-	void Destruct(std::vector<TStaticValue> &static_fields, std::vector<TStackValue>& local_variables);*/
+	const SemanticApi::ISType* GetType()const;
+	SemanticApi::ISConstructObject* GetConstructObject()const;
+	SemanticApi::ISOperations::ISExpression* GetAssignExpression()const;
+	void Accept(SemanticApi::ISStatementVisitor* visitor);
 };

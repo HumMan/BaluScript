@@ -110,6 +110,11 @@ SemanticApi::ISMethod * TActualParamWithConversion::GetConverstion() const
 	return conversion;
 }
 
+const SemanticApi::IExpressionResult * TActualParamWithConversion::GetResult() const
+{
+	return &result;
+}
+
 void TActualParameters::Build(const std::vector<TSOperation*>& actual_params, const std::vector<SemanticApi::TFormalParameter>& formal_params)
 {
 	assert(actual_params.size() == formal_params.size());
@@ -121,4 +126,13 @@ void TActualParameters::Build(const std::vector<TSOperation*>& actual_params, co
 		input.back().BuildConvert(act->GetFormalParameter(), formal_params[i]);
 		i++;
 	}
+}
+
+std::vector<const SemanticApi::IActualParamWithConversion*> TActualParameters::GetInput() const
+{
+	std::vector<const SemanticApi::IActualParamWithConversion*> result;
+	result.reserve(input.size());
+	for (auto& v : input)
+		result.push_back(&v);
+	return result;
 }

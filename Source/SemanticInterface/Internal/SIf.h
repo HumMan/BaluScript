@@ -15,5 +15,10 @@ public:
 	TSIf(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IIf* use_syntax);
 	void Build(SemanticApi::TGlobalBuildContext build_context);
 	SyntaxApi::IIf* GetSyntax();
-	//void Run(TStatementRunContext run_context);
+	
+	SemanticApi::ISOperations::ISExpression* GetBoolExpr()const;
+	SemanticApi::IActualParamWithConversion* GetBoolExprConversion()const;
+	SemanticApi::ISStatements* GetStatements()const;
+	SemanticApi::ISStatements* GetElseStatements()const;
+	void Accept(SemanticApi::ISStatementVisitor* visitor);
 };
