@@ -27,5 +27,6 @@ namespace SyntaxApi
 		virtual bool IsStatic()const = 0;
 		virtual bool IsExternal()const = 0;
 		virtual Lexer::TOperator GetOperatorType()const = 0;
+		virtual IClass* GetOwner()const=0;
 	};
 }

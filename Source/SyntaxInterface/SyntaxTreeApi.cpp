@@ -21,11 +21,11 @@ namespace SyntaxApi
 		lexer->GetToken(Lexer::TTokenType::Done);
 		return cl;
 	}
-	IMethod* AnalyzeNestedMethod(Lexer::ILexer * lexer, IClass* _parent)
+	IMethod* AnalyzeMethodSignature(Lexer::ILexer * lexer, IClass* _parent)
 	{
 		auto parent = dynamic_cast<SyntaxInternal::TClass*>(_parent);
 		SyntaxInternal::TMethod* m = new SyntaxInternal::TMethod(parent);
-		m->AnalyzeSyntax(lexer);
+		m->AnalyzeSyntax(lexer, false);
 		lexer->GetToken(Lexer::TTokenType::Done);
 		return m;
 	}

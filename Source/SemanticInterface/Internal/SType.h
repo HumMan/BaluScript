@@ -30,7 +30,8 @@ public:
 		SetSignatureLinked();
 		SetBodyLinked();
 	}
-	TSClass* LinkSignature(SemanticApi::TGlobalBuildContext build_context, TSClass* use_owner, TSClass* use_curr_class);
+	//link_template_realizations используется при поиске метода по сигнатуре, запрещает генерацию реализаций шаблонов
+	TSClass* LinkSignature(SemanticApi::TGlobalBuildContext build_context, TSClass* use_owner, TSClass* use_curr_class, bool link_template_realizations = true);
 	void LinkBody(SemanticApi::TGlobalBuildContext build_context);
 };
 
@@ -39,12 +40,14 @@ class TSType :public TSyntaxNode<SyntaxApi::IType>, public TNodeSignatureLinked,
 private:
 	TSClass* owner;
 	std::list<TSType_TClassName> classes;
-	void LinkSignature(SemanticApi::TGlobalBuildContext build_context, TSClass* use_curr_class);
+	void LinkSignature(SemanticApi::TGlobalBuildContext build_context, TSClass* use_curr_class, bool link_template_realizations = true);
 public:
 	bool IsEqualTo(const TSType& use_right)const;
 	TSType(TSClass* use_owner,SyntaxApi::IType* use_syntax_node);
 	///<summary>Используется при создании автоматических методов</summary>
 	TSType(TSClass* use_owner, TSClass* use_class);
+	void LinkSignatureForSpecialMethod();
+	void LinkSignatureForMethodFind();
 	void LinkSignature(SemanticApi::TGlobalBuildContext build_context);
 	void LinkBody(SemanticApi::TGlobalBuildContext build_context);
 	SemanticApi::ISClass* GetClass()const;

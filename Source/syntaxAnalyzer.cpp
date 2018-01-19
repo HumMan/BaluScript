@@ -1,5 +1,7 @@
 ﻿#include "syntaxAnalyzer.h"
 
+#include "NativeTypes/base_types.h"
+
 #include "NativeTypes/DynArray.h"
 #include "NativeTypes/StaticArray.h"
 #include "NativeTypes/String.h"
@@ -24,6 +26,7 @@ TSyntaxAnalyzer::TSyntaxAnalyzer():_this(std::make_unique<TPrivate>())
 TSyntaxAnalyzer::~TSyntaxAnalyzer()
 {
 	SyntaxApi::Destroy(_this->base_class);
+	SemanticApi::SDestroy(_this->sem_base_class);
 }
 
 SyntaxApi::IClass * TSyntaxAnalyzer::GetBaseClass() const
@@ -41,10 +44,10 @@ Lexer::ILexer* TSyntaxAnalyzer::GetLexer()const
 	return _this->lexer.get();
 }
 
-void TSyntaxAnalyzer::Compile(char* use_source/*, TTime& time*/)
+void TSyntaxAnalyzer::Compile(const char* use_source/*, TTime& time*/)
 {
 	//unsigned long long t = time.GetTime();
-	_this->lexer->ParseSource(use_source);
+	_this->lexer->ParseSource(("class Script{" + std::string(base_types) + use_source + "}").c_str());
 	//printf("Source parsing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
 	//t = time.GetTime();
 	_this->base_class=SyntaxApi::Analyze(_this->lexer.get());
@@ -60,21 +63,60 @@ void TSyntaxAnalyzer::Compile(char* use_source/*, TTime& time*/)
 	//printf("Syntax analyzing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
 }
 
-SemanticApi::ISMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
+class TMethodPointer
 {
-	//TODO
-		/*_this->lexer->ParseSource(use_method);
-	std::unique_ptr<SyntaxInternal::TMethod> method_decl_syntax(new SyntaxInternal::TMethod(_this->base_class.get()));
-	method_decl_syntax->AnalyzeSyntax(_this->lexer.get(), false);
-	_this->lexer->GetToken(TTokenType::Done);
-	std::unique_ptr<TSMethod> method_decl(new TSMethod(_this->sem_base_class->GetNestedByFullName(method_decl_syntax->GetOwner()->GetFullClassName(),1), method_decl_syntax.get()));
-	method_decl->Build();
-	std::vector<TSMethod*> methods;
-	TSMethod* method = nullptr;
-	switch (method_decl->GetSyntax()->GetMemberType())
+	SyntaxApi::IMethod* method;
+public:
+	TMethodPointer(SyntaxApi::IMethod* method)
+	{
+		this->method = method;
+	}
+	~TMethodPointer()
+	{
+		SyntaxApi::Destroy(method);
+	}
+	SyntaxApi::IMethod* operator->()
+	{
+		return method;
+	}
+	SyntaxApi::IMethod* get()
+	{
+		return method;
+	}
+};
+
+class TSMethodPointer
+{
+	SemanticApi::ISMethod* method;
+public:
+
+	TSMethodPointer(SemanticApi::ISMethod* method)
+	{
+		this->method = method;
+	}
+	~TSMethodPointer()
+	{
+		SemanticApi::SDestroyMethodSignature(method);
+	}
+	SemanticApi::ISMethod* operator->()
+	{
+		return method;
+	}
+};
+
+SemanticApi::ISMethod* TSyntaxAnalyzer::GetMethod(const char* use_method)
+{
+	_this->lexer->ParseSource(use_method);
+	TMethodPointer method_decl_syntax(SyntaxApi::AnalyzeMethodSignature(_this->lexer.get(), _this->base_class));
+
+	TSMethodPointer method_decl(SemanticApi::SAnalyzeMethodSignature(_this->lexer.get(), method_decl_syntax.get(), _this->sem_base_class));
+
+	std::vector<SemanticApi::ISMethod*> methods;
+	SemanticApi::ISMethod* method = nullptr;
+	switch (method_decl->GetMemberType())
 	{
 	case SyntaxApi::TClassMember::Func:
-		method_decl->GetOwner()->GetMethods(methods, method_decl->GetSyntax()->GetName());
+		method_decl->GetOwner()->GetMethods(methods, method_decl_syntax->GetName());
 		break;
 	case SyntaxApi::TClassMember::DefaultConstr:
 		method = method_decl->GetOwner()->GetDefConstr();
@@ -89,14 +131,14 @@ SemanticApi::ISMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 		method = method_decl->GetOwner()->GetDestructor();
 		break;
 	case SyntaxApi::TClassMember::Operator:
-		method_decl->GetOwner()->GetOperators(methods, method_decl->GetSyntax()->GetOperatorType());
+		method_decl->GetOwner()->GetOperators(methods, method_decl->GetOperatorType());
 		break;
 	case SyntaxApi::TClassMember::Conversion:
-		method = method_decl->GetOwner()->GetConversion(method_decl->GetParam(0)->GetSyntax()->IsRef(), method_decl->GetRetClass());
+		method = method_decl->GetOwner()->GetConversion(method_decl->GetParam(0)->IsRef(), method_decl->GetRetClass());
 		break;
 	default:assert(false);
 	}
-	SyntaxApi::TClassMember temp = method_decl->GetSyntax()->GetMemberType();
+	SyntaxApi::TClassMember temp = method_decl->GetMemberType();
 	if (temp == SyntaxApi::TClassMember::Func ||
 		temp == SyntaxApi::TClassMember::CopyConstr ||
 		temp == SyntaxApi::TClassMember::MoveConstr ||
@@ -111,7 +153,7 @@ SemanticApi::ISMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 			if (method_decl->GetParamsCount() != methods[i]->GetParamsCount())continue;
 			for (size_t k = 0; k < method_decl->GetParamsCount(); k++)
 			{
-				if (!methods[i]->GetParam(k)->IsEqualTo(*method_decl->GetParam(k)))
+				if (!methods[i]->GetParam(k)->IIsEqualTo(method_decl->GetParam(k)))
 					goto end_search;
 			}
 			method = methods[i];
@@ -121,18 +163,19 @@ SemanticApi::ISMethod* TSyntaxAnalyzer::GetMethod(char* use_method)
 
 	if (method != nullptr)
 	{
-		if (method_decl->GetSyntax()->IsStatic() != method->GetSyntax()->IsStatic())
-			_this->lexer->Error("Метод отличается по статичности!");
-		if (method_decl->GetSyntax()->IsExternal() != method->GetSyntax()->IsExternal())
-			_this->lexer->Error("Несоответствует классификатор extern!");
-		if (method_decl->GetRetClass() != method->GetRetClass()
-			|| method_decl->GetSyntax()->IsReturnRef() != method->GetSyntax()->IsReturnRef())
-			_this->lexer->Error("Метод возвращает другое значение!");
+		if (method_decl->IsStatic() != method->IsStatic())
+			throw new std::exception("Метод отличается по статичности!");
+		if (method_decl->IsExternal() != method->IsExternal())
+			throw new std::exception("Несоответствует классификатор extern!");
+		auto c0 = method_decl->GetRetClass();
+		auto c1 = method->GetRetClass();
+		if ( c0 != c1
+			|| method_decl->IsReturnRef() != method->IsReturnRef())
+			throw new std::exception("Метод возвращает другое значение!");
 		return method;
 	}
 	else
-		_this->lexer->Error("Такого метода не существует!");
-	return nullptr;*/
+		throw new std::exception("Такого метода не существует!");
 	return nullptr;
 }
 
@@ -162,6 +205,16 @@ SemanticApi::ISClassField* TSyntaxAnalyzer::GetStaticField(char* use_var)
 	_this->lexer->GetToken(TTokenType::Done);
 	return result;*/
 	return nullptr;
+}
+
+std::vector<SemanticApi::ISClassField*> TSyntaxAnalyzer::GetStaticFields() const
+{
+	return _this->static_fields;
+}
+
+std::vector<SemanticApi::ISLocalVar*> TSyntaxAnalyzer::GetStaticVariables() const
+{
+	return _this->static_variables;
 }
 
 

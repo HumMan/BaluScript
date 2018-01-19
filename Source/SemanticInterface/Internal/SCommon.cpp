@@ -20,7 +20,6 @@ bool IsEqualClasses(TExpressionResult actual_parameter, SemanticApi::TFormalPara
 			return false;
 		//TODO
 		//if (formal_parameter.IsRef() && !actual_parameter.GetClass()->IsNestedIn(formal_parameter.GetClass()))
-		return false;
 		need_conv += 1;
 	}
 	if (actual_parameter.IsRef() && !formal_parameter.IsRef())need_conv += 1;

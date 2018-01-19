@@ -624,10 +624,12 @@ void TreeRunner::Run(SemanticApi::ISWhile* while_statement, TStatementRunContext
 
 void TreeRunner::InitializeStaticClassFields(std::vector<SemanticApi::ISClassField*> static_fields, std::vector<TStaticValue> &static_objects)
 {
+	int i = static_objects.size();
 	for (auto v : static_fields)
 	{
 		static_objects.emplace_back(false, v->GetClass());
 		auto def_constr = v->GetClass()->GetDefConstr();
+		v->SetOffset(i);
 		static_objects[v->GetOffset()].Initialize();
 		if (def_constr != nullptr)
 		{
@@ -636,13 +638,31 @@ void TreeRunner::InitializeStaticClassFields(std::vector<SemanticApi::ISClassFie
 			var_object.SetAsReference(static_objects[v->GetOffset()].get());
 			TreeRunner::Run(def_constr,TMethodRunContext(&static_objects, &constr_formal_params, &without_result, &var_object));
 		}
+		i++;
+	}
+}
+void TreeRunner::DeinitializeStatic(std::vector<TStaticValue> &static_objects)
+{
+	for (auto v : static_objects)
+	{
+		auto destructor = v.GetClass()->GetDestructor();
+		if (destructor != nullptr)
+		{
+			std::vector<TStackValue> destr_formal_params;
+			TStackValue without_result, var_object(true, v.GetClass());
+			var_object.SetAsReference(v.get());
+			TreeRunner::Run(destructor, TMethodRunContext(&static_objects, &destr_formal_params, &without_result, &var_object));
+		}
 
 	}
 }
 void TreeRunner::InitializeStaticVariables(std::vector<SemanticApi::ISLocalVar*> static_variables, std::vector<TStaticValue> &static_objects)
 {
+	int i = static_objects.size();
 	for (auto v : static_variables)
 	{
 		static_objects.emplace_back(false, v->GetClass());
+		v->SetOffset(i);
+		i++;
 	}
 }

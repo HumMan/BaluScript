@@ -33,6 +33,8 @@ public:
 	static void RunAutoDestr(SemanticApi::ISClass* _this, std::vector<TStaticValue> &static_fields, TStackValue& object);
 	static void RunAutoCopyConstr(SemanticApi::ISClass* _this, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object);
 	static void RunAutoAssign(SemanticApi::ISClass* _this, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params);
+
 	static void InitializeStaticClassFields(std::vector<SemanticApi::ISClassField*> static_fields, std::vector<TStaticValue> &static_objects);
 	static void InitializeStaticVariables(std::vector<SemanticApi::ISLocalVar*> static_variables, std::vector<TStaticValue> &static_objects);
+	static void DeinitializeStatic(std::vector<TStaticValue> &static_objects);
 };

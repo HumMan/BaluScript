@@ -13,8 +13,7 @@ public:
 		auto old_context = this->run_context;
 		this->run_context = run_context;
 		node->Accept(this);
-		//if needed, we can restore the old context
-		//this->run_context = old_context;
+		this->run_context = old_context;
 	}
 
 	virtual void Visit(SemanticApi::ISOperations::ISExpression_TMethodCall *_this) override

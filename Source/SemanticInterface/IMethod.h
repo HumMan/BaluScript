@@ -64,6 +64,7 @@ namespace SemanticApi
 	{
 	public:
 		virtual int GetOffset()const = 0;
+		virtual void SetOffset(int use_offset) = 0;
 	};
 
 	class ISMultifield
@@ -79,6 +80,13 @@ namespace SemanticApi
 		virtual ISClass* GetClass()const=0;
 		virtual ISClass* GetOwner()const = 0;
 		virtual bool IsStatic()const = 0;
+	};
+
+	enum Filter
+	{
+		True,
+		False,
+		NotSet
 	};
 
 	class ISClass: public virtual ISNodeWithSize, public virtual ISNodeSignatureLinked,
@@ -100,6 +108,16 @@ namespace SemanticApi
 		virtual bool GetCopyConstructors(std::vector<ISMethod*> &result)const=0;
 		virtual ISMethod* GetAutoCopyConstr()const=0;
 		virtual ISMethod* GetAutoAssignOperator()const=0;
+		virtual bool GetMoveConstructors(std::vector<ISMethod*> &result)const=0;
+		virtual void GetMethods(std::vector<ISMethod*> &result)const=0;
+		virtual bool GetMethods(std::vector<ISMethod*> &result, Lexer::TNameId use_method_name,
+			Filter is_static = Filter::NotSet, bool scan_owner = true, bool scan_parent = true)const = 0;
+		virtual ISMethod* GetConversion(bool source_ref, ISClass* target_type)const=0;
+
+		virtual ISClass* GetNestedByFullName(std::vector<Lexer::TNameId> full_name, size_t curr_id)=0;
+
+		virtual size_t GetNestedCount()const=0;
+		virtual ISClass* GetNested(size_t index)const=0;
 	};
 
 	class TFormalParameter
@@ -135,6 +153,8 @@ namespace SemanticApi
 	public:
 		virtual TFormalParameter AsFormalParameter()const=0;
 		virtual ISClass* GetClass()const=0;
+		virtual bool IsRef()const = 0;
+		virtual bool IIsEqualTo(const ISParameter* right)const=0;
 	};
 
 	enum class VariableType
@@ -168,6 +188,9 @@ namespace SemanticApi
 		virtual TExternalSMethod GetExternal()const=0;
 		virtual bool IsReturnRef()const = 0;
 		virtual ISStatements* GetStatements()const=0;
+		virtual SyntaxApi::TClassMember GetMemberType()const=0;
+		virtual bool IsStatic()const=0;
+		virtual Lexer::TOperator GetOperatorType()const=0;
 	};
 
 	class ISStatement

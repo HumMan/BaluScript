@@ -5,7 +5,7 @@
 #include <streambuf>
 
 #include "../Source/SemanticInterface/SemanticTreeApi.h"
-#include "../Source/TreeRunner/FormalParam.h"
+#include "../Source/TreeRunner/TreeRunner.h"
 
 int main(int argc, char* argv[])
 {
@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 			TSyntaxAnalyzer syntax;
 			try
 			{
-				syntax.Compile((char*)(("class Script{" + source + "}").c_str()));
+				syntax.Compile(source.c_str());
 
 				SemanticApi::ISMethod* main_func = syntax.GetMethod("func static Script.Main");
 				//int sp[200];
@@ -42,7 +42,8 @@ int main(int argc, char* argv[])
 				std::vector<TStaticValue> static_variables;
 				TStackValue result, object;
 				TMethodRunContext method_run_context(&static_fields, &params, &result, &object);
-				main_func->Run(method_run_context);
+				
+				TreeRunner::Run(main_func, method_run_context);
 
 		/*		if(print_info)
 					printf("ok (%.3f ms)\n",time.TimeDiff(time.GetTime(),t0)*1000);

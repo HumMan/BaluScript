@@ -138,9 +138,7 @@ public:
 	}
 	void Visit(SyntaxApi::IOperations::IConstructTempObject* operation_node)
 	{
-		TSExpression_TempObjectType* result = new TSExpression_TempObjectType(owner, operation_node->GetType());
-		result->type.LinkSignature(build_context);
-		result->type.LinkBody(build_context);
+		TSExpression_TempObjectType* result = new TSExpression_TempObjectType(owner, operation_node->GetType(), build_context);
 		Return(result);
 	}
 	void Visit(SyntaxApi::IOperations::ICallParamsOp* operation_node)
@@ -266,7 +264,7 @@ public:
 				else
 				{
 					std::vector<SemanticApi::ISMethod*> methods;
-					if (left_result_class->GetMethods(methods, operation_node->GetName(), true))
+					if (left_result_class->GetMethods(methods, operation_node->GetName(), SemanticApi::Filter::True))
 					{
 						TSExpression::TGetMethods* result = new TSExpression::TGetMethods(
 							left, left_result, TExpressionResult(methods, method->GetSyntax()->IsStatic()));
@@ -329,7 +327,7 @@ public:
 			else
 			{
 				std::vector<SemanticApi::ISMethod*> methods;
-				if (left_class->GetMethods(methods, operation_node->GetName(), false))
+				if (left_class->GetMethods(methods, operation_node->GetName(), SemanticApi::Filter::False))
 				{
 					TSExpression::TGetMethods* result = new TSExpression::TGetMethods(
 						left, left_result, TExpressionResult(methods, false));
@@ -376,11 +374,11 @@ public:
 			std::vector<SemanticApi::ISMethod*> methods;
 			if (method->GetSyntax()->IsStatic())
 			{
-				owner->GetMethods(methods, operation_node->GetName(), true);
+				owner->GetMethods(methods, operation_node->GetName(), SemanticApi::Filter::True);
 				if (methods.size() == 0)
 				{
 					std::vector<SemanticApi::ISMethod*> temp;
-					if (owner->GetMethods(temp, operation_node->GetName(), false))
+					if (owner->GetMethods(temp, operation_node->GetName(), SemanticApi::Filter::False))
 					{
 						syntax_node->Error("К нестатическому методу класса нельзя обращаться из статического метода!");
 					}
@@ -417,18 +415,12 @@ public:
 	}
 	void Visit(SyntaxApi::IOperations::IIntValue *op)
 	{
-		TSExpression::TInt* result = new TSExpression::TInt(owner, op->GetType());
-		result->val = op->GetValue();
-		result->type.LinkSignature(build_context);
-		result->type.LinkBody(build_context);
+		TSExpression::TInt* result = new TSExpression::TInt(owner, op->GetType(), op->GetValue(), build_context);		
 		Return(result);
 	}
 	void Visit(SyntaxApi::IOperations::IStringValue *op)
 	{
-		TSExpression::TString* result = new TSExpression::TString(owner, op->GetType());
-		result->val = op->GetValue();
-		result->type.LinkSignature(build_context);
-		result->type.LinkBody(build_context);
+		TSExpression::TString* result = new TSExpression::TString(owner, op->GetType(), op->GetValue(), build_context);
 		Return(result);
 	}
 	void Visit(SyntaxApi::IOperations::ICharValue* op)
@@ -442,18 +434,12 @@ public:
 	}
 	void Visit(SyntaxApi::IOperations::IFloatValue* op)
 	{
-		TSExpression::TFloat* result = new TSExpression::TFloat(owner, op->GetType());
-		result->val = op->GetValue();
-		result->type.LinkSignature(build_context);
-		result->type.LinkBody(build_context);
+		TSExpression::TFloat* result = new TSExpression::TFloat(owner, op->GetType(), op->GetValue(), build_context);
 		Return(result);
 	}
 	void Visit(SyntaxApi::IOperations::IBoolValue* op)
 	{
-		TSExpression::TBool* result = new TSExpression::TBool(owner, op->GetType());
-		result->val = op->GetValue();
-		result->type.LinkSignature(build_context);
-		result->type.LinkBody(build_context);
+		TSExpression::TBool* result = new TSExpression::TBool(owner, op->GetType(), op->GetValue(), build_context);
 		Return(result);
 	}
 };
@@ -464,6 +450,8 @@ void TSExpression::Build(SemanticApi::TGlobalBuildContext build_context)
 	auto syntax = GetSyntax();
 	if (!syntax->IsEmpty())
 		first_op.reset(b.VisitNode(syntax));
+
+	expression_result = first_op->GetFormalParameter();
 }
 
 SemanticApi::IVariable* TSExpression::GetVar(Lexer::TNameId name)
@@ -484,30 +472,42 @@ void TSExpression_TMethodCall::Build(const std::vector<TSOperation*>& param_expr
 	}
 	params.Build(param_expressions, formal_params);
 
-	expression_result = TExpressionResult(invoke->GetRetClass(), invoke->GetSyntax()->IsReturnRef());
+	expression_result = TExpressionResult(invoke->GetRetClass(), invoke->IsReturnRef());
 }
 
-TSExpression::TInt::TInt(TSClass* owner, SyntaxApi::IType* syntax_node)
+TSExpression::TInt::TInt(TSClass* owner, SyntaxApi::IType* syntax_node, int value, SemanticApi::TGlobalBuildContext build_context)
 	:type(owner,syntax_node)
 {
+	val = value;
+	type.LinkSignature(build_context);
+	type.LinkBody(build_context);
 	expression_result = TExpressionResult(dynamic_cast<TSClass*>(type.GetClass()), false);
 }
 
-TSExpression::TFloat::TFloat(TSClass* owner, SyntaxApi::IType* syntax_node)
+TSExpression::TFloat::TFloat(TSClass* owner, SyntaxApi::IType* syntax_node, float value, SemanticApi::TGlobalBuildContext build_context)
 	: type(owner, syntax_node)
 {
+	val = value;
+	type.LinkSignature(build_context);
+	type.LinkBody(build_context);
 	expression_result = TExpressionResult(dynamic_cast<TSClass*>(type.GetClass()), false);
 }
 
-TSExpression::TBool::TBool(TSClass* owner, SyntaxApi::IType* syntax_node)
+TSExpression::TBool::TBool(TSClass* owner, SyntaxApi::IType* syntax_node, bool value, SemanticApi::TGlobalBuildContext build_context)
 	:type(owner, syntax_node)
 {
+	val = value;
+	type.LinkSignature(build_context);
+	type.LinkBody(build_context);
 	expression_result = TExpressionResult(dynamic_cast<TSClass*>(type.GetClass()), false);
 }
 
-TSExpression::TString::TString(TSClass* owner, SyntaxApi::IType* syntax_node)
+TSExpression::TString::TString(TSClass* owner, SyntaxApi::IType* syntax_node, std::string value, SemanticApi::TGlobalBuildContext build_context)
 	:type(owner, syntax_node)
 {
+	val = value;
+	type.LinkSignature(build_context);
+	type.LinkBody(build_context);
 	expression_result = TExpressionResult(dynamic_cast<TSClass*>(type.GetClass()), false);
 }
 
@@ -541,9 +541,11 @@ TSExpression::TEnumValue::TEnumValue(TSClass* owner, TSClass* _type)
 //	params.Destroy(method_call_formal_params, static_fields, formal_params, object, local_variables);
 //}
 
-TSExpression_TempObjectType::TSExpression_TempObjectType(TSClass* owner, SyntaxApi::IType* syntax_node)
+TSExpression_TempObjectType::TSExpression_TempObjectType(TSClass* owner, SyntaxApi::IType* syntax_node, SemanticApi::TGlobalBuildContext build_context)
 	:type(owner,syntax_node)
 {
+	type.LinkSignature(build_context);
+	type.LinkBody(build_context);
 	expression_result = TExpressionResult(dynamic_cast<TSClass*>(type.GetClass()));
 }
 
@@ -602,6 +604,7 @@ SemanticApi::ISClass * TSExpression::TGetThis::GetOwner() const
 }
 
 TSExpression_TGetClass::TSExpression_TGetClass(TSExpression_TGetClass* left, TSClass * get_class)
+	:left(left), get_class(get_class)
 {
 	expression_result = TExpressionResult(get_class);
 }
@@ -611,6 +614,7 @@ void TSExpression_TGetClass::Accept(ISExpressionVisitor * visitor)
 	visitor->Visit(this);
 }
 TSExpression::TGetLocal::TGetLocal(TSLocalVar * variable)
+	:variable(variable)
 {
 	expression_result = TExpressionResult(variable->GetClass(), true);
 }
@@ -623,6 +627,7 @@ SemanticApi::ISLocalVar * TSExpression::TGetLocal::GetVariable() const
 	return variable;
 }
 TSExpression::TGetParameter::TGetParameter(TSParameter * parameter)
+	:parameter(parameter)
 {
 	expression_result = TExpressionResult(dynamic_cast<TSClass*>(parameter->GetClass()), true);
 }
@@ -754,5 +759,11 @@ const SemanticApi::IExpressionResult * TSOperation::GetFormalParam() const
 
 TExpressionResult TSOperation::GetFormalParameter() const
 {
-	return TExpressionResult();
+	return expression_result;
+}
+
+TSExpression::TSExpression(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IExpression* syntax_node)
+	:TSStatement(SyntaxApi::TStatementType::Expression, use_owner, use_method, use_parent, (SyntaxApi::IStatement*)(syntax_node)) 
+{
+
 }

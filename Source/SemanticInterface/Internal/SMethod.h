@@ -40,6 +40,9 @@ public:
 
 	bool IsExternal()const;
 
+	void LinkSignatureForSpecialMethod();
+	void LinkSignatureForMethodFind();
+
 	TSMethod(TSClass* use_owner, SemanticApi::SpecialClassMethodType special_method_type);
 	void AddParameter(TSParameter* use_par);
 
@@ -67,6 +70,11 @@ public:
 	bool IsReturnRef()const;
 
 	SemanticApi::ISStatements* GetStatements()const;
+
+	SyntaxApi::TClassMember GetMemberType()const;
+	bool IsStatic()const;
+
+	Lexer::TOperator GetOperatorType()const;
 
 	~TSMethod();
 };

@@ -8,7 +8,8 @@
 class TSClassField;
 class TSMethod;
 
-class TSClass:public TSyntaxNode<SyntaxApi::IClass>, public TNodeWithSize,public TNodeSignatureLinked,public TNodeBodyLinked,public TNodeWithTemplates, public TNodeWithAutoMethods,
+class TSClass:public TSyntaxNode<SyntaxApi::IClass>, public TNodeWithSize,public TNodeSignatureLinked,
+	public TNodeBodyLinked,public TNodeWithTemplates, public TNodeWithAutoMethods,
 	public SemanticApi::ISClass
 {	
 	class TPrivate;
@@ -49,11 +50,17 @@ public:
 	bool GetCopyConstructors(std::vector<SemanticApi::ISMethod*> &result)const;
 	bool GetMoveConstructors(std::vector<SemanticApi::ISMethod*> &result)const;
 	bool GetOperators(std::vector<SemanticApi::ISMethod*> &result, Lexer::TOperator op)const;
-	bool GetMethods(std::vector<SemanticApi::ISMethod*> &result, Lexer::TNameId use_method_name)const;
-	bool GetMethods(std::vector<SemanticApi::ISMethod*> &result, Lexer::TNameId use_method_name, bool is_static)const;
+
+	void GetMethods(std::vector<SemanticApi::ISMethod*> &result)const;
+	bool GetMethods(std::vector<SemanticApi::ISMethod*> &result, Lexer::TNameId use_method_name,
+		SemanticApi::Filter is_static=SemanticApi::Filter::NotSet, 
+		bool scan_owner = true, bool scan_parent = true)const;
+
 	SemanticApi::ISMethod* GetConversion(bool source_ref, SemanticApi::ISClass* target_type)const;
 
 	TSClass* GetNested(Lexer::TNameId name)const;
+	size_t GetNestedCount()const;
+	ISClass* GetNested(size_t index)const;
 
 	bool GetTemplateParameter(Lexer::TNameId name, SemanticApi::TTemplateParameter& result)const;
 	bool HasTemplateParameter(Lexer::TNameId name)const;

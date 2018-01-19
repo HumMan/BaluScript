@@ -142,6 +142,16 @@ TSClass* TSClass::GetNested(Lexer::TNameId name)const
 	return nullptr;
 }
 
+size_t TSClass::GetNestedCount() const
+{
+	return _this->nested_classes.size();
+}
+
+SemanticApi::ISClass * TSClass::GetNested(size_t index) const
+{
+	return _this->nested_classes[index].get();
+}
+
 bool TSClass::GetTemplateParameter(Lexer::TNameId name, SemanticApi::TTemplateParameter& result)const
 {
 	assert(GetType() == TNodeWithTemplates::Realization);
@@ -368,26 +378,16 @@ void TSClass::LinkBody(SemanticApi::TGlobalBuildContext build_context)
 			nested_class->LinkBody(build_context);
 }
 
-
-bool TSClass::GetMethods(std::vector<SemanticApi::ISMethod*> &result, Lexer::TNameId use_method_name)const
+void TSClass::GetMethods(std::vector<SemanticApi::ISMethod*> &result)const
 {
-	//assert(IsSignatureLinked());
 	for (TSOverloadedMethod& ov_method : _this->methods)
 	{
-		if (ov_method.GetName() == use_method_name)
-		{
-			for (size_t i = 0; i < ov_method.GetMethodsCount();i++)
-				result.push_back(ov_method.GetMethod(i));
-		}
+		for (size_t i = 0; i < ov_method.GetMethodsCount(); i++)
+			result.push_back(ov_method.GetMethod(i));
 	}
-	if (_this->owner != nullptr)
-		_this->owner->GetMethods(result, use_method_name, true);
-	if (_this->parent.GetClass() != nullptr)
-		dynamic_cast<TSClass*>(_this->parent.GetClass())->GetMethods(result, use_method_name);
-	return result.size() > 0;
 }
 
-bool TSClass::GetMethods(std::vector<SemanticApi::ISMethod*> &result, Lexer::TNameId use_method_name, bool is_static)const
+bool TSClass::GetMethods(std::vector<SemanticApi::ISMethod*> &result, Lexer::TNameId use_method_name, SemanticApi::Filter is_static, bool scan_owner, bool scan_parent)const
 {
 	//assert(IsSignatureLinked());
 	for (TSOverloadedMethod& ov_method : _this->methods)
@@ -397,14 +397,21 @@ bool TSClass::GetMethods(std::vector<SemanticApi::ISMethod*> &result, Lexer::TNa
 			for (size_t i = 0; i < ov_method.GetMethodsCount(); i++)
 			{
 				auto method = ov_method.GetMethod(i);
-				if (method->GetSyntax()->IsStatic() == is_static)
+				if (is_static == SemanticApi::Filter::NotSet)
 					result.push_back(method);
+				else
+				{
+					if(method->GetSyntax()->IsStatic() == (is_static == SemanticApi::Filter::True))
+						result.push_back(method);
+				}
 			}
 		}
 	}
-	if (is_static && _this->owner != nullptr)
-		_this->owner->GetMethods(result, use_method_name, true);
-	if (_this->parent.GetClass() != nullptr)
+	if (scan_owner && 
+		(is_static==SemanticApi::Filter::True || is_static == SemanticApi::Filter::NotSet) &&
+		_this->owner != nullptr)
+		_this->owner->GetMethods(result, use_method_name, SemanticApi::Filter::True);
+	if (scan_parent && _this->parent.GetClass() != nullptr)
 		dynamic_cast<TSClass*>(_this->parent.GetClass())->GetMethods(result, use_method_name, is_static);
 	return result.size() > 0;
 }
@@ -778,6 +785,8 @@ void TSClass::InitAutoMethods()
 		_this->auto_copy_constr.reset(new TSMethod(this, SemanticApi::SpecialClassMethodType::AutoCopyConstr));
 		TSParameter* p = new TSParameter(this, _this->auto_copy_constr.get(), this, true);
 		_this->auto_copy_constr->AddParameter(p);
+
+		_this->auto_copy_constr->LinkSignatureForSpecialMethod();
 		
 	}
 	if (has_destr)
@@ -793,6 +802,8 @@ void TSClass::InitAutoMethods()
 		_this->auto_assign_operator->AddParameter(p);
 		p = new TSParameter(this, _this->auto_assign_operator.get(), this, true);
 		_this->auto_assign_operator->AddParameter(p);
+
+		_this->auto_assign_operator->LinkSignatureForSpecialMethod();
 	}
 
 	SetAutoMethodsInitialized();

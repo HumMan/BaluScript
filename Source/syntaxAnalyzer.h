@@ -13,7 +13,7 @@ class ISyntaxAnalyzer
 	virtual SyntaxApi::IClass* GetBaseClass()const = 0;
 	virtual SemanticApi::ISClass* GetCompiledBaseClass()const = 0;
 	virtual Lexer::ILexer* GetLexer()const = 0;
-	virtual SemanticApi::ISMethod* GetMethod(char* use_method) = 0;
+	virtual SemanticApi::ISMethod* GetMethod(const char* use_method) = 0;
 	virtual SemanticApi::ISClassField* GetStaticField(char* use_var) = 0;
 };
 
@@ -27,9 +27,9 @@ public:
 	Lexer::ILexer* GetLexer()const;
 	TSyntaxAnalyzer();
 	~TSyntaxAnalyzer();
-	void Compile(char* use_source/*,TTime& time*/);
-	void CreateInternalClasses();
-	SemanticApi::ISMethod* GetMethod(char* use_method);
+	void Compile(const char* use_source/*,TTime& time*/);
+	SemanticApi::ISMethod* GetMethod(const char* use_method);
 	SemanticApi::ISClassField* GetStaticField(char* use_var);
-
+	std::vector<SemanticApi::ISClassField*> GetStaticFields()const;
+	std::vector<SemanticApi::ISLocalVar*> GetStaticVariables()const;
 };

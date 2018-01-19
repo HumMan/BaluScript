@@ -41,7 +41,7 @@ namespace SyntaxInternal
 		SyntaxApi::IStatements* GetStatements()const;
 		TStatements* GetStatementsT()const;
 		Lexer::TNameId GetName()const;
-		TClass* GetOwner()const;
+		SyntaxApi::IClass* GetOwner()const;
 		Lexer::TOperator GetOperatorType()const;
 		SyntaxApi::TClassMember GetMemberType()const;
 		TParameter* GetParamT(size_t use_id)const;
@@ -52,7 +52,7 @@ namespace SyntaxInternal
 		bool IsExternal()const;
 		//bool IsBytecode();
 		void AddParam(TParameter* use_param);
-		bool HasParams(std::vector<std::unique_ptr<TParameter>> &use_params)const;
+		//bool HasParams(std::vector<std::unique_ptr<TParameter>> &use_params)const;
 		void CheckForErrors();
 		TType* GetRetTypeT()const;
 		SyntaxApi::IType* GetRetType()const;

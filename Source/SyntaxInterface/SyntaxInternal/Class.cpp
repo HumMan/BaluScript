@@ -267,9 +267,10 @@ void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 		_this->name = source->NameId();
 		source->GetToken();
 		source->GetToken(TTokenType::LBrace);
+		std::vector<Lexer::TNameId> enums;
 		do
 		{
-			auto enums = GetEnums();
+			
 			if (source->Test(TTokenType::Identifier))
 			{
 				for (size_t i = 0; i < enums.size(); i++)
@@ -281,6 +282,7 @@ void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 			else
 				break;
 		} while (source->TestAndGet(TTokenType::Comma));
+		SetEnums(enums);
 		source->GetToken(TTokenType::RBrace);
 		return;
 	}

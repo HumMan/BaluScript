@@ -78,7 +78,7 @@ public:
 class TSExpression_TempObjectType : public TSOperation, public SemanticApi::ISOperations::ISExpression_TempObjectType
 {
 public:
-	TSExpression_TempObjectType(TSClass* owner, SyntaxApi::IType* syntax_node);
+	TSExpression_TempObjectType(TSClass* owner, SyntaxApi::IType* syntax_node, SemanticApi::TGlobalBuildContext build_context);
 	TSType type;
 	void Accept(ISExpressionVisitor*);
 };
@@ -91,40 +91,40 @@ public:
 	
 	class TInt : public TSOperation, public SemanticApi::ISOperations::IInt
 	{
-	public:
-		TInt(TSClass* owner, SyntaxApi::IType* syntax_node);
 		int val;
 		TSType type;
+	public:
+		TInt(TSClass* owner, SyntaxApi::IType* syntax_node, int value, SemanticApi::TGlobalBuildContext build_context);		
 		void Accept(ISExpressionVisitor*);
 		int GetValue()const;
 		const SemanticApi::ISType* GetType()const;
 	};
 	class TFloat : public TSOperation, public SemanticApi::ISOperations::IFloat
 	{
-	public:
-		TFloat(TSClass* owner, SyntaxApi::IType* syntax_node);
 		float val;
 		TSType type;
+	public:
+		TFloat(TSClass* owner, SyntaxApi::IType* syntax_node, float value, SemanticApi::TGlobalBuildContext build_context);		
 		void Accept(ISExpressionVisitor*);
 		float GetValue()const;
 		const SemanticApi::ISType* GetType()const;
 	};
 	class TBool : public TSOperation, public SemanticApi::ISOperations::IBool
 	{
-	public:
-		TBool(TSClass* owner, SyntaxApi::IType* syntax_node);
 		bool val;
 		TSType type;
+	public:
+		TBool(TSClass* owner, SyntaxApi::IType* syntax_node, bool value, SemanticApi::TGlobalBuildContext build_context);		
 		void Accept(ISExpressionVisitor*);
 		bool GetValue()const;
 		const SemanticApi::ISType* GetType()const;
 	};
 	class TString : public TSOperation, public SemanticApi::ISOperations::IString
 	{
-	public:
-		TString(TSClass* owner, SyntaxApi::IType* syntax_node);
 		std::string val;
 		TSType type;
+	public:
+		TString(TSClass* owner, SyntaxApi::IType* syntax_node, std::string value, SemanticApi::TGlobalBuildContext build_context);		
 		void Accept(ISExpressionVisitor*);
 		std::string GetValue()const;
 		const SemanticApi::ISType* GetType()const;
@@ -191,21 +191,10 @@ public:
 	};
 	
 public:
-	TSExpression(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IExpression* syntax_node)
-		:TSStatement(SyntaxApi::TStatementType::Expression, use_owner, use_method, use_parent, (SyntaxApi::IStatement*)(syntax_node)){}
+	TSExpression(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IExpression* syntax_node);
 	void Build(SemanticApi::TGlobalBuildContext build_context);
 	SemanticApi::IVariable* GetVar(Lexer::TNameId name);
 	SyntaxApi::IExpression* GetSyntax();
-	const SemanticApi::IExpressionResult* GetFormalParam()
-	{
-		assert(first_op != nullptr);
-		return first_op->GetFormalParam();
-	}
-	const TExpressionResult GetFormalParameter()
-	{
-		assert(first_op != nullptr);
-		return first_op->GetFormalParameter();
-	}
 	SemanticApi::ISOperations::ISOperation* GetFirstOp()const;
 	void Accept(ISExpressionVisitor*);
 	void Accept(SemanticApi::ISStatementVisitor* visitor);

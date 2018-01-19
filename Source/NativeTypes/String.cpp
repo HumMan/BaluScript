@@ -111,7 +111,7 @@ template<>
 SemanticApi::TExternalClassDecl TString::DeclareExternalClass()
 {
 	SemanticApi::TExternalClassDecl decl;
-
+	decl.size = LexerIntSizeOf(sizeof(TString)) / sizeof(int);
 	decl.source =
 		"class extern string\n"
 		"{\n"
@@ -125,44 +125,17 @@ SemanticApi::TExternalClassDecl TString::DeclareExternalClass()
 		"func length:int;\n"
 		"}\n";
 
+	decl.def_constr = TString::constructor;
+	decl.copy_constr = TString::copy_constr;
+	decl.destr = TString::destructor;
+
+	decl.operators[(int)Lexer::TOperator::GetArrayElement] = TString::get_char_op;
+	decl.operators[(int)Lexer::TOperator::Assign] = TString::assign_op;
+
+	decl.operators[(int)Lexer::TOperator::PlusA] = TString::assign_plus_op;
+	decl.operators[(int)Lexer::TOperator::Plus] = TString::plus_op;
+
+	decl.methods.insert(std::make_pair(std::string("length"), TString::get_length));
+
 	return decl;
-
-	//TSClass* scl = new TSClass(syntax->GetCompiledBaseClass(), cl);
-	//syntax->GetCompiledBaseClass()->AddClass(scl);
-	//scl->Build();
-
-	//scl->SetSize(LexerIntSizeOf(sizeof(TString)) / sizeof(int));
-	//scl->SetAutoMethodsInitialized();
-
-	//scl->GetDefConstr()->SetAsExternal(TString::constructor);
-
-	//std::vector<TSMethod*> m;
-	//m.clear();
-	//scl->GetCopyConstructors(m);
-	//m[0]->SetAsExternal(TString::copy_constr);
-
-	//scl->GetDestructor()->SetAsExternal(TString::destructor);
-
-	//m.clear();
-	//scl->GetOperators(m, Lexer::TOperator::GetArrayElement);
-	//m[0]->SetAsExternal(TString::get_char_op);
-
-	//m.clear();
-	//scl->GetOperators(m, Lexer::TOperator::Assign);
-	////TODO ввести использование ссылки на временный объект
-	//m[0]->SetAsExternal(TString::assign_op);
-
-	//m.clear();
-	//scl->GetOperators(m, Lexer::TOperator::PlusA);
-	////TODO ввести использование ссылки на временный объект
-	//m[0]->SetAsExternal(TString::assign_plus_op);
-
-	//m.clear();
-	//scl->GetOperators(m, Lexer::TOperator::Plus);
-	////TODO ввести использование ссылки на временный объект
-	//m[0]->SetAsExternal(TString::plus_op);
-
-	//m.clear();
-	//scl->GetMethods(m, syntax->GetLexer()->GetIdFromName("length"));
-	//m[0]->SetAsExternal(TString::get_length);
 }

@@ -10,6 +10,10 @@
 
 #include "../Source/NativeTypes/base_types.h"
 
+#include "../Source/SemanticInterface/SemanticTreeApi.h"
+#include "../Source/TreeRunner/TreeRunner.h"
+
+
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace Test
@@ -18,37 +22,16 @@ namespace Test
 
 	std::vector<TStaticValue> *static_objects;
 
-	std::vector < std::unique_ptr<TSMethod>> *smethods;
+	//std::vector < SemanticApi::ISMethod* > *smethods;
 
-	const bool initBeforeEachTest = true;
-
-	TSMethod* CreateMethod(char* code)
-	{
-		
+	SemanticApi::ISMethod* CreateMethod(const char* code)
+	{		
 		try
 		{
-			syntax->GetLexer()->ParseSource(code);
-			SyntaxApi::IMethod* m = SyntaxApi::AnalyzeNestedMethod(syntax->GetLexer(), syntax->GetBaseClass());
-
-			TSMethod* ms = new TSMethod(syntax->GetCompiledBaseClass(), m);
-			smethods->push_back(std::unique_ptr<TSMethod>(ms));
-			ms->Build();
-
-			std::vector<TSClassField*> static_fields;
-			std::vector<TSLocalVar*> static_variables;
-			TGlobalBuildContext build_context(&static_fields, &static_variables);
-
-			ms->LinkSignature(build_context);
-			ms->LinkBody(build_context);
-			ms->CalculateParametersOffsets();
-
-			std::vector<TSClass*> owners;
-			syntax->GetCompiledBaseClass()->CalculateSizes(owners);
-
-			InitializeStaticClassFields(static_fields, *static_objects);
-			InitializeStaticVariables(static_variables, *static_objects);
-
-			return ms;
+			syntax->Compile(code);
+			std::vector<SemanticApi::ISMethod*> methods;
+			syntax->GetCompiledBaseClass()->GetMethods(methods);
+			return methods.back();
 		}
 		catch (std::string s)
 		{
@@ -57,38 +40,23 @@ namespace Test
 		}
 		return nullptr;
 	}
-	TSClass* CreateClass(char* code)
+	SemanticApi::ISClass* CreateClass(char* code)
 	{
 		try
 		{
-			syntax->GetLexer()->ParseSource(code);
-			auto cl = SyntaxApi::AnalyzeNestedClass(syntax->GetLexer(), syntax->GetBaseClass());
+			if (static_objects != nullptr)
+				delete static_objects;
+			if (syntax != nullptr)
+				delete syntax;
 
-			TSClass* scl = new TSClass(syntax->GetCompiledBaseClass(), cl);
-			syntax->GetCompiledBaseClass()->AddClass(scl);
-			scl->Build();
+			static_objects = new std::vector<TStaticValue>();
+			syntax = new TSyntaxAnalyzer();
 
-			std::vector<TSClassField*> static_fields;
-			std::vector<TSLocalVar*> static_variables;
-
-			TGlobalBuildContext build_context(&static_fields, &static_variables);
-
-			scl->LinkSignature(build_context);
-			scl->InitAutoMethods();
-			scl->LinkBody(build_context);
-			scl->CheckForErrors();
-
-			std::vector<TSClass*> owners;
-			scl->CalculateSizes(owners);
-			scl->CalculateMethodsSizes();
-
-			owners.clear();
-			syntax->GetCompiledBaseClass()->CalculateSizes(owners);//т.к. в этом классе могут использоваться другие шаблонные класса, реализацию которых нужно обновить
-
-			InitializeStaticClassFields(static_fields, *static_objects);
-			InitializeStaticVariables(static_variables, *static_objects);
-
-			return scl;
+			syntax->Compile(code);
+			auto sem_class = syntax->GetCompiledBaseClass();
+			
+			TreeRunner::InitializeStaticClassFields(syntax->GetStaticFields(), *static_objects);
+			TreeRunner::InitializeStaticVariables(syntax->GetStaticVariables(), *static_objects);
 		}
 		catch (std::string s)
 		{
@@ -97,76 +65,99 @@ namespace Test
 		}
 		return nullptr;
 	}
-	TStackValue RunCode(char* code)
+	TStackValue RunCode(const char* code)
 	{
-		TSMethod* ms = CreateMethod(code);
-		std::vector<TStackValue> params;
-		TStackValue result, object;
-		TMethodRunContext method_run_context(static_objects, &params, &result, &object);
-		ms->Run(method_run_context);
-		return result;
-	}
-	TStackValue RunMethod(TSMethod* ms)
-	{
-		std::vector<TStackValue> params;
-		TStackValue result, object;
-		TMethodRunContext method_run_context(static_objects, &params, &result, &object);
-		ms->Run(method_run_context);
-		return result;
-	}
-	TStackValue RunClassMethod(TSClass* scl, char* method_name)
-	{
-		std::vector<TSMethod*> methods;
-		scl->GetMethods(methods, syntax->GetLexer()->GetIdFromName(method_name));
-		TSMethod* ms = methods[0];
+		static_objects = new std::vector<TStaticValue>();
+		syntax = new TSyntaxAnalyzer();
 
+		SemanticApi::ISMethod* ms = CreateMethod(code);
 		std::vector<TStackValue> params;
 		TStackValue result, object;
 		TMethodRunContext method_run_context(static_objects, &params, &result, &object);
-		ms->Run(method_run_context);
+
+		TreeRunner::InitializeStaticClassFields(syntax->GetStaticFields(), *static_objects);
+		TreeRunner::InitializeStaticVariables(syntax->GetStaticVariables(), *static_objects);
+		TreeRunner::Run(ms, method_run_context);
+		TreeRunner::DeinitializeStatic(*static_objects);
+
+		delete syntax;
+		delete static_objects;
+
+		syntax = nullptr;
+		static_objects = nullptr;
+
+		return result;
+	}
+	TStackValue RunMethod(SemanticApi::ISMethod* ms)
+	{
+		std::vector<TStackValue> params;
+		TStackValue result, object;
+		TMethodRunContext method_run_context(static_objects, &params, &result, &object);
+		TreeRunner::Run(ms,method_run_context);
 		return result;
 	}
 	
+	TStackValue RunClassMethod(const char* method_name)
+	{
+		SemanticApi::ISMethod* ms = syntax->GetMethod(method_name);
+
+		std::vector<TStackValue> params;
+		TStackValue result, object;
+		TMethodRunContext method_run_context(static_objects, &params, &result, &object);
+
+		TreeRunner::Run(ms, method_run_context);
+
+		return result;
+	}
+
+	TStackValue RunClassMethod(SemanticApi::ISClass* scl, const char* method_name)
+	{
+		std::vector<SemanticApi::ISMethod*> methods;
+
+		return RunClassMethod((std::string("func static Script.TestClass.") + method_name + ":int").c_str());
+	}
+
 	void Init()
 	{
-		setlocale(LC_ALL, "windows");
-		printf("Compiling ... \n");
+		//setlocale(LC_ALL, "windows");
+		//printf("Compiling ... \n");
 
-		static_objects = new std::vector<TStaticValue>();
-		smethods = new std::vector<std::unique_ptr<TSMethod>>();
+		//static_objects = new std::vector<TStaticValue>();
+		//smethods = new std::vector<std::unique_ptr<TSMethod>>();
 
-		std::string source = base_types;
-		syntax = new TSyntaxAnalyzer();
-		syntax->Compile((char*)(("class Script{" + source + "}").c_str()));
+		//std::string source = base_types;
+		//syntax = new TSyntaxAnalyzer();
+		//syntax->Compile((char*)(("class Script{" + source + "}").c_str()));
 	}
 	void Cleanup()
 	{
-		delete static_objects;
-		delete smethods;
-		delete syntax;
-
-		_CrtDumpMemoryLeaks();
+		if (static_objects != nullptr)
+		{
+			TreeRunner::DeinitializeStatic(*static_objects);
+			delete static_objects;
+			static_objects = nullptr;
+		}
+		if (syntax != nullptr)
+		{
+			delete syntax;
+			syntax = nullptr;
+		}
 	}
 	TEST_MODULE_INITIALIZE(ModuleInitialize)
 	{
-		if (!initBeforeEachTest)
-			Init();
 	}
 
 	TEST_MODULE_CLEANUP(ModuleCleanup)
 	{
-		if (!initBeforeEachTest)
-			Cleanup();
+		_CrtDumpMemoryLeaks();
 	}
 	void BaseTypesTestsInitialize()
 	{
-		if (initBeforeEachTest)
-			Init();
+		Init();
 	}
 	void BaseTypesTestsCleanup()
 	{
-		if (initBeforeEachTest)
-			Cleanup();
+		Cleanup();
 	}
 	TEST_CLASS(IntTesting)
 	{
@@ -266,7 +257,7 @@ namespace Test
 		}
 		TEST_METHOD(IntComplex)
 		{
-			TSClass* cl = CreateClass(
+			SemanticApi::ISClass* cl = CreateClass(
 				"class TestClass {"
 				"class SubClass {"
 				"int a,b,c;"
@@ -279,7 +270,7 @@ namespace Test
 				"}}");
 			Assert::AreEqual((int)2, *(int*)RunClassMethod(cl, "Test").get());
 
-			TSClass* cl2 = CreateClass(
+			SemanticApi::ISClass* cl2 = CreateClass(
 				"class TestClass {"
 				"func static Make(int& a,int& b,int& c){a=2;b=4;c=6;}"
 				"class SubClass {"
@@ -291,7 +282,7 @@ namespace Test
 				"{"
 				"SubClass s;s.Init();return s.b;"
 				"}}");
-			Assert::AreEqual((int)4, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((int)4, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 	};
 	TEST_CLASS(FloatTesting)
@@ -508,8 +499,8 @@ namespace Test
 		}
 		TEST_METHOD(RecursiveTest)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"func static Factorial(int i):int\n"
 				"{\n"
@@ -518,8 +509,8 @@ namespace Test
 				"func static Test:int\n"
 				"{\n"
 				"return Factorial(5);\n"
-				"}}"));
-			Assert::AreEqual((int)1 * 2 * 3 * 4 * 5, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)1 * 2 * 3 * 4 * 5, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 	};
 	TEST_CLASS(StaticVariablesTesting)
@@ -535,7 +526,7 @@ namespace Test
 		}
 		TEST_METHOD(BasicClassFieldInit)
 		{
-			TSClass* cl2 = CreateClass(
+			SemanticApi::ISClass* cl2 = CreateClass(
 				"class TestClass {\n"
 				"class SubClass {\n"
 				"int a,b,c;\n"
@@ -548,11 +539,11 @@ namespace Test
 				"{\n"
 				"return SubClass2.test_static.b;\n"
 				"}}");
-			Assert::AreEqual((int)5, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((int)5, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(BasicClassField)
 		{
-			TSClass* cl2 = CreateClass(
+			SemanticApi::ISClass* cl2 = CreateClass(
 				"class TestClass {\n"
 				"class SubClass {\n"
 				"int a,b,c;\n"
@@ -573,15 +564,15 @@ namespace Test
 				"SubClass2.test_static.a+=1;"
 				"return SubClass2.test_static.a;\n"
 				"}}");
-			Assert::AreEqual((int)4, *(int*)RunClassMethod(cl2, "Test").get());
-			Assert::AreEqual((int)5, *(int*)RunClassMethod(cl2, "Test2").get());
+			Assert::AreEqual((int)4, *(int*)RunClassMethod(nullptr, "Test").get());
+			Assert::AreEqual((int)5, *(int*)RunClassMethod(nullptr, "Test2").get());
 		}
 		TEST_METHOD(BasicLocalVariable)
 		{
-			TSMethod* ms = CreateMethod("func static Test:int{int static i=5+4-8;i+=1;return i;}");
-			Assert::AreEqual(2, *(int*)RunMethod(ms).get());
-			Assert::AreEqual(3, *(int*)RunMethod(ms).get());
-			Assert::AreEqual(4, *(int*)RunMethod(ms).get());
+			CreateClass("func static Test:int{int static i=5+4-8;i+=1;return i;}");
+			Assert::AreEqual(2, *(int*)RunClassMethod("func static Script.Test:int").get());
+			Assert::AreEqual(3, *(int*)RunClassMethod("func static Script.Test:int").get());
+			Assert::AreEqual(4, *(int*)RunClassMethod("func static Script.Test:int").get());
 		}
 	};
 	TEST_CLASS(ConstrCopyDestrTesting)
@@ -597,7 +588,7 @@ namespace Test
 		}
 		TEST_METHOD(ClassConstructorTest)
 		{
-			TSClass* cl2 = CreateClass(
+			SemanticApi::ISClass* cl2 = CreateClass(
 				"class TestClass {"
 				"class SubClass {"
 				"int a,b,c;"
@@ -614,12 +605,12 @@ namespace Test
 				"{"
 				"SubClass2 s;return s.a.c;"
 				"}}");
-			Assert::AreEqual((int)5, *(int*)RunClassMethod(cl2, "Test").get());
-			Assert::AreEqual((int)9, *(int*)RunClassMethod(cl2, "Test2").get());
+			Assert::AreEqual((int)5, *(int*)RunClassMethod(nullptr, "Test").get());
+			Assert::AreEqual((int)9, *(int*)RunClassMethod(nullptr, "Test2").get());
 		}
 		TEST_METHOD(ClassCopyConstructorTest)
 		{
-			TSClass* cl2 = CreateClass(
+			SemanticApi::ISClass* cl2 = CreateClass(
 				"class TestClass {"
 				"class SubClass {"
 				"int a,b,c;"
@@ -634,12 +625,11 @@ namespace Test
 				"SubClass2 s0;"
 				"SubClass2 s1(s0); return s1.a.c;"
 				"}}");
-			Assert::AreEqual((int)10, *(int*)RunClassMethod(cl2, "Test3").get());
+			Assert::AreEqual((int)10, *(int*)RunClassMethod(nullptr, "Test3").get());
 		}
 		TEST_METHOD(ClassDestructorTest)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			CreateClass(
 				"class TestClass {\n"
 				"int static destr_count;\n"
 				"int static constr_count;\n"
@@ -669,15 +659,15 @@ namespace Test
 				"func static GetCopyConstrCount:int\n"
 				"{\n"
 				"return copy_constr_count;\n"
-				"}}"));
-			Assert::AreEqual((int)4, *(int*)RunClassMethod(cl2, "Test").get());
-			Assert::AreEqual((int)2, *(int*)RunClassMethod(cl2, "GetDestrCount").get());
-			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "GetConstrCount").get());
-			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "GetCopyConstrCount").get());
+				"}}");
+			Assert::AreEqual((int)4, *(int*)RunClassMethod("func static Script.TestClass.Test:int").get());
+			Assert::AreEqual((int)2, *(int*)RunClassMethod("func static Script.TestClass.GetDestrCount:int").get());
+			Assert::AreEqual((int)1, *(int*)RunClassMethod("func static Script.TestClass.GetConstrCount:int").get());
+			Assert::AreEqual((int)1, *(int*)RunClassMethod("func static Script.TestClass.GetCopyConstrCount:int").get());
 		}
 		TEST_METHOD(UserConstrCallAutoConstrTest)
 		{
-			TSClass* cl2 = CreateClass(
+			SemanticApi::ISClass* cl2 = CreateClass(
 				"class TestClass {\n"
 				"class SubClass {\n"
 				"TDynArray<int> arr;\n"
@@ -692,11 +682,11 @@ namespace Test
 				"	SubClass s;\n"
 				"	return Sum(s);\n"
 				"}}");
-			Assert::AreEqual((int)3 + 5 + 9, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((int)3 + 5 + 9, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(UserCopyConstrCallAutoConstrTest)
 		{
-			TSClass* cl2 = CreateClass(
+			SemanticApi::ISClass* cl2 = CreateClass(
 				"class TestClass {"
 				"class SubClass {"
 				"TDynArray<int> arr;"
@@ -712,11 +702,11 @@ namespace Test
 				"	SubClass s(1,2,3);\n"
 				"	return Sum(SubClass(1,2,3));"
 				"}}");
-			Assert::AreEqual((int)1 + 2 + 3, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((int)1 + 2 + 3, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(UserDestructorCallAutoDestTest)
 		{
-			TSClass* cl2 = CreateClass(
+			SemanticApi::ISClass* cl2 = CreateClass(
 				"class TestClass {"
 				"class SubClass {"
 				"TDynArray<int> arr;"
@@ -733,11 +723,11 @@ namespace Test
 				"	SubClass s(1,2,3);\n"
 				"	return Sum(SubClass(1,2,3));"
 				"}}");
-			Assert::AreEqual((int)1 + 2 + 3, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((int)1 + 2 + 3, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(TempObjectConstructorTest)
 		{
-			TSClass* cl2 = CreateClass(
+			SemanticApi::ISClass* cl2 = CreateClass(
 				"class TestClass {"
 				"class SubClass {"
 				"int a,b,c;"
@@ -752,11 +742,11 @@ namespace Test
 				"{"
 				"return Sum(SubClass(1,2,3));"
 				"}}");
-			Assert::AreEqual((int)1+2+3, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((int)1+2+3, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(ParameterRValueCopy)
 		{
-			TSClass* cl2 = CreateClass(
+			SemanticApi::ISClass* cl2 = CreateClass(
 				"class TestClass {"
 				"class SubClass {"
 				"TDynArray<int> arr;"
@@ -773,11 +763,11 @@ namespace Test
 				"	SubClass s(1,2,3);\n"
 				"	return Sum(SubClass(1,2,3));"
 				"}}");
-			Assert::AreEqual((int)1 + 2 + 3, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((int)1 + 2 + 3, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(ParameterRValueDestructor)
 		{
-			TSClass* cl2 = CreateClass(
+			SemanticApi::ISClass* cl2 = CreateClass(
 				"class TestClass {"
 				"bool static destructor_called;"
 				"class SubClass {"
@@ -800,8 +790,8 @@ namespace Test
 				"	SubClass s(1,2,3);\n"
 				"	return Sum(SubClass(1,2,3));"
 				"}}");
-			Assert::AreEqual((int)1 + 2 + 3, *(int*)RunClassMethod(cl2, "Test").get());
-			Assert::AreEqual((bool)true, *(bool*)RunClassMethod(cl2, "GetDestrCalled").get());
+			Assert::AreEqual((int)1 + 2 + 3, *(int*)RunClassMethod(nullptr, "Test").get());
+			Assert::AreEqual((bool)true, *(bool*)RunClassMethod("func static Script.TestClass.GetDestrCalled:bool").get());
 		}
 	};
 	TEST_CLASS(DynArrayTesting)
@@ -952,8 +942,7 @@ namespace Test
 		}
 		TEST_METHOD(ConversionInLocalVarConstructor)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			CreateClass(
 				"class TestClass {\n"
 				"class B {\n"
 				"int a,b;\n"
@@ -966,13 +955,12 @@ namespace Test
 				"	r.b = -6;\n"
 				"	float s(r);\n"
 				"	return s;\n"
-				"}}"));
-			Assert::AreEqual((float)-3, *(float*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((float)-3, *(float*)RunClassMethod("func static Script.TestClass.Test:float").get());
 		}
 		TEST_METHOD(ConversionInLocalVarAssignInit)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			CreateClass(
 				"class TestClass {\n"
 				"class B {\n"
 				"int a,b;\n"
@@ -985,13 +973,12 @@ namespace Test
 				"	r.b = -6;\n"
 				"	int s=r;\n"
 				"	return s;\n"
-				"}}"));
-			Assert::AreEqual((int)-3, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)-3, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(ConversionInLocalVarAssign)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			CreateClass(
 				"class TestClass {\n"
 				"class B {\n"
 				"int a,b;\n"
@@ -1005,13 +992,12 @@ namespace Test
 				"	int s;\n"
 				"	s=r;\n"
 				"	return s;\n"
-				"}}"));
-			Assert::AreEqual((int)-3, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)-3, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(ConversionInMethodCall)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			CreateClass(
 				"class TestClass {\n"
 				"class B {\n"
 				"int a,b;\n"
@@ -1027,13 +1013,12 @@ namespace Test
 				"	r.a = 3;\n"
 				"	r.b = -6;\n"
 				"	return Do(r);\n"
-				"}}"));
-			Assert::AreEqual((int)-3, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)-3, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(ConversionInConstructTempObject)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			CreateClass(
 				"class TestClass {\n"
 				"class B {\n"
 				"int a,b;\n"
@@ -1050,13 +1035,12 @@ namespace Test
 				//TODO без new тоже будет работать - запретить
 				//"	return Do(B(3,-6));\n" 
 				"	return Do(new B(3,-6));\n"
-				"}}"));
-			Assert::AreEqual((int)-3, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)-3, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(ConversionInOperatorCall)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			CreateClass(
 				"class TestClass {\n"
 				"class B {\n"
 				"int a,b;\n"
@@ -1070,12 +1054,12 @@ namespace Test
 				//"func static Test2:int\n"
 				//"{\n"
 				//"	return new B(3,-6) + 30;\n"
-				"}}"));
+				"}}");
 
-			Assert::AreEqual((int)30 + 3 - 6, *(int*)RunClassMethod(cl2, "Test").get());
+			Assert::AreEqual((int)30 + 3 - 6, *(int*)RunClassMethod(nullptr, "Test").get());
 			
 			//TODO проверки не проходящие проверку
-			//Assert::AreEqual((int)30 + 3 - 6, *(int*)RunClassMethod(cl2, "Test2").get());
+			//Assert::AreEqual((int)30 + 3 - 6, *(int*)RunClassMethod(nullptr, "Test2").get());
 		}
 	};
 	TEST_CLASS(OperatorsOverloadingTesting)
@@ -1091,8 +1075,7 @@ namespace Test
 		}
 		TEST_METHOD(ArithmenticOperatorsOverload)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T,Size> {\n"
 				"TStaticArray<T,Size> value;\n"
@@ -1109,13 +1092,12 @@ namespace Test
 				"	Vec2<int, 2> v(3,5),r(-2,8);\n"
 				"	Vec2<int, 2> s=(v+r);\n"
 				"	return s.Dot(v-r);\n"
-				"}}"));
-			Assert::AreEqual((int)-34, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)-34, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(IncrementDecrementPostfixOperatorsOverload)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T,Size> {\n"
 				"TStaticArray<T,Size> value;\n"
@@ -1129,13 +1111,13 @@ namespace Test
 				"	b=-a;\n"
 				"	++a;\n"
 				"	return a+b;\n"
-				"}}"));
-			Assert::AreEqual(1, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual(1, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(SimpleTemplateParameters)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T, Size> {\n"
 				"TStaticArray<T,Size> value;\n"
@@ -1145,13 +1127,13 @@ namespace Test
 				"{\n"
 				"	Vec2<int,2> v;\n"
 				"	return 5;\n"
-				"}}"));
-			Assert::AreEqual(5, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual(5, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(ComplexTemplateParameters)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T, Size> {\n"
 				"TStaticArray<T,Size> value;\n"
@@ -1161,13 +1143,13 @@ namespace Test
 				"{\n"
 				"	Vec2<Vec2<int,3>,2> v;\n"
 				"	return 5;\n"
-				"}}"));
-			Assert::AreEqual(5, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual(5, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(UnaryMinusOverload)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T,Size> {\n"
 				"TStaticArray<T,Size> value;\n"
@@ -1182,13 +1164,13 @@ namespace Test
 				"{\n"
 				"	Vec2<int, 2> v(3,5);\n"
 				"	return -v;\n"
-				"}}"));
-			Assert::AreEqual((int)-8, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)-8, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(LogicalOperatorsOverload)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T> {\n"
 				"T value;\n"
@@ -1213,15 +1195,15 @@ namespace Test
 				"{\n"
 				"	Vec2<bool> r(false);\n"
 				"	return !r;\n"
-				"}}"));
-			Assert::AreEqual((bool)false, *(bool*)RunClassMethod(cl2, "Test").get());
-			Assert::AreEqual((bool)true, *(bool*)RunClassMethod(cl2, "Test1").get());
-			Assert::AreEqual((bool)true, *(bool*)RunClassMethod(cl2, "Test2").get());
+				"}}");
+			Assert::AreEqual((bool)false, *(bool*)RunClassMethod("func static Script.TestClass.Test:bool").get());
+			Assert::AreEqual((bool)true, *(bool*)RunClassMethod("func static Script.TestClass.Test1:bool").get());
+			Assert::AreEqual((bool)true, *(bool*)RunClassMethod("func static Script.TestClass.Test2:bool").get());
 		}
 		TEST_METHOD(CompareOperatorsOverload)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T> {\n"
 				"T value;\n"
@@ -1264,18 +1246,18 @@ namespace Test
 				"{\n"
 				"	Vec2<int> r(3),v(4);\n"
 				"	return r<=v;\n"
-				"}}"));
-			Assert::AreEqual((int)0, *(int*)RunClassMethod(cl2, "Test").get());
-			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test1").get());
-			Assert::AreEqual((int)0, *(int*)RunClassMethod(cl2, "Test2").get());
-			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test3").get());
-			Assert::AreEqual((int)0, *(int*)RunClassMethod(cl2, "Test4").get());
-			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test5").get());
+				"}}");
+			Assert::AreEqual((int)0, *(int*)RunClassMethod(nullptr, "Test").get());
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(nullptr, "Test1").get());
+			Assert::AreEqual((int)0, *(int*)RunClassMethod(nullptr, "Test2").get());
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(nullptr, "Test3").get());
+			Assert::AreEqual((int)0, *(int*)RunClassMethod(nullptr, "Test4").get());
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(nullptr, "Test5").get());
 		}
 		TEST_METHOD(AssignOperatorsOverload)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T,Size> {\n"
 				"TStaticArray<T,Size> value;\n"
@@ -1310,13 +1292,13 @@ namespace Test
 				"	s*=v;\n"
 				"	s/=v;\n"
 				"	return s[0]+s[1];\n"
-				"}}"));
-			Assert::AreEqual((int)3-2+5+8, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)3-2+5+8, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(GetArrayElementOverload)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T,Size> {\n"
 				"TStaticArray<T,Size> value;\n"
@@ -1336,14 +1318,14 @@ namespace Test
 				"	v[0]=3;\n"
 				"	v[1]=5;\n"
 				"	return v[0,1];\n"
-				"}}"));
-			Assert::AreEqual((int)3+5, *(int*)RunClassMethod(cl2, "Test").get());
-			Assert::AreEqual((int)3 + 5, *(int*)RunClassMethod(cl2, "Test2").get());
+				"}}");
+			Assert::AreEqual((int)3+5, *(int*)RunClassMethod(nullptr, "Test").get());
+			Assert::AreEqual((int)3 + 5, *(int*)RunClassMethod(nullptr, "Test2").get());
 		}
 		TEST_METHOD(CallParamsOverload)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"class Vec2<T,Size> {\n"
 				"TStaticArray<T,Size> value;\n"
@@ -1355,8 +1337,8 @@ namespace Test
 				"	v.value[0]=3;\n"
 				"	v.value[1]=5;\n"
 				"	return v(5,8);\n"
-				"}}"));
-			Assert::AreEqual((int)3+5+5+8, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)3+5+5+8, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(GetByReferenceOverload)
 		{
@@ -1376,8 +1358,8 @@ namespace Test
 		}
 		TEST_METHOD(ValueParameters)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"class TemplateClass<T,Size> {\n"
 				"multifield(Size) T value;\n"
@@ -1386,13 +1368,13 @@ namespace Test
 				"{\n"
 				"	TemplateClass<int, 5> v;\n"
 				"	return 1;\n"
-				"}}"));
-			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(TemplateOfTemplate)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass{\n"
 				"class Test1<T>\n"
 				"{\n"
@@ -1410,13 +1392,13 @@ namespace Test
 				"	Test2<Test2<Test1<int>>> ddd4;\n"
 				"	return 1;\n"
 				"}}\n"
-				));
-			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Main").get());
+				);
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(nullptr, "Main").get());
 		}
 		TEST_METHOD(TemplateSubclass)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass{\n"
 				"class Test1<T>\n"
 				"{\n"
@@ -1432,13 +1414,13 @@ namespace Test
 				"	Test1<Test1<int>>.SubItem sub_item_instance;\n"
 				"	return 1;\n"
 				"}}\n"
-				));
-			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Main").get());
+				);
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(nullptr, "Main").get());
 		}
 		TEST_METHOD(TemplateOfTemplateWithMethodBody)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass{\n"
 				"class Test1<T>\n"
 				"{\n"
@@ -1466,13 +1448,13 @@ namespace Test
 				"	Test1<int> ddd;\n"
 				"	return 1;\n"
 				"}}\n"
-				));
-			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Main").get());
+				);
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(nullptr, "Main").get());
 		}
 		TEST_METHOD(TemplateOfTemplateCrossRef)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass{\n"
 				"class Test1<T>\n"
 				"{\n"
@@ -1509,8 +1491,8 @@ namespace Test
 				"	TTmm<int, float> dsfsf;\n"
 				"	return 1;\n"
 				"}}\n"
-				));
-			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Main").get());
+				);
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(nullptr, "Main").get());
 		}
 	};
 	TEST_CLASS(StaticArrayTesting)
@@ -1554,8 +1536,7 @@ namespace Test
 		}
 		TEST_METHOD(ConstructorDestructorCount)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			CreateClass(
 				"class TestClass {\n"
 				"int static constr_count;"
 				"int static destr_count;"
@@ -1578,15 +1559,14 @@ namespace Test
 				"func static Test3:int\n"
 				"{\n"
 				"	return destr_count;\n"
-				"}}"));
-			Assert::AreEqual((int)347 * 4, *(int*)RunClassMethod(cl2, "Test").get());
-			Assert::AreEqual((int) 4, *(int*)RunClassMethod(cl2, "Test2").get());
-			Assert::AreEqual((int)4, *(int*)RunClassMethod(cl2, "Test3").get());
+				"}}");
+			Assert::AreEqual((int)347 * 4, *(int*)RunClassMethod(nullptr, "Test").get());
+			Assert::AreEqual((int) 4, *(int*)RunClassMethod(nullptr, "Test2").get());
+			Assert::AreEqual((int)4, *(int*)RunClassMethod(nullptr, "Test3").get());
 		}
 		TEST_METHOD(ElementsDestructor)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			CreateClass(
 				"class TestClass {\n"
 				"class TemplateClass {\n"
 				"	TDynArray<int> v;\n"
@@ -1596,8 +1576,8 @@ namespace Test
 				"	TStaticArray<TemplateClass,10> ss;\n"
 				"	for(int i=0;i<10;i+=1){ss[i].v.resize(i+5);ss[i].v[2]=i;}\n"
 				"	return ss[1].v[2]+ss[4].v[2];\n"
-				"}}"));
-			Assert::AreEqual((int)1 + 4, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)1 + 4, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(CopyConstructor)
 		{
@@ -1626,8 +1606,7 @@ namespace Test
 		}
 		TEST_METHOD(CustomElementAssignTest0)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			CreateClass(
 				"class TestClass {\n"
 				"class TemplateClass {\n"
 				"	TDynArray<int> v;\n"
@@ -1641,13 +1620,12 @@ namespace Test
 				"	ss2[1].v.resize(3);\n"
 				"	ss=ss2;\n"
 				"	return ss[1].v.size();\n"
-				"}}"));
-			Assert::AreEqual((int)3, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)3, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(CustomElementAssignTest1)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			CreateClass(
 				"class TestClass {\n"
 				"class TemplateClass {\n"
 				"	TDynArray<int> v;\n"
@@ -1662,8 +1640,8 @@ namespace Test
 				"	TStaticArray<TemplateClass,10> ss2;\n"
 				"	ss=ss2;\n"
 				"	return ss[1].v[2]+ss[4].v[2];\n"
-				"}}"));
-			Assert::AreEqual((int)2 + 5 + 2 + 5, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)2 + 5 + 2 + 5, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(GetElementTest)
 		{
@@ -1683,15 +1661,25 @@ namespace Test
 		}
 		TEST_METHOD(Initialization)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			CreateClass(
 				"class TestClass {\n"
 				"enum TestEnum{One,Two,Three}"
-				"func static Test:int\n"
+				"func static Test:TestEnum\n"
 				"{\n"
 				"	TestEnum e;\n"
-				"	return 1;\n"
-				"}}"));
+				"	e = TestEnum.Three;\n"
+				"	return e;\n"
+				"}}");
+			Assert::AreEqual((int)2, *(int*)RunClassMethod("func static Script.TestClass.Test:TestEnum").get());
+			CreateClass(
+				"class TestClass {\n"
+				"enum TestEnum{One,Two,Three}"
+				"func static Test:TestEnum\n"
+				"{\n"
+				"	TestEnum e(TestEnum.Two);\n"
+				"	return e;\n"
+				"}}");
+			Assert::AreEqual((int)1, *(int*)RunClassMethod("func static Script.TestClass.Test:TestEnum").get());
 		}
 	};
 	TEST_CLASS(ArraysSpecialSyntaxTesting)
@@ -1725,8 +1713,8 @@ namespace Test
 			//TODO
 			return;
 			Assert::Fail();
-				TSClass* cl2 = nullptr;
-				Assert::IsNotNull(cl2 = CreateClass(
+				
+				CreateClass(
 					"class TestClass {\n"
 					"int static constr_count;\n"
 					"int static destr_count;\n"
@@ -1748,8 +1736,8 @@ namespace Test
 					"	arr.resize(100);\n"
 					"	for(int i=0;i<100;i+=1){arr[i][0].member=0;arr[i][1].member=1;arr[i][2].member=i;}\n"
 					"	return sum(arr);\n"
-					"}}"));
-				Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test").get());
+					"}}");
+				Assert::AreEqual((int)1, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 	};
 	TEST_CLASS(OperatorsTesting)
@@ -1765,8 +1753,8 @@ namespace Test
 		}
 		TEST_METHOD(CallMethodFromMember)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"class ITestBase { func GetValue:int {return 547;}}"
 				"class ITest { func GetBase:ITestBase{return new ITestBase();}}"
@@ -1775,13 +1763,13 @@ namespace Test
 				"	ITest e;\n"
 				"	int v = e.GetBase().GetValue();\n"
 				"	return v;\n"
-				"}}"));
-			Assert::AreEqual((int)547, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)547, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(CallStaticMethodFromMember)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"class ITestBase { TDynArray<int> s;func GetValue:int {s.resize(1);return 547;}}"
 				"class ITest { func static GetBase:ITestBase{return new ITestBase();}}"
@@ -1790,13 +1778,13 @@ namespace Test
 				"	ITest e;\n"
 				"	int v = ITest.GetBase().GetValue();\n"
 				"	return v;\n"
-				"}}"));
-			Assert::AreEqual((int)547, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)547, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(CallMethodWithParamFromMember)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"class ITestBase { func GetValue(string s):int {return 547;}}"
 				"class ITest { func GetBase:ITestBase{return new ITestBase();}}"
@@ -1805,8 +1793,8 @@ namespace Test
 				"	ITest e;\n"
 				"	int v = e.GetBase().GetValue(\"test\");\n"
 				"	return v;\n"
-				"}}"));
-			Assert::AreEqual((int)547, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)547, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 	};
 	//TODO Вызов авто конструктора из пользовательского
@@ -1939,8 +1927,8 @@ namespace Test
 
 		TEST_METHOD(StringGetMembersFromRef)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"class ITest1 { vec2 v; string abc; default { v.x = 1; v.y = 2; abc = \"zopa\";}}"
 				"class ITest2  { ITest1 v; }"
@@ -1951,14 +1939,14 @@ namespace Test
 				"	vec2 test = ReturnResult().v.v;\n"
 				"	string abc = ReturnResult().v.abc;\n"
 				"	return abc.length();\n"
-				"}}"));
-			Assert::AreEqual((int)4, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)4, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 
 		TEST_METHOD(StringGetMembersFromRef0)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"class ITest1 {string abc; int v; }"
 				"func static Test:int\n"
@@ -1968,14 +1956,14 @@ namespace Test
 				"	string abc;\n"
 				"	abc=ITest1().abc;\n"
 				"	return 4;\n"
-				"}}"));
-			Assert::AreEqual((int)4, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)4, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 
 		TEST_METHOD(StringGetMembersFromRef1)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"class ITest1 { vec2 v; string abc; default { v.x = 1; v.y = 2; abc = \"zopa\";}}"
 				"class ITest2  { ITest1 v; }"
@@ -1984,14 +1972,14 @@ namespace Test
 				"func static Test:int\n"
 				"{\n"
 				"	return (ReturnResult().v.abc+ReturnResult().v.abc).length();\n"
-				"}}"));
-			Assert::AreEqual((int)8, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)8, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 
 		TEST_METHOD(StringGetMemberStringFromRef)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"class ITest1 { string abc; }"
 				"func static ReturnResult:ITest1\n"
@@ -2001,14 +1989,14 @@ namespace Test
 				"	string abc;\n"
 				"	abc = ReturnResult().abc;\n"
 				"	return abc.length();\n"
-				"}}"));
-			Assert::AreEqual((int)0, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)0, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 
 		TEST_METHOD(StringGetMemberStringFromRef2)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"class ITest1 { string abc; }"
 				"func static Test:int\n"
@@ -2016,8 +2004,8 @@ namespace Test
 				"	ITest1 abc;\n"
 				"	abc = ITest1();\n"
 				"	return abc.abc.length();\n"
-				"}}"));
-			Assert::AreEqual((int)0, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)0, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 	};
 	TEST_CLASS(RefErrorsCheckTest)
@@ -2033,8 +2021,8 @@ namespace Test
 		}
 		/*TEST_METHOD(BasicRefErrorsCheck)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"func static DoWork(TDynArray<TDynArray<int>>& arr, TDynArray<int>& el):int\n"
 				"{\n"
@@ -2049,13 +2037,13 @@ namespace Test
 				"	arr[0].resize(1);\n"
 				"	int result=DoWork(arr, arr[0]);\n"
 				"	return result;\n"
-				"}}"));
-			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(StackRefCheck)
 		{
-			TSClass* cl2 = nullptr;
-			Assert::IsNotNull(cl2 = CreateClass(
+			
+			CreateClass(
 				"class TestClass {\n"
 				"func static DoWork:&TDynArray<int>\n"
 				"{\n"
@@ -2068,8 +2056,8 @@ namespace Test
 				"	TDynArray<int> result=DoWork();\n"
 				"	result.resize(1);\n"
 				"	return 1;\n"
-				"}}"));
-			Assert::AreEqual((int)1, *(int*)RunClassMethod(cl2, "Test").get());
+				"}}");
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(nullptr, "Test").get());
 		}*/
 	};
 }

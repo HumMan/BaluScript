@@ -33,6 +33,8 @@ namespace SemanticApi
 		scl->SetSize(decl.size);
 		scl->SetAutoMethodsInitialized();
 
+		//TODO проверка что заданы все external_func
+
 		if (decl.def_constr != nullptr)
 		{
 			assert(scl->GetDefConstr() != nullptr);
@@ -67,7 +69,7 @@ namespace SemanticApi
 		for (auto method : decl.methods)
 		{
 			m.clear();
-			scl->GetMethods(m, lexer->GetIdFromName(method.first.c_str()));
+			scl->GetMethods(m, lexer->GetIdFromName(method.first.c_str()),SemanticApi::Filter::NotSet, false, false);
 			dynamic_cast<TSMethod*>(m[0])->SetAsExternal(method.second);
 		}
 
@@ -94,6 +96,20 @@ namespace SemanticApi
 
 		return sem_base_class;
 	}	
+
+	ISMethod * SAnalyzeMethodSignature(Lexer::ILexer* lexer, SyntaxApi::IMethod* method_decl_syntax, ISClass* sem_base_class)
+	{
+		TSMethod* method_decl = new TSMethod(
+			dynamic_cast<TSClass*>(sem_base_class->GetNestedByFullName(method_decl_syntax->GetOwner()->GetFullClassName(), 1)),
+			method_decl_syntax);
+		method_decl->Build();
+		method_decl->LinkSignatureForMethodFind();
+		return method_decl;
+	}
+	void SDestroyMethodSignature(ISMethod * method)
+	{
+		delete (dynamic_cast<TSMethod*>(method));
+	}
 	
 	void SDestroy(ISClass* p)
 	{

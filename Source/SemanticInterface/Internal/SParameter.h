@@ -23,8 +23,11 @@ public:
 	TSParameter(TSClass* use_owner, TSMethod* use_method, TSClass* use_class, bool use_is_ref);
 	void LinkBody(SemanticApi::TGlobalBuildContext build_context);
 	void LinkSignature(SemanticApi::TGlobalBuildContext build_context);
+	void LinkSignatureForSpecialMethod();
+	void LinkSignatureForMethodFind();
 	SemanticApi::ISClass* GetClass()const;
 	bool IsEqualTo(const TSParameter& right)const;
+	bool IIsEqualTo(const SemanticApi::ISParameter* right)const;
 	void CalculateSize();
 	bool IsRef()const;
 	SemanticApi::TFormalParameter AsFormalParameter()const;

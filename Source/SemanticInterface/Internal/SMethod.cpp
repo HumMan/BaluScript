@@ -60,8 +60,7 @@ TSMethod::TSMethod(TSClass* use_owner, SyntaxApi::IMethod* use_syntax)
 	_this.reset(new TPrivate(use_owner, use_syntax->GetRetType()));
 	_this->owner = use_owner;
 	_this->has_return = use_syntax->HasReturn();
-	_this->ret_ref = use_syntax->IsReturnRef();
-	
+	_this->ret_ref = use_syntax->IsReturnRef();	
 }
 
 TSMethod::TSMethod(TSClass* use_owner, SemanticApi::SpecialClassMethodType special_method_type)
@@ -69,8 +68,8 @@ TSMethod::TSMethod(TSClass* use_owner, SemanticApi::SpecialClassMethodType speci
 {
 	_this.reset(new TPrivate(use_owner, (TSClass*)nullptr));
 	_this->owner = use_owner;
-	SetBodyLinked();
 	SetSignatureLinked();
+	SetBodyLinked();
 	_this->has_return=false;
 	_this->ret_ref=false;
 }
@@ -81,12 +80,21 @@ TSMethod::~TSMethod()
 
 void TSMethod::CopyExternalMethodBindingsFrom(TSMethod* source)
 {
-	_this->external_func = source->_this->external_func;
+	if (!source->IsExternal())
+	{
+		assert(!IsExternal());
+	}
+	else
+	{
+		assert(_this->external_func==nullptr && source->_this->external_func != nullptr);
+		_this->external_func = source->_this->external_func;
+	}
 }
 
 SemanticApi::TExternalSMethod TSMethod::GetExternal() const
 {
 	assert(_this->is_external);
+	assert(_this->external_func!=nullptr);
 	return _this->external_func;
 }
 
@@ -95,10 +103,35 @@ bool TSMethod::IsExternal() const
 	return _this->is_external;
 }
 
+Lexer::TOperator TSMethod::GetOperatorType() const
+{
+	return GetSyntax()->GetOperatorType();
+}
+
 void TSMethod::AddParameter(TSParameter* use_par)
 {
 	assert(GetType() != SemanticApi::SpecialClassMethodType::NotSpecial);
 	_this->parameters.push_back(std::unique_ptr<TSParameter>(use_par));
+}
+
+void TSMethod::LinkSignatureForMethodFind()
+{
+	if(_this->has_return)
+		_this->ret.LinkSignatureForMethodFind();
+	for (const std::unique_ptr<TSParameter>& v : _this->parameters)
+	{
+		v->LinkSignatureForMethodFind();
+	}
+}
+
+void TSMethod::LinkSignatureForSpecialMethod()
+{
+	if (_this->has_return)
+		_this->ret.LinkSignatureForSpecialMethod();
+	for (const std::unique_ptr<TSParameter>& v : _this->parameters)
+	{
+		v->LinkSignatureForSpecialMethod();
+	}
 }
 
 void TSMethod::LinkSignature(SemanticApi::TGlobalBuildContext build_context)
@@ -106,13 +139,12 @@ void TSMethod::LinkSignature(SemanticApi::TGlobalBuildContext build_context)
 	if (IsSignatureLinked())
 		return;
 	SetSignatureLinked();
-	if(GetSyntax()->HasReturn())
+	if(_this->has_return)
 		_this->ret.LinkSignature(build_context);
 	for (const std::unique_ptr<TSParameter>& v : _this->parameters)
 	{
 		v->LinkSignature(build_context);
-	}
-	
+	}	
 }
 
 TSClass* TSMethod::GetRetClass()const
@@ -196,7 +228,17 @@ void TSMethod::CalculateParametersOffsets()
 
 bool TSMethod::IsReturnRef() const
 {
-	return this->GetSyntax()->IsReturnRef();
+	return _this->ret_ref;
+}
+
+SyntaxApi::TClassMember TSMethod::GetMemberType() const
+{
+	return GetSyntax()->GetMemberType();
+}
+
+bool TSMethod::IsStatic() const
+{
+	return GetSyntax()->IsStatic();
 }
 
 SemanticApi::ISStatements * TSMethod::GetStatements() const
@@ -337,6 +379,7 @@ TSClass* TSMethod::GetOwner()const
 
 void TSMethod::SetAsExternal(SemanticApi::TExternalSMethod method)
 {
+	assert(method != nullptr);
 	assert(_this->external_func == nullptr);
 	_this->external_func = method;
 	_this->is_external = true;

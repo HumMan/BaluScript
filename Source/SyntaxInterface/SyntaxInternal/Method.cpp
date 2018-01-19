@@ -171,7 +171,7 @@ TNameId TMethod::GetName()const
 {
 	return method_name;
 }
-TClass* TMethod::GetOwner()const
+SyntaxApi::IClass* TMethod::GetOwner()const
 {
 	return owner;
 }

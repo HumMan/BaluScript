@@ -22,6 +22,16 @@ TSParameter::TSParameter(TSClass* use_owner, TSMethod* use_method, TSClass* use_
 
 }
 
+void TSParameter::LinkSignatureForMethodFind()
+{
+	type.LinkSignatureForMethodFind();
+}
+
+void TSParameter::LinkSignatureForSpecialMethod()
+{
+	type.LinkSignatureForSpecialMethod();
+}
+
 void TSParameter::LinkBody(SemanticApi::TGlobalBuildContext build_context)
 {
 	type.LinkBody(build_context);
@@ -38,6 +48,11 @@ SemanticApi::ISClass* TSParameter::GetClass()const
 bool TSParameter::IsEqualTo(const TSParameter& right)const
 {
 	return type.IsEqualTo(right.type) && GetSyntax()->IsRef() == right.GetSyntax()->IsRef();
+}
+
+bool TSParameter::IIsEqualTo(const SemanticApi::ISParameter * right) const
+{
+	return IsEqualTo(*dynamic_cast<const TSParameter*>(right));
 }
 
 bool TSParameter::IsRef()const

@@ -34,6 +34,10 @@ namespace SyntaxInternal
 		{
 			return enums;
 		}
+		void SetEnums(std::vector<Lexer::TNameId> enums)
+		{
+			this->enums = enums;
+		}
 		size_t GetEnumId(Lexer::TNameId use_enum)const
 		{
 			assert(is_enum);

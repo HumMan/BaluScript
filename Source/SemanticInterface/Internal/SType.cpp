@@ -15,13 +15,29 @@ TSType::TSType(TSClass* use_owner, TSClass* use_class) : TSyntaxNode(nullptr)
 	classes.back().class_of_type = use_class;
 }
 
-void TSType::LinkSignature(SemanticApi::TGlobalBuildContext build_context, TSClass* use_curr_class)
+void TSType::LinkSignature(SemanticApi::TGlobalBuildContext build_context, TSClass* use_curr_class, bool link_template_realizations)
 {
 	for (auto v : GetSyntax()->GetClassNames())
 	{
 		classes.emplace_back(v.get());
 		use_curr_class = classes.back().LinkSignature(build_context, owner, use_curr_class);
 	}
+
+	LinkSignature(build_context);
+}
+
+void TSType::LinkSignatureForMethodFind()
+{
+	assert(!IsSignatureLinked());
+	SetSignatureLinked();
+	SemanticApi::TGlobalBuildContext build_context; //not used
+	LinkSignature(build_context, nullptr, false);
+}
+
+void TSType::LinkSignatureForSpecialMethod()
+{
+	assert(!IsSignatureLinked());
+	SetSignatureLinked();
 }
 
 void TSType::LinkSignature(SemanticApi::TGlobalBuildContext build_context)
@@ -51,7 +67,7 @@ bool TSType::IsEqualTo(const TSType& use_right)const
 	return GetClass() == use_right.GetClass();
 }
 
-TSClass* TSType_TClassName::LinkSignature(SemanticApi::TGlobalBuildContext build_context,TSClass* use_owner, TSClass* use_curr_class)
+TSClass* TSType_TClassName::LinkSignature(SemanticApi::TGlobalBuildContext build_context,TSClass* use_owner, TSClass* use_curr_class, bool link_template_realizations)
 {
 	if (!IsSignatureLinked())
 		SetSignatureLinked();
@@ -72,6 +88,8 @@ TSClass* TSType_TClassName::LinkSignature(SemanticApi::TGlobalBuildContext build
 
 	if (use_curr_class->GetType()==TNodeWithTemplates::Template)
 	{
+		if (!link_template_realizations)
+			throw new std::exception("Поиск метода по сигнатуре не поддерживает шаблонные параметры");
 		auto template_params = GetSyntax()->GetTemplateParams();
 
 		if (template_params.size() != 0)
@@ -199,6 +217,7 @@ void TSType_TClassName::LinkBody(SemanticApi::TGlobalBuildContext build_context)
 
 SemanticApi::ISClass* TSType::GetClass()const
 {
+	assert(this->IsSignatureLinked());
 	if (classes.size() == 0)
 		return nullptr;
 	return classes.back().class_of_type;

@@ -34,20 +34,8 @@ SemanticApi::TExternalClassDecl TStaticArr::DeclareExternalClass()
 		"	func extern size:int;\n"
 		"}\n";
 
+	decl.operators[(int)Lexer::TOperator::GetArrayElement] = TStaticArr::get_element_op;
+	decl.methods.insert(std::make_pair(std::string("size"), TStaticArr::get_size));
+
 	return decl;
-
-	//SemanticApi::ISClass* scl = new TSClass(syntax->GetCompiledBaseClass(), cl);
-	//syntax->GetCompiledBaseClass()->AddClass(scl);
-	//scl->Build();
-	//scl->SetAutoMethodsInitialized();
-
-	//std::vector<TSMethod*> m;
-
-	//m.clear();
-	//scl->GetOperators(m, Lexer::TOperator::GetArrayElement);
-	//m[0]->SetAsExternal(TStaticArr::get_element_op);
-
-	//m.clear();
-	//scl->GetMethods(m, syntax->GetLexer()->GetIdFromName("size"));
-	//m[0]->SetAsExternal(TStaticArr::get_size);
 }

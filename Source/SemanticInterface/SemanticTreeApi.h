@@ -88,6 +88,9 @@ namespace SemanticApi
 		std::vector<TExternalClassDecl> external_classes, TGlobalBuildContext build_context);
 
 	BALUSCRIPT_DLL_INTERFACE void SDestroy(ISClass*);
+
+	BALUSCRIPT_DLL_INTERFACE ISMethod * SAnalyzeMethodSignature(Lexer::ILexer* lexer, SyntaxApi::IMethod* method_decl_syntax, ISClass* sem_base_class);
+	BALUSCRIPT_DLL_INTERFACE void SDestroyMethodSignature(ISMethod * method);
 }
 
 //#include "../VirtualMachine/Op.h"
