@@ -126,6 +126,9 @@ void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
 				source->GetToken(TTokenType::Semicolon);
 			return;
 		}
+		default:
+            assert(false);
+            break;
 		}
 		source->Error("Ожидался return,if,for,bytecode или this!");
 	}
@@ -145,7 +148,7 @@ void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
 			source->GetToken(TTokenType::Semicolon);
 		return;
 	}
-	assert(false);//во всех switch должен быть return 
+	assert(false);//во всех switch должен быть return
 }
 void TStatements::AnalyzeSyntax(Lexer::ILexer* source) {
 	InitPos(source);
@@ -168,7 +171,7 @@ void TStatements::Add(TStatement* use_statement)
 	use_statement->SetStmtId(statements.size() - 1);//TODO не нужно
 }
 
-void TStatements::AddVar(TLocalVar* use_var) 
+void TStatements::AddVar(TLocalVar* use_var)
 {
 	statements.push_back(std::unique_ptr<TStatement>(use_var));
 	use_var->SetStmtId(statements.size() - 1);

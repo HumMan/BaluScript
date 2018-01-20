@@ -123,7 +123,7 @@ void TClass::AddOperator(Lexer::TOperator op, TMethod* use_method)
 	_this->operators[(short)op]->AddMethod(use_method);
 }
 
-void TClass::AddConversion(TMethod* use_method) 
+void TClass::AddConversion(TMethod* use_method)
 {
 	_this->conversions->AddMethod(use_method);
 }
@@ -249,11 +249,14 @@ void TClass::AccessDecl(Lexer::ILexer* source, bool& readonly,
 			readonly = false;
 			access = SyntaxApi::TTypeOfAccess::Private;
 			break;
+        default:
+            assert(false);
+			break;
 		}
 	}
 }
 
-void TClass::AnalyzeSyntax(Lexer::ILexer* source) 
+void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 {
 	InitPos(source);
 
@@ -270,7 +273,7 @@ void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 		std::vector<Lexer::TNameId> enums;
 		do
 		{
-			
+
 			if (source->Test(TTokenType::Identifier))
 			{
 				for (size_t i = 0; i < enums.size(); i++)
@@ -295,7 +298,7 @@ void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 		source->TestToken(TTokenType::Identifier);
 		_this->name = source->NameId();
 		source->GetToken();
-		if (source->TestAndGet(TOperator::Less)) 
+		if (source->TestAndGet(TOperator::Less))
 		{
 			_this->is_template = true;
 			do {
@@ -307,7 +310,7 @@ void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 			} while (true);
 			source->GetToken(TOperator::Greater);
 		}
-		if (source->TestAndGet(TTokenType::Colon)) 
+		if (source->TestAndGet(TTokenType::Colon))
 		{
 			source->TestToken(TTokenType::Identifier);
 			_this->parent->AnalyzeSyntax(source);
@@ -324,7 +327,7 @@ void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 			if (source->Type() == TTokenType::ResWord)
 				switch ((TResWord)source->Token())
 			{
-				case TResWord::Class: 
+				case TResWord::Class:
 				{
 					TClass* nested = new TClass(this);
 					nested->AnalyzeSyntax(source);
@@ -366,7 +369,7 @@ void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 				default:
 					end_while = true;
 			}
-			else if (source->Type() == TTokenType::Identifier) 
+			else if (source->Type() == TTokenType::Identifier)
 			{
 				_this->fields.emplace_back(new TClassField(this));
 				_this->fields.back()->SetAccess(access);

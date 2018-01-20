@@ -89,7 +89,7 @@ TSClass* TSType_TClassName::LinkSignature(SemanticApi::TGlobalBuildContext build
 	if (use_curr_class->GetType()==TNodeWithTemplates::Template)
 	{
 		if (!link_template_realizations)
-			throw new std::exception("Поиск метода по сигнатуре не поддерживает шаблонные параметры");
+			throw new std::runtime_error("Поиск метода по сигнатуре не поддерживает шаблонные параметры");
 		auto template_params = GetSyntax()->GetTemplateParams();
 
 		if (template_params.size() != 0)

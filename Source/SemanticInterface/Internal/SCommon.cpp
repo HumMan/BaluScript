@@ -1,6 +1,6 @@
 #include "SCommon.h"
 
-#include "lexer.h"
+#include "../../lexer.h"
 
 #include "SClassField.h"
 #include "SClass.h"

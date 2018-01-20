@@ -18,7 +18,7 @@ public:
 	std::vector<SemanticApi::ISLocalVar*> static_variables;
 };
 
-TSyntaxAnalyzer::TSyntaxAnalyzer():_this(std::make_unique<TPrivate>())
+TSyntaxAnalyzer::TSyntaxAnalyzer():_this(std::unique_ptr<TPrivate>(new TPrivate()))
 {
 	_this->lexer.reset(Lexer::ILexer::Create());
 }
@@ -164,18 +164,18 @@ SemanticApi::ISMethod* TSyntaxAnalyzer::GetMethod(const char* use_method)
 	if (method != nullptr)
 	{
 		if (method_decl->IsStatic() != method->IsStatic())
-			throw new std::exception("Метод отличается по статичности!");
+			throw std::runtime_error("Метод отличается по статичности!");
 		if (method_decl->IsExternal() != method->IsExternal())
-			throw new std::exception("Несоответствует классификатор extern!");
+			throw std::runtime_error("Несоответствует классификатор extern!");
 		auto c0 = method_decl->GetRetClass();
 		auto c1 = method->GetRetClass();
 		if ( c0 != c1
 			|| method_decl->IsReturnRef() != method->IsReturnRef())
-			throw new std::exception("Метод возвращает другое значение!");
+			throw std::runtime_error("Метод возвращает другое значение!");
 		return method;
 	}
 	else
-		throw new std::exception("Такого метода не существует!");
+		throw new std::runtime_error("Такого метода не существует!");
 	return nullptr;
 }
 

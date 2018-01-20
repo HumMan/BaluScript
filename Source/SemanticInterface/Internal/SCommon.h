@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lexer.h"
+#include "../../lexer.h"
 
 #include "SMethod.h"
 #include "SClassField.h"

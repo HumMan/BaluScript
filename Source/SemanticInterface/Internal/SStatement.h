@@ -31,8 +31,8 @@ public:
 	virtual ~TSStatement(){}
 	SemanticApi::ISClass* IGetOwner()const;
 	SemanticApi::ISMethod* IGetMethod()const;
-	TSClass * TSStatement::GetOwner() const;
-	TSMethod * TSStatement::GetMethod() const;
+	TSClass * GetOwner() const;
+	TSMethod * GetMethod() const;
 	void TestBoolExpr(TExpressionResult& compare_result, std::unique_ptr<TActualParamWithConversion>& conversion);
 };
 

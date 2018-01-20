@@ -9,6 +9,7 @@ file(GLOB_RECURSE BaluScript_SRC
 
 if(UNIX)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=gnu++0x -Wwrite-strings")
+    set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 endif()
 
 include_directories("Include")

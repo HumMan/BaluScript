@@ -43,7 +43,7 @@ public:
 };
 
 TSClass::TSClass(TSClass* use_owner, SyntaxApi::IClass* use_syntax_node, TNodeWithTemplates::Type type)
-	:TSyntaxNode(use_syntax_node), _this(std::make_unique<TPrivate>(this,use_syntax_node->GetParent()))
+	:TSyntaxNode(use_syntax_node), _this(std::unique_ptr<TPrivate>(new TPrivate(this,use_syntax_node->GetParent())))
 {
 	if (type == TNodeWithTemplates::Unknown)
 	{
@@ -407,7 +407,7 @@ bool TSClass::GetMethods(std::vector<SemanticApi::ISMethod*> &result, Lexer::TNa
 			}
 		}
 	}
-	if (scan_owner && 
+	if (scan_owner &&
 		(is_static==SemanticApi::Filter::True || is_static == SemanticApi::Filter::NotSet) &&
 		_this->owner != nullptr)
 		_this->owner->GetMethods(result, use_method_name, SemanticApi::Filter::True);
@@ -787,7 +787,7 @@ void TSClass::InitAutoMethods()
 		_this->auto_copy_constr->AddParameter(p);
 
 		_this->auto_copy_constr->LinkSignatureForSpecialMethod();
-		
+
 	}
 	if (has_destr)
 	{
