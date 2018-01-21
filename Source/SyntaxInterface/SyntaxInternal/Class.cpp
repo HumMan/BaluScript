@@ -219,8 +219,8 @@ size_t TClass::FindNested(Lexer::TNameId name)const
 	return -1;
 }
 
-void TClass::AccessDecl(Lexer::ILexer* source, bool& readonly,
-	SyntaxApi::TTypeOfAccess access) {
+SyntaxApi::TTypeOfAccess TClass::AccessDecl(Lexer::ILexer* source, bool& readonly) {
+	SyntaxApi::TTypeOfAccess access = SyntaxApi::TTypeOfAccess::Public;
 	if (source->Type() == Lexer::TTokenType::ResWord)
 	{
 		switch ((TResWord)source->Token())
@@ -249,11 +249,11 @@ void TClass::AccessDecl(Lexer::ILexer* source, bool& readonly,
 			readonly = false;
 			access = SyntaxApi::TTypeOfAccess::Private;
 			break;
-        default:
-            assert(false);
+        default:			
 			break;
 		}
 	}
+	return access;
 }
 
 void TClass::AnalyzeSyntax(Lexer::ILexer* source)
@@ -318,12 +318,11 @@ void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 		source->GetToken(TTokenType::LBrace);
 
 		bool readonly = false;
-		SyntaxApi::TTypeOfAccess access = SyntaxApi::TTypeOfAccess::Public;
 
 		while (true)
 		{
 			bool end_while = false;
-			AccessDecl(source, readonly, access);
+			SyntaxApi::TTypeOfAccess access = AccessDecl(source, readonly);
 			if (source->Type() == TTokenType::ResWord)
 				switch ((TResWord)source->Token())
 			{

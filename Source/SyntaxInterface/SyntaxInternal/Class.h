@@ -54,7 +54,7 @@ namespace SyntaxInternal
 	private:
 		class TClassInternal;
 		std::unique_ptr<TClassInternal> _this;
-		void AccessDecl(Lexer::ILexer* source, bool& readonly, SyntaxApi::TTypeOfAccess access);
+		SyntaxApi::TTypeOfAccess AccessDecl(Lexer::ILexer* source, bool& readonly);
 		void AddNested(TClass* use_class);
 	public:
 		TClass(TClass* use_owner);
