@@ -16,7 +16,7 @@ class TSClass:public TSyntaxNode<SyntaxApi::IClass>, public TNodeWithSize,public
 	std::unique_ptr<TPrivate> _this;
 
 public:
-	TSClass(TSClass* use_owner, SyntaxApi::IClass* use_syntax_node, TNodeWithTemplates::Type type = TNodeWithTemplates::Unknown);
+	TSClass(TSClass* use_owner, SyntaxApi::IClass* use_syntax_node, TNodeWithTemplatesType type = TNodeWithTemplatesType::Unknown);
 	~TSClass();
 
 	std::vector<SemanticApi::ISClassField*> GetFields()const;
@@ -34,6 +34,9 @@ public:
 	TSClassField* GetField(Lexer::TNameId name, bool is_static, bool only_in_this);
 	bool HasConversion(SemanticApi::ISClass* target_type);
 	bool IsNestedIn(SemanticApi::ISClass* use_parent);
+
+	bool IsExternal()const;
+	SyntaxApi::IClass* IGetSyntax()const;
 
 	SemanticApi::ISMethod* GetAutoDefConstr()const;
 	SemanticApi::ISMethod* GetAutoCopyConstr()const;

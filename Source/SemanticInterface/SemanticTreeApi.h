@@ -54,7 +54,7 @@ namespace SemanticApi
 			def_constr = nullptr;
 			copy_constr = nullptr;
 			destr = nullptr;
-			size = 0;
+			size = -1;
 			for (int i = 0; i < (int)Lexer::TOperator::End; i++)
 				operators[i] = nullptr;
 		}

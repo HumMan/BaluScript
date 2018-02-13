@@ -86,7 +86,7 @@ TSClass* TSType_TClassName::LinkSignature(SemanticApi::TGlobalBuildContext build
 			use_owner->GetSyntax()->Error("Вложенного класса с таким именем не существует!");
 	}
 
-	if (use_curr_class->GetType()==TNodeWithTemplates::Template)
+	if (use_curr_class->GetType()==TNodeWithTemplatesType::Template)
 	{
 		if (!link_template_realizations)
 			throw new std::runtime_error("Поиск метода по сигнатуре не поддерживает шаблонные параметры");
@@ -111,7 +111,7 @@ TSClass* TSType_TClassName::LinkSignature(SemanticApi::TGlobalBuildContext build
 				else
 				{
 					//проверяем не является ли идентификатор шаблонным параметром
-					if (use_owner->GetType() == TNodeWithTemplates::Realization && use_owner->HasTemplateParameter(t->GetType()->GetClassNames().back()->GetName()))
+					if (use_owner->GetType() == TNodeWithTemplatesType::Realization && use_owner->HasTemplateParameter(t->GetType()->GetClassNames().back()->GetName()))
 					{
 						SemanticApi::TTemplateParameter val;
 						if (!use_owner->GetTemplateParameter(t->GetType()->GetClassNames().back()->GetName(), val))
@@ -141,7 +141,7 @@ TSClass* TSType_TClassName::LinkSignature(SemanticApi::TGlobalBuildContext build
 			TSClass* realization = use_curr_class->FindTemplateRealization(template_params_classes);
 			if (realization == nullptr)
 			{
-				realization = new TSClass(use_curr_class->GetOwner(), use_curr_class->GetSyntax(), TNodeWithTemplates::Realization);
+				realization = new TSClass(use_curr_class->GetOwner(), use_curr_class->GetSyntax(), TNodeWithTemplatesType::Realization);
 				use_curr_class->AddTemplateRealization(realization);
 				realization->SetTemplateClass(use_curr_class);
 				{
@@ -184,7 +184,7 @@ TSClass* TSType_TClassName::LinkSignature(SemanticApi::TGlobalBuildContext build
 		//иначе указано название шаблона, что соотвествует текущей реализации
 		else
 		{
-			if (use_owner->GetType() != TNodeWithTemplates::Realization || use_owner->GetTemplateClass() != use_curr_class)
+			if (use_owner->GetType() != TNodeWithTemplatesType::Realization || use_owner->GetTemplateClass() != use_curr_class)
 				use_owner->GetSyntax()->Error("Использование шаблона без параметров допускается только в самом шаблоне как типа текущей реализации!");
 			use_curr_class = use_owner;
 		}
@@ -217,7 +217,8 @@ void TSType_TClassName::LinkBody(SemanticApi::TGlobalBuildContext build_context)
 
 SemanticApi::ISClass* TSType::GetClass()const
 {
-	assert(this->IsSignatureLinked());
+	//TODO неправильно работает для external методов - невозможно получить их класс
+	//assert(this->IsSignatureLinked());
 	if (classes.size() == 0)
 		return nullptr;
 	return classes.back().class_of_type;

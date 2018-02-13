@@ -42,15 +42,15 @@ public:
 	TSClass* owner;
 };
 
-TSClass::TSClass(TSClass* use_owner, SyntaxApi::IClass* use_syntax_node, TNodeWithTemplates::Type type)
+TSClass::TSClass(TSClass* use_owner, SyntaxApi::IClass* use_syntax_node, TNodeWithTemplatesType type)
 	:TSyntaxNode(use_syntax_node), _this(std::unique_ptr<TPrivate>(new TPrivate(this,use_syntax_node->GetParent())))
 {
-	if (type == TNodeWithTemplates::Unknown)
+	if (type == TNodeWithTemplatesType::Unknown)
 	{
 		if (use_syntax_node->IsTemplate())
-			SetType(TNodeWithTemplates::Template);
+			SetType(TNodeWithTemplatesType::Template);
 		else
-			SetType(TNodeWithTemplates::Class);
+			SetType(TNodeWithTemplatesType::Class);
 	}
 	else
 		SetType(type);
@@ -154,7 +154,7 @@ SemanticApi::ISClass * TSClass::GetNested(size_t index) const
 
 bool TSClass::GetTemplateParameter(Lexer::TNameId name, SemanticApi::TTemplateParameter& result)const
 {
-	assert(GetType() == TNodeWithTemplates::Realization);
+	assert(GetType() == TNodeWithTemplatesType::Realization);
 	SyntaxApi::IClass* template_class_syntax = GetTemplateClass()->GetSyntax();
 	size_t par_count = template_class_syntax->GetTemplateParamsCount();
 	for (size_t i = 0; i < par_count; i++)
@@ -221,6 +221,15 @@ void TSClass::CheckForErrors()
 			}
 		}
 	}
+
+	if (IsExternal() && GetNestedCount()>0)
+	{
+		GetSyntax()->Error("External класс не может содержать вложенные классы!");
+	}
+
+	//TODO конструктор копии всегда один и & - остальные просто конструкторы
+	
+
 	//constructors.CheckForErrors();
 	//conversions.CheckForErrors(true);
 	//for(size_t i=0;i<TOperator::End;i++)
@@ -235,7 +244,7 @@ void TSClass::CheckForErrors()
 TSClass* TSClass::GetClass(Lexer::TNameId use_name)
 {
 	//мы должны возвращать шаблонный класс, а не его реализацию
-	if (GetType() == TNodeWithTemplates::Class || GetType() == TNodeWithTemplates::Template)
+	if (GetType() == TNodeWithTemplatesType::Class || GetType() == TNodeWithTemplatesType::Template)
 	{
 		if (GetSyntax()->GetName() == use_name)
 			return this;
@@ -247,7 +256,7 @@ TSClass* TSClass::GetClass(Lexer::TNameId use_name)
 	}
 
 	//если реализация класса, то не забываем проверить не является ли идентификатор одним из параметров класса
-	if (GetType() == TNodeWithTemplates::Realization)
+	if (GetType() == TNodeWithTemplatesType::Realization)
 	{
 		std::vector<SemanticApi::TTemplateParameter> template_params = GetTemplateParams();
 		for (size_t i = 0; i < template_params.size(); i++)
@@ -556,6 +565,14 @@ bool TSClass::IsNestedIn(SemanticApi::ISClass* use_parent)
 		return true;
 	return dynamic_cast<TSClass*>(_this->parent.GetClass())->IsNestedIn(use_parent);
 }
+bool TSClass::IsExternal() const
+{
+	return this->GetSyntax()->IsExternal();
+}
+SyntaxApi::IClass * TSClass::IGetSyntax() const
+{
+	return GetSyntax();
+}
 bool TSClass::GetOperators(std::vector<SemanticApi::ISMethod*> &result, Lexer::TOperator op)const
 {
 	assert(IsAutoMethodsInitialized());
@@ -636,7 +653,7 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 	}
 	else
 	{
-		if (GetType() != TNodeWithTemplates::Template)
+		if (GetType() != TNodeWithTemplatesType::Template)
 		{
 			if (!IsSizeInitialized())
 			{
@@ -701,7 +718,7 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 			for (const std::unique_ptr<TSClass>& nested_class : _this->nested_classes)
 				nested_class->CalculateSizes(owners);
 		}
-		if (GetType() == TNodeWithTemplates::Template)
+		if (GetType() == TNodeWithTemplatesType::Template)
 			for (const std::unique_ptr<TSClass>& realization : GetRealizations())
 				realization->CalculateSizes(owners);
 	}
@@ -709,7 +726,7 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 
 void TSClass::CalculateMethodsSizes()
 {
-	if (GetType() != TNodeWithTemplates::Template)
+	if (GetType() != TNodeWithTemplatesType::Template)
 	{
 
 		for (TSOverloadedMethod& method : _this->methods)
@@ -734,14 +751,14 @@ void TSClass::CalculateMethodsSizes()
 		for (const std::unique_ptr<TSClass>& nested_class : _this->nested_classes)
 			nested_class->CalculateMethodsSizes();
 	}
-	if (GetType() == TNodeWithTemplates::Template)
+	if (GetType() == TNodeWithTemplatesType::Template)
 		for (const std::unique_ptr<TSClass>& realization : GetRealizations())
 			realization->CalculateMethodsSizes();
 }
 
 void TSClass::InitAutoMethods()
 {
-	if (GetType() == TNodeWithTemplates::Template)
+	if (GetType() == TNodeWithTemplatesType::Template)
 		return;
 	if (IsAutoMethodsInitialized())
 		return;
@@ -811,7 +828,7 @@ void TSClass::InitAutoMethods()
 	for (const std::unique_ptr<TSClass>& nested_class : _this->nested_classes)
 		nested_class->InitAutoMethods();
 
-	if (GetType() == TNodeWithTemplates::Template)
+	if (GetType() == TNodeWithTemplatesType::Template)
 		for (const std::unique_ptr<TSClass>& realization : GetRealizations())
 			realization->InitAutoMethods();
 }

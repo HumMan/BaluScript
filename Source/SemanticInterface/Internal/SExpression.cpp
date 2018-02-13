@@ -247,6 +247,7 @@ public:
 					syntax_node->Error("Перечислимого типа с таким именем не существует!");
 				else
 				{
+					delete left;
 					TSExpression::TEnumValue* result = new TSExpression::TEnumValue(owner, dynamic_cast<TSClass*>(left_result.GetType()));
 					result->val = id;
 					Return(result);

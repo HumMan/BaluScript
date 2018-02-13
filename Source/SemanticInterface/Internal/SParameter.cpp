@@ -63,6 +63,10 @@ SemanticApi::TFormalParameter TSParameter::AsFormalParameter()const
 {
 	return SemanticApi::TFormalParameter(type.GetClass(),is_ref);
 }
+SyntaxApi::IParameter * TSParameter::IGetSyntax() const
+{
+	return GetSyntax();
+}
 void TSParameter::CalculateSize()
 {
 	if (GetSyntax()->IsRef())

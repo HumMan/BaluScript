@@ -7,19 +7,18 @@
 class TSClass;
 class TSType_TTemplateParameter;
 
+enum class TNodeWithTemplatesType
+{
+	Class,
+	Template,
+	Realization,
+	Unknown
+};
+
 class TNodeWithTemplates: public virtual SemanticApi::INodeWithTemplates
 {
-public:
-	enum Type
-	{
-		Class,
-		Template,
-		Realization,
-		Unknown
-	};
-	
 private:
-	Type type;
+	TNodeWithTemplatesType type;
 	///<summary>Если класс является реализацией одного из шаблонов, то массив содержит указатели на классы, заданные в параметрах шаблона</summary>
 	std::vector<SemanticApi::TTemplateParameter> template_params;
 	bool template_params_set;
@@ -37,8 +36,8 @@ public:
 	TSClass* GetTemplateClass()const;
 	std::vector<SemanticApi::TTemplateParameter> GetTemplateParams();
 	SemanticApi::TTemplateParameter GetTemplateParam(int i)const;
-	void SetType(Type use_type);
-	Type GetType()const;
+	void SetType(TNodeWithTemplatesType use_type);
+	TNodeWithTemplatesType GetType()const;
 	void SetTemplateParams(std::vector<SemanticApi::TTemplateParameter> params);
 	void SetTemplateClass(TSClass* template_class);
 	void AddTemplateRealization(TSClass* realization);

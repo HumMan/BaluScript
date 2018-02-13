@@ -3,7 +3,7 @@
 #include <vector>
 #include <assert.h>
 
-#include <common.h>
+#include "../../Include/common.h"
 
 #include "../SemanticInterface/SemanticTreeApi.h"
 

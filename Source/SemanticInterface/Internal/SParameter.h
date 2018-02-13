@@ -31,6 +31,7 @@ public:
 	void CalculateSize();
 	bool IsRef()const;
 	SemanticApi::TFormalParameter AsFormalParameter()const;
+	SyntaxApi::IParameter* IGetSyntax()const;
 };
 
 

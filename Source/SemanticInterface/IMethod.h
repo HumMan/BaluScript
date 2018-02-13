@@ -2,7 +2,7 @@
 
 namespace SemanticApi
 {
-	enum SpecialClassMethodType
+	enum class SpecialClassMethodType
 	{
 		NotSpecial,
 		AutoDefConstr,
@@ -12,7 +12,9 @@ namespace SemanticApi
 
 		Default,
 		CopyConstr,
-		Destructor
+		Destructor,
+		Operator,
+		Conversion
 	};
 
 	class ISpecialClassMethod
@@ -82,7 +84,7 @@ namespace SemanticApi
 		virtual bool IsStatic()const = 0;
 	};
 
-	enum Filter
+	enum class Filter
 	{
 		True,
 		False,
@@ -118,6 +120,9 @@ namespace SemanticApi
 
 		virtual size_t GetNestedCount()const=0;
 		virtual ISClass* GetNested(size_t index)const=0;
+
+		virtual bool IsExternal()const = 0;
+		virtual SyntaxApi::IClass* IGetSyntax()const = 0;
 	};
 
 	class TFormalParameter
@@ -155,6 +160,7 @@ namespace SemanticApi
 		virtual ISClass* GetClass()const=0;
 		virtual bool IsRef()const = 0;
 		virtual bool IIsEqualTo(const ISParameter* right)const=0;
+		virtual SyntaxApi::IParameter* IGetSyntax()const=0;
 	};
 
 	enum class VariableType
@@ -180,7 +186,7 @@ namespace SemanticApi
 		virtual bool IsExternal()const = 0;
 		virtual ISClass* GetOwner()const = 0;
 		virtual ISClass* GetRetClass()const = 0;
-		virtual ISParameter* GetParam(int use_id)const = 0;
+		virtual ISParameter* GetParam(size_t use_id)const = 0;
 		//virtual std::vector<ISParameter*> GetParameters()const = 0;
 		virtual IVariable* GetVar(Lexer::TNameId name)const = 0;
 		virtual size_t GetParamsCount()const = 0;
@@ -191,6 +197,7 @@ namespace SemanticApi
 		virtual SyntaxApi::TClassMember GetMemberType()const=0;
 		virtual bool IsStatic()const=0;
 		virtual Lexer::TOperator GetOperatorType()const=0;
+		virtual SyntaxApi::IMethod* IGetSyntax()const = 0;
 	};
 
 	class ISStatement

@@ -2,7 +2,7 @@
 
 namespace SemanticApi
 {
-	enum TMethodCallType
+	enum class TMethodCallType
 	{
 		Method,
 		ObjectConstructor,

@@ -41,7 +41,7 @@ void TBytecode::AnalyzeSyntax(Lexer::ILexer* source) {
 				//if(params_count<2||params_count>4)
 				//	source->Error("Ошибка в выражении");
 				//TODO разгрести это+ сделать нормальные константные выражения+ ссылки на локальные переменные
-				_op.f[params_count] = SyntaxApi::TBytecodeOp::GET_ARR_ELEMENT_CLASS_ID;
+				_op.f[params_count] = SyntaxApi::TOpParamType::GET_ARR_ELEMENT_CLASS_ID;
 				_op.id[params_count] = source->NameId();
 				source->GetToken();
 				params_count++;

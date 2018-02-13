@@ -49,6 +49,8 @@ SemanticApi::SpecialClassMethodType GetMethodTypeFromSyntax(SyntaxApi::IMethod* 
 		return SemanticApi::SpecialClassMethodType::CopyConstr;
 	case SyntaxApi::TClassMember::Destr:
 		return SemanticApi::SpecialClassMethodType::Destructor;
+	case SyntaxApi::TClassMember::Operator:
+		return SemanticApi::SpecialClassMethodType::Operator;
 	default:
 		return SemanticApi::SpecialClassMethodType::NotSpecial;
 	}
@@ -108,6 +110,11 @@ Lexer::TOperator TSMethod::GetOperatorType() const
 	return GetSyntax()->GetOperatorType();
 }
 
+SyntaxApi::IMethod * TSMethod::IGetSyntax() const
+{
+	return GetSyntax();
+}
+
 void TSMethod::AddParameter(TSParameter* use_par)
 {
 	assert(GetType() != SemanticApi::SpecialClassMethodType::NotSpecial);
@@ -155,7 +162,7 @@ TSClass* TSMethod::GetRetClass()const
 		return nullptr;
 }
 
-TSParameter* TSMethod::GetParam(int id)const
+TSParameter* TSMethod::GetParam(size_t id)const
 {
 	return _this->parameters[id].get();
 }

@@ -53,7 +53,7 @@ public:
 
 	TSClass* GetOwner()const;
 	TSClass* GetRetClass()const;
-	TSParameter* GetParam(int use_id)const;
+	TSParameter* GetParam(size_t use_id)const;
 	std::vector<TSParameter*> GetParameters()const;
 	SemanticApi::IVariable* GetVar(Lexer::TNameId name)const;
 	size_t GetParamsCount()const;
@@ -75,6 +75,8 @@ public:
 	bool IsStatic()const;
 
 	Lexer::TOperator GetOperatorType()const;
+
+	SyntaxApi::IMethod* IGetSyntax()const;
 
 	~TSMethod();
 };
