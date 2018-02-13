@@ -6,6 +6,10 @@
 #include "NativeTypes/StaticArray.h"
 #include "NativeTypes/String.h"
 
+#include "TreeRunner/ExpressionRun.h"
+
+#include "../Data/extern_binding.h"
+
 using namespace Lexer;
 
 class TSyntaxAnalyzer::TPrivate

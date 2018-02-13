@@ -9,7 +9,7 @@
 
 #include "../TreeRunner/TreeRunner.h"
 
-void TDynArr::constructor(TMethodRunContext* run_context)
+void TDynArr::def_constr(TMethodRunContext* run_context)
 {
 	run_context->object->get_as<TDynArr>().Init();
 	run_context->object->get_as<TDynArr>().el_class = run_context->object->GetClass()->GetTemplateParam(0).GetType();
@@ -105,36 +105,31 @@ void TDynArr::destructor(TMethodRunContext* run_context)
 	memset((TDynArr*)run_context->object->get(), 0xfeefee, sizeof(TDynArr));
 }
 
-void TDynArr::copy_constr(TMethodRunContext* run_context)
+void TDynArr::copy_constr(TMethodRunContext* run_context, TDynArr* copy_from)
 {
-	TDynArr* obj = &run_context->object->get_as<TDynArr>();
-	TDynArr* copy_from = &(*run_context->formal_params)[0].get_as<TDynArr>();
-
 	SemanticApi::ISClass* el = copy_from->el_class;
 	SemanticApi::ISMethod* el_copy_constr = el->GetCopyConstr();
 	
 	if (el_copy_constr != nullptr)
 	{
-		obj->Init();
-		obj->el_class = el;
+		Init();
+		el_class = el;
 		if (copy_from->v->size() > 0)
 		{
-			obj->v->resize(copy_from->v->size());
-			CallCopyConstr(*run_context->static_fields, &((*obj->v)[0]), &((*copy_from->v)[0]), 0, copy_from->v->size() / el->GetSize(), el->GetSize(), el, el_copy_constr);
+			v->resize(copy_from->v->size());
+			CallCopyConstr(*run_context->static_fields, &((*v)[0]), &((*copy_from->v)[0]), 
+				0, copy_from->v->size() / el->GetSize(), el->GetSize(), el, el_copy_constr);
 		}
 	}
 	else
 	{
 		memset((TDynArr*)run_context->object->get(), 0xfeefee, sizeof(TDynArr));
-		obj->Init(*copy_from);
+		Init(*copy_from);
 	}
 }
 
-void TDynArr::assign_op(TMethodRunContext* run_context)
+void TDynArr::operator_Assign(TMethodRunContext* run_context, TDynArr* left, TDynArr* right)
 {
-	TDynArr* left = ((TDynArr*)(*run_context->formal_params)[0].get());
-	TDynArr* right = ((TDynArr*)(*run_context->formal_params)[1].get());
-
 	std::vector<SemanticApi::ISMethod*> ops;
 
 	left->el_class->GetOperators(ops, Lexer::TOperator::Assign);
@@ -151,39 +146,20 @@ void TDynArr::assign_op(TMethodRunContext* run_context)
 	}
 }
 
-void TDynArr::get_element_op(TMethodRunContext* run_context)
+void* TDynArr::operator_GetArrayElement(TMethodRunContext* run_context, TDynArr* obj, int index)
 {
-	TDynArr* obj = ((TDynArr*)(*run_context->formal_params)[0].get());
 	SemanticApi::ISClass* el = obj->el_class;
-	run_context->result->SetAsReference(&((*obj->v)[el->GetSize()*(*(int*)(*run_context->formal_params)[1].get())]));
+	return &(*obj->v)[el->GetSize()*index];
 }
 
-void TDynArr::EmplaceBack(std::vector<TStaticValue> &static_fields)
+void TDynArr::resize(TMethodRunContext* run_context, int new_size)
 {
-	dyn_arr_resize(static_fields, this, GetSize()+1);
+	dyn_arr_resize(*run_context->static_fields, this, new_size);
 }
 
-void* TDynArr::GetElement(int i)
-{
-	return &v->at(el_class->GetSize()*i);
-}
-int TDynArr::GetSize()
+int TDynArr::size(TMethodRunContext* run_context)
 {
 	return v->size() / el_class->GetSize();
-}
-
-void TDynArr::resize(TMethodRunContext* run_context)
-{
-	TDynArr* obj = ((TDynArr*)run_context->object->get());
-	int new_size = *(int*)(*run_context->formal_params)[0].get();
-	
-	dyn_arr_resize(*run_context->static_fields, obj, new_size);
-}
-
-void TDynArr::get_size(TMethodRunContext* run_context)
-{
-	TDynArr* obj = ((TDynArr*)(run_context->object->get()));
-	*(int*)run_context->result->get() = obj->v->size() / obj->el_class->GetSize();
 }
 
 SemanticApi::TExternalClassDecl TDynArr::DeclareExternalClass()
@@ -205,14 +181,14 @@ SemanticApi::TExternalClassDecl TDynArr::DeclareExternalClass()
 
 	decl.size = LexerIntSizeOf(sizeof(TDynArr)) / sizeof(int);
 	
-	decl.def_constr = TDynArr::constructor;	
-	decl.copy_constr = TDynArr::copy_constr;
-	decl.destr = TDynArr::destructor;
+	//decl.def_constr = TDynArr::constructor;	
+	//decl.copy_constr = TDynArr::copy_constr;
+	//decl.destr = TDynArr::destructor;
 
-	decl.operators[(int)Lexer::TOperator::GetArrayElement] = TDynArr::get_element_op;
-	decl.operators[(int)Lexer::TOperator::Assign] = TDynArr::assign_op;
-	
-	decl.methods.insert(std::make_pair(std::string("resize"), TDynArr::resize));
-	decl.methods.insert(std::make_pair(std::string("size"), TDynArr::get_size));
+	//decl.operators[(int)Lexer::TOperator::GetArrayElement] = TDynArr::get_element_op;
+	//decl.operators[(int)Lexer::TOperator::Assign] = TDynArr::assign_op;
+	//
+	//decl.methods.insert(std::make_pair(std::string("resize"), TDynArr::resize));
+	//decl.methods.insert(std::make_pair(std::string("size"), TDynArr::get_size));
 	return decl;
 }

@@ -82,6 +82,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Data\extern_binding.h" />
     <ClInclude Include="Source\SemanticInterface\IExpressionRunner.h" />
     <ClInclude Include="Source\SemanticInterface\Internal\ExpressionResult.h" />
     <ClInclude Include="Include\baluScript.h" />

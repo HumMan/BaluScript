@@ -16,7 +16,8 @@ class TSClass:public TSyntaxNode<SyntaxApi::IClass>, public TNodeWithSize,public
 	std::unique_ptr<TPrivate> _this;
 
 public:
-	TSClass(TSClass* use_owner, SyntaxApi::IClass* use_syntax_node, TNodeWithTemplatesType type = TNodeWithTemplatesType::Unknown);
+	TSClass(TSClass* use_owner, SyntaxApi::IClass* use_syntax_node, SemanticApi::TNodeWithTemplatesType type = SemanticApi::TNodeWithTemplatesType::Unknown);
+	TSClass(TSClass* use_owner);
 	~TSClass();
 
 	std::vector<SemanticApi::ISClassField*> GetFields()const;

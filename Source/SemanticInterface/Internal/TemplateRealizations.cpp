@@ -6,7 +6,7 @@
 
 int TNodeWithTemplates::FindTemplateIntParameter(Lexer::TNameId parameter_id)
 {
-	assert(type == TNodeWithTemplatesType::Realization);
+	assert(type == SemanticApi::TNodeWithTemplatesType::Realization);
 	for (size_t i = 0; i < template_params.size(); i++)
 	{
 		if (template_params[i].is_value&&template_class->GetSyntax()->GetTemplateParam(i) == parameter_id)
@@ -18,7 +18,7 @@ int TNodeWithTemplates::FindTemplateIntParameter(Lexer::TNameId parameter_id)
 
 TSClass* TNodeWithTemplates::FindTemplateRealization(const std::list<TSType_TTemplateParameter>& params_to_find)
 {
-	assert(type == TNodeWithTemplatesType::Template);
+	assert(type == SemanticApi::TNodeWithTemplatesType::Template);
 	for (const std::unique_ptr<TSClass>& realization : realizations)
 	{
 		const std::vector<SemanticApi::TTemplateParameter>& r_params = realization->GetTemplateParams();
@@ -56,7 +56,7 @@ TSClass* TNodeWithTemplates::FindTemplateRealization(const std::list<TSType_TTem
 
 TNodeWithTemplates::TNodeWithTemplates()
 {
-	type = TNodeWithTemplatesType::Unknown;
+	type = SemanticApi::TNodeWithTemplatesType::Unknown;
 	template_class_set = false;
 	template_params_set = false;
 	template_class = nullptr;
@@ -68,51 +68,51 @@ TNodeWithTemplates::~TNodeWithTemplates()
 
 const std::vector<std::unique_ptr<TSClass>>& TNodeWithTemplates::GetRealizations()
 {
-	assert(type == TNodeWithTemplatesType::Template);
+	assert(type == SemanticApi::TNodeWithTemplatesType::Template);
 	return realizations;
 }
 TSClass* TNodeWithTemplates::GetTemplateClass()const
 {
-	assert(type == TNodeWithTemplatesType::Realization);
+	assert(type == SemanticApi::TNodeWithTemplatesType::Realization);
 	return template_class;
 }
 std::vector<SemanticApi::TTemplateParameter> TNodeWithTemplates::GetTemplateParams()
 {
-	assert(type == TNodeWithTemplatesType::Realization);
+	assert(type == SemanticApi::TNodeWithTemplatesType::Realization || type == SemanticApi::TNodeWithTemplatesType::Template);
 	return template_params;
 }
 SemanticApi::TTemplateParameter TNodeWithTemplates::GetTemplateParam(int i)const
 {
 	return template_params[i];
 }
-void TNodeWithTemplates::SetType(TNodeWithTemplatesType use_type)
+void TNodeWithTemplates::SetType(SemanticApi::TNodeWithTemplatesType use_type)
 {
-	assert(type == TNodeWithTemplatesType::Unknown);
-	assert(use_type != TNodeWithTemplatesType::Unknown);
+	assert(type == SemanticApi::TNodeWithTemplatesType::Unknown);
+	assert(use_type != SemanticApi::TNodeWithTemplatesType::Unknown);
 	type = use_type;
 }
-TNodeWithTemplatesType TNodeWithTemplates::GetType()const
+SemanticApi::TNodeWithTemplatesType TNodeWithTemplates::GetType()const
 {
-	assert(type != TNodeWithTemplatesType::Unknown);
+	assert(type != SemanticApi::TNodeWithTemplatesType::Unknown);
 	return type;
 }
 void TNodeWithTemplates::SetTemplateParams(std::vector<SemanticApi::TTemplateParameter> params)
 {
 	assert(!template_params_set);
-	assert(type == TNodeWithTemplatesType::Realization);
+	assert(type == SemanticApi::TNodeWithTemplatesType::Realization);
 	this->template_params = params;
 	template_params_set = true;
 }
 void TNodeWithTemplates::SetTemplateClass(TSClass* template_class)
 {
 	assert(!template_class_set);
-	assert(type == TNodeWithTemplatesType::Realization);
+	assert(type == SemanticApi::TNodeWithTemplatesType::Realization);
 	this->template_class = template_class;
 	template_class_set = true;
 }
 void TNodeWithTemplates::AddTemplateRealization(TSClass* realization)
 {
-	assert(type == TNodeWithTemplatesType::Template);
+	assert(type == SemanticApi::TNodeWithTemplatesType::Template);
 	realizations.push_back(std::unique_ptr<TSClass>(realization));
 }
 

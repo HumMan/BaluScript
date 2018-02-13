@@ -1,113 +1,60 @@
 ﻿#include "String.h"
-//
-//void TString::Init(){
-//	chars = nullptr;
-//	length = 0;
-//	//is_const=false;
-//}
-//void TString::Copy(TString* copy_from)
-//{
-//	chars = copy_from->length != 0 ? new char[copy_from->length + 1] : nullptr;
-//	length = copy_from->length;
-//	if (length > 0)strncpy_s(chars, copy_from->length + 1, copy_from->chars, copy_from->length + 1);
-//}
-//void TString::CopyFromConst(std::string& copy_from)
-//{
-//	//is_const=true;
-//	length = copy_from.length() + 1;
-//	chars = new char[length];
-//	strncpy_s(chars, length, copy_from.c_str(), length);
-//}
-//void TString::Destr()
-//{
-//	if (chars != nullptr)delete chars;
-//}
-//void TString::AssignOp(TString* right)
-//{
-//	if (length != right->length)
-//	{
-//		if (chars != nullptr)delete chars;
-//		chars = right->length != 0 ? new char[right->length + 1] : nullptr;
-//		length = right->length;
-//	}
-//	if (length > 0)
-//		strncpy_s(chars, right->length + 1, right->chars, right->length + 1);
-//}
-//bool TString::EqualOp(TString* right)
-//{
-//	return strcmp(chars, right->chars) == 0;
-//}
-
-
-#include "String.h"
 #include "DynArray.h"
 
 #include "../TreeRunner/FormalParam.h"
 
 #include "../syntaxAnalyzer.h"
 
-template<>
-void TString::constructor(TMethodRunContext* run_context)
+void TString::def_constr()
 {
-	run_context->object->get_as<TString>().Init();
+	Init();
 }
-template<>
-void TString::destructor(TMethodRunContext* run_context)
+
+void TString::destructor()
 {
 	//TODO не должен вызываться конструктор для ссылочного типа
 	//if (object.IsRef())
 	//	return;
 
-	TString* obj = ((TString*)run_context->object->get());
-	obj->~TString();
+	delete v;
+	v = nullptr;
 }
-template<>
-void TString::copy_constr(TMethodRunContext* run_context)
-{
-	TString* obj = ((TString*)run_context->object->get());
-	TString* copy_from = (TString*)(*run_context->formal_params)[0].get();
-	obj->Init(*copy_from->v);
-}
-template<>
-void TString::assign_op(TMethodRunContext* run_context)
-{
-	TString* left = ((TString*)(*run_context->formal_params)[0].get());
-	TString* right = ((TString*)(*run_context->formal_params)[1].get());
 
+void TString::copy_constr(TString* param0)
+{
+	Init(*(param0->v));
+}
+
+TString TString::operator_Assign(TString* left, TString* right)
+{
 	*(left->v) = *right->v;
+	return *left;
 }
-template<>
-void TString::assign_plus_op(TMethodRunContext* run_context)
-{
-	TString* left = ((TString*)(*run_context->formal_params)[0].get());
-	TString* right = ((TString*)(*run_context->formal_params)[1].get());
 
+TString TString::operator_PlusA(TString* left, TString* right)
+{
 	*(left->v) += *right->v;
+	return *left;
 }
-template<>
-void TString::plus_op(TMethodRunContext* run_context)
-{
-	TString* left = ((TString*)(*run_context->formal_params)[0].get());
-	TString* right = ((TString*)(*run_context->formal_params)[1].get());
 
+TString TString::operator_Plus(TString* left, TString* right)
+{
 	auto temp = (*left->v + *right->v);
+	TString result;
+	result.Init(temp);
+	return result;
+}
 
-	run_context->result->get_as<TString>().Init(temp);
-}
-template<>
-void TString::get_char_op(TMethodRunContext* run_context)
+char& TString::operator_GetArrayElement(TString* obj, int index)
 {
-	TString* obj = ((TString*)(*run_context->formal_params)[0].get());
-	int index = *((int*)(*run_context->formal_params)[1].get());
-	run_context->result->SetAsReference(&(*(obj->v))[index]);
+	return (*(obj->v))[index];
 }
-template<>
-void TString::get_length(TMethodRunContext* run_context)
+
+int TString::length()
 {
-	TString* obj = ((TString*)run_context->object->get());
-	*(int*)run_context->result->get() = obj->GetLength();
+	return GetLength();
 }
-template<>
+
 SemanticApi::TExternalClassDecl TString::DeclareExternalClass()
 {
 	SemanticApi::TExternalClassDecl decl;
@@ -125,17 +72,17 @@ SemanticApi::TExternalClassDecl TString::DeclareExternalClass()
 		"func length:int;\n"
 		"}\n";
 
-	decl.def_constr = TString::constructor;
-	decl.copy_constr = TString::copy_constr;
-	decl.destr = TString::destructor;
+	//decl.def_constr = TString::constructor;
+	//decl.copy_constr = TString::copy_constr;
+	//decl.destr = TString::destructor;
 
-	decl.operators[(int)Lexer::TOperator::GetArrayElement] = TString::get_char_op;
-	decl.operators[(int)Lexer::TOperator::Assign] = TString::assign_op;
+	//decl.operators[(int)Lexer::TOperator::GetArrayElement] = TString::get_char_op;
+	//decl.operators[(int)Lexer::TOperator::Assign] = TString::assign_op;
 
-	decl.operators[(int)Lexer::TOperator::PlusA] = TString::assign_plus_op;
-	decl.operators[(int)Lexer::TOperator::Plus] = TString::plus_op;
+	//decl.operators[(int)Lexer::TOperator::PlusA] = TString::assign_plus_op;
+	//decl.operators[(int)Lexer::TOperator::Plus] = TString::plus_op;
 
-	decl.methods.insert(std::make_pair(std::string("length"), TString::get_length));
+	//decl.methods.insert(std::make_pair(std::string("length"), TString::get_length));
 
 	return decl;
 }

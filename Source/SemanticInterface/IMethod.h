@@ -56,10 +56,20 @@ namespace SemanticApi
 		}
 	};
 
+	enum class TNodeWithTemplatesType
+	{
+		Class,
+		Template,
+		Realization,
+		SurrogateTemplateParam,
+		Unknown
+	};
+
 	class INodeWithTemplates
 	{
 	public:
 		virtual TTemplateParameter GetTemplateParam(int i)const = 0;
+		virtual TNodeWithTemplatesType GetType()const = 0;
 	};
 
 	class INodeWithOffset
@@ -123,6 +133,7 @@ namespace SemanticApi
 
 		virtual bool IsExternal()const = 0;
 		virtual SyntaxApi::IClass* IGetSyntax()const = 0;
+
 	};
 
 	class TFormalParameter

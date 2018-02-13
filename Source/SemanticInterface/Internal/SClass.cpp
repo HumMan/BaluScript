@@ -40,22 +40,31 @@ public:
 	TSType parent;
 	///<summary>Класс в пределах которого объявлен данный класс</summary>
 	TSClass* owner;
+
+	///<summary>Суррогатные классы для обозначения параметров шаблона в шаблоне при связывании типов</summary>
+	std::vector<std::unique_ptr<TSClass>> surrogate_template_params;
 };
 
-TSClass::TSClass(TSClass* use_owner, SyntaxApi::IClass* use_syntax_node, TNodeWithTemplatesType type)
+TSClass::TSClass(TSClass* use_owner, SyntaxApi::IClass* use_syntax_node, SemanticApi::TNodeWithTemplatesType type)
 	:TSyntaxNode(use_syntax_node), _this(std::unique_ptr<TPrivate>(new TPrivate(this,use_syntax_node->GetParent())))
 {
-	if (type == TNodeWithTemplatesType::Unknown)
+	if (type == SemanticApi::TNodeWithTemplatesType::Unknown)
 	{
 		if (use_syntax_node->IsTemplate())
-			SetType(TNodeWithTemplatesType::Template);
+			SetType(SemanticApi::TNodeWithTemplatesType::Template);
 		else
-			SetType(TNodeWithTemplatesType::Class);
+			SetType(SemanticApi::TNodeWithTemplatesType::Class);
 	}
 	else
 		SetType(type);
 
 	_this->owner = use_owner;
+}
+
+TSClass::TSClass(TSClass * use_owner)
+	:TSyntaxNode(nullptr), _this(std::unique_ptr<TPrivate>(new TPrivate(this, nullptr)))
+{
+	SetType(SemanticApi::TNodeWithTemplatesType::SurrogateTemplateParam);
 }
 
 TSClass* TSClass::GetOwner()
@@ -154,7 +163,7 @@ SemanticApi::ISClass * TSClass::GetNested(size_t index) const
 
 bool TSClass::GetTemplateParameter(Lexer::TNameId name, SemanticApi::TTemplateParameter& result)const
 {
-	assert(GetType() == TNodeWithTemplatesType::Realization);
+	assert(GetType() == SemanticApi::TNodeWithTemplatesType::Realization);
 	SyntaxApi::IClass* template_class_syntax = GetTemplateClass()->GetSyntax();
 	size_t par_count = template_class_syntax->GetTemplateParamsCount();
 	for (size_t i = 0; i < par_count; i++)
@@ -244,7 +253,7 @@ void TSClass::CheckForErrors()
 TSClass* TSClass::GetClass(Lexer::TNameId use_name)
 {
 	//мы должны возвращать шаблонный класс, а не его реализацию
-	if (GetType() == TNodeWithTemplatesType::Class || GetType() == TNodeWithTemplatesType::Template)
+	if (GetType() == SemanticApi::TNodeWithTemplatesType::Class || GetType() == SemanticApi::TNodeWithTemplatesType::Template)
 	{
 		if (GetSyntax()->GetName() == use_name)
 			return this;
@@ -256,13 +265,24 @@ TSClass* TSClass::GetClass(Lexer::TNameId use_name)
 	}
 
 	//если реализация класса, то не забываем проверить не является ли идентификатор одним из параметров класса
-	if (GetType() == TNodeWithTemplatesType::Realization)
+	if (GetType() == SemanticApi::TNodeWithTemplatesType::Realization)
 	{
 		std::vector<SemanticApi::TTemplateParameter> template_params = GetTemplateParams();
 		for (size_t i = 0; i < template_params.size(); i++)
 			if (!template_params[i].is_value)
 				if (GetTemplateClass()->GetSyntax()->GetTemplateParam(i) == use_name)
 					return dynamic_cast<TSClass*>(template_params[i].type);
+	}
+
+	if (GetType() == SemanticApi::TNodeWithTemplatesType::Template)
+	{
+		auto count = GetSyntax()->GetTemplateParamsCount();
+		for (size_t i = 0; i < count; i++)
+				if (GetSyntax()->GetTemplateParam(i) == use_name)
+				{
+					_this->surrogate_template_params.push_back(std::unique_ptr<TSClass>(new TSClass(this)));
+					return _this->surrogate_template_params.back().get();
+				}
 	}
 
 	if (_this->owner != nullptr)
@@ -442,6 +462,8 @@ SemanticApi::ISMethod* TSClass::GetConversion(bool source_ref, SemanticApi::ISCl
 bool TSClass::GetCopyConstructors(std::vector<SemanticApi::ISMethod*> &result)const
 {
 	assert(IsAutoMethodsInitialized());
+	if (!_this->copy_constructors)
+		return false;
 	for (size_t i = 0; i < _this->copy_constructors->GetMethodsCount(); i++)
 	{
 		auto constructor = _this->copy_constructors->GetMethod(i);
@@ -576,6 +598,8 @@ SyntaxApi::IClass * TSClass::IGetSyntax() const
 bool TSClass::GetOperators(std::vector<SemanticApi::ISMethod*> &result, Lexer::TOperator op)const
 {
 	assert(IsAutoMethodsInitialized());
+	if (!_this->operators[(short)op])
+		return false;
 	_this->operators[(short)op]->GetMethods(result);
 	if (result.size() == 0 && op == Lexer::TOperator::Assign)
 		if (_this->auto_assign_operator)
@@ -653,7 +677,7 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 	}
 	else
 	{
-		if (GetType() != TNodeWithTemplatesType::Template)
+		if (GetType() != SemanticApi::TNodeWithTemplatesType::Template)
 		{
 			if (!IsSizeInitialized())
 			{
@@ -718,7 +742,7 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 			for (const std::unique_ptr<TSClass>& nested_class : _this->nested_classes)
 				nested_class->CalculateSizes(owners);
 		}
-		if (GetType() == TNodeWithTemplatesType::Template)
+		if (GetType() == SemanticApi::TNodeWithTemplatesType::Template)
 			for (const std::unique_ptr<TSClass>& realization : GetRealizations())
 				realization->CalculateSizes(owners);
 	}
@@ -726,7 +750,7 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 
 void TSClass::CalculateMethodsSizes()
 {
-	if (GetType() != TNodeWithTemplatesType::Template)
+	if (GetType() != SemanticApi::TNodeWithTemplatesType::Template)
 	{
 
 		for (TSOverloadedMethod& method : _this->methods)
@@ -751,14 +775,14 @@ void TSClass::CalculateMethodsSizes()
 		for (const std::unique_ptr<TSClass>& nested_class : _this->nested_classes)
 			nested_class->CalculateMethodsSizes();
 	}
-	if (GetType() == TNodeWithTemplatesType::Template)
+	if (GetType() == SemanticApi::TNodeWithTemplatesType::Template)
 		for (const std::unique_ptr<TSClass>& realization : GetRealizations())
 			realization->CalculateMethodsSizes();
 }
 
 void TSClass::InitAutoMethods()
 {
-	if (GetType() == TNodeWithTemplatesType::Template)
+	if (GetType() == SemanticApi::TNodeWithTemplatesType::Template)
 		return;
 	if (IsAutoMethodsInitialized())
 		return;
@@ -828,7 +852,7 @@ void TSClass::InitAutoMethods()
 	for (const std::unique_ptr<TSClass>& nested_class : _this->nested_classes)
 		nested_class->InitAutoMethods();
 
-	if (GetType() == TNodeWithTemplatesType::Template)
+	if (GetType() == SemanticApi::TNodeWithTemplatesType::Template)
 		for (const std::unique_ptr<TSClass>& realization : GetRealizations())
 			realization->InitAutoMethods();
 }

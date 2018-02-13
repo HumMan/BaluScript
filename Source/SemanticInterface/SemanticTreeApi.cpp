@@ -3,7 +3,6 @@
 #include "Internal/SClass.h"
 #include "Internal/SMethod.h"
 
-
 namespace SemanticApi
 {
 	void CreateInternalClasses(Lexer::ILexer* lexer, SyntaxApi::IClass* base_class, SemanticApi::ISClass* _sbase_class)
@@ -19,7 +18,7 @@ namespace SemanticApi
 		sbase_class->AddClass(t);
 	}
 
-	ISClass* SAnalyzeExternalClass(Lexer::ILexer* lexer, SyntaxApi::IClass* base_class, SemanticApi::ISClass* _sbase_class, TExternalClassDecl decl)
+	ISClass* SAnalyzeExternalClass(Lexer::ILexer* lexer, SyntaxApi::IClass* base_class, SemanticApi::ISClass* _sbase_class, TExternalClassDecl decl, TGlobalBuildContext build_context)
 	{
 		auto sbase_class = dynamic_cast<TSClass*>(_sbase_class);
 		lexer->ParseSource(decl.source.c_str());
@@ -29,6 +28,9 @@ namespace SemanticApi
 		TSClass* scl = new TSClass(sbase_class, cl);
 		sbase_class->AddClass(scl);
 		scl->Build();
+
+		scl->LinkSignature(build_context);
+		//scl->CalculateMethodsSizes();
 
 		scl->SetSize(decl.size);
 		scl->SetAutoMethodsInitialized();
@@ -84,7 +86,7 @@ namespace SemanticApi
 		CreateInternalClasses(lexer, base_class, sem_base_class);
 
 		for (auto v : external_classes)
-			SAnalyzeExternalClass(lexer, base_class, sem_base_class, v);
+			SAnalyzeExternalClass(lexer, base_class, sem_base_class, v, build_context);
 
 		sem_base_class->LinkSignature(build_context);
 		sem_base_class->InitAutoMethods();
