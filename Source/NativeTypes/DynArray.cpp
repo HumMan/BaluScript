@@ -11,8 +11,8 @@
 
 void TDynArr::def_constr(TMethodRunContext* run_context)
 {
-	run_context->object->get_as<TDynArr>().Init();
-	run_context->object->get_as<TDynArr>().el_class = run_context->object->GetClass()->GetTemplateParam(0).GetType();
+	Init();
+	el_class = run_context->object->GetClass()->GetTemplateParam(0).GetType();
 }
 
 void CallMethod(std::vector<TStaticValue> &static_fields, int* v, int first_element, int el_count, int el_size, SemanticApi::ISClass* el_class, SemanticApi::ISMethod* method)
@@ -91,17 +91,19 @@ void dyn_arr_resize(std::vector<TStaticValue> &static_fields, TDynArr* obj, int 
 
 void TDynArr::destructor(TMethodRunContext* run_context)
 {
-	TDynArr* obj = ((TDynArr*)run_context->object->get());
-	SemanticApi::ISClass* el = obj->el_class;
-	SemanticApi::ISMethod* el_destr = el->GetDestructor();
+	SemanticApi::ISMethod* el_destr = el_class->GetDestructor();
 	if (el_destr != nullptr)
 	{
-		if (obj->v->size() > 0)
+		if (v->size() > 0)
 		{
-			CallMethod(*run_context->static_fields, &((*obj->v)[0]), 0, obj->v->size() / el->GetSize(), el->GetSize(), el, el_destr);
+			CallMethod(*run_context->static_fields, &((*v)[0]), 0, v->size() / el_class->GetSize(), el_class->GetSize(), el_class, el_destr);
 		}
 	}
-	obj->~TDynArr();
+
+	el_class = nullptr;
+	delete v;
+	v = nullptr;
+
 	memset((TDynArr*)run_context->object->get(), 0xfeefee, sizeof(TDynArr));
 }
 
@@ -180,15 +182,5 @@ SemanticApi::TExternalClassDecl TDynArr::DeclareExternalClass()
 
 
 	decl.size = LexerIntSizeOf(sizeof(TDynArr)) / sizeof(int);
-	
-	//decl.def_constr = TDynArr::constructor;	
-	//decl.copy_constr = TDynArr::copy_constr;
-	//decl.destr = TDynArr::destructor;
-
-	//decl.operators[(int)Lexer::TOperator::GetArrayElement] = TDynArr::get_element_op;
-	//decl.operators[(int)Lexer::TOperator::Assign] = TDynArr::assign_op;
-	//
-	//decl.methods.insert(std::make_pair(std::string("resize"), TDynArr::resize));
-	//decl.methods.insert(std::make_pair(std::string("size"), TDynArr::get_size));
 	return decl;
 }

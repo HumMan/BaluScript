@@ -22,11 +22,13 @@ public:
 
 	std::vector<SemanticApi::ISClassField*> GetFields()const;
 
+	void SetExternal(const std::vector<SemanticApi::TExternalSMethod>& bindings, int& curr_bind);
+
 	void AddClass(TSClass* use_class);
 	void CopyExternalMethodBindingsFrom(TSClass* source);
 	TSClass* GetClass(Lexer::TNameId use_name);
 	void CheckForErrors();
-	TSClass* GetOwner();
+	TSClass* GetOwner()const;
 	TSClass* GetParent();
 	TSClass* GetNestedByFullName(std::vector<Lexer::TNameId> full_name, size_t curr_id);
 	TSClassField* GetField(Lexer::TNameId name, bool only_in_this);

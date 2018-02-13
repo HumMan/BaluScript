@@ -10,16 +10,6 @@ class TSyntaxAnalyzer;
 
 class TDynArr
 {
-private:
-	TDynArr()
-	{
-	}
-	TDynArr(const TDynArr& r)
-	{
-	}
-	~TDynArr()
-	{
-	}
 public:
 	std::vector<int>* v;//можно использовать не указатель, но учитывать move конструктор вектора, который хранит backpointer
 	SemanticApi::ISClass* el_class;

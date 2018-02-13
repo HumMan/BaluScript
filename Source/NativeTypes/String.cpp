@@ -71,18 +71,5 @@ SemanticApi::TExternalClassDecl TString::DeclareExternalClass()
 		"operator static +(string& v,string& l):string;\n"
 		"func length:int;\n"
 		"}\n";
-
-	//decl.def_constr = TString::constructor;
-	//decl.copy_constr = TString::copy_constr;
-	//decl.destr = TString::destructor;
-
-	//decl.operators[(int)Lexer::TOperator::GetArrayElement] = TString::get_char_op;
-	//decl.operators[(int)Lexer::TOperator::Assign] = TString::assign_op;
-
-	//decl.operators[(int)Lexer::TOperator::PlusA] = TString::assign_plus_op;
-	//decl.operators[(int)Lexer::TOperator::Plus] = TString::plus_op;
-
-	//decl.methods.insert(std::make_pair(std::string("length"), TString::get_length));
-
 	return decl;
 }

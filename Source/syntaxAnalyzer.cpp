@@ -61,7 +61,9 @@ void TSyntaxAnalyzer::Compile(const char* use_source/*, TTime& time*/)
 	external_classes.push_back(TStaticArr::DeclareExternalClass());
 	external_classes.push_back(TString::DeclareExternalClass());
 
-	_this->sem_base_class = SemanticApi::SAnalyze(_this->lexer.get(), _this->base_class, external_classes,
+	auto external_classes_bindings = ns_Script::Register();
+
+	_this->sem_base_class = SemanticApi::SAnalyze(_this->lexer.get(), _this->base_class, external_classes, external_classes_bindings,
 		SemanticApi::TGlobalBuildContext(&_this->static_fields, &_this->static_variables));
 
 	//printf("Syntax analyzing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);

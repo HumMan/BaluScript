@@ -212,7 +212,9 @@ void TreeRunner::Run(SemanticApi::ISMethod* method, TMethodRunContext method_run
 		run_context.result_returned = &result_returned;
 		run_context.local_variables = &local_variables;
 
-		if (method->GetType() == SemanticApi::SpecialClassMethodType::NotSpecial)
+		if (method->GetType() == SemanticApi::SpecialClassMethodType::NotSpecial ||
+			method->GetType() == SemanticApi::SpecialClassMethodType::Operator ||
+			method->GetType() == SemanticApi::SpecialClassMethodType::Conversion)
 		{
 			TreeRunner::RunStatements(method->GetStatements(),run_context);
 			//TODO заглушка для отслеживания завершения метода без возврата значения
@@ -236,7 +238,7 @@ void TreeRunner::Run(SemanticApi::ISMethod* method, TMethodRunContext method_run
 			{
 				TreeRunner::RunAutoDestr(owner, *run_context.static_fields, *run_context.object);
 			}break;
-			case SemanticApi::SpecialClassMethodType::Default:
+			case SemanticApi::SpecialClassMethodType::DefaultConstr:
 			{
 				if (owner->GetAutoDefConstr())
 					TreeRunner::RunAutoDefConstr(owner, *run_context.static_fields, *run_context.object);

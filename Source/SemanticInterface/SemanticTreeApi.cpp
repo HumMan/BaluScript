@@ -18,7 +18,9 @@ namespace SemanticApi
 		sbase_class->AddClass(t);
 	}
 
-	ISClass* SAnalyzeExternalClass(Lexer::ILexer* lexer, SyntaxApi::IClass* base_class, SemanticApi::ISClass* _sbase_class, TExternalClassDecl decl, TGlobalBuildContext build_context)
+	ISClass* SAnalyzeExternalClass(Lexer::ILexer* lexer, SyntaxApi::IClass* base_class, SemanticApi::ISClass* _sbase_class, 
+		TExternalClassDecl decl, TGlobalBuildContext build_context, 
+		std::vector<SemanticApi::TExternalSMethod> external_classes_bindings, int& curr_bind)
 	{
 		auto sbase_class = dynamic_cast<TSClass*>(_sbase_class);
 		lexer->ParseSource(decl.source.c_str());
@@ -36,57 +38,23 @@ namespace SemanticApi
 		scl->SetAutoMethodsInitialized();
 
 		//TODO проверка что заданы все external_func
-
-		if (decl.def_constr != nullptr)
-		{
-			assert(scl->GetDefConstr() != nullptr);
-			dynamic_cast<TSMethod*>(scl->GetDefConstr())->SetAsExternal(decl.def_constr);
-		}
-
-		std::vector<ISMethod*> m;
-
-		if (decl.copy_constr != nullptr)
-		{
-			m.clear();
-			scl->GetCopyConstructors(m);
-			dynamic_cast<TSMethod*>(m[0])->SetAsExternal(decl.copy_constr);
-		}
-
-		if (decl.destr != nullptr)
-		{
-			dynamic_cast<TSMethod*>(scl->GetDestructor())->SetAsExternal(decl.destr);
-		}
-
-		for (int i = 0; i<(int)Lexer::TOperator::End; i++)
-		{
-			auto curr_op = decl.operators[i];
-			if (curr_op != nullptr)
-			{
-				m.clear();
-				scl->GetOperators(m, (Lexer::TOperator)i);
-				dynamic_cast<TSMethod*>(m[0])->SetAsExternal(curr_op);
-			}
-		}
-
-		for (auto method : decl.methods)
-		{
-			m.clear();
-			scl->GetMethods(m, lexer->GetIdFromName(method.first.c_str()),SemanticApi::Filter::NotSet, false, false);
-			dynamic_cast<TSMethod*>(m[0])->SetAsExternal(method.second);
-		}
+		scl->SetExternal(external_classes_bindings, curr_bind);
 
 		return scl;
 	}
 
-	ISClass * SAnalyze(Lexer::ILexer* lexer, SyntaxApi::IClass* base_class, std::vector<TExternalClassDecl> external_classes, TGlobalBuildContext build_context)
+	ISClass * SAnalyze(Lexer::ILexer* lexer, SyntaxApi::IClass* base_class, std::vector<TExternalClassDecl> external_classes,
+		std::vector<SemanticApi::TExternalSMethod> external_classes_bindings, TGlobalBuildContext build_context)
 	{
 		auto sem_base_class = new TSClass(nullptr, base_class);
 		sem_base_class->Build();
 
 		CreateInternalClasses(lexer, base_class, sem_base_class);
 
+		int curr_bind=0;
+
 		for (auto v : external_classes)
-			SAnalyzeExternalClass(lexer, base_class, sem_base_class, v, build_context);
+			SAnalyzeExternalClass(lexer, base_class, sem_base_class, v, build_context, external_classes_bindings, curr_bind);
 
 		sem_base_class->LinkSignature(build_context);
 		sem_base_class->InitAutoMethods();

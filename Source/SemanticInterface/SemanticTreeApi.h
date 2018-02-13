@@ -85,7 +85,8 @@ namespace SemanticApi
 	};
 
 	BALUSCRIPT_DLL_INTERFACE ISClass* SAnalyze(Lexer::ILexer* lexer, SyntaxApi::IClass* base_class, 
-		std::vector<TExternalClassDecl> external_classes, TGlobalBuildContext build_context);
+		std::vector<TExternalClassDecl> external_classes, std::vector<SemanticApi::TExternalSMethod>,
+		TGlobalBuildContext build_context);
 
 	BALUSCRIPT_DLL_INTERFACE void SDestroy(ISClass*);
 

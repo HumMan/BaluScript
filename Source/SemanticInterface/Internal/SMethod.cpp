@@ -44,13 +44,15 @@ SemanticApi::SpecialClassMethodType GetMethodTypeFromSyntax(SyntaxApi::IMethod* 
 	switch (use_syntax->GetMemberType())
 	{
 	case SyntaxApi::TClassMember::DefaultConstr:
-		return SemanticApi::SpecialClassMethodType::Default;
+		return SemanticApi::SpecialClassMethodType::DefaultConstr;
 	case SyntaxApi::TClassMember::CopyConstr:
 		return SemanticApi::SpecialClassMethodType::CopyConstr;
 	case SyntaxApi::TClassMember::Destr:
 		return SemanticApi::SpecialClassMethodType::Destructor;
 	case SyntaxApi::TClassMember::Operator:
 		return SemanticApi::SpecialClassMethodType::Operator;
+	case SyntaxApi::TClassMember::Conversion:
+		return SemanticApi::SpecialClassMethodType::Conversion;
 	default:
 		return SemanticApi::SpecialClassMethodType::NotSpecial;
 	}

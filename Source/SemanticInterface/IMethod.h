@@ -10,7 +10,7 @@ namespace SemanticApi
 		AutoDestructor,
 		AutoAssignOperator,
 
-		Default,
+		DefaultConstr,
 		CopyConstr,
 		Destructor,
 		Operator,
@@ -133,7 +133,9 @@ namespace SemanticApi
 
 		virtual bool IsExternal()const = 0;
 		virtual SyntaxApi::IClass* IGetSyntax()const = 0;
+		virtual ISClass* GetOwner()const = 0;
 
+		virtual void SetExternal(const std::vector<SemanticApi::TExternalSMethod>& bindings, int& curr_bind) = 0;
 	};
 
 	class TFormalParameter
@@ -195,6 +197,7 @@ namespace SemanticApi
 		virtual size_t GetParametersSize()const=0;
 		virtual size_t GetReturnSize()const = 0;
 		virtual bool IsExternal()const = 0;
+		virtual void SetAsExternal(SemanticApi::TExternalSMethod method)=0;
 		virtual ISClass* GetOwner()const = 0;
 		virtual ISClass* GetRetClass()const = 0;
 		virtual ISParameter* GetParam(size_t use_id)const = 0;

@@ -67,7 +67,7 @@ TSClass::TSClass(TSClass * use_owner)
 	SetType(SemanticApi::TNodeWithTemplatesType::SurrogateTemplateParam);
 }
 
-TSClass* TSClass::GetOwner()
+TSClass* TSClass::GetOwner()const
 {
 	return _this->owner;
 }
@@ -857,3 +857,63 @@ void TSClass::InitAutoMethods()
 			realization->InitAutoMethods();
 }
 
+void TSClass::SetExternal(const std::vector<SemanticApi::TExternalSMethod>& bindings, int& curr_bind)
+{
+	if (GetDefConstr() != nullptr && GetDefConstr()->IsExternal())
+	{
+		GetDefConstr()->SetAsExternal(bindings[curr_bind]);
+		curr_bind++;
+	}
+
+	std::vector<SemanticApi::ISMethod*> m;
+
+	m.clear();
+	GetCopyConstructors(m);
+	for (size_t i = 0; i < m.size(); i++)
+	{
+		if (m[i]->IsExternal())
+		{
+			m[i]->SetAsExternal(bindings[curr_bind]);
+			curr_bind++;
+		}
+	}
+
+	if (GetDestructor() != nullptr && GetDestructor()->IsExternal())
+	{
+		GetDestructor()->SetAsExternal(bindings[curr_bind]);
+		curr_bind++;
+	}
+
+
+	for (int op = 0; op < (int)Lexer::TOperator::End; op++)
+	{
+		m.clear();
+		GetOperators(m, (Lexer::TOperator)op);
+		for (size_t i = 0; i < m.size(); i++)
+		{
+			if (m[i]->IsExternal())
+			{
+				m[i]->SetAsExternal(bindings[curr_bind]);
+				curr_bind++;
+			}
+		}
+
+	}
+
+	m.clear();
+	GetMethods(m);
+	for (size_t i = 0; i < m.size(); i++)
+	{
+		if (m[i]->IsExternal())
+		{
+			m[i]->SetAsExternal(bindings[curr_bind]);
+			curr_bind++;
+		}
+	}
+
+	auto nested_count = GetNestedCount();
+	for (size_t i = 0; i < nested_count; i++)
+	{
+		GetNested(i)->SetExternal(bindings, curr_bind);
+	}
+}
