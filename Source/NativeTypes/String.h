@@ -34,7 +34,7 @@ public:
 	{
 		v = new std::string();
 	}
-	void Init(std::string& value)
+	void Init(const std::string& value)
 	{
 		v = new std::string(value);
 	}
