@@ -15,9 +15,6 @@ class ISyntaxAnalyzer
 	virtual Lexer::ILexer* GetLexer()const = 0;
 	virtual SemanticApi::ISMethod* GetMethod(const char* use_method) = 0;
 	virtual SemanticApi::ISClassField* GetStaticField(char* use_var) = 0;
-
-	virtual int GetBindingOffset() = 0;
-	virtual int GetBindingCount() = 0;
 };
 
 class BALUSCRIPT_DLL_INTERFACE TSyntaxAnalyzer : public ISyntaxAnalyzer
@@ -30,11 +27,14 @@ public:
 	Lexer::ILexer* GetLexer()const;
 	TSyntaxAnalyzer();
 	~TSyntaxAnalyzer();
-	void Compile(const char* use_source/*,TTime& time*/);
+	void Compile(const char* use_source);
+	void Compile(const char* use_source, 
+		std::vector<SemanticApi::TExternalClassDecl> external_classes,
+		std::vector<SemanticApi::TExternalSMethod> _external_bindings);
 	SemanticApi::ISMethod* GetMethod(const char* use_method);
 	SemanticApi::ISClassField* GetStaticField(char* use_var);
 	std::vector<SemanticApi::ISClassField*> GetStaticFields()const;
 	std::vector<SemanticApi::ISLocalVar*> GetStaticVariables()const;
-	int GetBindingOffset();
-	int GetBindingCount();
+	static int GetBindingOffset();
+	static int GetBindingCount();
 };

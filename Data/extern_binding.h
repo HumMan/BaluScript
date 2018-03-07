@@ -345,9 +345,9 @@ namespace ns_Script
 		void bind_length(TMethodRunContext* run_context) 
 		{
 			// return --- int
-			TString** obj = ((TString**)(run_context->object->get()));
+			TString* obj = ((TString*)(run_context->object->get()));
 			int  result = 
-			(*obj)->length();
+			obj->length();
 			*(int*)run_context->result->get() = result;
 		}
 	}

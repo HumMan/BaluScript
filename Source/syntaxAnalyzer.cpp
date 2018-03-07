@@ -51,7 +51,14 @@ Lexer::ILexer* TSyntaxAnalyzer::GetLexer()const
 	return _this->lexer.get();
 }
 
-void TSyntaxAnalyzer::Compile(const char* use_source/*, TTime& time*/)
+void TSyntaxAnalyzer::Compile(const char* use_source)
+{
+	std::vector<SemanticApi::TExternalClassDecl> _external_classes;
+	std::vector<SemanticApi::TExternalSMethod> _external_bindings;
+	Compile(use_source, _external_classes, _external_bindings);
+}
+
+void TSyntaxAnalyzer::Compile(const char* use_source, std::vector<SemanticApi::TExternalClassDecl> _external_classes, std::vector<SemanticApi::TExternalSMethod> _external_bindings)
 {
 	//unsigned long long t = time.GetTime();
 	_this->lexer->ParseSource(("class Script{" + std::string(base_types) + use_source + "}").c_str());
@@ -64,7 +71,12 @@ void TSyntaxAnalyzer::Compile(const char* use_source/*, TTime& time*/)
 	external_classes.push_back(TStaticArr::DeclareExternalClass());
 	external_classes.push_back(TString::DeclareExternalClass());
 
+	for(auto& v: _external_classes)
+		external_classes.push_back(v);
+
 	auto external_classes_bindings = ns_Script::Register();
+	for (auto& v : _external_bindings)
+		external_classes_bindings.push_back(v);
 
 	_this->sem_base_class = SemanticApi::SAnalyze(_this->lexer.get(), _this->base_class, external_classes, external_classes_bindings,
 		SemanticApi::TGlobalBuildContext(&_this->static_fields, &_this->static_variables));

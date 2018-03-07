@@ -28,7 +28,10 @@ namespace Test
 	{		
 		try
 		{
-			syntax->Compile(code);
+			std::vector<SemanticApi::TExternalClassDecl> _external_classes;
+			std::vector<SemanticApi::TExternalSMethod> _external_bindings;
+
+			syntax->Compile(code, _external_classes, _external_bindings);
 			std::vector<SemanticApi::ISMethod*> methods;
 			syntax->GetCompiledBaseClass()->GetMethods(methods);
 			return methods.back();

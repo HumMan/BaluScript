@@ -53,6 +53,7 @@ namespace SemanticApi
 
 		int curr_bind=0;
 
+		//TODO внешние классы должны объ€вл€тьс€ в пор€дке испоьлзовани€, т.к. линкуютс€ последовательно
 		for (auto v : external_classes)
 			SAnalyzeExternalClass(lexer, base_class, sem_base_class, v, build_context, external_classes_bindings, curr_bind);
 
