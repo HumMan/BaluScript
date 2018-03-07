@@ -247,7 +247,27 @@ SyntaxApi::TClassMember TSMethod::GetMemberType() const
 
 bool TSMethod::IsStatic() const
 {
-	return GetSyntax()->IsStatic();
+	switch (GetType())
+	{
+	case SemanticApi::SpecialClassMethodType::NotSpecial:
+		return GetSyntax()->IsStatic();
+		break;
+	case SemanticApi::SpecialClassMethodType::AutoDefConstr:
+	case SemanticApi::SpecialClassMethodType::AutoCopyConstr:
+	case SemanticApi::SpecialClassMethodType::AutoDestructor:
+	case SemanticApi::SpecialClassMethodType::AutoAssignOperator:
+	case SemanticApi::SpecialClassMethodType::DefaultConstr:
+	case SemanticApi::SpecialClassMethodType::CopyConstr:
+	case SemanticApi::SpecialClassMethodType::Destructor:
+		return false;
+	case SemanticApi::SpecialClassMethodType::Operator:
+	case SemanticApi::SpecialClassMethodType::Conversion:
+		return true;
+	default:
+		assert(false);
+		return false;
+	}
+	
 }
 
 SemanticApi::ISStatements * TSMethod::GetStatements() const

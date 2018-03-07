@@ -105,6 +105,9 @@ namespace SemanticApi
 		public virtual ISNodeBodyLinked, public virtual INodeWithTemplates, public virtual ISNodeWithAutoMethods
 	{
 	public:
+
+		virtual ISClass * GetClass(Lexer::TNameId use_name)=0;
+
 		virtual ISMethod* GetAutoDefConstr()const=0;
 		virtual ISMethod* GetAutoDestr()const=0;
 

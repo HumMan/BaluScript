@@ -51,19 +51,9 @@ namespace SemanticApi
 	public:
 		TExternalClassDecl()
 		{
-			def_constr = nullptr;
-			copy_constr = nullptr;
-			destr = nullptr;
 			size = -1;
-			for (int i = 0; i < (int)Lexer::TOperator::End; i++)
-				operators[i] = nullptr;
 		}
 		std::string source;
-		TExternalSMethod def_constr,
-			copy_constr,
-			destr;
-		TExternalSMethod operators[(int)Lexer::TOperator::End];
-		std::map<std::string, TExternalSMethod> methods;
 		size_t size;
 	};
 

@@ -8,6 +8,9 @@
 
 #include "TreeRunner/ExpressionRun.h"
 
+#include "NativeTypes/vec.h"
+#include "TreeRunner/TreeRunner.h"
+
 #include "../Data/extern_binding.h"
 
 using namespace Lexer;
@@ -221,6 +224,16 @@ std::vector<SemanticApi::ISClassField*> TSyntaxAnalyzer::GetStaticFields() const
 std::vector<SemanticApi::ISLocalVar*> TSyntaxAnalyzer::GetStaticVariables() const
 {
 	return _this->static_variables;
+}
+
+int TSyntaxAnalyzer::GetBindingOffset()
+{
+	return ns_Script::BindingOffset;
+}
+
+int TSyntaxAnalyzer::GetBindingCount()
+{
+	return ns_Script::BindingCount;
 }
 
 
