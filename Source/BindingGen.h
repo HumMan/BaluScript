@@ -8,11 +8,25 @@
 
 namespace BindingGen
 {
-	BALUSCRIPT_DLL_INTERFACE void Generate(std::string source, 
-		std::map<std::string, std::string> script_class_to_c_map,
+	class TTypeConverterInfo
+	{
+	public:
+		std::string in_converter;
+		std::string out_converter;
+		std::string result_type;
+	};
+
+	class TBindingGenInfo
+	{
+	public:
+		std::map<std::string, std::string> script_class_to_c_map;
 		//TODO временный список классов представляющих указатель (применяется доп разименовывание)
-		std::vector<std::string> interface_script_class,
-		std::vector<std::string>& result, int offset,
-		std::vector<SemanticApi::TExternalClassDecl> _external_classes,
-		std::vector<SemanticApi::TExternalSMethod> _external_bindings);
+		std::vector<std::string> interface_script_class;
+		std::vector<SemanticApi::TExternalClassDecl> external_classes;
+		std::vector<SemanticApi::TExternalSMethod> external_bindings;
+		std::map<std::string, TTypeConverterInfo> type_converters;
+		int bindings_offset;
+	};
+
+	BALUSCRIPT_DLL_INTERFACE void Generate(std::string source, std::vector<std::string>& result, TBindingGenInfo info);
 }

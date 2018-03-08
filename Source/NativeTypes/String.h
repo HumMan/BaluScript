@@ -38,7 +38,10 @@ public:
 	{
 		v = new std::string(value);
 	}
-	
+	std::string AsStdString()const
+	{
+		return *v;
+	}
 	char GetChar(int i)
 	{
 		return(*v)[i];
