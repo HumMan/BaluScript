@@ -32,10 +32,12 @@ namespace SemanticApi
 		scl->Build();
 
 		scl->LinkSignature(build_context);
-		//scl->CalculateMethodsSizes();
-
 		scl->SetSize(decl.size);
-		scl->SetAutoMethodsInitialized();
+		if (scl->GetType() == SemanticApi::TNodeWithTemplatesType::Template)
+			scl->SetAutoMethodsInitialized();
+		else
+			scl->InitAutoMethods();
+		//scl->CalculateMethodsSizes();
 
 		//TODO проверка что заданы все external_func
 		scl->SetExternal(external_classes_bindings, curr_bind);
