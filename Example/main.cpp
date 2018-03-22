@@ -7,6 +7,11 @@
 #include "../Source/SemanticInterface/SemanticTreeApi.h"
 #include "../Source/TreeRunner/TreeRunner.h"
 
+#include <windows.h>
+#include <delayimp.h>
+
+#pragma comment(lib, "delayimp")  
+
 int main(int argc, char* argv[])
 {
 	
@@ -30,12 +35,12 @@ int main(int argc, char* argv[])
 			//time.Start();
 			//unsigned long long t0=time.GetTime();
 
-			TSyntaxAnalyzer syntax;
+			ISyntaxAnalyzer* syntax = ISyntaxAnalyzer::Create();
 			try
 			{
-				syntax.Compile(source.c_str());
+				syntax->Compile(source.c_str());
 
-				SemanticApi::ISMethod* main_func = syntax.GetMethod("func static Script.Main");
+				SemanticApi::ISMethod* main_func = syntax->GetMethod("func static Script.Main");
 				//int sp[200];
 				std::vector<TStackValue> params;
 				std::vector<TStaticValue> static_fields;
@@ -78,10 +83,12 @@ int main(int argc, char* argv[])
 			{
 				printf(s.c_str());
 			}
+			ISyntaxAnalyzer::Destroy(syntax);
 		}
 	}
 
 	printf("All done");
+	auto unload_result = __FUnloadDelayLoadedDLL2("BaluScript.dll");
 	_CrtDumpMemoryLeaks();
 	return 0;
 }

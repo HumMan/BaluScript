@@ -13,12 +13,16 @@
 #include "../Source/SemanticInterface/SemanticTreeApi.h"
 #include "../Source/TreeRunner/TreeRunner.h"
 
+#include <windows.h>
+#include <delayimp.h>
+
+#pragma comment(lib, "delayimp")  
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace Test
 {
-	TSyntaxAnalyzer* syntax;
+	ISyntaxAnalyzer* syntax;
 
 	std::vector<TStaticValue> *static_objects;
 
@@ -28,10 +32,7 @@ namespace Test
 	{		
 		try
 		{
-			std::vector<SemanticApi::TExternalClassDecl> _external_classes;
-			std::vector<SemanticApi::TExternalSMethod> _external_bindings;
-
-			syntax->Compile(code, _external_classes, _external_bindings);
+			syntax->Compile(code);
 			std::vector<SemanticApi::ISMethod*> methods;
 			syntax->GetCompiledBaseClass()->GetMethods(methods);
 			return methods.back();
@@ -50,10 +51,10 @@ namespace Test
 			if (static_objects != nullptr)
 				delete static_objects;
 			if (syntax != nullptr)
-				delete syntax;
+				ISyntaxAnalyzer::Destroy(syntax);
 
 			static_objects = new std::vector<TStaticValue>();
-			syntax = new TSyntaxAnalyzer();
+			syntax = ISyntaxAnalyzer::Create();
 
 			syntax->Compile(code);
 			auto sem_class = syntax->GetCompiledBaseClass();
@@ -71,7 +72,7 @@ namespace Test
 	TStackValue RunCode(const char* code)
 	{
 		static_objects = new std::vector<TStaticValue>();
-		syntax = new TSyntaxAnalyzer();
+		syntax = ISyntaxAnalyzer::Create();
 
 		SemanticApi::ISMethod* ms = CreateMethod(code);
 		std::vector<TStackValue> params;
@@ -83,7 +84,7 @@ namespace Test
 		TreeRunner::Run(ms, method_run_context);
 		TreeRunner::DeinitializeStatic(*static_objects);
 
-		delete syntax;
+		ISyntaxAnalyzer::Destroy(syntax);
 		delete static_objects;
 
 		syntax = nullptr;
@@ -142,7 +143,7 @@ namespace Test
 		}
 		if (syntax != nullptr)
 		{
-			delete syntax;
+			ISyntaxAnalyzer::Destroy(syntax);
 			syntax = nullptr;
 		}
 	}
@@ -152,6 +153,8 @@ namespace Test
 
 	TEST_MODULE_CLEANUP(ModuleCleanup)
 	{
+		//если была утечка внутри dll, то _CrtDumpMemoryLeaks упадёт с ошибкой
+		//auto unload_result = __FUnloadDelayLoadedDLL2("BaluScript.dll");
 		_CrtDumpMemoryLeaks();
 	}
 	void BaseTypesTestsInitialize()
@@ -1674,15 +1677,15 @@ namespace Test
 				"	return e;\n"
 				"}}");
 			Assert::AreEqual((int)2, *(int*)RunClassMethod("func static Script.TestClass.Test:TestEnum").get());
-			CreateClass(
-				"class TestClass {\n"
-				"enum TestEnum{One,Two,Three}"
-				"func static Test:TestEnum\n"
-				"{\n"
-				"	TestEnum e(TestEnum.Two);\n"
-				"	return e;\n"
-				"}}");
-			Assert::AreEqual((int)1, *(int*)RunClassMethod("func static Script.TestClass.Test:TestEnum").get());
+			//CreateClass(
+			//	"class TestClass {\n"
+			//	"enum TestEnum{One,Two,Three}"
+			//	"func static Test:TestEnum\n"
+			//	"{\n"
+			//	"	TestEnum e(TestEnum.Two);\n"
+			//	"	return e;\n"
+			//	"}}");
+			//Assert::AreEqual((int)1, *(int*)RunClassMethod("func static Script.TestClass.Test:TestEnum").get());
 		}
 	};
 	TEST_CLASS(ArraysSpecialSyntaxTesting)
@@ -1771,7 +1774,7 @@ namespace Test
 		}
 		TEST_METHOD(CallStaticMethodFromMember)
 		{
-			
+			//TODO утечка
 			CreateClass(
 				"class TestClass {\n"
 				"class ITestBase { TDynArray<int> s;func GetValue:int {s.resize(1);return 547;}}"

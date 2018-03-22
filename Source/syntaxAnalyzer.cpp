@@ -25,9 +25,22 @@ public:
 	std::vector<SemanticApi::ISLocalVar*> static_variables;
 };
 
-TSyntaxAnalyzer::TSyntaxAnalyzer():_this(std::unique_ptr<TPrivate>(new TPrivate()))
+ISyntaxAnalyzer* ISyntaxAnalyzer::Create()
+{
+	return new TSyntaxAnalyzer();
+}
+
+void ISyntaxAnalyzer::Destroy(ISyntaxAnalyzer* v)
+{
+	delete v;
+}
+
+TSyntaxAnalyzer::TSyntaxAnalyzer()
+	:_this(std::unique_ptr<TPrivate>(new TPrivate()))
 {
 	_this->lexer.reset(Lexer::ILexer::Create());
+	_this->base_class = nullptr;
+	_this->sem_base_class = nullptr;
 }
 
 TSyntaxAnalyzer::~TSyntaxAnalyzer()

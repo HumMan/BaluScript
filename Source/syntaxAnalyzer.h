@@ -10,14 +10,22 @@
 
 class ISyntaxAnalyzer
 {
+public:
+	virtual ~ISyntaxAnalyzer() {}
 	virtual SyntaxApi::IClass* GetBaseClass()const = 0;
 	virtual SemanticApi::ISClass* GetCompiledBaseClass()const = 0;
 	virtual Lexer::ILexer* GetLexer()const = 0;
 	virtual SemanticApi::ISMethod* GetMethod(const char* use_method) = 0;
 	virtual SemanticApi::ISClassField* GetStaticField(char* use_var) = 0;
+	virtual void Compile(const char* use_source)=0;
+	virtual std::vector<SemanticApi::ISClassField*> GetStaticFields()const=0;
+	virtual std::vector<SemanticApi::ISLocalVar*> GetStaticVariables()const=0;
+
+	static BALUSCRIPT_DLL_INTERFACE ISyntaxAnalyzer* Create();
+	static BALUSCRIPT_DLL_INTERFACE void Destroy(ISyntaxAnalyzer*);
 };
 
-class BALUSCRIPT_DLL_INTERFACE TSyntaxAnalyzer : public ISyntaxAnalyzer
+class TSyntaxAnalyzer : public ISyntaxAnalyzer
 {
 	class TPrivate;
 	std::unique_ptr<TPrivate> _this;

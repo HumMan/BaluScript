@@ -66,6 +66,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)\..\Output\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>BaluScript.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>BaluScript.dll</DelayLoadDLLs>
+      <AdditionalOptions>/DELAY:UNLOAD %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
