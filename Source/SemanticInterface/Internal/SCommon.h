@@ -15,3 +15,6 @@ SemanticApi::ISMethod* FindMethod(Lexer::ITokenPos* source, std::vector<Semantic
 
 void InitializeStaticClassFieldsOffset(std::vector<TSClassField*> static_fields);
 void InitializeStaticVariablesOffset(std::vector<TSLocalVar*> static_variables);
+
+SemanticApi::ISMethod* FindBinaryOperator(TSOperation *left, TSOperation *right,
+	SyntaxApi::IExpression* syntax_node, TSClass* owner, Lexer::TOperator operator_type);

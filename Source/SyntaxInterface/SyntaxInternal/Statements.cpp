@@ -52,13 +52,20 @@ bool ArrayDimensions(Lexer::ILexer* source) {
 }
 
 bool IsVarDecl(Lexer::ILexer* source) {
-	int t = source->GetCurrentToken();
-	bool result = ClassName(source);
-	result = result && ArrayDimensions(source);
-	source->TestAndGet(TResWord::Static);
-	result = result && source->Test(TTokenType::Identifier);//после типа объявляемой переменной следует имя(имена) переменных
-	source->SetCurrentToken(t);
-	return result;
+	if (source->Test(Lexer::TResWord::Var))
+	{
+		return true;
+	}
+	else
+	{
+		int t = source->GetCurrentToken();
+		bool result = ClassName(source);
+		result = result && ArrayDimensions(source);
+		source->TestAndGet(TResWord::Static);
+		result = result && source->Test(TTokenType::Identifier);//после типа объявляемой переменной следует имя(имена) переменных
+		source->SetCurrentToken(t);
+		return result;
+	}
 }
 
 void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
@@ -120,6 +127,15 @@ void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
 		case TResWord::Bytecode: {
 			TBytecode* t = new TBytecode(GetOwnerT(), GetMethodT(), this,
 					statements.size());
+			Add(t);
+			t->AnalyzeSyntax(source);
+			if (end_semicolon)
+				source->GetToken(TTokenType::Semicolon);
+			return;
+		}
+		case TResWord::Var: {
+			TLocalVar* t = new TLocalVar(GetOwnerT(), GetMethodT(), this,
+				statements.size());
 			Add(t);
 			t->AnalyzeSyntax(source);
 			if (end_semicolon)

@@ -485,6 +485,68 @@ namespace Test
 		{
 			BaseTypesTestsCleanup();
 		}
+		TEST_METHOD(VarKeyword)
+		{
+			CreateClass(
+				"class TestClass {\n"
+				"func static Test:int\n"
+				"{\n"
+				"	vec2 v(3,5),r(-2,8);\n"
+				"	var s=(v+r);\n"
+				"	int result(Dot(s,v-r));\n"
+				"	return result;\n"
+				"}}");
+			Assert::AreEqual((int)-34, *(int*)RunClassMethod(nullptr, "Test").get());
+		}
+		TEST_METHOD(VarKeyword2)
+		{
+			CreateClass(
+				"class TestClass {\n"
+				"func static Test:int\n"
+				"{\n"
+				"	float v(3);\n"
+				"	var s=v;\n"
+				"	int result(s);\n"
+				"	return result;\n"
+				"}}");
+			Assert::AreEqual((int)3, *(int*)RunClassMethod(nullptr, "Test").get());
+		}
+		TEST_METHOD(VarKeyword3)
+		{
+			CreateClass(
+				"class TestClass {\n"
+				"func static Test:int\n"
+				"{\n"
+				"	int v=3;\n"
+				"	var s=v;\n"
+				"	return s;\n"
+				"}}");
+			Assert::AreEqual((int)3, *(int*)RunClassMethod(nullptr, "Test").get());
+		}
+		TEST_METHOD(VarKeyword4)
+		{
+			CreateClass(
+				"class TestClass {\n"
+				"func static Test:int\n"
+				"{\n"
+				"	var s=3;\n"
+				"	return s;\n"
+				"}}");
+			Assert::AreEqual((int)3, *(int*)RunClassMethod(nullptr, "Test").get());
+		}
+		TEST_METHOD(VarKeyword5)
+		{
+			CreateClass(
+				"class TestClass {\n"
+				"func static Test:int\n"
+				"{\n"
+				"	vec2 v(3,5),r(-2,8);\n"
+				"	var s=Dot((v+r),v-r);\n"
+				"	int result(s);\n"
+				"	return result;\n"
+				"}}");
+			Assert::AreEqual((int)-34, *(int*)RunClassMethod(nullptr, "Test").get());
+		}
 		TEST_METHOD(IfTest)
 		{
 			Assert::AreEqual(false, *(bool*)RunCode("func static Test:bool{if(true)return false; else return true;}").get());

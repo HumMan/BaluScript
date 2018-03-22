@@ -85,7 +85,7 @@ public:
 
 class TSExpression :public TSStatement,public TSOperation, public SemanticApi::ISOperations::ISExpression
 {
-	std::unique_ptr<TSOperation> first_op;
+	std::unique_ptr<SemanticApi::ISOperations::ISOperation> first_op;
 public:
 	
 	
@@ -192,6 +192,7 @@ public:
 	
 public:
 	TSExpression(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IExpression* syntax_node);
+	TSExpression(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IExpression* syntax_node, SemanticApi::ISOperations::ISOperation* first_op);
 	void Build(SemanticApi::TGlobalBuildContext build_context);
 	SemanticApi::IVariable* GetVar(Lexer::TNameId name);
 	SyntaxApi::IExpression* GetSyntax();

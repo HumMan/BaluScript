@@ -340,7 +340,7 @@ bool TSimpleOps::ExecuteVec2Ops(const TOp& op, int*& sp, int* object)
 		*(float*)(sp - 3) = ((TVec2*)(sp - 3))->Distance(*(TVec2*)(sp - 1));
 		sp -= 3; break;
 	case VEC2_DOT:
-		*(float*)(sp - 3) = ((TVec2*)(sp - 3))->AbsScalarMul(*(TVec2*)(sp - 1));
+		*(float*)(sp - 3) = (*((TVec2*)(sp - 3)))*(*(TVec2*)(sp - 1));
 		sp -= 3; break;
 	case VEC2_LENGTH:
 		*(float*)(sp - 1) = ((TVec2*)(sp - 1))->Length();

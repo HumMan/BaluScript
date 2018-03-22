@@ -56,6 +56,7 @@ namespace Lexer
 		Bytecode,
 		Multifield,
 		New,
+		Var,
 
 		Func,
 		Default,

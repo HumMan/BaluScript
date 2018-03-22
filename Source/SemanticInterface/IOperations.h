@@ -19,6 +19,7 @@ namespace SemanticApi
 			virtual void Accept(ISExpressionVisitor*) = 0;
 			///<summary>Получить тип возвращаемого подвыражением значения</summary>
 			virtual const IExpressionResult* GetFormalParam()const = 0;
+			virtual ~ISOperation() {}
 		};
 
 		class ISExpression_TMethodCall : public virtual ISOperation

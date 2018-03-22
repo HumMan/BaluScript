@@ -58,46 +58,20 @@ public:
 
 	void Visit(SyntaxApi::IOperations::IBinOp* operation_node)
 	{
-		std::vector<TSOperation*> param_expressions;
-
 		TSOperation *left,*right;
 		left = VisitNode(operation_node->GetLeft());
 		right = VisitNode(operation_node->GetRight());
 
-		param_expressions.push_back(left);
-		param_expressions.push_back(right);
-
-		SemanticApi::ISMethod *bin_operator = nullptr;
-
-		std::vector<TExpressionResult> param;
-		std::vector<SyntaxApi::IMethod*> bin_operators;
-
-		param.resize(2);
-		param[0] = left->GetFormalParameter();
-		param[1] = right->GetFormalParameter();
-
-		if (param[0].IsVoid())
-			syntax_node->Error("К левому операнду нельзя применить бинарный оператор (нужен тип отличающийся от void)!");
-		if (param[1].IsVoid())
-			syntax_node->Error("К правому операнду нельзя применить бинарный оператор (нужен тип отличающийся от void)!");
-
-		std::vector<SemanticApi::ISMethod*> operators;
-
-		//список доступных операторов получаем из левого операнда
-		param[0].GetClass()->GetOperators(operators, operation_node->GetOp());
-		bin_operator = FindMethod(syntax_node, operators, param);
-		if (operation_node->GetOp() >= Lexer::TOperator::Assign&&operation_node->GetOp() <= Lexer::TOperator::OrA && !param[0].IsRef())
-			syntax_node->Error("Для присваиваниия требуется ссылка, а не значение!");
-
-		if (bin_operator != nullptr)
-		{
-			ValidateAccess(syntax_node, owner, bin_operator);
-		}
-		else syntax_node->Error("Бинарного оператора для данных типов не существует!");
+		auto bin_operator = FindBinaryOperator(left, right, syntax_node, owner, operation_node->GetOp());
 
 		TSExpression_TMethodCall* method_call = nullptr;
 
 		method_call = new TSExpression_TMethodCall(SemanticApi::TMethodCallType::Operator);
+
+		std::vector<TSOperation*> param_expressions;
+		param_expressions.push_back(left);
+		param_expressions.push_back(right);
+
 		method_call->Build(param_expressions, dynamic_cast<TSMethod*>(bin_operator));
 
 		Return(method_call);
@@ -447,12 +421,13 @@ public:
 
 void TSExpression::Build(SemanticApi::TGlobalBuildContext build_context)
 {
+	assert(first_op.get() == nullptr);
 	TSemanticTreeBuilder b(build_context, GetSyntax(), GetOwner(), GetMethod(), this);
 	auto syntax = GetSyntax();
 	if (!syntax->IsEmpty())
 		first_op.reset(b.VisitNode(syntax));
 
-	expression_result = first_op->GetFormalParameter();
+	expression_result = dynamic_cast<TSOperation*>(first_op.get())->GetFormalParameter();
 }
 
 SemanticApi::IVariable* TSExpression::GetVar(Lexer::TNameId name)
@@ -767,4 +742,11 @@ TSExpression::TSExpression(TSClass* use_owner, TSMethod* use_method, TSStatement
 	:TSStatement(SyntaxApi::TStatementType::Expression, use_owner, use_method, use_parent, (SyntaxApi::IStatement*)(syntax_node)) 
 {
 
+}
+
+TSExpression::TSExpression(TSClass* use_owner, TSMethod* use_method, TSStatements* use_parent, SyntaxApi::IExpression* syntax_node, SemanticApi::ISOperations::ISOperation* first_op)
+	:TSStatement(SyntaxApi::TStatementType::Expression, use_owner, use_method, use_parent, (SyntaxApi::IStatement*)(syntax_node))
+{
+	this->first_op.reset(first_op);
+	expression_result = dynamic_cast<TSOperation*>(this->first_op.get())->GetFormalParameter();
 }

@@ -121,10 +121,8 @@ public:
 		if (table[use_hash] != nullptr)
 		{
 			TNode* curr = table[use_hash];
-			TNode* last;
 			do
 			{
-				last = curr;
 				if (curr->key == use_key)
 				{
 					data = &curr->data;
@@ -499,6 +497,7 @@ namespace Lexer
 		res_words.Add("readonly", TToken(TTokenType::ResWord, (short)TResWord::Readonly));
 		res_words.Add("this", TToken(TTokenType::ResWord, (short)TResWord::This));
 		res_words.Add("bytecode", TToken(TTokenType::ResWord, (short)TResWord::Bytecode));
+		res_words.Add("var", TToken(TTokenType::ResWord, (short)TResWord::Var));
 
 		res_words.Add("func", TToken(TTokenType::ResWord, (short)TResWord::Func));
 		res_words.Add("default", TToken(TTokenType::ResWord, (short)TResWord::Default));

@@ -6,6 +6,8 @@
 #include "SClass.h"
 #include "SLocalVar.h"
 
+#include "SExpression.h"
+
 //actual_parameter - параметр который был передан методу
 //formal_parameter - параметр указаный в сигнатуре метода
 bool IsEqualClasses(TExpressionResult actual_parameter, SemanticApi::TFormalParameter formal_parameter, int& need_conv)
@@ -29,13 +31,13 @@ bool IsEqualClasses(TExpressionResult actual_parameter, SemanticApi::TFormalPara
 SemanticApi::ISMethod* FindMethod(Lexer::ITokenPos* source, std::vector<SemanticApi::ISMethod*> &methods_to_call, const std::vector<TExpressionResult> &actual_params)
 {
 	int conv_needed;
-	for (size_t k = 0; k<actual_params.size(); k++) {
+	for (size_t k = 0; k < actual_params.size(); k++) {
 		if (actual_params[k].IsVoid())
 			source->Error("Параметр метода должен иметь тип отличный от void!");
 	}
 	int min_conv_method = -1, temp_conv, conv;
 	conv_needed = -1;
-	for (size_t i = 0; i<methods_to_call.size(); i++)
+	for (size_t i = 0; i < methods_to_call.size(); i++)
 	{
 		if (actual_params.size() == 0 && methods_to_call[i]->GetParamsCount() == 0) {
 			conv_needed = 0;
@@ -44,12 +46,12 @@ SemanticApi::ISMethod* FindMethod(Lexer::ITokenPos* source, std::vector<Semantic
 		if (actual_params.size() != methods_to_call[i]->GetParamsCount())goto end_search;
 		temp_conv = 0;
 		conv = 0;
-		for (size_t k = 0; k<actual_params.size(); k++) {
+		for (size_t k = 0; k < actual_params.size(); k++) {
 			SemanticApi::ISParameter* p = methods_to_call[i]->GetParam(k);
 			if (!IsEqualClasses(actual_params[k], p->AsFormalParameter(), conv))goto end_search;
 			else temp_conv += conv;
 		}
-		if (temp_conv<conv_needed || conv_needed == -1)
+		if (temp_conv < conv_needed || conv_needed == -1)
 		{
 			conv_needed = temp_conv;
 			min_conv_method = i;
@@ -84,6 +86,43 @@ void ValidateAccess(Lexer::ITokenPos* field_pos, SemanticApi::ISClass* source, S
 		field_pos->Error("Данный метод доступен только из класса в котором он объявлен (private)!");
 }
 
+SemanticApi::ISMethod* FindBinaryOperator(TSOperation *left, TSOperation *right,
+	SyntaxApi::IExpression* syntax_node, TSClass* owner, Lexer::TOperator operator_type)
+{
+	std::vector<TSOperation*> param_expressions;
+	param_expressions.push_back(left);
+	param_expressions.push_back(right);
+
+	std::vector<TExpressionResult> param;
+	std::vector<SyntaxApi::IMethod*> bin_operators;
+
+	param.resize(2);
+	param[0] = left->GetFormalParameter();
+	param[1] = right->GetFormalParameter();
+
+	if (param[0].IsVoid())
+		syntax_node->Error("К левому операнду нельзя применить бинарный оператор (нужен тип отличающийся от void)!");
+	if (param[1].IsVoid())
+		syntax_node->Error("К правому операнду нельзя применить бинарный оператор (нужен тип отличающийся от void)!");
+
+	std::vector<SemanticApi::ISMethod*> operators;
+
+	//список доступных операторов получаем из левого операнда
+	param[0].GetClass()->GetOperators(operators, operator_type);
+	auto bin_operator = FindMethod(syntax_node, operators, param);
+	if (operator_type >= Lexer::TOperator::Assign &&
+		operator_type <= Lexer::TOperator::OrA &&
+		!param[0].IsRef())
+		syntax_node->Error("Для присваиваниия требуется ссылка, а не значение!");
+
+	if (bin_operator != nullptr)
+	{
+		ValidateAccess(syntax_node, owner, bin_operator);
+	}
+	else syntax_node->Error("Бинарного оператора для данных типов не существует!");
+
+	return bin_operator;
+}
 
 void InitializeStaticClassFieldsOffset(std::vector<TSClassField*> static_fields)
 {
