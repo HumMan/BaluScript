@@ -56,13 +56,13 @@ public:
 	//}
 
 	void def_constr();
-	void copy_constr(TString* param0);
+	void copy_constr(TString& param0);
 	void destructor();
 
-	static TString operator_Plus(TString* left, TString* right);
-	static TString operator_Assign(TString* left, TString* right);
-	static TString operator_PlusA(TString* left, TString* right);
-	static char& operator_GetArrayElement(TString* obj, int index);
+	static TString operator_Plus(TString& left, TString& right);
+	static void operator_Assign(TString& left, TString& right);
+	static void operator_PlusA(TString& left, TString& right);
+	static char& operator_GetArrayElement(TString& obj, int index);
 
 	int length();
 

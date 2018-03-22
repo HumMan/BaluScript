@@ -20,34 +20,32 @@ void TString::destructor()
 	v = nullptr;
 }
 
-void TString::copy_constr(TString* param0)
+void TString::copy_constr(TString& param0)
 {
-	Init(*(param0->v));
+	Init(*(param0.v));
 }
 
-TString TString::operator_Assign(TString* left, TString* right)
+void TString::operator_Assign(TString& left, TString& right)
 {
-	*(left->v) = *right->v;
-	return *left;
+	*(left.v) = *right.v;
 }
 
-TString TString::operator_PlusA(TString* left, TString* right)
+void TString::operator_PlusA(TString& left, TString& right)
 {
-	*(left->v) += *right->v;
-	return *left;
+	*(left.v) += *right.v;
 }
 
-TString TString::operator_Plus(TString* left, TString* right)
+TString TString::operator_Plus(TString& left, TString& right)
 {
-	auto temp = (*left->v + *right->v);
+	auto temp = (*left.v + *right.v);
 	TString result;
 	result.Init(temp);
 	return result;
 }
 
-char& TString::operator_GetArrayElement(TString* obj, int index)
+char& TString::operator_GetArrayElement(TString& obj, int index)
 {
-	return (*(obj->v))[index];
+	return (*(obj.v))[index];
 }
 
 int TString::length()
