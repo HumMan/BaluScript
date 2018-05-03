@@ -18,6 +18,10 @@ public:
 	virtual SemanticApi::ISMethod* GetMethod(const char* use_method) = 0;
 	virtual SemanticApi::ISClassField* GetStaticField(char* use_var) = 0;
 	virtual void Compile(const char* use_source)=0;
+	virtual void Compile(const char* use_source,
+		std::vector<SemanticApi::TExternalClassDecl> external_classes,
+		std::vector<SemanticApi::TExternalSMethod> _external_bindings)=0;
+
 	virtual std::vector<SemanticApi::ISClassField*> GetStaticFields()const=0;
 	virtual std::vector<SemanticApi::ISLocalVar*> GetStaticVariables()const=0;
 
@@ -43,6 +47,6 @@ public:
 	SemanticApi::ISClassField* GetStaticField(char* use_var);
 	std::vector<SemanticApi::ISClassField*> GetStaticFields()const;
 	std::vector<SemanticApi::ISLocalVar*> GetStaticVariables()const;
-	static int GetBindingOffset();
-	static int GetBindingCount();
+	static BALUSCRIPT_DLL_INTERFACE int GetBindingOffset();
+	static BALUSCRIPT_DLL_INTERFACE int GetBindingCount();
 };

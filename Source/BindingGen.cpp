@@ -131,6 +131,7 @@ std::string GenMethodName(SemanticApi::ISMethod* method)
 		assert(false);
 		break;
 	}
+	return "invalid_method!";
 }
 
 std::string DeclParameters(SemanticApi::ISMethod* method)
@@ -208,7 +209,7 @@ std::string callScriptFromC_DeclParameters(SemanticApi::ISMethod* method)
 	std::string result;
 	auto count = method->GetParamsCount();
 
-	result += "std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, TSyntaxAnalyzer& syntax";
+	result += "std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax";
 	if (count>0)
 		result += ", ";
 
@@ -451,7 +452,7 @@ void callScriptFromC_DeclBody(SemanticApi::ISMethod* method, std::vector<std::st
 
 		//TODO заменить на сквозную индексацию класса, т.к. порядок меняться не будет
 		Line(std::string("params.push_back(TStackValue(") + (is_ref ? "true" : "false") +
-			", syntax.GetCompiledBaseClass()->GetClass(syntax.GetLexer()->GetIdFromName(\"" + type + "\"))));\n", curr_level, result);
+			", syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName(\"" + type + "\"))));\n", curr_level, result);
 		Line(std::string("*(") + typeC + "*" + (is_ref ? "*" : "") + ")params[" + std::to_string(i) + "].get() = " +
 			(is_ref ? "&" : "") + "p" + std::to_string(i) + ";\n", curr_level, result);
 	}

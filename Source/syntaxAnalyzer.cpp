@@ -73,10 +73,8 @@ void TSyntaxAnalyzer::Compile(const char* use_source)
 
 void TSyntaxAnalyzer::Compile(const char* use_source, std::vector<SemanticApi::TExternalClassDecl> _external_classes, std::vector<SemanticApi::TExternalSMethod> _external_bindings)
 {
-	//unsigned long long t = time.GetTime();
 	_this->lexer->ParseSource(("class Script{" + std::string(base_types) + use_source + "}").c_str());
-	//printf("Source parsing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
-	//t = time.GetTime();
+
 	_this->base_class=SyntaxApi::Analyze(_this->lexer.get());
 
 	std::vector<SemanticApi::TExternalClassDecl> external_classes;
@@ -93,8 +91,6 @@ void TSyntaxAnalyzer::Compile(const char* use_source, std::vector<SemanticApi::T
 
 	_this->sem_base_class = SemanticApi::SAnalyze(_this->lexer.get(), _this->base_class, external_classes, external_classes_bindings,
 		SemanticApi::TGlobalBuildContext(&_this->static_fields, &_this->static_variables));
-
-	//printf("Syntax analyzing = %.3f ms\n", time.TimeDiff(time.GetTime(), t) * 1000);
 }
 
 class TMethodPointer
