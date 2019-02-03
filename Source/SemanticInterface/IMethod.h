@@ -297,7 +297,7 @@ namespace SemanticApi
 	class ISBytecode : public virtual ISStatement
 	{
 	public:
-		virtual const std::vector<SyntaxApi::TBytecodeOp>& GetBytecode()const = 0;
+		virtual const std::vector<TOpcode::Enum>& GetBytecode()const = 0;
 	};
 
 	class ISReturn : public virtual ISStatement

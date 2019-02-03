@@ -51,9 +51,6 @@
     <ClInclude Include="Source\VirtualMachine\Op.h">
       <Filter>Source Files\VirtualMachine</Filter>
     </ClInclude>
-    <ClInclude Include="Source\VirtualMachine\Program.h">
-      <Filter>Source Files\VirtualMachine</Filter>
-    </ClInclude>
     <ClInclude Include="Source\VirtualMachine\opcodes.h">
       <Filter>Source Files\VirtualMachine</Filter>
     </ClInclude>
@@ -65,12 +62,6 @@
     </ClInclude>
     <ClInclude Include="Source\NativeTypes\String.h">
       <Filter>Source Files\NativeTypes</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\VirtualMachine\ArrayClassMethod.h">
-      <Filter>Source Files\VirtualMachine</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\VirtualMachine\OpArray.h">
-      <Filter>Source Files\VirtualMachine</Filter>
     </ClInclude>
     <ClInclude Include="Source\memleaks.h">
       <Filter>Source Files</Filter>
@@ -310,18 +301,6 @@
     </ClCompile>
     <ClCompile Include="Source\NativeTypes\String.cpp">
       <Filter>Source Files\NativeTypes</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\VirtualMachine\ArrayClassMethod.cpp">
-      <Filter>Source Files\VirtualMachine</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\VirtualMachine\Op.cpp">
-      <Filter>Source Files\VirtualMachine</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\VirtualMachine\OpArray.cpp">
-      <Filter>Source Files\VirtualMachine</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\VirtualMachine\Program.cpp">
-      <Filter>Source Files\VirtualMachine</Filter>
     </ClCompile>
     <ClCompile Include="Source\SyntaxInterface\SyntaxInternal\Accessible.cpp">
       <Filter>Source Files\Syntax</Filter>

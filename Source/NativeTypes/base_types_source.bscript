@@ -25,8 +25,8 @@
 
 		operator static < (int l,int r):bool bytecode{ASM_INT_LESS;};
 		operator static <=(int l,int r):bool bytecode{ASM_INT_LESS_EQ;};
-		operator static ==(int l,int r):bool bytecode{ASM_EQUAL 0,0,1;};
-		operator static !=(int l,int r):bool bytecode{ASM_NOT_EQUAL 0,0,1;};
+		operator static ==(int l,int r):bool bytecode{ASM_EQUAL;};
+		operator static !=(int l,int r):bool bytecode{ASM_NOT_EQUAL;};
 		operator static > (int l,int r):bool bytecode{ASM_INT_GREATER;};
 		operator static >=(int l,int r):bool bytecode{ASM_INT_GREATER_EQ;};
 
@@ -64,8 +64,8 @@
 
 		operator static < (float l,float r):bool bytecode{ASM_FLOAT_LESS;};
 		operator static <=(float l,float r):bool bytecode{ASM_FLOAT_LESS_EQ;};
-		operator static ==(float l,float r):bool bytecode{ASM_EQUAL 0,0,1;};
-		operator static !=(float l,float r):bool bytecode{ASM_NOT_EQUAL 0,0,1;};
+		operator static ==(float l,float r):bool bytecode{ASM_EQUAL;};
+		operator static !=(float l,float r):bool bytecode{ASM_NOT_EQUAL;};
 		operator static > (float l,float r):bool bytecode{ASM_FLOAT_GREATER;};
 		operator static >=(float l,float r):bool bytecode{ASM_FLOAT_GREATER_EQ;};
 
@@ -110,8 +110,8 @@
 	public:
 		copy(bool v) bytecode{ASM_BOOL_CONSTR;};
 
-		operator static ==(bool l,bool r):bool bytecode{ASM_EQUAL 0,0,1;};
-		operator static !=(bool l,bool r):bool bytecode{ASM_NOT_EQUAL 0,0,1;};
+		operator static ==(bool l,bool r):bool bytecode{ASM_EQUAL;};
+		operator static !=(bool l,bool r):bool bytecode{ASM_NOT_EQUAL;};
 		operator static &&(bool l,bool r):bool bytecode{ASM_BOOL_AND;};
 		operator static ||(bool l,bool r):bool bytecode{ASM_BOOL_OR;};
 		operator static ! (bool l):bool bytecode{ASM_BOOL_NOT;};
@@ -180,6 +180,6 @@
 	private:
 		dword unnamed;
 	public:
-		operator static ==(char l,char r):bool bytecode{ASM_EQUAL 0,0,1;};
-		operator static !=(char l,char r):bool bytecode{ASM_NOT_EQUAL 0,0,1;};
+		operator static ==(char l,char r):bool bytecode{ASM_EQUAL;};
+		operator static !=(char l,char r):bool bytecode{ASM_NOT_EQUAL;};
 	}

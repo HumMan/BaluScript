@@ -18,27 +18,9 @@ SyntaxApi::IBytecode* TSBytecode::GetSyntax()const
 
 void TSBytecode::Build(SemanticApi::TGlobalBuildContext build_context)
 {
-	auto code = GetSyntax()->GetBytecode();
-	for (size_t i = 0; i<code.size(); i++)
-	{
-		if (code[i].f[0] == SyntaxApi::TOpParamType::GET_ARR_ELEMENT_CLASS_ID)
-		{
-			TSClass* temp = GetOwner()->GetClass(code[i].id[0]);
-			if (temp == nullptr)GetSyntax()->Error("Неизвестный идентификатор!");
-			//GetSyntax()->code[i].op.v1 = program.CreateArrayElementClassId(temp);
-			array_element_classes.push_back(temp);
-		}//TODO сделать нормально без повторений
-		if (code[i].f[1] == SyntaxApi::TOpParamType::GET_ARR_ELEMENT_CLASS_ID)
-		{
-			TSClass* temp = GetOwner()->GetClass(code[i].id[1]);
-			if (temp == nullptr)GetSyntax()->Error("Неизвестный идентификатор!");
-			//code[i].op.v2 = program.CreateArrayElementClassId(temp);
-			array_element_classes.push_back(temp);
-		}//TODO сделать нормально без повторений
-	}
 }
 
-const std::vector<SyntaxApi::TBytecodeOp>& TSBytecode::GetBytecode() const
+const std::vector<TOpcode::Enum>& TSBytecode::GetBytecode() const
 {
 	return GetSyntax()->GetBytecode();
 }

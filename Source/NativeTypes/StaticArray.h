@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include "../VirtualMachine/Program.h"
 #include "../virtualMachine.h"
 
 #include "../SemanticInterface/SemanticTreeApi.h"

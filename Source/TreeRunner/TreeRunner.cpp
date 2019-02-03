@@ -160,16 +160,15 @@ void TreeRunner::Run(SemanticApi::ISBytecode* bytecode, TStatementRunContext run
 
 	auto object = (run_context.object != nullptr) ? (int*)run_context.object->get() : nullptr;
 	auto code = bytecode->GetBytecode();
-	for (const SyntaxApi::TBytecodeOp& op : code)
+	for (auto op : code)
 	{
 
 		if (
-			TSimpleOps::ExecuteIntOps(op.op, sp, object) ||
-			TSimpleOps::ExecuteFloatOps(op.op, sp, object) ||
-			TSimpleOps::ExecuteBoolOps(op.op, sp, object) ||
-			TSimpleOps::ExecuteBaseOps(op.op, sp, object) ||
-			TSimpleOps::ExecuteVec2Ops(op.op, sp, object) ||
-			TSimpleOps::ExecuteVec2iOps(op.op, sp, object))
+			TSimpleOps::ExecuteIntOps(op, sp, object) ||
+			TSimpleOps::ExecuteFloatOps(op, sp, object) ||
+			TSimpleOps::ExecuteBoolOps(op, sp, object) ||
+			TSimpleOps::ExecuteVec2Ops(op, sp, object) ||
+			TSimpleOps::ExecuteVec2iOps(op, sp, object))
 		{
 
 		}
