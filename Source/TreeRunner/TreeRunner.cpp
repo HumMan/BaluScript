@@ -2,7 +2,9 @@
 
 #include "ExpressionRun.h"
 
-#include "../virtualMachine.h"
+#include "../BytecodeBaseOps/baseOps.h"
+
+#include <array>
 
 void TreeRunner::RunConversion(const SemanticApi::IActualParamWithConversion* curr_op, std::vector<TStaticValue> &static_fields, TStackValue &value)
 {
@@ -131,32 +133,34 @@ void TreeRunner::Destruct(SemanticApi::ISLocalVar* local_var, std::vector<TStati
 }
 
 
-void PackToStack(std::vector<TStackValue> &formal_params, int* &sp)
+int PackToStack(std::vector<TStackValue> &formal_params, std::array<int, 8> &stack)
 {
 	int i = 0;
 	for (TStackValue& v : formal_params)
 	{
 		if (v.IsRef())
 		{
-			*(void**)sp = v.get();
-			(*(int**)&sp)++;
+			*(void**)&stack[i] = v.get();
+			i++;
 		}
 		else
 		{
-			memcpy(sp, v.get(), v.GetClass()->GetSize() * sizeof(int));
-			*(int**)&sp += v.GetClass()->GetSize();
+			memcpy(&stack[i], v.get(), v.GetClass()->GetSize() * sizeof(int));
+			i += v.GetClass()->GetSize();
 		}
 		if (i == (formal_params.size() - 1))
-			(*(int**)&sp)--;
-		i++;
+		{
+			assert(i < stack.size());
+		}
 	}
+	return i-1;
 }
 
 void TreeRunner::Run(SemanticApi::ISBytecode* bytecode, TStatementRunContext run_context)
 {
-	int stack[255];
-	int* sp = stack;
-	PackToStack(*run_context.formal_params, sp);
+	std::array<int, 8> stack;
+	int last_param = PackToStack(*run_context.formal_params, stack);
+	int* sp = &stack[last_param];
 
 	auto object = (run_context.object != nullptr) ? (int*)run_context.object->get() : nullptr;
 	auto code = bytecode->GetBytecode();
@@ -183,11 +187,11 @@ void TreeRunner::Run(SemanticApi::ISBytecode* bytecode, TStatementRunContext run
 		*run_context.result = TStackValue(bytecode_method->IsReturnRef(), bytecode_method->GetRetClass());
 		if (bytecode_method->IsReturnRef())
 		{
-			run_context.result->SetAsReference(*(void**)stack);
+			run_context.result->SetAsReference(*(void**)stack[0]);
 		}
 		else
 		{
-			memcpy(run_context.result->get(), stack, bytecode_method->GetReturnSize() * sizeof(int));
+			memcpy(run_context.result->get(), &stack[0], bytecode_method->GetReturnSize() * sizeof(int));
 		}
 	}
 }

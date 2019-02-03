@@ -41,7 +41,7 @@ namespace SyntaxApi
 	BALUSCRIPT_DLL_INTERFACE void Destroy(IMethod*);
 }
 
-#include "../VirtualMachine/Op.h"
+#include "../BytecodeBaseOps/Op.h"
 
 #include "IType.h"
 #include "IAccesible.h"

@@ -220,13 +220,13 @@
     <ClInclude Include="Source\SyntaxInterface\SyntaxInternal\While.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\virtualMachine.h">
+    <ClInclude Include="Source\BytecodeBaseOps\baseOps.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\VirtualMachine\Op.h">
+    <ClInclude Include="Source\BytecodeBaseOps\Op.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Source\VirtualMachine\opcodes.h">
+    <ClInclude Include="Source\BytecodeBaseOps\opcodes.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Source\TreeRunner\TreeRunner.h" />
@@ -345,7 +345,7 @@
     <ClCompile Include="Source\SyntaxInterface\SyntaxTreeApi.cpp" />
     <ClCompile Include="Source\TreeRunner\ExpressionRun.cpp" />
     <ClCompile Include="Source\TreeRunner\FormalParam.cpp" />
-    <ClCompile Include="Source\virtualMachine.cpp">
+    <ClCompile Include="Source\BytecodeBaseOps\baseOps.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClCompile>

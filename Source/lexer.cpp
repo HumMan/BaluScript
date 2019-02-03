@@ -1,6 +1,6 @@
 ﻿#include "lexer.h"
 
-#include "VirtualMachine/Op.h"
+#include "BytecodeBaseOps/Op.h"
 
 #include <math.h>
 

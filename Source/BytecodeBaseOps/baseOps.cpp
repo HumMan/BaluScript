@@ -1,6 +1,6 @@
 ﻿#include <stdlib.h>
 
-#include "virtualMachine.h"
+#include "baseOps.h"
 
 #include "NativeTypes/DynArray.h"
 #include "NativeTypes/StaticArray.h"
@@ -14,7 +14,7 @@ typedef BaluLib::TVec2i TVec2i;
 	const char* OpcodeInfo[]= 
 #define BALU_SCRIPT_OPCODE_ELEM( element ) "ASM_"#element
 
-#include "VirtualMachine/opcodes.h"
+#include "opcodes.h"
 
 #undef BALU_SCRIPT_OPCODE_ELEM
 #undef BALU_SCRIPT_OPCODE_BEGIN

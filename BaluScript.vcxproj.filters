@@ -39,20 +39,11 @@
     <ClInclude Include="Source\syntaxAnalyzer.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\virtualMachine.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\baluScript.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\notOptimizedProgram.h">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\VirtualMachine\Op.h">
-      <Filter>Source Files\VirtualMachine</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\VirtualMachine\opcodes.h">
-      <Filter>Source Files\VirtualMachine</Filter>
     </ClInclude>
     <ClInclude Include="Source\NativeTypes\DynArray.h">
       <Filter>Source Files\NativeTypes</Filter>
@@ -279,6 +270,15 @@
     <ClInclude Include="Source\BindingGen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\BytecodeBaseOps\Op.h">
+      <Filter>Source Files\VirtualMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\BytecodeBaseOps\opcodes.h">
+      <Filter>Source Files\VirtualMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\BytecodeBaseOps\baseOps.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\lexer.cpp">
@@ -288,9 +288,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\syntaxAnalyzer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\virtualMachine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\NativeTypes\DynArray.cpp">
@@ -426,6 +423,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\BindingGen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\BytecodeBaseOps\baseOps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

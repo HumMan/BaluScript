@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include "../virtualMachine.h"
-
 #include "../SemanticInterface/SemanticTreeApi.h"
 
 #include "../TreeRunner/RunContext.h"

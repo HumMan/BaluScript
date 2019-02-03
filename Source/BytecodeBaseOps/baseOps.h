@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <memory.h>
 #include <string.h>
-#include "VirtualMachine/Op.h"
+#include "Op.h"
 
 class TProgram;
 
