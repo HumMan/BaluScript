@@ -2,10 +2,10 @@
 
 #include "baseOps.h"
 
-#include "NativeTypes/DynArray.h"
-#include "NativeTypes/StaticArray.h"
-#include "NativeTypes/String.h"
-#include "NativeTypes/vec.h"
+#include "../NativeTypes/DynArray.h"
+#include "../NativeTypes/StaticArray.h"
+#include "../NativeTypes/String.h"
+#include "../NativeTypes/vec.h"
 
 typedef BaluLib::TVec2 TVec2;
 typedef BaluLib::TVec2i TVec2i;
