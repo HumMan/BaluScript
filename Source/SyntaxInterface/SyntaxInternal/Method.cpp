@@ -52,7 +52,6 @@ void TMethod::AnalyzeSyntax(Lexer::ILexer* source, bool realization) {
 	case SyntaxApi::TClassMember::Func:
 	case SyntaxApi::TClassMember::DefaultConstr:
 	case SyntaxApi::TClassMember::CopyConstr:
-	case SyntaxApi::TClassMember::MoveConstr:
 	case SyntaxApi::TClassMember::Destr:
 	case SyntaxApi::TClassMember::Operator:
 	case SyntaxApi::TClassMember::Conversion:
@@ -104,9 +103,6 @@ void TMethod::AnalyzeSyntax(Lexer::ILexer* source, bool realization) {
 				break;
 			case SyntaxApi::TClassMember::CopyConstr:
 				owner->AddCopyConstr(this);
-				break;
-			case SyntaxApi::TClassMember::MoveConstr:
-				owner->AddMoveConstr(this);
 				break;
 			case SyntaxApi::TClassMember::Destr:
 				owner->AddDestr(this);

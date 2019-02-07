@@ -20,7 +20,7 @@ public:
 	std::list<TSOverloadedMethod> methods;
 
 	std::unique_ptr<TSMethod> default_constructor;
-	std::unique_ptr<TSOverloadedMethod> copy_constructors, move_constructors;
+	std::unique_ptr<TSOverloadedMethod> copy_constructors;
 	///<summary>Пользовательский деструктор (автоматический деструктор, если существует, будет добавлен как PostEvent)</summary>
 	std::unique_ptr<TSMethod> destructor;
 	std::unique_ptr<TSOverloadedMethod> operators[(short)Lexer::TOperator::End];
@@ -30,7 +30,6 @@ public:
 
 	std::unique_ptr<TSMethod> auto_def_constr;
 	std::unique_ptr<TSMethod> auto_copy_constr;
-	std::unique_ptr<TSMethod> auto_move_constr;
 	///<summary>Автоматически созданный оператор присваивания</summary>
 	std::unique_ptr<TSMethod> auto_assign_operator;
 	///<summary>Автоматически созданный деструктор</summary>
@@ -108,9 +107,6 @@ void TSClass::Build()
 
 	_this->copy_constructors = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, GetSyntax()->GetCopyConstr()));
 	_this->copy_constructors->Build();
-
-	_this->move_constructors = std::unique_ptr<TSOverloadedMethod>(new TSOverloadedMethod(this, GetSyntax()->GetMoveConstr()));
-	_this->move_constructors->Build();
 
 	if (GetSyntax()->HasDestructor())
 	{
@@ -227,19 +223,6 @@ void TSClass::CheckForErrors()
 	{
 		GetSyntax()->Error("External класс не может содержать вложенные классы!");
 	}
-
-	//TODO конструктор копии всегда один и & - остальные просто конструкторы
-	
-
-	//constructors.CheckForErrors();
-	//conversions.CheckForErrors(true);
-	//for(size_t i=0;i<TOperator::End;i++)
-	//{
-	//	operators[i].CheckForErrors();
-	//}
-	//for(size_t i=0;i<nested_classes.size();i++)
-	//	if(!nested_classes[i]->IsTemplate())
-	//		nested_classes[i]->DeclareMethods();
 }
 
 TSClass* TSClass::GetClass(Lexer::TNameId use_name)
@@ -339,8 +322,6 @@ void TSClass::LinkSignature(SemanticApi::TGlobalBuildContext build_context)
 		_this->default_constructor->LinkSignature(build_context);
 	if (_this->copy_constructors)
 		_this->copy_constructors->LinkSignature(build_context);
-	if (_this->move_constructors)
-		_this->move_constructors->LinkSignature(build_context);
 	if (_this->destructor)
 		_this->destructor->LinkSignature(build_context);
 
@@ -376,8 +357,6 @@ void TSClass::LinkBody(SemanticApi::TGlobalBuildContext build_context)
 		_this->default_constructor->LinkBody(build_context);
 	if (_this->copy_constructors)
 		_this->copy_constructors->LinkBody(build_context);
-	if (_this->move_constructors)
-		_this->move_constructors->LinkBody(build_context);
 	if (_this->destructor)
 		_this->destructor->LinkBody(build_context);
 
@@ -457,21 +436,6 @@ bool TSClass::GetCopyConstructors(std::vector<SemanticApi::ISMethod*> &result)co
 	return result.size() > 0;
 }
 
-
-bool TSClass::GetMoveConstructors(std::vector<SemanticApi::ISMethod*> &result)const
-{
-	assert(IsAutoMethodsInitialized());
-	for (size_t i = 0; i < _this->move_constructors->GetMethodsCount(); i++)
-	{
-		auto constructor = _this->move_constructors->GetMethod(i);
-		result.push_back(constructor);
-	}
-
-	if (_this->auto_move_constr)
-		result.push_back(_this->auto_move_constr.get());
-	return result.size() > 0;
-}
-
 SemanticApi::ISMethod* TSClass::GetDefConstr()const
 {
 	assert(IsAutoMethodsInitialized());
@@ -498,26 +462,6 @@ SemanticApi::ISMethod* TSClass::GetCopyConstr()const
 		}
 	}
 	if (_this->auto_copy_constr)
-		return _this->auto_copy_constr.get();
-	return nullptr;
-}
-
-SemanticApi::ISMethod* TSClass::GetMoveConstr()const
-{
-	assert(IsAutoMethodsInitialized());
-	if (_this->move_constructors)
-	{
-		for (size_t i = 0; i < _this->move_constructors->GetMethodsCount(); i++)
-		{
-			auto constructor = _this->move_constructors->GetMethod(i);
-			if (constructor->GetParamsCount() == 1
-				&& constructor->GetParam(0)->GetClass() == this
-				&& constructor->GetParam(0)->GetSyntax()->IsRef() == true) {
-				return constructor;
-			}
-		}
-	}
-	if (_this->auto_move_constr)
 		return _this->auto_copy_constr.get();
 	return nullptr;
 }
@@ -628,8 +572,6 @@ void TSClass::CopyExternalMethodBindingsFrom(TSClass* source)
 		_this->default_constructor->CopyExternalMethodBindingsFrom(source->_this->default_constructor.get());
 	if (_this->copy_constructors)
 		_this->copy_constructors->CopyExternalMethodBindingsFrom(source->_this->copy_constructors.get());
-	if (_this->move_constructors)
-		_this->move_constructors->CopyExternalMethodBindingsFrom(source->_this->move_constructors.get());
 	if (_this->destructor)
 		_this->destructor->CopyExternalMethodBindingsFrom(source->_this->destructor.get());
 
@@ -714,8 +656,6 @@ void TSClass::CalculateMethodsSizes()
 			_this->default_constructor->CalculateParametersOffsets();
 		if (_this->copy_constructors)
 			_this->copy_constructors->CalculateParametersOffsets();
-		if (_this->move_constructors)
-			_this->move_constructors->CalculateParametersOffsets();
 		if (_this->destructor)
 			_this->destructor->CalculateParametersOffsets();
 

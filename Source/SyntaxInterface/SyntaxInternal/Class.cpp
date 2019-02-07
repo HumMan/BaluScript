@@ -20,7 +20,7 @@ namespace SyntaxInternal
 		std::vector<std::unique_ptr<TClassField>> fields;
 		std::vector<std::unique_ptr<TOverloadedMethod>> methods;
 		std::unique_ptr<TMethod> constr_default;
-		std::unique_ptr<TOverloadedMethod> constr_copy, constr_move;
+		std::unique_ptr<TOverloadedMethod> constr_copy;
 		///<summary>Пользовательский деструктор</summary>
 		std::unique_ptr<TMethod> destructor;
 		std::unique_ptr<TOverloadedMethod> operators[(short)Lexer::TOperator::End];
@@ -88,7 +88,6 @@ TClass::TClass(TClass* use_owner)
 	_this->owner = use_owner;
 
 	_this->constr_copy.reset(new TOverloadedMethod());
-	_this->constr_move.reset(new TOverloadedMethod());
 	for (size_t i = 0; i < (short)Lexer::TOperator::End;i++)
 		_this->operators[i].reset(new TOverloadedMethod());
 	_this->conversions.reset(new TOverloadedMethod());
@@ -134,13 +133,6 @@ void TClass::AddCopyConstr(TMethod* use_method)
 	if(use_method->GetParamsCount()==0)
 		Error("Конструктор копии должен иметь параметры!");
 	_this->constr_copy->AddMethod(use_method);
-}
-
-void TClass::AddMoveConstr(TMethod* use_method)
-{
-	if (use_method->GetParamsCount() == 0)
-		Error("Конструктор перемещения должен иметь параметры!");
-	_this->constr_move->AddMethod(use_method);
 }
 
 void TClass::AddDestr(TMethod* use_method)
@@ -318,7 +310,6 @@ void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 				case TResWord::Func:
 				case TResWord::Default:
 				case TResWord::Copy:
-				case TResWord::Move:
 				case TResWord::Destr:
 				case TResWord::Operator:
 				case TResWord::Conversion:
@@ -380,10 +371,6 @@ SyntaxApi::IMethod* TClass::GetDestructor() const
 SyntaxApi::IOverloadedMethod* TClass::GetCopyConstr() const
 {
 	return _this->constr_copy.get();
-}
-SyntaxApi::IOverloadedMethod* TClass::GetMoveConstr() const
-{
-	return _this->constr_move.get();
 }
 SyntaxApi::IOverloadedMethod* TClass::GetOperator(int i) const
 {

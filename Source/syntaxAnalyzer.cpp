@@ -154,9 +154,6 @@ SemanticApi::ISMethod* TSyntaxAnalyzer::GetMethod(const char* use_method)
 	case SyntaxApi::TClassMember::CopyConstr:
 		method_decl->GetOwner()->GetCopyConstructors(methods);
 		break;
-	case SyntaxApi::TClassMember::MoveConstr:
-		method_decl->GetOwner()->GetMoveConstructors(methods);
-		break;
 	case SyntaxApi::TClassMember::Destr:
 		method = method_decl->GetOwner()->GetDestructor();
 		break;
@@ -171,7 +168,6 @@ SemanticApi::ISMethod* TSyntaxAnalyzer::GetMethod(const char* use_method)
 	SyntaxApi::TClassMember temp = method_decl->GetMemberType();
 	if (temp == SyntaxApi::TClassMember::Func ||
 		temp == SyntaxApi::TClassMember::CopyConstr ||
-		temp == SyntaxApi::TClassMember::MoveConstr ||
 		temp == SyntaxApi::TClassMember::Operator)
 	{
 		for (size_t i = 0; i<methods.size(); i++)

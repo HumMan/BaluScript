@@ -60,7 +60,6 @@ namespace Lexer
 		Func,
 		Default,
 		Copy,
-		Move,
 		Destr,
 		Operator,
 		Conversion,

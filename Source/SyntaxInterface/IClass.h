@@ -31,7 +31,6 @@ namespace SyntaxApi
 		virtual bool HasDestructor() const = 0;
 		virtual IMethod* GetDestructor()  const = 0;
 		virtual IOverloadedMethod* GetCopyConstr()  const = 0;
-		virtual IOverloadedMethod* GetMoveConstr()  const = 0;
 		virtual IOverloadedMethod* GetOperator(int i)  const = 0;
 		virtual IOverloadedMethod* GetConversion()  const = 0;
 		virtual size_t GetNestedCount() const = 0;

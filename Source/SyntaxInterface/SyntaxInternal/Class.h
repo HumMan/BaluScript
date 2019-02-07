@@ -86,7 +86,6 @@ namespace SyntaxInternal
 		bool HasDestructor()const;
 		SyntaxApi::IMethod* GetDestructor() const;
 		SyntaxApi::IOverloadedMethod* GetCopyConstr() const;
-		SyntaxApi::IOverloadedMethod* GetMoveConstr() const;
 		SyntaxApi::IOverloadedMethod* GetOperator(int i) const;
 		SyntaxApi::IOverloadedMethod* GetConversion() const;
 
@@ -95,7 +94,6 @@ namespace SyntaxInternal
 		void AddConversion(TMethod* method);
 		void AddDefaultConstr(TMethod* use_method);
 		void AddCopyConstr(TMethod* use_method);
-		void AddMoveConstr(TMethod* use_method);
 		void AddDestr(TMethod* use_method);
 		TClassField* EmplaceField(TClass* use_field_owner);
 	};

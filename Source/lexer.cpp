@@ -501,7 +501,6 @@ namespace Lexer
 		res_words.Add("func", TToken(TTokenType::ResWord, (short)TResWord::Func));
 		res_words.Add("default", TToken(TTokenType::ResWord, (short)TResWord::Default));
 		res_words.Add("copy", TToken(TTokenType::ResWord, (short)TResWord::Copy));
-		res_words.Add("move", TToken(TTokenType::ResWord, (short)TResWord::Move));
 		res_words.Add("destr", TToken(TTokenType::ResWord, (short)TResWord::Destr));
 		res_words.Add("operator", TToken(TTokenType::ResWord, (short)TResWord::Operator));
 		res_words.Add("conversion", TToken(TTokenType::ResWord, (short)TResWord::Conversion));

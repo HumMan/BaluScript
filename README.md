@@ -51,7 +51,7 @@ class TestClass
 - [X] nested classes
 - [X] static class fields
 - [X] static local variables
-- [X] constructors, destructors, copy constructor, move constructor
+- [X] constructors, destructors, copy constructor
 - [X] operators overloading
 - [X] implicit conversion overloading
 - [X] template classes
@@ -59,11 +59,5 @@ class TestClass
 - [X] enumerations
 - [X] base types: int float vec2 bool string char
 - [X] native static and dynamic arrays
-- [X] inheritance
-- [X] methods and fields visibility
+- [X] methods and fields visibility (private, public)
 - [X] *var* word like in c# 
-
-#TODO
-* template specialization (simple add new classes in realization)
-* default parameters like some_func(cutted_name: "tests")
-* *const* parameters (like const by ref)

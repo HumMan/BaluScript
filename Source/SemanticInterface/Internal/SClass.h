@@ -48,11 +48,9 @@ public:
 	SemanticApi::ISMethod* GetDestructor()const;
 	//
 	SemanticApi::ISMethod* GetCopyConstr()const;
-	SemanticApi::ISMethod* GetMoveConstr()const;
 	SemanticApi::ISMethod* GetAssignOperator()const;
 	//
 	bool GetCopyConstructors(std::vector<SemanticApi::ISMethod*> &result)const;
-	bool GetMoveConstructors(std::vector<SemanticApi::ISMethod*> &result)const;
 	bool GetOperators(std::vector<SemanticApi::ISMethod*> &result, Lexer::TOperator op)const;
 
 	void GetMethods(std::vector<SemanticApi::ISMethod*> &result)const;

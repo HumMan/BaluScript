@@ -316,7 +316,6 @@ void TSMethod::CheckForErrors()
 		break;
 	case Lexer::TResWord::Default:
 	case Lexer::TResWord::Copy:
-	case Lexer::TResWord::Move:
 		if (GetSyntax()->IsStatic())GetSyntax()->Error("Конструктор должен быть не статичным!");
 		break;
 	case Lexer::TResWord::Destr:
@@ -341,7 +340,6 @@ void TSMethod::CheckForErrors()
 			if (parameters.size() != 0)GetSyntax()->Error("Конструктор по умолчанию не имеет параметров!");
 			break;
 		case SyntaxApi::TClassMember::CopyConstr:
-		case SyntaxApi::TClassMember::MoveConstr:
 			if (_this->ret.GetClass() != nullptr)GetSyntax()->Error("Конструктор не должен возвращать значение!");
 			break;
 		case SyntaxApi::TClassMember::Destr:

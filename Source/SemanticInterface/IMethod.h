@@ -114,7 +114,6 @@ namespace SemanticApi
 		virtual ISMethod* GetDefConstr()const=0;
 		virtual ISMethod* GetDestructor()const = 0;
 		virtual ISMethod* GetCopyConstr()const = 0;
-		virtual ISMethod* GetMoveConstr()const = 0;
 		virtual ISMethod* GetAssignOperator()const = 0;
 
 		virtual bool GetOperators(std::vector<ISMethod*> &result, Lexer::TOperator op)const=0;
@@ -123,7 +122,6 @@ namespace SemanticApi
 		virtual bool GetCopyConstructors(std::vector<ISMethod*> &result)const=0;
 		virtual ISMethod* GetAutoCopyConstr()const=0;
 		virtual ISMethod* GetAutoAssignOperator()const=0;
-		virtual bool GetMoveConstructors(std::vector<ISMethod*> &result)const=0;
 		virtual void GetMethods(std::vector<ISMethod*> &result)const=0;
 		virtual bool GetMethods(std::vector<ISMethod*> &result, Lexer::TNameId use_method_name,
 			Filter is_static = Filter::NotSet, bool scan_owner = true)const = 0;

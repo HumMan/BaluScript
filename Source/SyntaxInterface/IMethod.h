@@ -7,7 +7,6 @@ namespace SyntaxApi
 		Func = (short)Lexer::TResWord::Func,
 		DefaultConstr,
 		CopyConstr,
-		MoveConstr,
 		Destr,
 		Operator,
 		Conversion
