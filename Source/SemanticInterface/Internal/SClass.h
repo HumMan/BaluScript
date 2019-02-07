@@ -29,14 +29,12 @@ public:
 	TSClass* GetClass(Lexer::TNameId use_name);
 	void CheckForErrors();
 	TSClass* GetOwner()const;
-	TSClass* GetParent();
 	TSClass* GetNestedByFullName(std::vector<Lexer::TNameId> full_name, size_t curr_id);
 	TSClassField* GetField(Lexer::TNameId name, bool only_in_this);
 	SemanticApi::ISClassField* GetField(size_t i)const;
 	size_t GetFieldsCount()const;
 	TSClassField* GetField(Lexer::TNameId name, bool is_static, bool only_in_this);
 	bool HasConversion(SemanticApi::ISClass* target_type);
-	bool IsNestedIn(SemanticApi::ISClass* use_parent);
 
 	bool IsExternal()const;
 	SyntaxApi::IClass* IGetSyntax()const;
@@ -60,7 +58,7 @@ public:
 	void GetMethods(std::vector<SemanticApi::ISMethod*> &result)const;
 	bool GetMethods(std::vector<SemanticApi::ISMethod*> &result, Lexer::TNameId use_method_name,
 		SemanticApi::Filter is_static=SemanticApi::Filter::NotSet, 
-		bool scan_owner = true, bool scan_parent = true)const;
+		bool scan_owner = true)const;
 
 	SemanticApi::ISMethod* GetConversion(bool source_ref, SemanticApi::ISClass* target_type)const;
 

@@ -21,7 +21,6 @@ namespace SyntaxApi
 		virtual IClass* GetNested(Lexer::TNameId name)  const = 0;
 		virtual Lexer::TNameId GetName()  const = 0;
 		virtual IClass* GetOwner()  const = 0;
-		virtual IType* GetParent()  const = 0;
 		virtual std::vector<Lexer::TNameId> GetFullClassName()  const = 0;
 		virtual size_t GetFieldsCount()  const = 0;
 		virtual IClassField* GetField(size_t i)  const = 0;

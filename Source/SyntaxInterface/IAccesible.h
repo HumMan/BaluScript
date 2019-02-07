@@ -5,7 +5,6 @@ namespace SyntaxApi
 	enum class TTypeOfAccess
 	{
 		Private,
-		Protected,
 		Public
 	};
 

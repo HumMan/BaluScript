@@ -30,10 +30,6 @@ namespace SyntaxInternal
 
 		///<summary>Название класса</summary>
 		Lexer::TNameId name;
-		///<summary>Тип от которого унаследован данный класс</summary>
-		std::unique_ptr<TType> parent;
-		///<summary>От данного класса запрещено наследование</summary>
-		bool is_sealed;
 		///<summary>Класс в пределах которого объявлен данный класс</summary>
 		TClass* owner;
 		bool is_external;
@@ -87,9 +83,7 @@ std::vector<Lexer::TNameId> TClass::GetFullClassName()const
 TClass::TClass(TClass* use_owner)
 {
 	_this.reset(new TClassInternal());
-	_this->parent.reset(new TType(this));
 	_this->is_template = false;
-	_this->is_sealed = false;
 	_this->is_external = false;
 	_this->owner = use_owner;
 
@@ -204,11 +198,6 @@ TClass* TClass::GetNested(size_t i)const
 	return _this->nested_classes[i].get();
 }
 
-SyntaxApi::IType* TClass::GetParent()const
-{
-	return _this->parent.get();
-}
-
 size_t TClass::FindNested(Lexer::TNameId name)const
 {
 	for (size_t i = 0; i < _this->nested_classes.size(); i++)
@@ -236,12 +225,6 @@ SyntaxApi::TTypeOfAccess TClass::AccessDecl(Lexer::ILexer* source, bool& readonl
 			source->GetToken(TTokenType::Colon);
 			readonly = false;
 			access = SyntaxApi::TTypeOfAccess::Public;
-			break;
-		case TResWord::Protected:
-			source->GetToken();
-			source->GetToken(TTokenType::Colon);
-			readonly = false;
-			access = SyntaxApi::TTypeOfAccess::Protected;
 			break;
 		case TResWord::Private:
 			source->GetToken();
@@ -293,7 +276,6 @@ void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 	{
 
 		source->GetToken(TResWord::Class);
-		_this->is_sealed = source->TestAndGet(TResWord::Sealed);
 		_this->is_external = source->TestAndGet(TResWord::Extern);
 		source->TestToken(TTokenType::Identifier);
 		_this->name = source->NameId();
@@ -309,11 +291,6 @@ void TClass::AnalyzeSyntax(Lexer::ILexer* source)
 					break;
 			} while (true);
 			source->GetToken(TOperator::Greater);
-		}
-		if (source->TestAndGet(TTokenType::Colon))
-		{
-			source->TestToken(TTokenType::Identifier);
-			_this->parent->AnalyzeSyntax(source);
 		}
 		source->GetToken(TTokenType::LBrace);
 

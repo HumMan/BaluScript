@@ -126,7 +126,7 @@ namespace SemanticApi
 		virtual bool GetMoveConstructors(std::vector<ISMethod*> &result)const=0;
 		virtual void GetMethods(std::vector<ISMethod*> &result)const=0;
 		virtual bool GetMethods(std::vector<ISMethod*> &result, Lexer::TNameId use_method_name,
-			Filter is_static = Filter::NotSet, bool scan_owner = true, bool scan_parent = true)const = 0;
+			Filter is_static = Filter::NotSet, bool scan_owner = true)const = 0;
 		virtual ISMethod* GetConversion(bool source_ref, ISClass* target_type)const=0;
 
 		virtual ISClass* GetNestedByFullName(std::vector<Lexer::TNameId> full_name, size_t curr_id)=0;

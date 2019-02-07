@@ -20,9 +20,8 @@ bool IsEqualClasses(TExpressionResult actual_parameter, SemanticApi::TFormalPara
 	{
 		if (!dynamic_cast<TSClass*>(actual_parameter.GetClass())->HasConversion(formal_parameter.GetClass()))
 			return false;
-		//TODO
-		//if (formal_parameter.IsRef() && !actual_parameter.GetClass()->IsNestedIn(formal_parameter.GetClass()))
-		need_conv += 1;
+		else
+			need_conv += 1;
 	}
 	if (actual_parameter.IsRef() && !formal_parameter.IsRef())need_conv += 1;
 	return true;
@@ -66,10 +65,10 @@ SemanticApi::ISMethod* FindMethod(Lexer::ITokenPos* source, std::vector<Semantic
 
 void ValidateAccess(Lexer::ITokenPos* field_pos, SemanticApi::ISClass* source, TSClassField* target)
 {
-	if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Public)return;
-	if (source == target->GetOwner())return;
-	if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Protected && !dynamic_cast<TSClass*>(source)->IsNestedIn(dynamic_cast<TSClass*>(target->GetOwner())))
-		field_pos->Error("ƒанное поле класса доступно только из классов наследников (protected)!");
+	if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Public)
+		return;
+	if (source == target->GetOwner())
+		return;
 	else if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Private&&source != target->GetOwner())
 		field_pos->Error("ƒанное поле класса доступно только из класса в котором оно объ€влено (private)!");
 }
@@ -77,11 +76,12 @@ void ValidateAccess(Lexer::ITokenPos* field_pos, SemanticApi::ISClass* source, T
 void ValidateAccess(Lexer::ITokenPos* field_pos, SemanticApi::ISClass* source, SemanticApi::ISMethod* _target)
 {
 	auto target = dynamic_cast<TSMethod*>(_target);
-	if (target->GetType() != SemanticApi::SpecialClassMethodType::NotSpecial)return;
-	if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Public)return;
-	if (source == target->GetOwner())return;
-	if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Protected && !dynamic_cast<TSClass*>(source)->IsNestedIn(target->GetOwner()))
-		field_pos->Error("ƒанный метод доступен только из классов наследников (protected)!");
+	if (target->GetType() != SemanticApi::SpecialClassMethodType::NotSpecial)
+		return;
+	if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Public)
+		return;
+	if (source == target->GetOwner())
+		return;
 	else if (target->GetSyntax()->GetAccess() == SyntaxApi::TTypeOfAccess::Private&&source != target->GetOwner())
 		field_pos->Error("ƒанный метод доступен только из класса в котором он объ€влен (private)!");
 }

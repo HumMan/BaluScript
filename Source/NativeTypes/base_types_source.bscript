@@ -1,4 +1,4 @@
-	class sealed int
+	class int
 	{
 	private:
 		dword unnamed;
@@ -42,7 +42,7 @@
 	func static Min(int v0,int v1):int bytecode{ASM_INT_MINIMUM;};
 	func static Sign(int v		):int bytecode{ASM_INT_SIGN;};
 
-	class sealed float
+	class float
 	{
 	private:
 		dword unnamed;
@@ -103,7 +103,7 @@
 
 	func static Print	(float v) bytecode{ASM_FLOAT_PRINT;};
 
-	class sealed bool
+	class bool
 	{
 	private:
 		dword unnamed;
@@ -120,7 +120,7 @@
 		conversion static (bool  v):float bytecode{ASM_INT_TO_FLOAT;};
 		conversion static (bool  v):int bytecode{};
 	}
-	class sealed vec2
+	class vec2
 	{
 	public:
 		float x,y;
@@ -150,7 +150,7 @@
 	func static Normalize(vec2 v0):float bytecode{ASM_VEC2_NORMALIZE;};
 	func static Reflect	 (vec2 v0,vec2 v1):float bytecode{ASM_VEC2_REFLECT;};
 	
-	class sealed vec2i
+	class vec2i
 	{
 	public:
 		int x,y;
@@ -175,7 +175,7 @@
 		operator static [](vec2i v,int id):int bytecode{ASM_VV_VEC2I_GET_ELEMENT;};
 	}
 	
-	class sealed char
+	class char
 	{
 	private:
 		dword unnamed;

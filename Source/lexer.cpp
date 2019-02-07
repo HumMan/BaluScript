@@ -492,7 +492,6 @@ namespace Lexer
 		res_words.Add("static", TToken(TTokenType::ResWord, (short)TResWord::Static));
 		res_words.Add("extern", TToken(TTokenType::ResWord, (short)TResWord::Extern));
 		res_words.Add("private", TToken(TTokenType::ResWord, (short)TResWord::Private));
-		res_words.Add("protected", TToken(TTokenType::ResWord, (short)TResWord::Protected));
 		res_words.Add("public", TToken(TTokenType::ResWord, (short)TResWord::Public));
 		res_words.Add("readonly", TToken(TTokenType::ResWord, (short)TResWord::Readonly));
 		res_words.Add("this", TToken(TTokenType::ResWord, (short)TResWord::This));

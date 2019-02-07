@@ -13,8 +13,7 @@
 class TSClass::TPrivate
 {
 public:
-	TPrivate(TSClass* use_owner, SyntaxApi::IType* use_syntax_node)
-		:parent(use_owner, use_syntax_node)
+	TPrivate()
 	{
 	}
 	std::vector<std::unique_ptr<TSClassField>> fields;
@@ -36,8 +35,6 @@ public:
 	std::unique_ptr<TSMethod> auto_assign_operator;
 	///<summary>Автоматически созданный деструктор</summary>
 	std::unique_ptr<TSMethod> auto_destr;
-	///<summary>Тип от которого унаследован данный класс</summary>
-	TSType parent;
 	///<summary>Класс в пределах которого объявлен данный класс</summary>
 	TSClass* owner;
 
@@ -46,7 +43,7 @@ public:
 };
 
 TSClass::TSClass(TSClass* use_owner, SyntaxApi::IClass* use_syntax_node, SemanticApi::TNodeWithTemplatesType type)
-	:TSyntaxNode(use_syntax_node), _this(std::unique_ptr<TPrivate>(new TPrivate(this,use_syntax_node->GetParent())))
+	:TSyntaxNode(use_syntax_node), _this(std::unique_ptr<TPrivate>(new TPrivate()))
 {
 	if (type == SemanticApi::TNodeWithTemplatesType::Unknown)
 	{
@@ -62,7 +59,7 @@ TSClass::TSClass(TSClass* use_owner, SyntaxApi::IClass* use_syntax_node, Semanti
 }
 
 TSClass::TSClass(TSClass * use_owner)
-	:TSyntaxNode(nullptr), _this(std::unique_ptr<TPrivate>(new TPrivate(this, nullptr)))
+	:TSyntaxNode(nullptr), _this(std::unique_ptr<TPrivate>(new TPrivate()))
 {
 	SetType(SemanticApi::TNodeWithTemplatesType::SurrogateTemplateParam);
 }
@@ -70,11 +67,6 @@ TSClass::TSClass(TSClass * use_owner)
 TSClass* TSClass::GetOwner()const
 {
 	return _this->owner;
-}
-
-TSClass* TSClass::GetParent()
-{
-	return dynamic_cast<TSClass*>(_this->parent.GetClass());
 }
 
 TSClass* TSClass::GetNestedByFullName(std::vector<Lexer::TNameId> full_name, size_t curr_id)
@@ -310,10 +302,6 @@ size_t TSClass::GetFieldsCount() const
 TSClassField* TSClass::GetField(Lexer::TNameId name, bool is_static, bool only_in_this)
 {
 	TSClassField* result_parent = nullptr;
-	if (_this->parent.GetClass() != nullptr)
-		result_parent = dynamic_cast<TSClass*>(_this->parent.GetClass())->GetField(name, true);
-	if (result_parent != nullptr)
-		return result_parent;
 	for (std::unique_ptr<TSClassField>& field : _this->fields)
 	{
 		if (field->GetSyntax()->IsStatic() == is_static && field->GetSyntax()->GetName() == name) {
@@ -332,8 +320,6 @@ void TSClass::LinkSignature(SemanticApi::TGlobalBuildContext build_context)
 	else
 		return;
 
-
-	_this->parent.LinkSignature(build_context);
 	//определить присутствие конструктора по умолчанию, деструктора, конструктора копии
 
 	for (std::unique_ptr<TSClassField>& field : _this->fields)
@@ -376,8 +362,6 @@ void TSClass::LinkBody(SemanticApi::TGlobalBuildContext build_context)
 
 	CheckForErrors();
 
-	_this->parent.LinkBody(build_context);
-
 	for (std::unique_ptr<TSClassField>& field : _this->fields)
 	{
 		field->LinkBody(build_context);
@@ -416,7 +400,7 @@ void TSClass::GetMethods(std::vector<SemanticApi::ISMethod*> &result)const
 	}
 }
 
-bool TSClass::GetMethods(std::vector<SemanticApi::ISMethod*> &result, Lexer::TNameId use_method_name, SemanticApi::Filter is_static, bool scan_owner, bool scan_parent)const
+bool TSClass::GetMethods(std::vector<SemanticApi::ISMethod*> &result, Lexer::TNameId use_method_name, SemanticApi::Filter is_static, bool scan_owner)const
 {
 	//assert(IsSignatureLinked());
 	for (TSOverloadedMethod& ov_method : _this->methods)
@@ -440,8 +424,7 @@ bool TSClass::GetMethods(std::vector<SemanticApi::ISMethod*> &result, Lexer::TNa
 		(is_static==SemanticApi::Filter::True || is_static == SemanticApi::Filter::NotSet) &&
 		_this->owner != nullptr)
 		_this->owner->GetMethods(result, use_method_name, SemanticApi::Filter::True);
-	if (scan_parent && _this->parent.GetClass() != nullptr)
-		dynamic_cast<TSClass*>(_this->parent.GetClass())->GetMethods(result, use_method_name, is_static);
+
 	return result.size() > 0;
 }
 
@@ -579,14 +562,6 @@ bool TSClass::HasConversion(SemanticApi::ISClass* target_type)
 		|| GetConversion(false, target_type);
 }
 
-bool TSClass::IsNestedIn(SemanticApi::ISClass* use_parent)
-{
-	if (_this->parent.GetClass() == nullptr)
-		return false;
-	if (_this->parent.GetClass() == use_parent)
-		return true;
-	return dynamic_cast<TSClass*>(_this->parent.GetClass())->IsNestedIn(use_parent);
-}
 bool TSClass::IsExternal() const
 {
 	return this->GetSyntax()->IsExternal();
@@ -688,29 +663,7 @@ void TSClass::CalculateSizes(std::vector<TSClass*> &owners)
 					GetSyntax()->Error("Класс не может содержать поле собственного типа!");
 				}
 				else {
-					owners.push_back(this);
-					if (_this->parent.GetClass() != nullptr)
-					{
-						TSClass* parent_class = dynamic_cast<TSClass*>(_this->parent.GetClass());
-						parent_class->CalculateSizes(owners);
-						class_size += parent_class->GetSize();
-
-						do {
-							//TODO в методы по умолчанию
-							/*
-							//добавляем приведение в родительские классы
-							TMethod* temp = new TMethod(this, TClassMember::Conversion);
-							temp->SetAs(TOpArray(), parent_class, true, true, 1);
-
-							TParameter* t = new TParameter(this, temp);
-							t->SetAs(true, this);
-							temp->AddParam(t);
-							temp->CalcParamSize();
-							AddConversion(temp);*/
-
-							parent_class = parent_class->GetParent();
-						} while (parent_class != nullptr);
-					}
+					owners.push_back(this);					
 					for (std::unique_ptr<TSClassField>& field : _this->fields)
 					{
 						dynamic_cast<TSClass*>(field->GetClass())->CalculateSizes(owners);

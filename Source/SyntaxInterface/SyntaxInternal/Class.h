@@ -75,7 +75,6 @@ namespace SyntaxInternal
 
 		Lexer::TNameId GetName()const;
 		TClass* GetOwner()const;
-		SyntaxApi::IType* GetParent()const;
 		std::vector<Lexer::TNameId> GetFullClassName()const;
 		size_t GetFieldsCount()const;
 		SyntaxApi::IClassField* GetField(size_t i) const;

@@ -49,7 +49,6 @@ namespace Lexer
 		Static,
 		Extern,
 		Private,
-		Protected,
 		Public,
 		Readonly,
 		This,
