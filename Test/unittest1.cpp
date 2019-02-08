@@ -474,6 +474,57 @@ namespace Test
 			Assert::AreEqual(11, t[1]);
 		}
 	};
+	TEST_CLASS(PtrTesting)
+	{
+	public:
+		TEST_METHOD_INITIALIZE(TestMethodInit)
+		{
+			BaseTypesTestsInitialize();
+		}
+		TEST_METHOD_CLEANUP(TestMethodCleanup)
+		{
+			BaseTypesTestsCleanup();
+		}
+		TEST_METHOD(PtrTestingSimpleType)
+		{
+			CreateClass(
+				"class TestClass {\n"
+				"func static Test:int\n"
+				"{\n"
+				"	TPtr<int> p;\n"
+				"	p.data()=45;\n"
+				"	return p.data();\n"
+				"}}");
+			Assert::AreEqual((int)45, *(int*)RunClassMethod(nullptr, "Test").get());
+		}
+		TEST_METHOD(PtrTestingToDynType)
+		{
+			CreateClass(
+				"class TestClass {\n"
+				"func static Test:int\n"
+				"{\n"
+				"	TPtr<TDynArray<int>> p;\n"
+				"	p.data().resize(1000);\n"
+				"	p.data()[45]=11;\n"
+				"	return p.data()[45];\n"
+				"}}");
+			Assert::AreEqual((int)11, *(int*)RunClassMethod(nullptr, "Test").get());
+		}
+		TEST_METHOD(PtrTestingToDynTypeCopy)
+		{
+			CreateClass(
+				"class TestClass {\n"
+				"func static Test:int\n"
+				"{\n"
+				"	TPtr<TDynArray<int>> p;\n"
+				"	p.data().resize(1000);\n"
+				"	p.data()[45]=11;\n"
+				"	var p2=p;\n"
+				"	return p2.data()[45];\n"
+				"}}");
+			Assert::AreEqual((int)11, *(int*)RunClassMethod(nullptr, "Test").get());
+		}
+	};
 	TEST_CLASS(StatementsTesting)
 	{
 	public:

@@ -351,6 +351,43 @@ namespace ns_Script
 			*(int*)run_context->result->get() = result;
 		}
 	}
+	namespace ns_TPtr 
+	{
+		void bind_def_constr(TMethodRunContext* run_context) 
+		{
+			// return --- nothing
+			TPtr* obj = ((TPtr*)(run_context->object->get()));
+			obj->def_constr(run_context);
+		}
+		void bind_copy_constr(TMethodRunContext* run_context) 
+		{
+			//TPtr&  copy_from return --- nothing
+			TPtr* obj = ((TPtr*)(run_context->object->get()));
+			TPtr*  param0 = ((TPtr*)(*run_context->formal_params)[0].get());
+			obj->copy_constr(run_context, param0);
+		}
+		void bind_destructor(TMethodRunContext* run_context) 
+		{
+			// return --- nothing
+			TPtr* obj = ((TPtr*)(run_context->object->get()));
+			obj->destructor(run_context);
+		}
+		void bind_operator_Assign(TMethodRunContext* run_context) 
+		{
+			//static - TPtr&  v, TPtr&  l return --- nothing
+			TPtr*  param0 = ((TPtr*)(*run_context->formal_params)[0].get());
+			TPtr*  param1 = ((TPtr*)(*run_context->formal_params)[1].get());
+			TPtr::operator_Assign(run_context, param0, param1);
+		}
+		void bind_data(TMethodRunContext* run_context) 
+		{
+			// return --- void*&
+			TPtr* obj = ((TPtr*)(run_context->object->get()));
+			void*  result = 
+			obj->data(run_context);
+			run_context->result->SetAsReference(result);
+		}
+	}
 }
 namespace ns_Script
 {
@@ -374,8 +411,13 @@ namespace ns_Script
 		result.push_back(ns_Script::ns_string::bind_operator_PlusA);
 		result.push_back(ns_Script::ns_string::bind_operator_GetArrayElement);
 		result.push_back(ns_Script::ns_string::bind_length);
+		result.push_back(ns_Script::ns_TPtr::bind_def_constr);
+		result.push_back(ns_Script::ns_TPtr::bind_copy_constr);
+		result.push_back(ns_Script::ns_TPtr::bind_destructor);
+		result.push_back(ns_Script::ns_TPtr::bind_operator_Assign);
+		result.push_back(ns_Script::ns_TPtr::bind_data);
 		return result;
 	}
 	const int BindingOffset = 0;
-	const int BindingCount = 17;
+	const int BindingCount = 22;
 }

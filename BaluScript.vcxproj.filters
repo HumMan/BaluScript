@@ -279,6 +279,9 @@
     <ClInclude Include="Source\BytecodeBaseOps\baseOps.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\NativeTypes\Ptr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\lexer.cpp">
@@ -427,6 +430,9 @@
     </ClCompile>
     <ClCompile Include="Source\BytecodeBaseOps\baseOps.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\NativeTypes\Ptr.cpp">
+      <Filter>Source Files\NativeTypes</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

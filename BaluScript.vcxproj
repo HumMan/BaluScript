@@ -84,6 +84,7 @@
   <ItemGroup>
     <ClInclude Include="Data\extern_binding.h" />
     <ClInclude Include="Source\BindingGen.h" />
+    <ClInclude Include="Source\NativeTypes\Ptr.h" />
     <ClInclude Include="Source\SemanticInterface\IExpressionRunner.h" />
     <ClInclude Include="Source\SemanticInterface\Internal\ExpressionResult.h" />
     <ClInclude Include="Include\baluScript.h" />
@@ -233,6 +234,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\BindingGen.cpp" />
+    <ClCompile Include="Source\NativeTypes\Ptr.cpp" />
     <ClCompile Include="Source\SemanticInterface\Internal\ExpressionResult.cpp" />
     <ClCompile Include="Source\lexer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>

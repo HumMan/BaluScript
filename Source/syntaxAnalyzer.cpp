@@ -5,6 +5,7 @@
 #include "NativeTypes/DynArray.h"
 #include "NativeTypes/StaticArray.h"
 #include "NativeTypes/String.h"
+#include "NativeTypes/Ptr.h"
 
 #include "TreeRunner/ExpressionRun.h"
 
@@ -81,6 +82,7 @@ void TSyntaxAnalyzer::Compile(const char* use_source, std::vector<SemanticApi::T
 	external_classes.push_back(TDynArr::DeclareExternalClass());
 	external_classes.push_back(TStaticArr::DeclareExternalClass());
 	external_classes.push_back(TString::DeclareExternalClass());
+	external_classes.push_back(TPtr::DeclareExternalClass());
 
 	for(auto& v: _external_classes)
 		external_classes.push_back(v);
