@@ -66,21 +66,6 @@ std::vector<std::shared_ptr<SyntaxApi::IType_TTemplateParameter>> TType_TClassNa
 	return result;
 }
 
-void TType_TClassName::ConvertDimensionsToTemplates()
-{
-	//TODO конвертация измерений массивов в TDynArray<T>
-	//if (dimensions.size() > 0)
-	//{
-	//	int curr_dim = dimensions.back();
-	//	dimensions.pop_back();
-	//	TNameId old_name = name;
-	//	std::list<TType_TTemplateParameter> old_template_params = template_params;
-
-	//	template_params.clear();
-	//	template_params.emplace_back();
-	//}
-}
-
 void TType::AnalyzeClassName(Lexer::ILexer* source)
 {
 	//любое объявление типа начинается с идентификатора класса
@@ -115,8 +100,6 @@ void TType::AnalyzeClassName(Lexer::ILexer* source)
 	}
 	//после этого следуют измерения массивов
 	AnalyzeDimensions(source);
-	//TODO
-	//class_names.back().ConvertDimensionsToTemplates();
 }
 
 void TType::AnalyzeSyntax(Lexer::ILexer* source) 

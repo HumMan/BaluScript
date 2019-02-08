@@ -4,7 +4,6 @@
 #include <stdarg.h>
 
 #include "../Source/lexer.h"
-//#include "../Source/virtualMachine.h"
 #include "../Source/syntaxAnalyzer.h"
 #include "../Source/NativeTypes/StaticArray.h"
 #include "../Source/NativeTypes/DynArray.h"

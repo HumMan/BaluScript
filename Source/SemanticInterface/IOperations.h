@@ -31,19 +31,14 @@ namespace SemanticApi
 			virtual ISOperations::ISOperation* GetLeft()const=0;
 		};
 
-		class ISExpression_TGetClass : public virtual ISOperation
-		{
-		public:
-		};
-
 		class ISExpression_TCreateTempObject : public virtual ISOperation
 		{
 		public:
-			virtual ISOperations::ISExpression_TempObjectType* GetLeft()const=0;
+			virtual ISOperations::ISExpression_TypeDecl* GetLeft()const=0;
 			virtual ISConstructObject* GetConstructObject()const=0;
 		};
 
-		class ISExpression_TempObjectType : public virtual ISOperation
+		class ISExpression_TypeDecl : public virtual ISOperation
 		{
 		public:
 		};

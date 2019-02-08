@@ -60,10 +60,7 @@ public:
 		}
 		TreeRunner::Destroy(_this->GetParams(),method_call_formal_params, run_context);
 	}
-	virtual void Visit(SemanticApi::ISOperations::ISExpression_TGetClass *_this) override
-	{
-	}
-	virtual void Visit(SemanticApi::ISOperations::ISExpression_TempObjectType *_this) override
+	virtual void Visit(SemanticApi::ISOperations::ISExpression_TypeDecl *_this) override
 	{
 	}
 	virtual void Visit(SemanticApi::ISOperations::ISExpression_TCreateTempObject *_this) override

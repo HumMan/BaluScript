@@ -23,7 +23,7 @@ bool IsEqualClasses(TExpressionResult actual_parameter, SemanticApi::TFormalPara
 		else
 			need_conv += 1;
 	}
-	if (actual_parameter.IsRef() && !formal_parameter.IsRef())need_conv += 1;
+	if (actual_parameter.IsRef() != formal_parameter.IsRef())need_conv += 1;
 	return true;
 }
 

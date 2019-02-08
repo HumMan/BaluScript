@@ -110,9 +110,9 @@ public:
 		else
 			syntax_node->Error("Унарного оператора для данного типа не существует!");
 	}
-	void Visit(SyntaxApi::IOperations::IConstructTempObject* operation_node)
+	void Visit(SyntaxApi::IOperations::ITypeDecl* operation_node)
 	{
-		TSExpression_TempObjectType* result = new TSExpression_TempObjectType(owner, operation_node->GetType(), build_context);
+		TSExpression_TypeDecl* result = new TSExpression_TypeDecl(owner, operation_node->GetType(), build_context);
 		Return(result);
 	}
 	void Visit(SyntaxApi::IOperations::ICallParamsOp* operation_node)
@@ -167,7 +167,7 @@ public:
 			construct_object->Build(operation_node->GetOperationSource(), params_result, param_expressions, params_formals, build_context);
 
 			TSExpression_TCreateTempObject* create_temp_obj = new TSExpression_TCreateTempObject(
-				(TSExpression_TempObjectType*)left,
+				(TSExpression_TypeDecl*)left,
 				construct_object
 			);
 			Return(create_temp_obj);
@@ -246,17 +246,7 @@ public:
 						Return(result);
 					}
 					else
-					{
-						TSClass* nested = left_result_class->GetNested(operation_node->GetName());
-						if (nested != nullptr)
-						{
-							TSExpression_TGetClass* result = new TSExpression_TGetClass(
-								dynamic_cast<TSExpression_TGetClass*>(left), nested);
-
-							Return(result);
-						}else
-							syntax_node->Error("Статического поля или метода с таким именем не существует!");
-					}
+						syntax_node->Error("Статического поля или метода с таким именем не существует!");
 				}
 			}
 		}
@@ -274,30 +264,6 @@ public:
 				TSExpression::TGetClassField* result = new TSExpression::TGetClassField(
 					left, left_result, member);
 				Return(result);
-
-				if (left_result.IsRef())
-				{
-					
-					//if (member->IsReadOnly())
-					{
-						//TSMethod* copy_constr = result.GetClass()->GetCopyConstr();
-						//program.Push(TOp(TOpcode::RVALUE, result.GetClass()->GetSize(), program.AddMethodToTable(copy_constr))
-						//	, result.GetOps());
-						//result.SetIsRef(false);
-					}
-				}
-				else
-				{
-					//program.Push(TOp(TOpcode::PUSH, left_result.GetClass()->GetSize()), left_result.GetOps());
-					//program.Push(TOp(TOpcode::PUSH, member->GetOffset()), left_result.GetOps());
-					//program.Push(TOp(TOpcode::PUSH, member->GetClass()->GetSize()), left_result.GetOps());
-					//program.Push(TOp(TOpcode::GET_MEMBER,
-					//	program.AddMethodToTable(member->GetClass()->GetCopyConstr()),
-					//	program.AddMethodToTable(member->GetClass()->GetDestructor())),
-					//	left_result.GetOps());
-					//return TExpressionResult(member->GetClass(), false, left_result.GetOps());
-				}
-				//Error("Оператор доступа к члену объекта нельзя использовать для временного объекта!");//TODO
 			}
 			else
 			{
@@ -370,13 +336,6 @@ public:
 			}
 			else
 			{
-				TSClass* type = owner->GetClass(operation_node->GetName());
-				if (type != nullptr)
-				{
-					TSExpression_TGetClass* result = new TSExpression_TGetClass(nullptr, type);					
-					Return(result);
-				}
-				else
 					syntax_node->Error("Неизвестный идентификатор!");
 			}
 		}
@@ -517,7 +476,7 @@ TSExpression::TEnumValue::TEnumValue(TSClass* owner, TSClass* _type)
 //	params.Destroy(method_call_formal_params, static_fields, formal_params, object, local_variables);
 //}
 
-TSExpression_TempObjectType::TSExpression_TempObjectType(TSClass* owner, SyntaxApi::IType* syntax_node, SemanticApi::TGlobalBuildContext build_context)
+TSExpression_TypeDecl::TSExpression_TypeDecl(TSClass* owner, SyntaxApi::IType* syntax_node, SemanticApi::TGlobalBuildContext build_context)
 	:type(owner,syntax_node)
 {
 	type.LinkSignature(build_context);
@@ -543,7 +502,7 @@ void TSExpression::Accept(SemanticApi::ISStatementVisitor * visitor)
 {
 	visitor->Visit(this);
 }
-TSExpression_TCreateTempObject::TSExpression_TCreateTempObject(TSExpression_TempObjectType* left, TSConstructObject* construct_object)
+TSExpression_TCreateTempObject::TSExpression_TCreateTempObject(TSExpression_TypeDecl* left, TSConstructObject* construct_object)
 	:left(left), construct_object(construct_object)
 {
 	expression_result = TExpressionResult(dynamic_cast<TSClass*>(left->GetFormalParameter().GetType()), false);
@@ -552,7 +511,7 @@ void TSExpression_TCreateTempObject::Accept(ISExpressionVisitor * visitor)
 {
 	visitor->Visit(this);
 }
-SemanticApi::ISOperations::ISExpression_TempObjectType * TSExpression_TCreateTempObject::GetLeft() const
+SemanticApi::ISOperations::ISExpression_TypeDecl * TSExpression_TCreateTempObject::GetLeft() const
 {
 	return left.get();
 }
@@ -560,7 +519,7 @@ SemanticApi::ISConstructObject * TSExpression_TCreateTempObject::GetConstructObj
 {
 	return construct_object.get();
 }
-void TSExpression_TempObjectType::Accept(ISExpressionVisitor * visitor)
+void TSExpression_TypeDecl::Accept(ISExpressionVisitor * visitor)
 {
 	visitor->Visit(this);
 }
@@ -573,21 +532,9 @@ void TSExpression::TGetThis::Accept(ISExpressionVisitor * visitor)
 {
 	visitor->Visit(this);
 }
-
 SemanticApi::ISClass * TSExpression::TGetThis::GetOwner() const
 {
 	return owner;
-}
-
-TSExpression_TGetClass::TSExpression_TGetClass(TSExpression_TGetClass* left, TSClass * get_class)
-	:left(left), get_class(get_class)
-{
-	expression_result = TExpressionResult(get_class);
-}
-
-void TSExpression_TGetClass::Accept(ISExpressionVisitor * visitor)
-{
-	visitor->Visit(this);
 }
 TSExpression::TGetLocal::TGetLocal(TSLocalVar * variable)
 	:variable(variable)

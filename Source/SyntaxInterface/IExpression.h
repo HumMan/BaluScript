@@ -31,7 +31,7 @@ namespace SyntaxApi
 			virtual bool IsBracket()const = 0;
 			virtual std::vector<IExpression*> GetParam()const = 0;
 		};
-		class IConstructTempObject : public virtual IOperation
+		class ITypeDecl : public virtual IOperation
 		{
 		public:
 			virtual IType* GetType()const = 0;
@@ -89,7 +89,7 @@ namespace SyntaxApi
 		virtual void Visit(IOperations::IBinOp* op) = 0;
 		virtual void Visit(IOperations::IUnaryOp* op) = 0;
 		virtual void Visit(IOperations::ICallParamsOp* op) = 0;
-		virtual void Visit(IOperations::IConstructTempObject* op) = 0;
+		virtual void Visit(IOperations::ITypeDecl* op) = 0;
 		virtual void Visit(IOperations::ICharValue* op) = 0;
 		virtual void Visit(IOperations::IFloatValue* op) = 0;
 		virtual void Visit(IOperations::IGetMemberOp* op) = 0;

@@ -108,8 +108,8 @@ TOperation* TExpression::Factor(Lexer::ILexer* source)
 		{
 			auto new_type = new TType(GetOwnerT());
 			new_type->AnalyzeSyntax(source);
-			TConstructTempObject* temp = new TConstructTempObject(new_type);
-			return ParamsCall(source, temp);
+			auto temp = new TTypeDecl(new_type);
+			return temp;
 		}
 		else if (source->Test(TTokenType::Identifier))
 			//Синтаксис: Identifier
@@ -249,7 +249,7 @@ void TExpression::TUnaryOp::Accept(SyntaxApi::IExpressionTreeVisitor* visitor)
 {
 	visitor->Visit(this);
 }
-void TExpression::TConstructTempObject::Accept(SyntaxApi::IExpressionTreeVisitor* visitor)
+void TExpression::TTypeDecl::Accept(SyntaxApi::IExpressionTreeVisitor* visitor)
 {
 	visitor->Visit(this);
 }

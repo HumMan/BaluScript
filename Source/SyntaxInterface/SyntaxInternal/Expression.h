@@ -154,7 +154,7 @@ namespace SyntaxInternal
 			TGetMemberOp(TOperation *use_left, Lexer::TNameId use_member) :left(use_left), name(use_member){}
 			void Accept(SyntaxApi::IExpressionTreeVisitor* visitor);
 		};
-		class TConstructTempObject :public TOperation, public SyntaxApi::IOperations::IConstructTempObject
+		class TTypeDecl :public TOperation, public SyntaxApi::IOperations::ITypeDecl
 		{
 			std::unique_ptr<TType> type;
 		public:
@@ -162,8 +162,8 @@ namespace SyntaxInternal
 			{
 				return type.get();
 			}
-			TConstructTempObject(){}
-			TConstructTempObject(TType* type)
+			TTypeDecl() {}
+			TTypeDecl(TType* type)
 			{
 				this->type.reset(type);
 			}

@@ -49,36 +49,26 @@ public:
 	SemanticApi::ISOperations::ISOperation* GetLeft()const;
 };
 
-class TSExpression_TGetClass : public TSOperation, public SemanticApi::ISOperations::ISExpression_TGetClass
-{
-private:
-	std::unique_ptr<TSExpression_TGetClass> left;
-	TSClass* get_class;
-public:
-	TSExpression_TGetClass(TSExpression_TGetClass* left, TSClass* get_class);
-	void Accept(ISExpressionVisitor*);
-};
-
-class TSExpression_TempObjectType;
+class TSExpression_TypeDecl;
 
 class TSExpression_TCreateTempObject : public TSOperation, public SemanticApi::ISOperations::ISExpression_TCreateTempObject
 {
 private:
-	std::unique_ptr<TSExpression_TempObjectType> left;
+	std::unique_ptr<TSExpression_TypeDecl> left;
 	std::unique_ptr<TSConstructObject> construct_object;
 public:
-	TSExpression_TCreateTempObject(TSExpression_TempObjectType* left, TSConstructObject* construct_object);
+	TSExpression_TCreateTempObject(TSExpression_TypeDecl* left, TSConstructObject* construct_object);
 	//void Build(const std::vector<SyntaxApi::IExpression*>& param_expressions);
 	void Accept(ISExpressionVisitor*);
 
-	SemanticApi::ISOperations::ISExpression_TempObjectType* GetLeft()const;
+	SemanticApi::ISOperations::ISExpression_TypeDecl* GetLeft()const;
 	SemanticApi::ISConstructObject* GetConstructObject()const;
 };
 
-class TSExpression_TempObjectType : public TSOperation, public SemanticApi::ISOperations::ISExpression_TempObjectType
+class TSExpression_TypeDecl : public TSOperation, public SemanticApi::ISOperations::ISExpression_TypeDecl
 {
 public:
-	TSExpression_TempObjectType(TSClass* owner, SyntaxApi::IType* syntax_node, SemanticApi::TGlobalBuildContext build_context);
+	TSExpression_TypeDecl(TSClass* owner, SyntaxApi::IType* syntax_node, SemanticApi::TGlobalBuildContext build_context);
 	TSType type;
 	void Accept(ISExpressionVisitor*);
 };

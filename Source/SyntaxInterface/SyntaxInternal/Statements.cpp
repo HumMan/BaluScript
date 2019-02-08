@@ -115,6 +115,7 @@ void TStatements::AnalyzeStatement(Lexer::ILexer* source, bool end_semicolon) {
 			t->AnalyzeSyntax(source);
 			return;
 		}
+		case TResWord::New:
 		case TResWord::This: {
 			TExpression* t = new TExpression(GetOwnerT(), GetMethodT(), this,
 					statements.size());

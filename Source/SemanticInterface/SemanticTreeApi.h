@@ -39,7 +39,7 @@ namespace SemanticApi
 	{
 		class ISOperation;
 		class ISExpression_TMethodCall;
-		class ISExpression_TempObjectType;
+		class ISExpression_TypeDecl;
 		class ISExpression;
 	}
 	

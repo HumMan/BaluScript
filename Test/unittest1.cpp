@@ -605,7 +605,7 @@ namespace Test
 				"}\n"
 				"func static Test:int\n"
 				"{\n"
-				"return SubClass2.test_static.b;\n"
+				"return (new SubClass2).test_static.b;\n"
 				"}}");
 			Assert::AreEqual((int)5, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
@@ -624,16 +624,30 @@ namespace Test
 				"}\n"
 				"func static Test:int\n"
 				"{\n"
-				"SubClass2.test_static.a+=1;"
-				"return SubClass2.test_static.a;\n"
+				"(new SubClass2).test_static.a+=1;"
+				"return (new SubClass2).test_static.a;\n"
 				"}\n"
 				"func static Test2:int\n"
 				"{\n"
-				"SubClass2.test_static.a+=1;"
-				"return SubClass2.test_static.a;\n"
+				"(new SubClass2).test_static.a+=1;"
+				"return (new SubClass2).test_static.a;\n"
 				"}}");
 			Assert::AreEqual((int)4, *(int*)RunClassMethod(nullptr, "Test").get());
 			Assert::AreEqual((int)5, *(int*)RunClassMethod(nullptr, "Test2").get());
+		}
+		TEST_METHOD(BasicStaticClassField)
+		{
+			SemanticApi::ISClass* cl2 = CreateClass(
+				"class TestClass {\n"
+				"class SubClass2 {\n"
+				"int static test_static;\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"(new SubClass2).test_static=3;"
+				"return (new SubClass2).test_static;\n"
+				"}}");
+			Assert::AreEqual((int)3, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(BasicLocalVariable)
 		{
@@ -768,7 +782,7 @@ namespace Test
 				"func static Test:int"
 				"{"
 				"	SubClass s(1,2,3);\n"
-				"	return Sum(SubClass(1,2,3));"
+				"	return Sum((new SubClass)(1,2,3));"
 				"}}");
 			Assert::AreEqual((int)1 + 2 + 3, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
@@ -789,7 +803,7 @@ namespace Test
 				"func static Test:int"
 				"{"
 				"	SubClass s(1,2,3);\n"
-				"	return Sum(SubClass(1,2,3));"
+				"	return Sum((new SubClass)(1,2,3));"
 				"}}");
 			Assert::AreEqual((int)1 + 2 + 3, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
@@ -808,7 +822,7 @@ namespace Test
 				"}"
 				"func static Test:int"
 				"{"
-				"return Sum(SubClass(1,2,3));"
+				"return Sum((new SubClass)(1,2,3));"
 				"}}");
 			Assert::AreEqual((int)1+2+3, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
@@ -829,7 +843,7 @@ namespace Test
 				"func static Test:int"
 				"{"
 				"	SubClass s(1,2,3);\n"
-				"	return Sum(SubClass(1,2,3));"
+				"	return Sum((new SubClass)(1,2,3));"
 				"}}");
 			Assert::AreEqual((int)1 + 2 + 3, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
@@ -856,7 +870,7 @@ namespace Test
 				"{"
 				"	destructor_called = false;"
 				"	SubClass s(1,2,3);\n"
-				"	return Sum(SubClass(1,2,3));"
+				"	return Sum((new SubClass)(1,2,3));"
 				"}}");
 			Assert::AreEqual((int)1 + 2 + 3, *(int*)RunClassMethod(nullptr, "Test").get());
 			Assert::AreEqual((bool)true, *(bool*)RunClassMethod("func static Script.TestClass.GetDestrCalled:bool").get());
@@ -1100,9 +1114,7 @@ namespace Test
 				"}\n"
 				"func static Test:int\n"
 				"{\n"
-				//TODO без new тоже будет работать - запретить
-				//"	return Do(B(3,-6));\n" 
-				"	return Do(new B(3,-6));\n"
+				"	return Do((new B)(3,-6));\n"
 				"}}");
 			Assert::AreEqual((int)-3, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
@@ -1117,7 +1129,7 @@ namespace Test
 				"}\n"
 				"func static Test:int\n"
 				"{\n"
-				"	return 30 + new B(3,-6);\n"
+				"	return 30 + (new B)(3,-6);\n"
 				//"}\n"
 				//"func static Test2:int\n"
 				//"{\n"
@@ -1149,8 +1161,8 @@ namespace Test
 				"TStaticArray<T,Size> value;\n"
 				"copy(T v0, T v1){value[0]=v0;value[1]=v1;}\n"
 				"copy(Vec2 l){value[0]=l[0];value[1]=l[1];}\n"
-				"operator +(Vec2 l, Vec2 r):Vec2 {return new Vec2(l[0]+r[0],l[1]+r[1]);}\n" //TODO return без new компилируетс€ хот€ должны быть ошибка
-				"operator -(Vec2 l, Vec2 r):Vec2 {return new Vec2(l[0]-r[0],l[1]-r[1]);}\n"
+				"operator +(Vec2 l, Vec2 r):Vec2 {return (new Vec2)(l[0]+r[0],l[1]+r[1]);}\n"
+				"operator -(Vec2 l, Vec2 r):Vec2 {return (new Vec2)(l[0]-r[0],l[1]-r[1]);}\n"
 				"operator [](Vec2& l, int i):T {return l.value[i];}\n" //TODO return value компилируетс€ (возвр 0) хот€ должны быть ошибка
 				"func Dot(Vec2 r):T {return value[0]*r[0]+value[1]*r[1];}\n"
 				"\n"
@@ -1224,7 +1236,7 @@ namespace Test
 				"copy(T v0, T v1){value[0]=v0;value[1]=v1;}\n"
 				"copy(Vec2 l){value[0]=l[0];value[1]=l[1];}\n"
 				"operator [](Vec2& l, int i):T {return l.value[i];}\n"
-				"operator - (Vec2 l):Vec2 {return new Vec2(-l[0],-l[1]);}"
+				"operator - (Vec2 l):Vec2 {return (new Vec2)(-l[0],-l[1]);}"
 				"conversion (Vec2 l):int {return l[0]+l[1];}\n"
 				"\n"
 				"}\n"
@@ -1243,9 +1255,9 @@ namespace Test
 				"class Vec2<T> {\n"
 				"T value;\n"
 				"copy(T v){value=v;}\n"
-				"operator &&(Vec2 l, Vec2 r):Vec2 {return new Vec2(l.value&&r.value);}\n"
-				"operator ||(Vec2 l, Vec2 r):Vec2 {return new Vec2(l.value||r.value);}\n"
-				"operator !(Vec2 l):Vec2 {return new Vec2(!l.value);}\n"
+				"operator &&(Vec2 l, Vec2 r):Vec2 {return (new Vec2)(l.value&&r.value);}\n"
+				"operator ||(Vec2 l, Vec2 r):Vec2 {return (new Vec2)(l.value||r.value);}\n"
+				"operator !(Vec2 l):Vec2 {return (new Vec2)(!l.value);}\n"
 				"conversion (Vec2 l):bool {return l.value;}\n"
 				"\n"
 				"}\n"
@@ -1276,12 +1288,12 @@ namespace Test
 				"class Vec2<T> {\n"
 				"T value;\n"
 				"copy(T v){value=v;}\n"
-				"operator ==(Vec2 l, Vec2 r):Vec2 {return new Vec2(l.value==r.value);}\n"
-				"operator !=(Vec2 l, Vec2 r):Vec2 {return new Vec2(l.value!=r.value);}\n"
-				"operator >(Vec2 l, Vec2 r):Vec2 {return new Vec2(l.value>r.value);}\n"
-				"operator <(Vec2 l, Vec2 r):Vec2 {return new Vec2(l.value<r.value);}\n"
-				"operator >=(Vec2 l, Vec2 r):Vec2 {return new Vec2(l.value>r.value);}\n"
-				"operator <=(Vec2 l, Vec2 r):Vec2 {return new Vec2(l.value<r.value);}\n"
+				"operator ==(Vec2 l, Vec2 r):Vec2 {return (new Vec2)(l.value==r.value);}\n"
+				"operator !=(Vec2 l, Vec2 r):Vec2 {return (new Vec2)(l.value!=r.value);}\n"
+				"operator >(Vec2 l, Vec2 r):Vec2 {return (new Vec2)(l.value>r.value);}\n"
+				"operator <(Vec2 l, Vec2 r):Vec2 {return (new Vec2)(l.value<r.value);}\n"
+				"operator >=(Vec2 l, Vec2 r):Vec2 {return (new Vec2)(l.value>r.value);}\n"
+				"operator <=(Vec2 l, Vec2 r):Vec2 {return (new Vec2)(l.value<r.value);}\n"
 				"conversion (Vec2 l):int {return l.value;}\n"
 				"\n"
 				"}\n"
@@ -1331,16 +1343,16 @@ namespace Test
 				"TStaticArray<T,Size> value;\n"
 				"copy(T v0, T v1){value[0]=v0;value[1]=v1;}\n"
 				"copy(Vec2 l){value[0]=l[0];value[1]=l[1];}\n"
-				"operator +(Vec2 l, Vec2 r):Vec2 {return new Vec2(l[0]+r[0],l[1]+r[1]);}\n"
-				"operator +=(Vec2& l, Vec2 r):Vec2 {l = new Vec2(l[0]+r[0],l[1]+r[1]);}\n"
+				"operator +(Vec2 l, Vec2 r):Vec2 {return (new Vec2)(l[0]+r[0],l[1]+r[1]);}\n"
+				"operator +=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)(l[0]+r[0],l[1]+r[1]);}\n"
 				//TODO дл€ операторов присваивани€ - первый параметр должен быть ссылкой
-				//"operator +=(Vec2 l, Vec2 r):Vec2 {l = new Vec2(l[0]+r[0],l[1]+r[1]);}\n"
-				"operator -=(Vec2& l, Vec2 r):Vec2 {l = new Vec2(l[0]-r[0],l[1]-r[1]);}\n"
-				"operator *=(Vec2& l, Vec2 r):Vec2 {l = new Vec2(l[0]*r[0],l[1]*r[1]);}\n"
-				"operator /=(Vec2& l, Vec2 r):Vec2 {l = new Vec2(l[0]/r[0],l[1]/r[1]);}\n"
-				"operator %=(Vec2& l, Vec2 r):Vec2 {l = new Vec2(l[0]%r[0],l[1]%r[1]);}\n"
-				"operator &&=(Vec2& l, Vec2 r):Vec2 {l = new Vec2(bool(l[0])&&bool(r[0]),bool(l[1])&&bool(r[1]));}\n"
-				"operator ||=(Vec2& l, Vec2 r):Vec2 {l = new Vec2(bool(l[0])||bool(r[0]),bool(l[1])||bool(r[1]));}\n"
+				//"operator +=(Vec2 l, Vec2 r):Vec2 {l = (new Vec2)(l[0]+r[0],l[1]+r[1]);}\n"
+				"operator -=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)(l[0]-r[0],l[1]-r[1]);}\n"
+				"operator *=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)(l[0]*r[0],l[1]*r[1]);}\n"
+				"operator /=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)(l[0]/r[0],l[1]/r[1]);}\n"
+				"operator %=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)(l[0]%r[0],l[1]%r[1]);}\n"
+				"operator &&=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)((new bool)(l[0])&&(new bool)(r[0]),(new bool)(l[1])&&(new bool)(r[1]));}\n"
+				"operator ||=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)((new bool)(l[0])||(new bool)(r[0]),(new bool)(l[1])||(new bool)(r[1]));}\n"
 				"operator [](Vec2& l, int i):T {return l.value[i];}\n"
 				"\n"
 				"}\n"
@@ -1389,6 +1401,19 @@ namespace Test
 				"}}");
 			Assert::AreEqual((int)3+5, *(int*)RunClassMethod(nullptr, "Test").get());
 			Assert::AreEqual((int)3 + 5, *(int*)RunClassMethod(nullptr, "Test2").get());
+		}
+		TEST_METHOD(AssignOperatorsOverloadSimple)
+		{
+
+			CreateClass(
+				"class TestClass {\n"
+				"func static Test:int\n"
+				"{\n"
+				"    var s = (new vec2)(1,1)[0];\n"
+				"    return 1;\n"
+				//"    return int(vec2(1,1)[0]);\n"
+				"}}");
+			Assert::AreEqual((int)1, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 		TEST_METHOD(CallParamsOverload)
 		{
@@ -1735,7 +1760,7 @@ namespace Test
 				"func static Test:TestEnum\n"
 				"{\n"
 				"	TestEnum e;\n"
-				"	e = TestEnum.Three;\n"
+				"	e = (new TestEnum).Three;\n"
 				"	return e;\n"
 				"}}");
 			Assert::AreEqual((int)2, *(int*)RunClassMethod("func static Script.TestClass.Test:TestEnum").get());
@@ -1825,7 +1850,7 @@ namespace Test
 			CreateClass(
 				"class TestClass {\n"
 				"class ITestBase { func GetValue:int {return 547;}}"
-				"class ITest { func GetBase:ITestBase{return new ITestBase();}}"
+				"class ITest { func GetBase:ITestBase{return (new ITestBase)();}}"
 				"func static Test:int\n"
 				"{\n"
 				"	ITest e;\n"
@@ -1840,11 +1865,11 @@ namespace Test
 			CreateClass(
 				"class TestClass {\n"
 				"class ITestBase { TDynArray<int> s;func GetValue:int {s.resize(1);return 547;}}"
-				"class ITest { func static GetBase:ITestBase{return new ITestBase();}}"
+				"class ITest { func static GetBase:ITestBase{return (new ITestBase)();}}"
 				"func static Test:int\n"
 				"{\n"
 				"	ITest e;\n"
-				"	int v = ITest.GetBase().GetValue();\n"
+				"	int v = (new ITest).GetBase().GetValue();\n"
 				"	return v;\n"
 				"}}");
 			Assert::AreEqual((int)547, *(int*)RunClassMethod(nullptr, "Test").get());
@@ -1855,7 +1880,7 @@ namespace Test
 			CreateClass(
 				"class TestClass {\n"
 				"class ITestBase { func GetValue(string s):int {return 547;}}"
-				"class ITest { func GetBase:ITestBase{return new ITestBase();}}"
+				"class ITest { func GetBase:ITestBase{return (new ITestBase)();}}"
 				"func static Test:int\n"
 				"{\n"
 				"	ITest e;\n"
@@ -2020,9 +2045,9 @@ namespace Test
 				"func static Test:int\n"
 				"{\n"
 				"	int test;\n"
-				"	test=ITest1().v;\n"
+				"	test = (new ITest1)().v;\n"
 				"	string abc;\n"
-				"	abc=ITest1().abc;\n"
+				"	abc= (new ITest1)().abc;\n"
 				"	return 4;\n"
 				"}}");
 			Assert::AreEqual((int)4, *(int*)RunClassMethod(nullptr, "Test").get());
@@ -2051,7 +2076,7 @@ namespace Test
 				"class TestClass {\n"
 				"class ITest1 { string abc; }"
 				"func static ReturnResult:ITest1\n"
-				"{ return ITest1();}\n"
+				"{ return (new ITest1)();}\n"
 				"func static Test:int\n"
 				"{\n"
 				"	string abc;\n"
@@ -2070,7 +2095,7 @@ namespace Test
 				"func static Test:int\n"
 				"{\n"
 				"	ITest1 abc;\n"
-				"	abc = ITest1();\n"
+				"	abc = (new ITest1)();\n"
 				"	return abc.abc.length();\n"
 				"}}");
 			Assert::AreEqual((int)0, *(int*)RunClassMethod(nullptr, "Test").get());
