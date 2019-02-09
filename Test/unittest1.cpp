@@ -26,6 +26,10 @@ namespace Test
 
 	std::vector<TStaticValue> *static_objects;
 
+	TRefsList* refs_list;
+
+	TGlobalRunContext global_context;
+
 	//std::vector < SemanticApi::ISMethod* > *smethods;
 
 	SemanticApi::ISMethod* CreateMethod(const char* code)
@@ -52,15 +56,20 @@ namespace Test
 				delete static_objects;
 			if (syntax != nullptr)
 				ISyntaxAnalyzer::Destroy(syntax);
+			if (refs_list != nullptr)
+				delete refs_list;
 
 			static_objects = new std::vector<TStaticValue>();
 			syntax = ISyntaxAnalyzer::Create();
+			refs_list = new TRefsList();
+			
+			global_context = TGlobalRunContext(static_objects, refs_list);
 
 			syntax->Compile(code);
 			auto sem_class = syntax->GetCompiledBaseClass();
 			
-			TreeRunner::InitializeStaticClassFields(syntax->GetStaticFields(), *static_objects);
-			TreeRunner::InitializeStaticVariables(syntax->GetStaticVariables(), *static_objects);
+			TreeRunner::InitializeStaticClassFields(syntax->GetStaticFields(), global_context);
+			TreeRunner::InitializeStaticVariables(syntax->GetStaticVariables(), global_context);
 		}
 		catch (std::string s)
 		{
@@ -72,21 +81,25 @@ namespace Test
 	TStackValue RunCode(const char* code)
 	{
 		static_objects = new std::vector<TStaticValue>();
+		refs_list = new TRefsList();
+		global_context = TGlobalRunContext(static_objects, refs_list);
 		syntax = ISyntaxAnalyzer::Create();
 
 		SemanticApi::ISMethod* ms = CreateMethod(code);
 		std::vector<TStackValue> params;
 		TStackValue result, object;
-		TMethodRunContext method_run_context(static_objects, &params, &result, &object);
+		TMethodRunContext method_run_context(global_context, &params, &result, &object);
 
-		TreeRunner::InitializeStaticClassFields(syntax->GetStaticFields(), *static_objects);
-		TreeRunner::InitializeStaticVariables(syntax->GetStaticVariables(), *static_objects);
+		TreeRunner::InitializeStaticClassFields(syntax->GetStaticFields(), global_context);
+		TreeRunner::InitializeStaticVariables(syntax->GetStaticVariables(), global_context);
 		TreeRunner::Run(ms, method_run_context);
-		TreeRunner::DeinitializeStatic(*static_objects);
+		TreeRunner::DeinitializeStatic(global_context);
 
 		ISyntaxAnalyzer::Destroy(syntax);
 		delete static_objects;
+		delete refs_list;
 
+		refs_list = nullptr;
 		syntax = nullptr;
 		static_objects = nullptr;
 
@@ -96,7 +109,7 @@ namespace Test
 	{
 		std::vector<TStackValue> params;
 		TStackValue result, object;
-		TMethodRunContext method_run_context(static_objects, &params, &result, &object);
+		TMethodRunContext method_run_context(global_context, &params, &result, &object);
 		TreeRunner::Run(ms,method_run_context);
 		return result;
 	}
@@ -107,7 +120,7 @@ namespace Test
 
 		std::vector<TStackValue> params;
 		TStackValue result, object;
-		TMethodRunContext method_run_context(static_objects, &params, &result, &object);
+		TMethodRunContext method_run_context(global_context, &params, &result, &object);
 
 		TreeRunner::Run(ms, method_run_context);
 
@@ -137,7 +150,7 @@ namespace Test
 	{
 		if (static_objects != nullptr)
 		{
-			TreeRunner::DeinitializeStatic(*static_objects);
+			TreeRunner::DeinitializeStatic(global_context);
 			delete static_objects;
 			static_objects = nullptr;
 		}
@@ -145,6 +158,11 @@ namespace Test
 		{
 			ISyntaxAnalyzer::Destroy(syntax);
 			syntax = nullptr;
+		}
+		if (refs_list != nullptr)
+		{
+			delete refs_list;
+			refs_list = nullptr;
 		}
 	}
 	TEST_MODULE_INITIALIZE(ModuleInitialize)
@@ -1824,6 +1842,45 @@ namespace Test
 			//	"	return e;\n"
 			//	"}}");
 			//Assert::AreEqual((int)1, *(int*)RunClassMethod("func static Script.TestClass.Test:TestEnum").get());
+		}
+	};
+	TEST_CLASS(RefsRangeCheck)
+	{
+	public:
+		TEST_METHOD_INITIALIZE(TestMethodInit)
+		{
+			BaseTypesTestsInitialize();
+		}
+		TEST_METHOD_CLEANUP(TestMethodCleanup)
+		{
+			BaseTypesTestsCleanup();
+		}
+		TEST_METHOD(DynArrTest)
+		{
+			CreateClass(
+				"class TestClass {\n"
+				"func static SomFunc(TDynArray<int>& arr, int& arr_el)\n"
+				"{\n"
+				"	arr.resize(5);\n"
+				"}\n"
+				"func static Test:int\n"
+				"{\n"
+				"	TDynArray<int> source;\n"
+				"	source.resize(2);\n"
+				"	SomFunc(source, source[1]);\n"
+				"	return 2;\n"
+				"}}");
+			bool raised = false;
+			try
+			{
+				Assert::AreEqual((int)2, *(int*)RunClassMethod("func static Script.TestClass.Test:int").get());
+			}
+			catch (const RuntimeException& ex)
+			{
+				if(ex.id==RuntimeExceptionId::DynArray_UserAfterFree)
+					raised = true;
+			}
+			Assert::IsTrue(raised);
 		}
 	};
 	TEST_CLASS(ArraysSpecialSyntaxTesting)

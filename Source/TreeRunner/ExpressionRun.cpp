@@ -40,19 +40,19 @@ public:
 			if (invoke->GetRetClass() != nullptr)
 				*run_context.expression_result = TStackValue(invoke->IsReturnRef(), invoke->GetRetClass());
 
-			TreeRunner::Run(invoke, TMethodRunContext(run_context.static_fields, &method_call_formal_params, run_context.expression_result, &left_result));
+			TreeRunner::Run(invoke, TMethodRunContext(run_context, &method_call_formal_params, run_context.expression_result, &left_result));
 		}break;
 
 		case SemanticApi::TMethodCallType::Operator:
 		{
 			if (invoke->GetRetClass() != nullptr)
 				*run_context.expression_result = TStackValue(invoke->IsReturnRef(), invoke->GetRetClass());
-			TreeRunner::Run(invoke, TMethodRunContext(run_context.static_fields, &method_call_formal_params, run_context.expression_result, nullptr));
+			TreeRunner::Run(invoke, TMethodRunContext(run_context, &method_call_formal_params, run_context.expression_result, nullptr));
 		}break;
 
 		case SemanticApi::TMethodCallType::ObjectConstructor:
 		{
-			TreeRunner::Run(invoke, TMethodRunContext(run_context.static_fields, &method_call_formal_params, nullptr, run_context.object));
+			TreeRunner::Run(invoke, TMethodRunContext(run_context, &method_call_formal_params, nullptr, run_context.object));
 		}break;
 
 		default:

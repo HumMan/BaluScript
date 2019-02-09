@@ -24,7 +24,7 @@ void TPtr::def_constr(TMethodRunContext* run_context)
 
 		el_obj.SetAsReference(v);
 
-		TreeRunner::Run(el_def_constr, TMethodRunContext(run_context->static_fields, &without_params, &without_result, &el_obj));
+		TreeRunner::Run(el_def_constr, TMethodRunContext(*run_context, &without_params, &without_result, &el_obj));
 	}
 }
 
@@ -42,7 +42,7 @@ void TPtr::destructor(TMethodRunContext* run_context)
 
 			el_obj.SetAsReference(v);
 
-			TreeRunner::Run(el_destr, TMethodRunContext(run_context->static_fields, &without_params, &without_result, &el_obj));
+			TreeRunner::Run(el_destr, TMethodRunContext(*run_context, &without_params, &without_result, &el_obj));
 		}
 		delete v;
 		delete refs_count;

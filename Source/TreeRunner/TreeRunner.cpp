@@ -6,27 +6,19 @@
 
 #include <array>
 
-void TreeRunner::RunConversion(const SemanticApi::IActualParamWithConversion* curr_op, std::vector<TStaticValue> &static_fields, TStackValue &value)
+void TreeRunner::RunConversion(const SemanticApi::IActualParamWithConversion* curr_op, TGlobalRunContext global_context, TStackValue &value)
 {
 	if (curr_op->IsRefToRValue())
 	{
 		auto copy_constr = curr_op->GetCopyConstr();
-		assert(copy_constr != nullptr);
-		//if (copy_constr != nullptr)
-		{
-			std::vector<TStackValue> constr_params;
-			constr_params.push_back(value);
-			TStackValue constr_result;
-			TStackValue constructed_object(false, value.GetClass());
-			TreeRunner::Run(copy_constr,TMethodRunContext(&static_fields, &constr_params, &constr_result, &constructed_object));
-			value = constructed_object;
-		}
-		//else
-		//{
-		//	TStackValue constructed_object(false, value.GetClass());
-		//	memcpy(constructed_object.get(), value.get(), value.GetClass()->GetSize()*sizeof(int));
-		//	value = constructed_object;
-		//}
+		assert(copy_constr != nullptr);//всегда должен быть как минимум AutoCopyConstr
+
+		std::vector<TStackValue> constr_params;
+		constr_params.push_back(value);
+		TStackValue constr_result;
+		TStackValue constructed_object(false, value.GetClass());
+		TreeRunner::Run(copy_constr, TMethodRunContext(global_context, &constr_params, &constr_result, &constructed_object));
+		value = constructed_object;
 	}
 	auto conversion = curr_op->GetConverstion();
 	if (conversion != nullptr)
@@ -34,7 +26,7 @@ void TreeRunner::RunConversion(const SemanticApi::IActualParamWithConversion* cu
 		std::vector<TStackValue> conv_params;
 		conv_params.push_back(value);
 		TStackValue result;
-		TreeRunner::Run(conversion,TMethodRunContext(&static_fields, &conv_params, &result, &value));
+		TreeRunner::Run(conversion,TMethodRunContext(global_context, &conv_params, &result, &value));
 		value = result;
 	}
 }
@@ -56,7 +48,7 @@ void TreeRunner::Destruct(SemanticApi::ISConstructObject* object, TStackValue& c
 	SemanticApi::ISMethod* destr = object_type->GetDestructor();
 	if (destr != nullptr)
 	{
-		TreeRunner::Run(destr,TMethodRunContext(run_context.static_fields, nullptr, nullptr, &constructed_object));
+		TreeRunner::Run(destr,TMethodRunContext(run_context, nullptr, nullptr, &constructed_object));
 	}
 }
 
@@ -68,7 +60,7 @@ void TreeRunner::Construct(const SemanticApi::IActualParameters* parameters, std
 		TStackValue exp_result;
 		TExpressionRunner::Run(par->GetExpression(), TExpressionRunContext(run_context, &exp_result));
 
-		TreeRunner::RunConversion(par, *run_context.static_fields, exp_result);
+		TreeRunner::RunConversion(par, run_context, exp_result);
 		method_call_formal_params.push_back(exp_result);
 	}
 }
@@ -85,7 +77,7 @@ void TreeRunner::Destroy(const SemanticApi::IActualParameters* parameters, std::
 		{
 			TStackValue destructor_result;
 			std::vector<TStackValue> without_params;
-			TreeRunner::Run(input_class->GetDestructor(), TMethodRunContext(run_context.static_fields, &without_params, &destructor_result, &method_call_formal_params[i]));
+			TreeRunner::Run(input_class->GetDestructor(), TMethodRunContext(run_context, &without_params, &destructor_result, &method_call_formal_params[i]));
 		}
 		it++;
 	}
@@ -122,13 +114,13 @@ void TreeRunner::Run(SemanticApi::ISLocalVar* local_var, TStatementRunContext ru
 		TExpressionRunner::Run(assign_expr, run_context);
 }
 
-void TreeRunner::Destruct(SemanticApi::ISLocalVar* local_var, std::vector<TStaticValue> &static_fields, std::vector<TStackValue>& local_variables)
+void TreeRunner::Destruct(SemanticApi::ISLocalVar* local_var, TGlobalRunContext global_context, std::vector<TStackValue>& local_variables)
 {
 	if (!local_var->IsStatic())
 	{
 		TStackValue without_result, var_object(true, local_var->GetClass());
 		var_object.SetAsReference(local_variables.back().get());
-		TreeRunner::Destruct(local_var->GetConstructObject(), var_object, TGlobalRunContext(&static_fields));
+		TreeRunner::Destruct(local_var->GetConstructObject(), var_object, TGlobalRunContext(global_context));
 	}
 }
 
@@ -200,6 +192,8 @@ void TreeRunner::Run(SemanticApi::ISBytecode* bytecode, TStatementRunContext run
 
 void TreeRunner::Run(SemanticApi::ISMethod* method, TMethodRunContext method_run_context)
 {
+	method_run_context.AddRefsFromParams();
+
 	if (method->IsExternal())
 	{
 		method->GetExternal()(&method_run_context);
@@ -231,43 +225,45 @@ void TreeRunner::Run(SemanticApi::ISMethod* method, TMethodRunContext method_run
 			{
 			case SemanticApi::SpecialClassMethodType::AutoDefConstr:
 			{
-				TreeRunner::RunAutoDefConstr(owner,*run_context.static_fields, *run_context.object);
+				TreeRunner::RunAutoDefConstr(owner,run_context, *run_context.object);
 			}break;
 			case SemanticApi::SpecialClassMethodType::AutoCopyConstr:
 			{
-				TreeRunner::RunAutoCopyConstr(owner, *run_context.static_fields, *run_context.formal_params, *run_context.object);
+				TreeRunner::RunAutoCopyConstr(owner, run_context, *run_context.formal_params, *run_context.object);
 			}break;
 			case SemanticApi::SpecialClassMethodType::AutoDestructor:
 			{
-				TreeRunner::RunAutoDestr(owner, *run_context.static_fields, *run_context.object);
+				TreeRunner::RunAutoDestr(owner, run_context, *run_context.object);
 			}break;
 			case SemanticApi::SpecialClassMethodType::DefaultConstr:
 			{
 				if (owner->GetAutoDefConstr())
-					TreeRunner::RunAutoDefConstr(owner, *run_context.static_fields, *run_context.object);
+					TreeRunner::RunAutoDefConstr(owner, run_context, *run_context.object);
 				TreeRunner::RunStatements(method->GetStatements(),run_context);
 			}break;
 			case SemanticApi::SpecialClassMethodType::CopyConstr:
 			{
 				if (owner->GetAutoDefConstr())
-					TreeRunner::RunAutoDefConstr(owner, *run_context.static_fields, *run_context.object);
+					TreeRunner::RunAutoDefConstr(owner, run_context, *run_context.object);
 				TreeRunner::RunStatements(method->GetStatements(), run_context);
 			}break;
 			case SemanticApi::SpecialClassMethodType::Destructor:
 			{
 				TreeRunner::RunStatements(method->GetStatements(), run_context);
 				if (owner->GetAutoDestr())
-					TreeRunner::RunAutoDestr(owner, *run_context.static_fields, *run_context.object);
+					TreeRunner::RunAutoDestr(owner, run_context, *run_context.object);
 			}break;
 			case SemanticApi::SpecialClassMethodType::AutoAssignOperator:
 			{
-				TreeRunner::RunAutoAssign(owner, *run_context.static_fields, *run_context.formal_params);
+				TreeRunner::RunAutoAssign(owner, run_context, *run_context.formal_params);
 			}break;
 			default:
 				assert(false);
 			}
 		}
 	}
+
+	method_run_context.RemoveRefsFromParams();
 }
 
 void TreeRunner::Run(SemanticApi::ISFor* for_statement, TStatementRunContext run_context)
@@ -281,7 +277,7 @@ void TreeRunner::Run(SemanticApi::ISFor* for_statement, TStatementRunContext run
 	{
 		TExpressionRunner::Run(dynamic_cast<SemanticApi::ISOperations::ISOperation*>(compare), 
 			TExpressionRunContext(run_context, &compare_result));
-		TreeRunner::RunConversion(compare_conversion, *run_context.static_fields, compare_result);
+		TreeRunner::RunConversion(compare_conversion, run_context, compare_result);
 		if (*(bool*)compare_result.get())
 		{
 
@@ -304,7 +300,7 @@ void TreeRunner::Run(SemanticApi::ISIf* if_op, TStatementRunContext run_context)
 	TExpressionRunner::Run(dynamic_cast<SemanticApi::ISOperations::ISOperation*>(if_op->GetBoolExpr()),
 		TExpressionRunContext(run_context, &compare_result));
 
-	TreeRunner::RunConversion(if_op->GetBoolExprConversion(), *run_context.static_fields, compare_result);
+	TreeRunner::RunConversion(if_op->GetBoolExprConversion(), run_context, compare_result);
 	if (*(bool*)compare_result.get())
 	{
 		TreeRunner::RunStatements(if_op->GetStatements(), run_context);
@@ -377,7 +373,7 @@ void TreeRunner::RunStatements(SemanticApi::ISStatements* statements_op, TStatem
 	for (size_t i = 0; i < size; i++)
 	{
 		auto& var_decl = var_declarations[size - i - 1];
-		TreeRunner::Destruct(var_decl.pointer, *run_context.static_fields, *run_context.local_variables);
+		TreeRunner::Destruct(var_decl.pointer, run_context, *run_context.local_variables);
 		if (!var_decl.pointer->IsStatic())
 			run_context.local_variables->pop_back();
 	}
@@ -390,12 +386,12 @@ void TreeRunner::Run(SemanticApi::ISReturn* return_statement, TStatementRunConte
 	TExpressionRunner::Run(dynamic_cast<SemanticApi::ISOperations::ISOperation*>(return_statement->GetResult()),
 		TExpressionRunContext(run_context, &return_value));
 	*run_context.result_returned = true;
-	TreeRunner::RunConversion(return_statement->GetConverstion(), *run_context.static_fields, return_value);
+	TreeRunner::RunConversion(return_statement->GetConverstion(), run_context, return_value);
 	*run_context.result = return_value;
 }
 
 
-void TreeRunner::RunAutoDefConstr(SemanticApi::ISClass* _this, std::vector<TStaticValue> &static_fields, TStackValue& object)
+void TreeRunner::RunAutoDefConstr(SemanticApi::ISClass* _this, TGlobalRunContext global_context, TStackValue& object)
 {
 	assert(_this->IsAutoMethodsInitialized());
 	assert(_this->GetAutoDefConstr());
@@ -425,19 +421,19 @@ void TreeRunner::RunAutoDefConstr(SemanticApi::ISClass* _this, std::vector<TStat
 				for (size_t i = 0; i < field->GetSizeMultiplier(); i++)
 				{
 					field_object.SetAsReference(&(((int*)object.get())[field->GetOffset() + i*field->GetClass()->GetSize()]));
-					TreeRunner::Run(field_def_constr, TMethodRunContext(&static_fields, &formal_params, &result, &field_object));
+					TreeRunner::Run(field_def_constr, TMethodRunContext(global_context, &formal_params, &result, &field_object));
 				}
 			}
 			else
 			{
 				field_object.SetAsReference(&(((int*)object.get())[field->GetOffset()]));
-				TreeRunner::Run(field_def_constr, TMethodRunContext(&static_fields, &formal_params, &result, &field_object));
+				TreeRunner::Run(field_def_constr, TMethodRunContext(global_context, &formal_params, &result, &field_object));
 			}
 		}
 	}
 }
 
-void TreeRunner::RunAutoDestr(SemanticApi::ISClass* _this, std::vector<TStaticValue> &static_fields, TStackValue& object)
+void TreeRunner::RunAutoDestr(SemanticApi::ISClass* _this, TGlobalRunContext global_context, TStackValue& object)
 {
 	assert(_this->IsAutoMethodsInitialized());
 	assert(_this->GetAutoDestr());
@@ -464,19 +460,19 @@ void TreeRunner::RunAutoDestr(SemanticApi::ISClass* _this, std::vector<TStaticVa
 				for (size_t i = 0; i < field->GetSizeMultiplier(); i++)
 				{
 					field_object.SetAsReference(&(((int*)object.get())[field->GetOffset() + i*field->GetClass()->GetSize()]));
-					TreeRunner::Run(field_destr, TMethodRunContext(&static_fields, &formal_params, &result, &field_object));
+					TreeRunner::Run(field_destr, TMethodRunContext(global_context, &formal_params, &result, &field_object));
 				}
 			}
 			else
 			{
 				field_object.SetAsReference(&(((int*)object.get())[field->GetOffset()]));
-				TreeRunner::Run(field_destr,TMethodRunContext(&static_fields, &formal_params, &result, &field_object));
+				TreeRunner::Run(field_destr,TMethodRunContext(global_context, &formal_params, &result, &field_object));
 			}
 		}
 	}
 }
 
-void TreeRunner::RunAutoCopyConstr(SemanticApi::ISClass* _this, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params, TStackValue& object)
+void TreeRunner::RunAutoCopyConstr(SemanticApi::ISClass* _this, TGlobalRunContext global_context, std::vector<TStackValue> &formal_params, TStackValue& object)
 {
 	assert(_this->IsAutoMethodsInitialized());
 	assert(_this->GetAutoCopyConstr());
@@ -515,7 +511,7 @@ void TreeRunner::RunAutoCopyConstr(SemanticApi::ISClass* _this, std::vector<TSta
 							//передаем в качестве параметра ссылку на копируемый объект
 							field_formal_params.push_back(TStackValue(true, field_class));
 							field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field->GetOffset() + i*field->GetClass()->GetSize()]);
-							TreeRunner::Run(field_copy_constr,TMethodRunContext(&static_fields, &field_formal_params, &result, &field_object));
+							TreeRunner::Run(field_copy_constr,TMethodRunContext(global_context, &field_formal_params, &result, &field_object));
 						}
 					}
 					else
@@ -527,7 +523,7 @@ void TreeRunner::RunAutoCopyConstr(SemanticApi::ISClass* _this, std::vector<TSta
 						//передаем в качестве параметра ссылку на копируемый объект
 						field_formal_params.push_back(TStackValue(true, field_class));
 						field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field->GetOffset()]);
-						TreeRunner::Run(field_copy_constr,TMethodRunContext(&static_fields, &field_formal_params, &result, &field_object));
+						TreeRunner::Run(field_copy_constr,TMethodRunContext(global_context, &field_formal_params, &result, &field_object));
 					}
 				}
 			}
@@ -540,7 +536,7 @@ void TreeRunner::RunAutoCopyConstr(SemanticApi::ISClass* _this, std::vector<TSta
 }
 
 
-void TreeRunner::RunAutoAssign(SemanticApi::ISClass* _this, std::vector<TStaticValue> &static_fields, std::vector<TStackValue> &formal_params)
+void TreeRunner::RunAutoAssign(SemanticApi::ISClass* _this, TGlobalRunContext global_context, std::vector<TStackValue> &formal_params)
 {
 	assert(_this->IsAutoMethodsInitialized());
 	assert(_this->GetAutoAssignOperator());
@@ -580,7 +576,7 @@ void TreeRunner::RunAutoAssign(SemanticApi::ISClass* _this, std::vector<TStaticV
 							field_formal_params.push_back(TStackValue(true, field_class));
 							field_formal_params.back().SetAsReference(&((int*)formal_params[1].get())[field->GetOffset() + i*field->GetClass()->GetSize()]);
 
-							TreeRunner::Run(field_assign_op, TMethodRunContext(&static_fields, &field_formal_params, &result, nullptr));
+							TreeRunner::Run(field_assign_op, TMethodRunContext(global_context, &field_formal_params, &result, nullptr));
 						}
 					}
 					else
@@ -594,7 +590,7 @@ void TreeRunner::RunAutoAssign(SemanticApi::ISClass* _this, std::vector<TStaticV
 						field_formal_params.push_back(TStackValue(true, field_class));
 						field_formal_params.back().SetAsReference(&((int*)formal_params[1].get())[field->GetOffset()]);
 
-						TreeRunner::Run(field_assign_op, TMethodRunContext(&static_fields, &field_formal_params, &result, nullptr));
+						TreeRunner::Run(field_assign_op, TMethodRunContext(global_context, &field_formal_params, &result, nullptr));
 					}
 				}
 			}
@@ -616,7 +612,7 @@ void TreeRunner::Run(SemanticApi::ISWhile* while_statement, TStatementRunContext
 		TExpressionRunner::Run(
 			dynamic_cast<SemanticApi::ISOperations::ISOperation*>(while_statement->GetCompare()), 
 			while_run_context);
-		TreeRunner::RunConversion(while_statement->GetCompareConversion(), *run_context.static_fields, compare_result);
+		TreeRunner::RunConversion(while_statement->GetCompareConversion(), run_context, compare_result);
 		if (*(bool*)compare_result.get())
 		{
 			TreeRunner::RunStatements(while_statement->GetStatements(), run_context);
@@ -627,8 +623,9 @@ void TreeRunner::Run(SemanticApi::ISWhile* while_statement, TStatementRunContext
 	}
 }
 
-void TreeRunner::InitializeStaticClassFields(std::vector<SemanticApi::ISClassField*> static_fields, std::vector<TStaticValue> &static_objects)
+void TreeRunner::InitializeStaticClassFields(std::vector<SemanticApi::ISClassField*> static_fields, TGlobalRunContext run_context)
 {
+	auto& static_objects = *run_context.static_fields;
 	int i = static_objects.size();
 	for (auto v : static_fields)
 	{
@@ -641,13 +638,14 @@ void TreeRunner::InitializeStaticClassFields(std::vector<SemanticApi::ISClassFie
 			std::vector<TStackValue> constr_formal_params;
 			TStackValue without_result, var_object(true, v->GetClass());
 			var_object.SetAsReference(static_objects[v->GetOffset()].get());
-			TreeRunner::Run(def_constr,TMethodRunContext(&static_objects, &constr_formal_params, &without_result, &var_object));
+			TreeRunner::Run(def_constr,TMethodRunContext(run_context, &constr_formal_params, &without_result, &var_object));
 		}
 		i++;
 	}
 }
-void TreeRunner::DeinitializeStatic(std::vector<TStaticValue> &static_objects)
+void TreeRunner::DeinitializeStatic(TGlobalRunContext run_context)
 {
+	auto& static_objects = *run_context.static_fields;
 	for (auto v : static_objects)
 	{
 		auto destructor = v.GetClass()->GetDestructor();
@@ -656,13 +654,14 @@ void TreeRunner::DeinitializeStatic(std::vector<TStaticValue> &static_objects)
 			std::vector<TStackValue> destr_formal_params;
 			TStackValue without_result, var_object(true, v.GetClass());
 			var_object.SetAsReference(v.get());
-			TreeRunner::Run(destructor, TMethodRunContext(&static_objects, &destr_formal_params, &without_result, &var_object));
+			TreeRunner::Run(destructor, TMethodRunContext(run_context, &destr_formal_params, &without_result, &var_object));
 		}
 
 	}
 }
-void TreeRunner::InitializeStaticVariables(std::vector<SemanticApi::ISLocalVar*> static_variables, std::vector<TStaticValue> &static_objects)
+void TreeRunner::InitializeStaticVariables(std::vector<SemanticApi::ISLocalVar*> static_variables, TGlobalRunContext run_context)
 {
+	auto& static_objects = *run_context.static_fields;
 	int i = static_objects.size();
 	for (auto v : static_variables)
 	{

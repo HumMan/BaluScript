@@ -209,7 +209,7 @@ std::string callScriptFromC_DeclParameters(SemanticApi::ISMethod* method)
 	std::string result;
 	auto count = method->GetParamsCount();
 
-	result += "std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax";
+	result += "TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax";
 	if (count>0)
 		result += ", ";
 
@@ -458,7 +458,7 @@ void callScriptFromC_DeclBody(SemanticApi::ISMethod* method, std::vector<std::st
 	}
 
 	Line("TStackValue result, object;\n", curr_level, result);
-	Line("TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));\n", curr_level, result);
+	Line("TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));\n", curr_level, result);
 
 }
 

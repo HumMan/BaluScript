@@ -46,9 +46,12 @@ int main(int argc, char* argv[])
 				std::vector<TStaticValue> static_fields;
 				std::vector<TStaticValue> static_variables;
 				TStackValue result, object;
-				TMethodRunContext method_run_context(&static_fields, &params, &result, &object);
+				auto refs_list = new TRefsList();
+				TGlobalRunContext global_context(&static_fields, refs_list);
+				TMethodRunContext method_run_context(global_context, &params, &result, &object);
 				
 				TreeRunner::Run(main_func, method_run_context);
+				delete refs_list;
 
 		/*		if(print_info)
 					printf("ok (%.3f ms)\n",time.TimeDiff(time.GetTime(),t0)*1000);

@@ -5,17 +5,66 @@
 class TStaticValue;
 class TStackValue;
 
+class TRefsList
+{
+	std::vector<void*> list;
+public:
+	void AddRef(void* p)
+	{
+		if (list.size() == 0)
+			list.push_back(p);
+		else
+		{
+			for (auto it = list.begin(); it < list.end(); it++)
+			{
+				if (*it > p)
+				{
+					list.insert(it, p);
+					return;
+				}
+			}
+			list.push_back(p);
+		}
+	}
+	void RemoveRef(void* p)
+	{
+		for (auto it = list.begin(); it < list.end(); it++)
+		{
+			if (*it == p)
+			{
+				list.erase(it);
+				break;
+			}
+		}
+	}
+	bool RefsInRange(void* left, void* right)
+	{
+		for (auto it = list.begin(); it < list.end(); it++)
+		{
+			if (left<=*it && *it<=right)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+};
+
+
 class TGlobalRunContext
 {
 public:
 	std::vector<TStaticValue>* static_fields;
+	TRefsList* refs_list;
 	TGlobalRunContext()
 	{
 		static_fields = nullptr;
+		refs_list = nullptr;
 	}
-	TGlobalRunContext(std::vector<TStaticValue>* static_fields)
+	TGlobalRunContext(std::vector<TStaticValue>* static_fields, TRefsList* refs_list)
 	{
 		this->static_fields = static_fields;
+		this->refs_list = refs_list;
 	}
 };
 
@@ -32,13 +81,19 @@ public:
 		result = nullptr;
 		object = nullptr;
 	}
-	TMethodRunContext(std::vector<TStaticValue>* static_fields, std::vector<TStackValue>* formal_params, TStackValue* result, TStackValue* object)
+	TMethodRunContext(TGlobalRunContext global_context, std::vector<TStackValue>* formal_params,
+		TStackValue* result, TStackValue* object)
 	{
-		this->static_fields = static_fields;
+		this->static_fields = global_context.static_fields;
+		this->refs_list = global_context.refs_list;
 		this->formal_params = formal_params;
 		this->result = result;
 		this->object = object;
 	}
+	//запоминаем есть ли ссылки - чтобы в TDynArray, TPtr не произошло use after free после манипуляций
+	void AddRefsFromParams();
+	//очищаем список ссылок после выполнения метода
+	void RemoveRefsFromParams();
 };
 
 class TStatementRunContext : public TMethodRunContext

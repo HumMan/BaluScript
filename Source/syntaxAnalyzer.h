@@ -8,6 +8,22 @@
 
 #include "SemanticInterface/SemanticTreeApi.h"
 
+enum RuntimeExceptionId
+{
+	DynArray_UserAfterFree,
+	Ptr_UserAfterFree,
+};
+
+class RuntimeException: public std::exception
+{
+public:
+	RuntimeException(RuntimeExceptionId id)
+	{
+		this->id = id;
+	}
+	RuntimeExceptionId id;
+};
+
 class ISyntaxAnalyzer
 {
 public:

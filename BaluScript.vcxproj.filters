@@ -434,5 +434,8 @@
     <ClCompile Include="Source\NativeTypes\Ptr.cpp">
       <Filter>Source Files\NativeTypes</Filter>
     </ClCompile>
+    <ClCompile Include="Source\TreeRunner\RunContext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

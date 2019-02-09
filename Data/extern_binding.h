@@ -1,17 +1,17 @@
 //auto-generated code
 namespace ns_Script 
 {
-	void callScriptFromC_Print(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, const float p0 /*v*/) 
+	void callScriptFromC_Print(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, const float p0 /*v*/) 
 	{
 		std::vector<TStackValue> params;
 		params.push_back(TStackValue(false, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("float"))));
 		*(float*)params[0].get() = p0;
 		TStackValue result, object;
-		TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+		TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 	}
 	namespace ns_int 
 	{
-		void callScriptFromC_operator_PlusA(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, int& p0 /*l*/, const int p1 /*r*/) 
+		void callScriptFromC_operator_PlusA(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, int& p0 /*l*/, const int p1 /*r*/) 
 		{
 			std::vector<TStackValue> params;
 			params.push_back(TStackValue(true, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("int"))));
@@ -19,9 +19,9 @@ namespace ns_Script
 			params.push_back(TStackValue(false, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("int"))));
 			*(int*)params[1].get() = p1;
 			TStackValue result, object;
-			TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+			TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 		}
-		void callScriptFromC_operator_MinusA(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, int& p0 /*l*/, const int p1 /*r*/) 
+		void callScriptFromC_operator_MinusA(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, int& p0 /*l*/, const int p1 /*r*/) 
 		{
 			std::vector<TStackValue> params;
 			params.push_back(TStackValue(true, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("int"))));
@@ -29,9 +29,9 @@ namespace ns_Script
 			params.push_back(TStackValue(false, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("int"))));
 			*(int*)params[1].get() = p1;
 			TStackValue result, object;
-			TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+			TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 		}
-		void callScriptFromC_operator_MulA(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, int& p0 /*l*/, const int p1 /*r*/) 
+		void callScriptFromC_operator_MulA(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, int& p0 /*l*/, const int p1 /*r*/) 
 		{
 			std::vector<TStackValue> params;
 			params.push_back(TStackValue(true, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("int"))));
@@ -39,9 +39,9 @@ namespace ns_Script
 			params.push_back(TStackValue(false, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("int"))));
 			*(int*)params[1].get() = p1;
 			TStackValue result, object;
-			TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+			TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 		}
-		void callScriptFromC_operator_DivA(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, int& p0 /*l*/, const int p1 /*r*/) 
+		void callScriptFromC_operator_DivA(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, int& p0 /*l*/, const int p1 /*r*/) 
 		{
 			std::vector<TStackValue> params;
 			params.push_back(TStackValue(true, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("int"))));
@@ -49,9 +49,9 @@ namespace ns_Script
 			params.push_back(TStackValue(false, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("int"))));
 			*(int*)params[1].get() = p1;
 			TStackValue result, object;
-			TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+			TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 		}
-		void callScriptFromC_operator_PercentA(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, int& p0 /*l*/, const int p1 /*r*/) 
+		void callScriptFromC_operator_PercentA(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, int& p0 /*l*/, const int p1 /*r*/) 
 		{
 			std::vector<TStackValue> params;
 			params.push_back(TStackValue(true, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("int"))));
@@ -59,28 +59,28 @@ namespace ns_Script
 			params.push_back(TStackValue(false, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("int"))));
 			*(int*)params[1].get() = p1;
 			TStackValue result, object;
-			TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+			TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 		}
-		void callScriptFromC_operator_Increment(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, int& p0 /*l*/) 
+		void callScriptFromC_operator_Increment(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, int& p0 /*l*/) 
 		{
 			std::vector<TStackValue> params;
 			params.push_back(TStackValue(true, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("int"))));
 			*(int**)params[0].get() = &p0;
 			TStackValue result, object;
-			TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+			TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 		}
-		void callScriptFromC_operator_Decrement(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, int& p0 /*l*/) 
+		void callScriptFromC_operator_Decrement(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, int& p0 /*l*/) 
 		{
 			std::vector<TStackValue> params;
 			params.push_back(TStackValue(true, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("int"))));
 			*(int**)params[0].get() = &p0;
 			TStackValue result, object;
-			TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+			TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 		}
 	}
 	namespace ns_float 
 	{
-		void callScriptFromC_operator_PlusA(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, float& p0 /*l*/, const float p1 /*r*/) 
+		void callScriptFromC_operator_PlusA(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, float& p0 /*l*/, const float p1 /*r*/) 
 		{
 			std::vector<TStackValue> params;
 			params.push_back(TStackValue(true, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("float"))));
@@ -88,9 +88,9 @@ namespace ns_Script
 			params.push_back(TStackValue(false, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("float"))));
 			*(float*)params[1].get() = p1;
 			TStackValue result, object;
-			TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+			TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 		}
-		void callScriptFromC_operator_MinusA(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, float& p0 /*l*/, const float p1 /*r*/) 
+		void callScriptFromC_operator_MinusA(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, float& p0 /*l*/, const float p1 /*r*/) 
 		{
 			std::vector<TStackValue> params;
 			params.push_back(TStackValue(true, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("float"))));
@@ -98,9 +98,9 @@ namespace ns_Script
 			params.push_back(TStackValue(false, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("float"))));
 			*(float*)params[1].get() = p1;
 			TStackValue result, object;
-			TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+			TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 		}
-		void callScriptFromC_operator_MulA(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, float& p0 /*l*/, const float p1 /*r*/) 
+		void callScriptFromC_operator_MulA(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, float& p0 /*l*/, const float p1 /*r*/) 
 		{
 			std::vector<TStackValue> params;
 			params.push_back(TStackValue(true, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("float"))));
@@ -108,9 +108,9 @@ namespace ns_Script
 			params.push_back(TStackValue(false, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("float"))));
 			*(float*)params[1].get() = p1;
 			TStackValue result, object;
-			TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+			TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 		}
-		void callScriptFromC_operator_DivA(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, float& p0 /*l*/, const float p1 /*r*/) 
+		void callScriptFromC_operator_DivA(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, float& p0 /*l*/, const float p1 /*r*/) 
 		{
 			std::vector<TStackValue> params;
 			params.push_back(TStackValue(true, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("float"))));
@@ -118,7 +118,7 @@ namespace ns_Script
 			params.push_back(TStackValue(false, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("float"))));
 			*(float*)params[1].get() = p1;
 			TStackValue result, object;
-			TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+			TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 		}
 	}
 	namespace ns_bool 
@@ -126,7 +126,7 @@ namespace ns_Script
 	}
 	namespace ns_vec2 
 	{
-		void callScriptFromC_operator_PlusA(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, BaluLib::TVec2& p0 /*l*/, const BaluLib::TVec2 p1 /*r*/) 
+		void callScriptFromC_operator_PlusA(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, BaluLib::TVec2& p0 /*l*/, const BaluLib::TVec2 p1 /*r*/) 
 		{
 			std::vector<TStackValue> params;
 			params.push_back(TStackValue(true, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("vec2"))));
@@ -134,9 +134,9 @@ namespace ns_Script
 			params.push_back(TStackValue(false, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("vec2"))));
 			*(BaluLib::TVec2*)params[1].get() = p1;
 			TStackValue result, object;
-			TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+			TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 		}
-		void callScriptFromC_operator_MinusA(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, BaluLib::TVec2& p0 /*l*/, const BaluLib::TVec2 p1 /*r*/) 
+		void callScriptFromC_operator_MinusA(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, BaluLib::TVec2& p0 /*l*/, const BaluLib::TVec2 p1 /*r*/) 
 		{
 			std::vector<TStackValue> params;
 			params.push_back(TStackValue(true, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("vec2"))));
@@ -144,9 +144,9 @@ namespace ns_Script
 			params.push_back(TStackValue(false, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("vec2"))));
 			*(BaluLib::TVec2*)params[1].get() = p1;
 			TStackValue result, object;
-			TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+			TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 		}
-		void callScriptFromC_operator_MulA(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, BaluLib::TVec2& p0 /*l*/, const BaluLib::TVec2 p1 /*r*/) 
+		void callScriptFromC_operator_MulA(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, BaluLib::TVec2& p0 /*l*/, const BaluLib::TVec2 p1 /*r*/) 
 		{
 			std::vector<TStackValue> params;
 			params.push_back(TStackValue(true, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("vec2"))));
@@ -154,9 +154,9 @@ namespace ns_Script
 			params.push_back(TStackValue(false, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("vec2"))));
 			*(BaluLib::TVec2*)params[1].get() = p1;
 			TStackValue result, object;
-			TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+			TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 		}
-		void callScriptFromC_operator_DivA(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, BaluLib::TVec2& p0 /*l*/, const BaluLib::TVec2 p1 /*r*/) 
+		void callScriptFromC_operator_DivA(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, BaluLib::TVec2& p0 /*l*/, const BaluLib::TVec2 p1 /*r*/) 
 		{
 			std::vector<TStackValue> params;
 			params.push_back(TStackValue(true, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("vec2"))));
@@ -164,12 +164,12 @@ namespace ns_Script
 			params.push_back(TStackValue(false, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("vec2"))));
 			*(BaluLib::TVec2*)params[1].get() = p1;
 			TStackValue result, object;
-			TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+			TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 		}
 	}
 	namespace ns_vec2i 
 	{
-		void callScriptFromC_operator_PlusA(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, BaluLib::TVec2i& p0 /*l*/, const BaluLib::TVec2i p1 /*r*/) 
+		void callScriptFromC_operator_PlusA(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, BaluLib::TVec2i& p0 /*l*/, const BaluLib::TVec2i p1 /*r*/) 
 		{
 			std::vector<TStackValue> params;
 			params.push_back(TStackValue(true, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("vec2i"))));
@@ -177,9 +177,9 @@ namespace ns_Script
 			params.push_back(TStackValue(false, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("vec2i"))));
 			*(BaluLib::TVec2i*)params[1].get() = p1;
 			TStackValue result, object;
-			TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+			TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 		}
-		void callScriptFromC_operator_MinusA(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, BaluLib::TVec2i& p0 /*l*/, const BaluLib::TVec2i p1 /*r*/) 
+		void callScriptFromC_operator_MinusA(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, BaluLib::TVec2i& p0 /*l*/, const BaluLib::TVec2i p1 /*r*/) 
 		{
 			std::vector<TStackValue> params;
 			params.push_back(TStackValue(true, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("vec2i"))));
@@ -187,9 +187,9 @@ namespace ns_Script
 			params.push_back(TStackValue(false, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("vec2i"))));
 			*(BaluLib::TVec2i*)params[1].get() = p1;
 			TStackValue result, object;
-			TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+			TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 		}
-		void callScriptFromC_operator_MulA(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, BaluLib::TVec2i& p0 /*l*/, const BaluLib::TVec2i p1 /*r*/) 
+		void callScriptFromC_operator_MulA(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, BaluLib::TVec2i& p0 /*l*/, const BaluLib::TVec2i p1 /*r*/) 
 		{
 			std::vector<TStackValue> params;
 			params.push_back(TStackValue(true, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("vec2i"))));
@@ -197,9 +197,9 @@ namespace ns_Script
 			params.push_back(TStackValue(false, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("vec2i"))));
 			*(BaluLib::TVec2i*)params[1].get() = p1;
 			TStackValue result, object;
-			TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+			TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 		}
-		void callScriptFromC_operator_DivA(std::vector<TStaticValue>* static_fields, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, BaluLib::TVec2i& p0 /*l*/, const BaluLib::TVec2i p1 /*r*/) 
+		void callScriptFromC_operator_DivA(TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax, BaluLib::TVec2i& p0 /*l*/, const BaluLib::TVec2i p1 /*r*/) 
 		{
 			std::vector<TStackValue> params;
 			params.push_back(TStackValue(true, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("vec2i"))));
@@ -207,7 +207,7 @@ namespace ns_Script
 			params.push_back(TStackValue(false, syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName("vec2i"))));
 			*(BaluLib::TVec2i*)params[1].get() = p1;
 			TStackValue result, object;
-			TreeRunner::Run(compiled_method, TMethodRunContext(static_fields, &params, &result, &object));
+			TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));
 		}
 	}
 	namespace ns_char 
