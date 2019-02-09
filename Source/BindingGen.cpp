@@ -209,7 +209,7 @@ std::string callScriptFromC_DeclParameters(SemanticApi::ISMethod* method)
 	std::string result;
 	auto count = method->GetParamsCount();
 
-	result += "TGlobalContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax";
+	result += "TGlobalRunContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax";
 	if (count>0)
 		result += ", ";
 
