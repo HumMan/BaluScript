@@ -8,3 +8,4 @@
 #include "../Source/NativeTypes/StaticArray.h"
 #include "../Source/NativeTypes/DynArray.h"
 #include "../Source/NativeTypes/String.h"
+#include "../Source/NativeTypes/Ptr.h"
