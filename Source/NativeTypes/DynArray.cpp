@@ -143,6 +143,9 @@ void TDynArr::copy_constr(TMethodRunContext* run_context, TDynArr* copy_from)
 
 void TDynArr::operator_Assign(TMethodRunContext* run_context, TDynArr* left, TDynArr* right)
 {
+	if (left->v->size() > 0)
+		CheckRefs(run_context, &(*left->v)[0], right->v->size());
+
 	std::vector<SemanticApi::ISMethod*> ops;
 
 	left->el_class->GetOperators(ops, Lexer::TOperator::Assign);

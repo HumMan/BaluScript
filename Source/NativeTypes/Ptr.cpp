@@ -50,7 +50,8 @@ void TPtr::destructor(TMethodRunContext* run_context)
 
 	refs_count = nullptr;	
 	v = nullptr;
-	//memset((TPtr*)run_context->object->get(), 0xfeefee, sizeof(TPtr));
+	if(run_context->object!=nullptr)
+		memset((TPtr*)run_context->object->get(), 0xfeefee, sizeof(TPtr));
 }
 
 void TPtr::copy_constr(TMethodRunContext* run_context, TPtr* copy_from)
@@ -65,6 +66,7 @@ void TPtr::operator_Assign(TMethodRunContext* run_context, TPtr* left, TPtr* rig
 	if (left->v == right->v)
 		return;
 	left->destructor(run_context);
+
 	left->v = right->v;
 	left->refs_count = right->refs_count;
 	(*left->refs_count)++;
