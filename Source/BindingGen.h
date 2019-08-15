@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include <map> 
 
@@ -20,8 +20,8 @@ namespace BindingGen
 	{
 	public:
 		std::map<std::string, std::string> script_class_to_c_map;
-		//TODO временный список классов представляющих указатель (применяется доп разименовывание)
 		std::vector<std::string> interface_script_class;
+		std::vector<std::string> shared_ptr_script_class;
 		std::vector<SemanticApi::TExternalClassDecl> external_classes;
 		std::vector<SemanticApi::TExternalSMethod> external_bindings;
 		std::map<std::string, TTypeConverterInfo> type_converters;

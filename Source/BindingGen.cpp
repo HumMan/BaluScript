@@ -1,4 +1,4 @@
-#include "BindingGen.h"
+﻿#include "BindingGen.h"
 
 #include "../Include/baluScript.h"
 
@@ -73,6 +73,14 @@ bool IsInterfaceClass(std::string v)
         binding_gen_info.interface_script_class.begin(),
         binding_gen_info.interface_script_class.end(),
         v) != binding_gen_info.interface_script_class.end();
+}
+
+bool IsSharedPtrClass(std::string v)
+{
+	return std::find(
+		binding_gen_info.shared_ptr_script_class.begin(),
+		binding_gen_info.shared_ptr_script_class.end(),
+		v) != binding_gen_info.shared_ptr_script_class.end();
 }
 
 std::string GetNamespace(SemanticApi::ISMethod* method)
@@ -183,9 +191,10 @@ std::string DeclParameters(SemanticApi::ISMethod* method)
 }
 
 
-std::string GetParamType(SemanticApi::ISParameter* param, bool& is_interface_type)
+std::string GetParamType(SemanticApi::ISParameter* param, bool& is_interface_type, bool& is_shared_ptr_type)
 {
 	is_interface_type = false;
+	is_shared_ptr_type = false;
 	std::string type;
 	if (param->GetClass()->GetType() == SemanticApi::TNodeWithTemplatesType::SurrogateTemplateParam)
 	{
@@ -199,6 +208,10 @@ std::string GetParamType(SemanticApi::ISParameter* param, bool& is_interface_typ
 		{
 			is_interface_type = true;
 			type = type + "*";
+		}
+		else if (IsSharedPtrClass(script_type))
+		{
+			is_shared_ptr_type = true;
 		}
 	}
 	return type;
@@ -227,9 +240,12 @@ std::string callScriptFromC_DeclParameters(SemanticApi::ISMethod* method)
 		else
 		{
 			bool is_interface_type;
-			auto type = GetParamType(param, is_interface_type);
+			bool is_shared_ptr_type;
+			auto type = GetParamType(param, is_interface_type, is_shared_ptr_type);
 			if(is_interface_type)
 				result += type + " const " + name;
+			else if(is_shared_ptr_type)
+				result += "std::shared_ptr<"+ type + "> const &" + name;
 			else
 				result += (is_ref ? "" : "const ") + type + (is_ref ? "&" : "") + " " + name;
 
@@ -267,13 +283,16 @@ std::string RunParams(bool is_template, size_t count)
 	return result;
 }
 
-std::string GetRetType(SemanticApi::ISMethod* method)
+std::string GetRetType(SemanticApi::ISMethod* method, bool& is_share_ptr_type)
 {
+	is_share_ptr_type = false;
 	auto ret_class = method->GetRetClass();
 	auto script_type = ToS(ret_class->IGetSyntax()->GetName());
 	auto type = StoC(script_type);
 	if (IsInterfaceClass(script_type))
 		type = type + "*";
+	if (IsSharedPtrClass(script_type))
+		is_share_ptr_type = true;
 	return type;
 }
 
@@ -298,14 +317,25 @@ void DeclBody(SemanticApi::ISMethod* method, std::vector<std::string>& result, i
 	auto obj_type_script = ToS(method->GetOwner()->IGetSyntax()->GetName());
 
 	bool is_obj_type_interface = IsInterfaceClass(obj_type_script);
+	bool is_shared_ptr_type = IsSharedPtrClass(obj_type_script);
 
 	std::string obj_type = StoC(obj_type_script);
 
-	if ((!is_static)&&is_obj_type_interface)
-		obj_type = obj_type + "*";
-
-	if (!is_static)
-		Line(obj_type + "* obj = ((" + obj_type + "*)(run_context->object->get()));\n", curr_level, result);
+	if ((!is_static) && is_shared_ptr_type)
+	{
+		Line("TScriptSharedPointer<"+obj_type+">* obj = ((TScriptSharedPointer<"+ obj_type+">*)(run_context->object->get()));\n", curr_level, result);
+	}
+	else
+	{
+		if ((!is_static) && is_obj_type_interface)
+		{
+			obj_type = obj_type + "*";
+		}
+		if (!is_static)
+		{
+			Line(obj_type + "* obj = ((" + obj_type + "*)(run_context->object->get()));\n", curr_level, result);
+		}
+	}
 
 	auto count = method->GetParamsCount();
 	for (size_t i = 0; i < count; i++)
@@ -313,7 +343,8 @@ void DeclBody(SemanticApi::ISMethod* method, std::vector<std::string>& result, i
 		auto param = method->GetParam(i);
 		auto is_ref = param->IsRef();
 		bool is_interface_type;
-		auto type = GetParamType(param, is_interface_type);
+		bool is_shared_ptr_type;
+		auto type = GetParamType(param, is_interface_type, is_shared_ptr_type);
 
 		assert(!(is_ref && is_interface_type));
 
@@ -326,10 +357,18 @@ void DeclBody(SemanticApi::ISMethod* method, std::vector<std::string>& result, i
 		{
 			assert(!is_ref);
 			Line(type +
-				(need_convert ? "temp_param" : " param") + std::to_string(i) +
+				(" param") + std::to_string(i) +
 				" = " +
 				("*") +
 				"((" + type + "*)(*run_context->formal_params)[" + std::to_string(i) + "].get());\n", curr_level, result);
+		}
+		else if (is_shared_ptr_type)
+		{
+			Line("std::shared_ptr<"+type +">"+
+				(" param") + std::to_string(i) +
+				" = " +
+				("*") +
+				"((TScriptSharedPointer<" + type + ">*)(*run_context->formal_params)[" + std::to_string(i) + "].get())->v;\n", curr_level, result);
 		}
 		else if (param->GetClass()->GetType() == SemanticApi::TNodeWithTemplatesType::Template)
 		{
@@ -362,68 +401,86 @@ void DeclBody(SemanticApi::ISMethod* method, std::vector<std::string>& result, i
 	auto ret_class = method->GetRetClass();
 
 	auto has_ret = ret_class != nullptr;
-
+		
 	if (has_ret)
 	{
-		std::string type;
-		if (ret_class->GetType() == SemanticApi::TNodeWithTemplatesType::SurrogateTemplateParam)
+		bool is_shared_ptr_type;
+		std::string type = GetRetType(method, is_shared_ptr_type);
+		if (is_shared_ptr_type)
 		{
-			type = "void*";
-			Line(type + " " + " result = \n", curr_level, result);
+			assert(!method->IsReturnRef());
+			
+			Line("std::shared_ptr<" + type + "> result =\n", curr_level, result);
 		}
 		else
 		{
-			type = GetRetType(method);
-
-			TTypeConverterInfo convert_info;
-			bool need_convert = NeedTypeConverter(type, convert_info);
-
-			assert(!(need_convert&&method->IsReturnRef()));
-
-			if (need_convert)
+			if (ret_class->GetType() == SemanticApi::TNodeWithTemplatesType::SurrogateTemplateParam)
 			{
-				Line(convert_info.result_type + " " + "temp_result = \n", curr_level, result);
+				std::string type = "void*";
+				Line(type + " " + " result = \n", curr_level, result);
 			}
 			else
 			{
-				Line(type + " " + (method->IsReturnRef() ? "&" : "") + (need_convert ? "temp_result" : " result") + " = \n", curr_level, result);
+				TTypeConverterInfo convert_info;
+				bool need_convert = NeedTypeConverter(type, convert_info);
+
+				assert(!(need_convert&&method->IsReturnRef()));
+
+				if (need_convert)
+				{
+					Line(convert_info.result_type + " " + "temp_result = \n", curr_level, result);
+				}
+				else
+				{
+					Line(type + " " + (method->IsReturnRef() ? "&" : "") + (need_convert ? "temp_result" : " result") + " = \n", curr_level, result);
+				}
 			}
 		}
 	}
 
-	Line((is_static ? std::string(obj_type + "::") : (is_obj_type_interface ? std::string("(*obj)->") : std::string("obj->")))
+	//вызов метода с параметрами
+	Line((is_static ? std::string(obj_type + "::") : ((is_obj_type_interface || is_shared_ptr_type) ? std::string("(*obj)->") : std::string("obj->")))
 		+ GenMethodName(method) +
 		"(" + RunParams(is_template, count) + ");\n", curr_level, result);
 
+	//запись результата
 	if (has_ret)
 	{
-		if (ret_class->GetType() == SemanticApi::TNodeWithTemplatesType::SurrogateTemplateParam)
+		bool is_shared_ptr_type;
+		std::string type = GetRetType(method, is_shared_ptr_type);
+		if (is_shared_ptr_type)
 		{
-			if (method->IsReturnRef())
-				Line("run_context->result->SetAsReference(result);\n", curr_level, result);
-			else
-				throw std::runtime_error("Не поддерживается возврат шаблонного параметра по значению из extern");
+			assert(!method->IsReturnRef());
+			Line("*(TScriptSharedPointer<" + type + ">*)run_context->result->get() = TScriptSharedPointer<"+type+">(result);\n", curr_level, result);
 		}
 		else
 		{
-
-
-			if (method->IsReturnRef())
-				Line("run_context->result->SetAsReference(&result);\n", curr_level, result);
+			if (ret_class->GetType() == SemanticApi::TNodeWithTemplatesType::SurrogateTemplateParam)
+			{
+				if (method->IsReturnRef())
+					Line("run_context->result->SetAsReference(result);\n", curr_level, result);
+				else
+					throw std::runtime_error("Не поддерживается возврат шаблонного параметра по значению из extern");
+			}
 			else
 			{
-				auto type = GetRetType(method);
 
-				TTypeConverterInfo convert_info;
-				bool need_convert = NeedTypeConverter(type, convert_info);
 
-				if (need_convert)
+				if (method->IsReturnRef())
+					Line("run_context->result->SetAsReference(&result);\n", curr_level, result);
+				else
 				{
-					Line(type + " result = " +
-						convert_info.out_converter + "(temp_result);\n", curr_level, result);
-				}
+					TTypeConverterInfo convert_info;
+					bool need_convert = NeedTypeConverter(type, convert_info);
 
-				Line("*(" + type + "*)run_context->result->get() = result;\n", curr_level, result);
+					if (need_convert)
+					{
+						Line(type + " result = " +
+							convert_info.out_converter + "(temp_result);\n", curr_level, result);
+					}
+
+					Line("*(" + type + "*)run_context->result->get() = result;\n", curr_level, result);
+				}
 			}
 		}
 	}
@@ -448,18 +505,46 @@ void callScriptFromC_DeclBody(SemanticApi::ISMethod* method, std::vector<std::st
 
 		std::string type = ToS(param->GetClass()->IGetSyntax()->GetName());
 		bool is_interface_type;
-		auto typeC = GetParamType(param, is_interface_type);
+		bool is_shared_ptr_type;
+		auto typeC = GetParamType(param, is_interface_type, is_shared_ptr_type);
 
 		//TODO заменить на сквозную индексацию класса, т.к. порядок меняться не будет
 		Line(std::string("params.push_back(TStackValue(") + (is_ref ? "true" : "false") +
 			", syntax->GetCompiledBaseClass()->GetClass(syntax->GetLexer()->GetIdFromName(\"" + type + "\"))));\n", curr_level, result);
-		Line(std::string("*(") + typeC + "*" + (is_ref ? "*" : "") + ")params[" + std::to_string(i) + "].get() = " +
-			(is_ref ? "&" : "") + "p" + std::to_string(i) + ";\n", curr_level, result);
+		if (is_shared_ptr_type)
+		{
+			Line(std::string("*(TScriptSharedPointer<") + typeC + ">*" + ")params[" + std::to_string(i) + "].get() = " +
+				"TScriptSharedPointer<"+ typeC +">(p" + std::to_string(i) + ");\n", curr_level, result);
+		}
+		else
+		{
+			Line(std::string("*(") + typeC + "*" + (is_ref ? "*" : "") + ")params[" + std::to_string(i) + "].get() = " +
+				(is_ref ? "&" : "") + "p" + std::to_string(i) + ";\n", curr_level, result);
+		}
 	}
 
 	Line("TStackValue result, object;\n", curr_level, result);
 	Line("TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));\n", curr_level, result);
 
+	for (size_t i = 0; i < count; i++)
+	{
+		auto param = method->GetParam(i);
+		auto is_ref = param->IsRef();
+
+		std::string type = ToS(param->GetClass()->IGetSyntax()->GetName());
+		bool is_interface_type;
+		bool is_shared_ptr_type;
+		auto typeC = GetParamType(param, is_interface_type, is_shared_ptr_type);
+		auto destr = param->GetClass()->GetDestructor();
+		if (!is_ref&&destr != nullptr)
+		{
+			Line("{\n", curr_level, result);
+			Line("TStackValue destructor_result;\n", curr_level+1, result);
+			Line("std::vector<TStackValue> without_params;\n", curr_level + 1, result);
+			Line("TreeRunner::Run(params["+ std::to_string(i) +"].GetClass()->GetDestructor(), TMethodRunContext(global_context, &without_params, &destructor_result, &params[" + std::to_string(i) + "]));\n", curr_level + 1, result);
+			Line("}\n", curr_level, result);
+		}
+	}
 }
 
 void DeclMethod(SemanticApi::ISMethod* method, std::vector<std::string>& result, int curr_level)
@@ -479,10 +564,43 @@ void DeclMethod(SemanticApi::ISMethod* method, std::vector<std::string>& result,
 
 		if (bindings.size() > binding_gen_info.bindings_offset)
 		{
+			auto obj_type_script = ToS(method->GetOwner()->IGetSyntax()->GetName());
+			bool is_obj_type_interface = IsInterfaceClass(obj_type_script);
+			bool is_obj_type_shared_ptr = IsSharedPtrClass(obj_type_script);
+
+			auto c_type = StoC(obj_type_script);
+
 			Line("void " + method_name + "(TMethodRunContext* run_context) \n", curr_level, result);
 			Line("{\n", curr_level, result);
 			Line(std::string("//") + (method->IsStatic() ? "static - " : "") + DeclParameters(method) + "\n", curr_level + 1, result);
-			DeclBody(method, result, curr_level + 1);
+
+			//для интерфейсных классов генерируем спец методы
+			if (is_obj_type_shared_ptr && method_name == "bind_def_constr")
+			{
+				Line("TScriptSharedPointer<" + c_type + ">* obj = ((TScriptSharedPointer<" + c_type + ">*)(run_context->object->get()));\n", curr_level + 1, result);
+				Line("obj->def_constr();\n", curr_level + 1, result);
+			}
+			else if (is_obj_type_shared_ptr && method_name == "bind_copy_constr")
+			{
+				Line("TScriptSharedPointer<" + c_type + ">* obj = ((TScriptSharedPointer<" + c_type + ">*)(run_context->object->get()));\n", curr_level+1, result);
+				Line("TScriptSharedPointer<" + c_type + ">* param0 = ((TScriptSharedPointer<" + c_type + ">*)(*run_context->formal_params)[0].get());\n", curr_level + 1, result);
+				Line("obj->copy_constr(param0);\n", curr_level + 1, result);
+			}
+			else if (is_obj_type_shared_ptr && method_name == "bind_destructor")
+			{
+				Line("TScriptSharedPointer<" + c_type + ">* obj = ((TScriptSharedPointer<" + c_type + ">*)(run_context->object->get()));\n", curr_level + 1, result);
+				Line("obj->destructor();\n", curr_level + 1, result);
+			}
+			else if (is_obj_type_shared_ptr && method_name == "bind_operator_Assign")
+			{
+				Line("TScriptSharedPointer<" + c_type + ">* param0 = ((TScriptSharedPointer<" + c_type + ">*)(*run_context->formal_params)[0].get());\n", curr_level + 1, result);
+				Line("TScriptSharedPointer<" + c_type + ">* param1 = ((TScriptSharedPointer<" + c_type + ">*)(*run_context->formal_params)[1].get());\n", curr_level + 1, result);
+				Line("param0->operator_Assign(param1);\n", curr_level + 1, result);
+			}
+			else
+			{
+				DeclBody(method, result, curr_level + 1);
+			}
 			Line("}\n", curr_level, result);
 		}
 	}
