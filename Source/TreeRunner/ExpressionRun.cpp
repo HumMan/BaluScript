@@ -1,4 +1,4 @@
-#include "ExpressionRun.h"
+п»ї#include "ExpressionRun.h"
 
 #include "../NativeTypes/String.h"
 
@@ -18,7 +18,7 @@ public:
 
 	virtual void Visit(SemanticApi::ISOperations::ISExpression_TMethodCall *_this) override
 	{
-		//соглашение о вызовах - вызывающий инициализирует параметры, резервирует место для возвращаемого значения, вызывает деструкторы параметров
+		//СЃРѕРіР»Р°С€РµРЅРёРµ Рѕ РІС‹Р·РѕРІР°С… - РІС‹Р·С‹РІР°СЋС‰РёР№ РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РїР°СЂР°РјРµС‚СЂС‹, СЂРµР·РµСЂРІРёСЂСѓРµС‚ РјРµСЃС‚Рѕ РґР»СЏ РІРѕР·РІСЂР°С‰Р°РµРјРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ, РІС‹Р·С‹РІР°РµС‚ РґРµСЃС‚СЂСѓРєС‚РѕСЂС‹ РїР°СЂР°РјРµС‚СЂРѕРІ
 		std::vector<TStackValue> method_call_formal_params;
 		TreeRunner::Construct(_this->GetParams(), method_call_formal_params, run_context);
 
@@ -41,6 +41,18 @@ public:
 				*run_context.expression_result = TStackValue(invoke->IsReturnRef(), invoke->GetRetClass());
 
 			TreeRunner::Run(invoke, TMethodRunContext(run_context, &method_call_formal_params, run_context.expression_result, &left_result));
+
+			//РµСЃР»Рё РјС‹ РІС‹Р·РІР°Р»Рё РјРµС‚РѕРґ РґР»СЏ РІСЂРµРјРµРЅРЅРѕРіРѕ РѕР±СЉРµРєС‚Р°, С‚Рѕ РµРіРѕ РЅСѓР¶РЅРѕ destruct
+			if (!invoke->IsStatic())
+			{
+				auto temp_object_desturctor = left_result.GetClass()->GetDestructor();
+				if (!left_result.IsRef() && temp_object_desturctor != nullptr) {
+					TStackValue destructor_result;
+					std::vector<TStackValue> without_params;
+					TreeRunner::Run(temp_object_desturctor, TMethodRunContext(
+						run_context, &without_params, &destructor_result, &left_result));
+				}
+			}
 		}break;
 
 		case SemanticApi::TMethodCallType::Operator:
@@ -105,7 +117,7 @@ public:
 		//auto exp_result_type = left->GetFormalParameter();
 		//if (!exp_result_type.IsRef())
 		//{
-		//	//TODO не в пустоту, а в массив временных объектов выражения
+		//	//TODO РЅРµ РІ РїСѓСЃС‚РѕС‚Сѓ, Р° РІ РјР°СЃСЃРёРІ РІСЂРµРјРµРЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ РІС‹СЂР°Р¶РµРЅРёСЏ
 		//	left->Run(static_fields, formal_params, result, *new TStackValue(false, exp_result_type.GetClass()), local_variables);
 		//}
 		//else
@@ -128,7 +140,7 @@ public:
 				auto exp_result_type = left->GetFormalParam();
 				if (!exp_result_type->IsRef())
 				{
-					//TODO не в пустоту, а в массив временных объектов выражения
+					//TODO РЅРµ РІ РїСѓСЃС‚РѕС‚Сѓ, Р° РІ РјР°СЃСЃРёРІ РІСЂРµРјРµРЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ РІС‹СЂР°Р¶РµРЅРёСЏ
 					auto temp = new TStackValue(false, exp_result_type->GetClass());
 					AcceptNode(left, TExpressionRunContext(run_context, temp));
 					*run_context.expression_result = TStackValue(true, field_class);
@@ -143,7 +155,7 @@ public:
 				}
 			}
 			else
-				//иначе необходимо получить ссылку на поле данного класса
+				//РёРЅР°С‡Рµ РЅРµРѕР±С…РѕРґРёРјРѕ РїРѕР»СѓС‡РёС‚СЊ СЃСЃС‹Р»РєСѓ РЅР° РїРѕР»Рµ РґР°РЅРЅРѕРіРѕ РєР»Р°СЃСЃР°
 			{
 				*run_context.expression_result = TStackValue(true, field_class);
 				run_context.expression_result->SetAsReference(((int*)run_context.object->get()) + field->GetOffset());
