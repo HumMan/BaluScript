@@ -1,4 +1,4 @@
-#include "TreeRunner.h"
+п»ї#include "TreeRunner.h"
 
 #include "ExpressionRun.h"
 
@@ -11,7 +11,7 @@ void TreeRunner::RunConversion(const SemanticApi::IActualParamWithConversion* cu
 	if (curr_op->IsRefToRValue())
 	{
 		auto copy_constr = curr_op->GetCopyConstr();
-		assert(copy_constr != nullptr);//всегда должен быть как минимум AutoCopyConstr
+		assert(copy_constr != nullptr);//РІСЃРµРіРґР° РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РєР°Рє РјРёРЅРёРјСѓРј AutoCopyConstr
 
 		std::vector<TStackValue> constr_params;
 		constr_params.push_back(value);
@@ -73,7 +73,8 @@ void TreeRunner::Destroy(const SemanticApi::IActualParameters* parameters, std::
 	{
 		auto input_result = (*it)->GetResult();
 		auto input_class = input_result->GetClass();
-		if (!input_result->IsRef() && input_class->GetDestructor() != nullptr)
+		//РµСЃР»Рё РїР°СЂР°РјРµС‚СЂ СЌС‚Рѕ Р·РЅР°С‡РµРЅРёРµ Р° РЅРµ СЃСЃС‹Р»РєР°, С‚Рѕ РґР»СЏ РЅРµРіРѕ РЅСѓР¶РЅРѕ РІС‹Р·РІР°С‚СЊ РґРµСЃС‚СЂСѓРєС‚РѕСЂ
+		if ((!input_result->IsRef() || (*it)->IsRefToRValue()) && input_class->GetDestructor() != nullptr)
 		{
 			TStackValue destructor_result;
 			std::vector<TStackValue> without_params;
@@ -88,9 +89,9 @@ void TreeRunner::Run(SemanticApi::ISLocalVar* local_var, TStatementRunContext ru
 	if (!local_var->IsStatic())
 		run_context.local_variables->push_back(TStackValue(false, local_var->GetType()->GetClass()));
 
-	//TODO т.к. в GetClassMember создаются временные объекты
+	//TODO С‚.Рє. РІ GetClassMember СЃРѕР·РґР°СЋС‚СЃСЏ РІСЂРµРјРµРЅРЅС‹Рµ РѕР±СЉРµРєС‚С‹
 	//if (!IsStatic())
-	//	assert(GetOffset() == local_variables.size() - 1);//иначе ошибка Build локальных переменных
+	//	assert(GetOffset() == local_variables.size() - 1);//РёРЅР°С‡Рµ РѕС€РёР±РєР° Build Р»РѕРєР°Р»СЊРЅС‹С… РїРµСЂРµРјРµРЅРЅС‹С…
 
 	if (local_var->IsStatic() && (*run_context.static_fields)[local_var->GetOffset()].IsInitialized())
 	{
@@ -170,7 +171,7 @@ void TreeRunner::Run(SemanticApi::ISBytecode* bytecode, TStatementRunContext run
 		}
 		else
 		{
-			throw;//GetSyntax()->Error("Неизвестная команда!");
+			throw;//GetSyntax()->Error("РќРµРёР·РІРµСЃС‚РЅР°СЏ РєРѕРјР°РЅРґР°!");
 		}
 	}
 	auto bytecode_method = bytecode->IGetMethod();
@@ -214,7 +215,7 @@ void TreeRunner::Run(SemanticApi::ISMethod* method, TMethodRunContext method_run
 			method->GetType() == SemanticApi::SpecialClassMethodType::Conversion)
 		{
 			TreeRunner::RunStatements(method->GetStatements(),run_context);
-			//TODO заглушка для отслеживания завершения метода без возврата значения
+			//TODO Р·Р°РіР»СѓС€РєР° РґР»СЏ РѕС‚СЃР»РµР¶РёРІР°РЅРёСЏ Р·Р°РІРµСЂС€РµРЅРёСЏ РјРµС‚РѕРґР° Р±РµР· РІРѕР·РІСЂР°С‚Р° Р·РЅР°С‡РµРЅРёСЏ
 			//if (has_return)
 			//	assert(result_returned);
 		}
@@ -412,8 +413,8 @@ void TreeRunner::RunAutoDefConstr(SemanticApi::ISClass* _this, TGlobalRunContext
 		{
 			SemanticApi::ISClass* field_class = field->GetClass();
 
-			//TODO проверка доступа должна выполняться в SemanticApi
-			//как вариант - сделать всё кроме полей и методов публичным
+			//TODO РїСЂРѕРІРµСЂРєР° РґРѕСЃС‚СѓРїР° РґРѕР»Р¶РЅР° РІС‹РїРѕР»РЅСЏС‚СЊСЃСЏ РІ SemanticApi
+			//РєР°Рє РІР°СЂРёР°РЅС‚ - СЃРґРµР»Р°С‚СЊ РІСЃС‘ РєСЂРѕРјРµ РїРѕР»РµР№ Рё РјРµС‚РѕРґРѕРІ РїСѓР±Р»РёС‡РЅС‹Рј
 			//ValidateAccess(field->GetSyntax(), this, field_def_constr);
 			TStackValue field_object(true, field_class);
 			if (field->HasSizeMultiplier())
@@ -477,7 +478,7 @@ void TreeRunner::RunAutoCopyConstr(SemanticApi::ISClass* _this, TGlobalRunContex
 	assert(_this->IsAutoMethodsInitialized());
 	assert(_this->GetAutoCopyConstr());
 
-	//конструктор копии должен принимать один аргумент (кроме ссылки на объект) с тем же типом что и данный класс
+	//РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёРё РґРѕР»Р¶РµРЅ РїСЂРёРЅРёРјР°С‚СЊ РѕРґРёРЅ Р°СЂРіСѓРјРµРЅС‚ (РєСЂРѕРјРµ СЃСЃС‹Р»РєРё РЅР° РѕР±СЉРµРєС‚) СЃ С‚РµРј Р¶Рµ С‚РёРїРѕРј С‡С‚Рѕ Рё РґР°РЅРЅС‹Р№ РєР»Р°СЃСЃ
 	assert(formal_params.size() == 1);
 	assert(formal_params[0].GetClass() == _this);
 
@@ -494,7 +495,7 @@ void TreeRunner::RunAutoCopyConstr(SemanticApi::ISClass* _this, TGlobalRunContex
 			if (!field->IsStatic())
 			{
 				SemanticApi::ISClass* field_class = field->GetClass();
-				//если у поля имеется конструктор копии - вызываем его
+				//РµСЃР»Рё Сѓ РїРѕР»СЏ РёРјРµРµС‚СЃСЏ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёРё - РІС‹Р·С‹РІР°РµРј РµРіРѕ
 				if (field_copy_constr != nullptr)
 				{
 					//TODO
@@ -504,11 +505,11 @@ void TreeRunner::RunAutoCopyConstr(SemanticApi::ISClass* _this, TGlobalRunContex
 					{
 						for (size_t i = 0; i < field->GetSizeMultiplier(); i++)
 						{
-							//настраиваем указатель this - инициализируемый объект
+							//РЅР°СЃС‚СЂР°РёРІР°РµРј СѓРєР°Р·Р°С‚РµР»СЊ this - РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРјС‹Р№ РѕР±СЉРµРєС‚
 							field_object.SetAsReference(&(((int*)object.get())[field->GetOffset() + i*field->GetClass()->GetSize()]));
 							std::vector<TStackValue> field_formal_params;
 
-							//передаем в качестве параметра ссылку на копируемый объект
+							//РїРµСЂРµРґР°РµРј РІ РєР°С‡РµСЃС‚РІРµ РїР°СЂР°РјРµС‚СЂР° СЃСЃС‹Р»РєСѓ РЅР° РєРѕРїРёСЂСѓРµРјС‹Р№ РѕР±СЉРµРєС‚
 							field_formal_params.push_back(TStackValue(true, field_class));
 							field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field->GetOffset() + i*field->GetClass()->GetSize()]);
 							TreeRunner::Run(field_copy_constr,TMethodRunContext(global_context, &field_formal_params, &result, &field_object));
@@ -516,11 +517,11 @@ void TreeRunner::RunAutoCopyConstr(SemanticApi::ISClass* _this, TGlobalRunContex
 					}
 					else
 					{
-						//настраиваем указатель this - инициализируемый объект
+						//РЅР°СЃС‚СЂР°РёРІР°РµРј СѓРєР°Р·Р°С‚РµР»СЊ this - РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРјС‹Р№ РѕР±СЉРµРєС‚
 						field_object.SetAsReference(&(((int*)object.get())[field->GetOffset()]));
 						std::vector<TStackValue> field_formal_params;
 
-						//передаем в качестве параметра ссылку на копируемый объект
+						//РїРµСЂРµРґР°РµРј РІ РєР°С‡РµСЃС‚РІРµ РїР°СЂР°РјРµС‚СЂР° СЃСЃС‹Р»РєСѓ РЅР° РєРѕРїРёСЂСѓРµРјС‹Р№ РѕР±СЉРµРєС‚
 						field_formal_params.push_back(TStackValue(true, field_class));
 						field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field->GetOffset()]);
 						TreeRunner::Run(field_copy_constr,TMethodRunContext(global_context, &field_formal_params, &result, &field_object));
@@ -541,7 +542,7 @@ void TreeRunner::RunAutoAssign(SemanticApi::ISClass* _this, TGlobalRunContext gl
 	assert(_this->IsAutoMethodsInitialized());
 	assert(_this->GetAutoAssignOperator());
 
-	//оператор присваиваиня должен принимать два аргумента с тем же типом что и данный класс по ссылке
+	//РѕРїРµСЂР°С‚РѕСЂ РїСЂРёСЃРІР°РёРІР°РёРЅСЏ РґРѕР»Р¶РµРЅ РїСЂРёРЅРёРјР°С‚СЊ РґРІР° Р°СЂРіСѓРјРµРЅС‚Р° СЃ С‚РµРј Р¶Рµ С‚РёРїРѕРј С‡С‚Рѕ Рё РґР°РЅРЅС‹Р№ РєР»Р°СЃСЃ РїРѕ СЃСЃС‹Р»РєРµ
 	assert(formal_params.size() == 2);
 	assert(formal_params[0].GetClass() == _this);
 	assert(formal_params[1].GetClass() == _this);
@@ -558,7 +559,7 @@ void TreeRunner::RunAutoAssign(SemanticApi::ISClass* _this, TGlobalRunContext gl
 			if (!field->IsStatic())
 			{
 				SemanticApi::ISClass* field_class = field->GetClass();
-				//если у поля имеется конструктор копии - вызываем его
+				//РµСЃР»Рё Сѓ РїРѕР»СЏ РёРјРµРµС‚СЃСЏ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёРё - РІС‹Р·С‹РІР°РµРј РµРіРѕ
 				if (field_assign_op != nullptr)
 				{
 					//TODO
@@ -569,7 +570,7 @@ void TreeRunner::RunAutoAssign(SemanticApi::ISClass* _this, TGlobalRunContext gl
 						for (size_t i = 0; i < field->GetSizeMultiplier(); i++)
 						{
 							std::vector<TStackValue> field_formal_params;
-							//передаем в качестве параметра ссылку на копируемый объект
+							//РїРµСЂРµРґР°РµРј РІ РєР°С‡РµСЃС‚РІРµ РїР°СЂР°РјРµС‚СЂР° СЃСЃС‹Р»РєСѓ РЅР° РєРѕРїРёСЂСѓРµРјС‹Р№ РѕР±СЉРµРєС‚
 							field_formal_params.push_back(TStackValue(true, field_class));
 							field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field->GetOffset() + i*field->GetClass()->GetSize()]);
 
@@ -583,7 +584,7 @@ void TreeRunner::RunAutoAssign(SemanticApi::ISClass* _this, TGlobalRunContext gl
 					{
 						std::vector<TStackValue> field_formal_params;
 
-						//передаем в качестве параметра ссылку на копируемый объект
+						//РїРµСЂРµРґР°РµРј РІ РєР°С‡РµСЃС‚РІРµ РїР°СЂР°РјРµС‚СЂР° СЃСЃС‹Р»РєСѓ РЅР° РєРѕРїРёСЂСѓРµРјС‹Р№ РѕР±СЉРµРєС‚
 						field_formal_params.push_back(TStackValue(true, field_class));
 						field_formal_params.back().SetAsReference(&((int*)formal_params[0].get())[field->GetOffset()]);
 
