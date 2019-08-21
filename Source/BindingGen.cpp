@@ -403,21 +403,21 @@ void DeclBody(SemanticApi::ISMethod* method, std::vector<std::string>& result, i
 	auto has_ret = ret_class != nullptr;
 		
 	if (has_ret)
-	{
-		bool is_shared_ptr_type;
-		std::string type = GetRetType(method, is_shared_ptr_type);
-		if (is_shared_ptr_type)
+	{	
+		if (ret_class->GetType() == SemanticApi::TNodeWithTemplatesType::SurrogateTemplateParam)
 		{
-			assert(!method->IsReturnRef());
-			
-			Line("std::shared_ptr<" + type + "> result =\n", curr_level, result);
+			std::string type = "void*";
+			Line(type + " " + " result = \n", curr_level, result);
 		}
 		else
 		{
-			if (ret_class->GetType() == SemanticApi::TNodeWithTemplatesType::SurrogateTemplateParam)
+			bool is_shared_ptr_type;
+			std::string type = GetRetType(method, is_shared_ptr_type);
+			if (is_shared_ptr_type)
 			{
-				std::string type = "void*";
-				Line(type + " " + " result = \n", curr_level, result);
+				assert(!method->IsReturnRef());
+
+				Line("std::shared_ptr<" + type + "> result =\n", curr_level, result);
 			}
 			else
 			{
@@ -445,27 +445,25 @@ void DeclBody(SemanticApi::ISMethod* method, std::vector<std::string>& result, i
 
 	//запись результата
 	if (has_ret)
-	{
-		bool is_shared_ptr_type;
-		std::string type = GetRetType(method, is_shared_ptr_type);
-		if (is_shared_ptr_type)
+	{		
+		if (ret_class->GetType() == SemanticApi::TNodeWithTemplatesType::SurrogateTemplateParam)
 		{
-			assert(!method->IsReturnRef());
-			Line("*(TScriptSharedPointer<" + type + ">*)run_context->result->get() = TScriptSharedPointer<"+type+">(result);\n", curr_level, result);
+			if (method->IsReturnRef())
+				Line("run_context->result->SetAsReference(result);\n", curr_level, result);
+			else
+				throw std::runtime_error("Не поддерживается возврат шаблонного параметра по значению из extern");
 		}
 		else
 		{
-			if (ret_class->GetType() == SemanticApi::TNodeWithTemplatesType::SurrogateTemplateParam)
+			bool is_shared_ptr_type;
+			std::string type = GetRetType(method, is_shared_ptr_type);
+			if (is_shared_ptr_type)
 			{
-				if (method->IsReturnRef())
-					Line("run_context->result->SetAsReference(result);\n", curr_level, result);
-				else
-					throw std::runtime_error("Не поддерживается возврат шаблонного параметра по значению из extern");
+				assert(!method->IsReturnRef());
+				Line("*(TScriptSharedPointer<" + type + ">*)run_context->result->get() = TScriptSharedPointer<" + type + ">(result);\n", curr_level, result);
 			}
 			else
 			{
-
-
 				if (method->IsReturnRef())
 					Line("run_context->result->SetAsReference(&result);\n", curr_level, result);
 				else
@@ -482,7 +480,7 @@ void DeclBody(SemanticApi::ISMethod* method, std::vector<std::string>& result, i
 					Line("*(" + type + "*)run_context->result->get() = result;\n", curr_level, result);
 				}
 			}
-		}
+		}		
 	}
 }
 
