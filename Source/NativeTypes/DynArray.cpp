@@ -38,8 +38,7 @@ void CallCopyConstr(TGlobalRunContext global_context, int* v, int* copy_from, in
 
 		std::vector<TStackValue> params;
 		TStackValue without_result;
-		params.resize(1);
-		params[0] = TStackValue(true, el_class);
+		params.emplace_back(true, el_class);
 		params[0].SetAsReference(&copy_from[i]);
 		
 		TreeRunner::Run(method, TMethodRunContext(global_context, &params, &without_result, &el_obj));
@@ -53,10 +52,9 @@ void CallAssignOp(TGlobalRunContext global_context, int* left, int* right, int f
 		TStackValue el_obj;
 		std::vector<TStackValue> params;
 		TStackValue without_result;
-		params.resize(2);
-		params[0] = TStackValue(true, el_class);
+		params.emplace_back(true, el_class);
 		params[0].SetAsReference(&left[i]);
-		params[1] = TStackValue(true, el_class);
+		params.emplace_back(true, el_class);
 		params[1].SetAsReference(&right[i]);
 		TreeRunner::Run(method, TMethodRunContext(global_context, &params, &without_result, &el_obj));
 	}

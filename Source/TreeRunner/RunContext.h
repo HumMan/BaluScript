@@ -101,6 +101,7 @@ class TStatementRunContext : public TMethodRunContext
 public:
 	bool* result_returned;
 	std::vector<TStackValue>* local_variables;
+	std::vector<TStackValue*>* temp_objects;
 
 	TStatementRunContext()
 	{
@@ -123,9 +124,12 @@ public:
 
 class TExpressionRunContext : public TStatementRunContext
 {
-public:
 	TStackValue* expression_result;
+public:
+	void SetExpressionResult(const TStackValue& value);
+	void SetExpressionResult(TStackValue* &value);
 
+	TStackValue* GetExpressionResult();
 	TExpressionRunContext()
 	{
 		expression_result = nullptr;

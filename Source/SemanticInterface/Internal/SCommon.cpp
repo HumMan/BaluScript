@@ -15,7 +15,7 @@ bool IsEqualClasses(TExpressionResult actual_parameter, SemanticApi::TFormalPara
 //результат - равенство классов или возможность преобразования (conversion) класса
 {
 	need_conv = 0;
-	if (actual_parameter.IsMethods() || actual_parameter.IsType())return false;
+	assert(!actual_parameter.IsMethods() && !actual_parameter.IsType());
 	if (formal_parameter.GetClass() != actual_parameter.GetClass())
 	{
 		if (!dynamic_cast<TSClass*>(actual_parameter.GetClass())->HasConversion(formal_parameter.GetClass()))

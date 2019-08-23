@@ -116,6 +116,8 @@ SemanticApi::ISOperations::ISOperation * TActualParamWithConversion::GetExpressi
 
 SemanticApi::ISMethod * TActualParamWithConversion::GetCopyConstr() const
 {
+	//всегда должен быть как минимум AutoCopyConstr
+	assert(copy_constr != nullptr);
 	return copy_constr;
 }
 

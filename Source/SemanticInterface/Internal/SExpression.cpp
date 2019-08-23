@@ -565,6 +565,8 @@ SemanticApi::ISParameter * TSExpression::TGetParameter::GetParameter() const
 TSExpression::TGetClassField::TGetClassField(TSOperation* left, TExpressionResult left_result, TSClassField* field)
 	:left(left), left_result(left_result), field(field)
 {
+	//всегда возвращаем поле по ссылке, даже для временного объекта
+	//временный объект будет уничтожен только после завершения всего statement
 	expression_result = TExpressionResult(dynamic_cast<TSClass*>(field->GetClass()), true);
 }
 void TSExpression::TGetClassField::Accept(ISExpressionVisitor * visitor)

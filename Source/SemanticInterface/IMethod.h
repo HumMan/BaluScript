@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 namespace SemanticApi
 {
@@ -139,6 +139,7 @@ namespace SemanticApi
 		virtual void SetExternal(const std::vector<SemanticApi::TExternalSMethod>& bindings, int& curr_bind) = 0;
 	};
 
+	//сигнатура которую ожидает вызываемый метод
 	class TFormalParameter
 	{
 		ISClass* type;

@@ -11,7 +11,7 @@ public:
 	static void RunConversion(const SemanticApi::IActualParamWithConversion* curr_op, TGlobalRunContext global_context, TStackValue &value);
 
 	static void Construct(const SemanticApi::IActualParameters* curr_op, std::vector<TStackValue> &method_call_formal_params, TStatementRunContext run_context);
-	static void Destroy(const SemanticApi::IActualParameters* curr_op, std::vector<TStackValue> &method_call_formal_params, TStatementRunContext run_context);
+	static void Destroy(std::vector<TStackValue> &method_call_formal_params, TStatementRunContext run_context);
 
 	static void Run(SemanticApi::ISMethod* curr_op, TMethodRunContext run_context);
 
@@ -31,6 +31,7 @@ public:
 
 	static void RunAutoDefConstr(SemanticApi::ISClass* _this, TGlobalRunContext global_context, TStackValue& object);
 	static void RunAutoDestr(SemanticApi::ISClass* _this, TGlobalRunContext global_context, TStackValue& object);
+	static void RunFieldCopyConstr(SemanticApi::ISClassField* field, TGlobalRunContext global_context, TStackValue& source_object, TStackValue& dest_field);
 	static void RunAutoCopyConstr(SemanticApi::ISClass* _this, TGlobalRunContext global_context, std::vector<TStackValue> &formal_params, TStackValue& object);
 	static void RunAutoAssign(SemanticApi::ISClass* _this, TGlobalRunContext global_context, std::vector<TStackValue> &formal_params);
 
