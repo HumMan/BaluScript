@@ -45,6 +45,7 @@ public:
 	TExpressionResult result;
 	SemanticApi::ISMethod* copy_constr;//используется если необходимо преобразование из lvalue в rvalue
 	bool ref_to_rvalue;
+	bool rvalue_to_ref;
 	SemanticApi::ISMethod* conversion;//используется если необходимо преобразование параметра
 
 	TActualParamWithConversion();

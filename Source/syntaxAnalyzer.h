@@ -10,8 +10,9 @@
 
 enum RuntimeExceptionId
 {
-	DynArray_UserAfterFree,
-	Ptr_UserAfterFree,
+	DynArray_UseAfterFree,
+	Ptr_UseAfterFree,
+	MethodMustReturnValue
 };
 
 class RuntimeException: public std::exception

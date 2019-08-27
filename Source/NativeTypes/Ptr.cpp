@@ -9,26 +9,26 @@
 
 #include "../TreeRunner/TreeRunner.h"
 
-void TPtr::def_constr(TMethodRunContext* run_context)
+void TPtr::def_constr(TMethodRunContext& run_context)
 {
 	Init();
-	data_class = run_context->object->GetClass()->GetTemplateParam(0).GetType();
+	data_class = run_context.GetObject().GetClass()->GetTemplateParam(0).GetType();
 	v = new int[data_class->GetSize()];
 	refs_count = new int(1);
 	SemanticApi::ISMethod* el_def_constr = data_class->GetDefConstr();
 	if (el_def_constr != nullptr)
 	{
 		TStackValue el_obj(true, data_class);
-		std::vector<TStackValue> without_params;
-		TStackValue without_result;
-
 		el_obj.SetAsReference(v);
 
-		TreeRunner::Run(el_def_constr, TMethodRunContext(*run_context, &without_params, &without_result, &el_obj));
+		TMethodRunContext method_context(run_context.GetGlobalContext());
+		method_context.GetObject() = el_obj;
+
+		TreeRunner::Run(el_def_constr, method_context);
 	}
 }
 
-void TPtr::destructor(TMethodRunContext* run_context)
+void TPtr::destructor(TMethodRunContext& run_context)
 {
 	(*refs_count)--;
 	if (*refs_count == 0)
@@ -37,12 +37,12 @@ void TPtr::destructor(TMethodRunContext* run_context)
 		if (el_destr != nullptr)
 		{
 			TStackValue el_obj(true, data_class);
-			std::vector<TStackValue> without_params;
-			TStackValue without_result;
-
 			el_obj.SetAsReference(v);
 
-			TreeRunner::Run(el_destr, TMethodRunContext(*run_context, &without_params, &without_result, &el_obj));
+			TMethodRunContext method_context(run_context.GetGlobalContext());
+			method_context.GetObject() = el_obj;
+
+			TreeRunner::Run(el_destr, method_context);
 		}
 		delete v;
 		delete refs_count;
@@ -50,18 +50,18 @@ void TPtr::destructor(TMethodRunContext* run_context)
 
 	refs_count = nullptr;	
 	v = nullptr;
-	if(run_context->object!=nullptr)
-		memset((TPtr*)run_context->object->get(), 0xfeefee, sizeof(TPtr));
+	if(run_context.GetObject().get()!=nullptr)
+		memset((TPtr*)run_context.GetObject().get(), 0xfeefee, sizeof(TPtr));
 }
 
-void TPtr::copy_constr(TMethodRunContext* run_context, TPtr* copy_from)
+void TPtr::copy_constr(TMethodRunContext& run_context, TPtr* copy_from)
 {
 	v = copy_from->v;
 	refs_count = copy_from->refs_count;
 	(*refs_count)++;
 }
 
-void TPtr::operator_Assign(TMethodRunContext* run_context, TPtr* left, TPtr* right)
+void TPtr::operator_Assign(TMethodRunContext& run_context, TPtr* left, TPtr* right)
 {
 	if (left->v == right->v)
 		return;
@@ -72,7 +72,7 @@ void TPtr::operator_Assign(TMethodRunContext* run_context, TPtr* left, TPtr* rig
 	(*left->refs_count)++;
 }
 
-void* TPtr::data(TMethodRunContext* run_context)
+void* TPtr::data(TMethodRunContext& run_context)
 {
 	return v;
 }

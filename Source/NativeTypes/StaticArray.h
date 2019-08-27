@@ -12,8 +12,8 @@ class TSClass;
 class TStaticArr
 {
 public:
-	int size(TMethodRunContext* run_context);
-	static void* operator_GetArrayElement(TMethodRunContext* run_context, TStaticArr* object, int index);
+	int size(TMethodRunContext& run_context);
+	static void* operator_GetArrayElement(TMethodRunContext& run_context, TStaticArr* object, int index);
 
 	static SemanticApi::TExternalClassDecl DeclareExternalClass();
 };

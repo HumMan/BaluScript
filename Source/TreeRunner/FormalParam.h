@@ -15,14 +15,17 @@ class BALUSCRIPT_DLL_INTERFACE TStackValue
 	bool is_ref;
 	SemanticApi::ISClass* type;
 	int actual_size;
+
+	void Init();
+
 public:
 	SemanticApi::ISClass* GetClass()const;
 	bool IsRef()const;
 	TStackValue();
 	TStackValue(TStackValue&& copy_from);
-	TStackValue(const TStackValue& copy_from);
+	TStackValue(const TStackValue& copy_from)=delete;
 	TStackValue(bool is_ref, SemanticApi::ISClass* type);
-	void operator=(const TStackValue& right);
+	void operator=(TStackValue& right);
 	void SetAsReference(void* use_ref);
 	void* get();
 	int GetSize();

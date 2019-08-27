@@ -4,9 +4,9 @@
 
 #include "../syntaxAnalyzer.h"
 
-void* TStaticArr::operator_GetArrayElement(TMethodRunContext* run_context, TStaticArr* object, int index)
+void* TStaticArr::operator_GetArrayElement(TMethodRunContext& run_context, TStaticArr* object, int index)
 {
-	SemanticApi::ISClass* obj_class = (*run_context->formal_params)[0].GetClass();
+	SemanticApi::ISClass* obj_class = run_context.GetFormalParams()[0].GetClass();
 	SemanticApi::ISClass* el = obj_class->GetField(0)->GetClass();
 	int size = obj_class->GetField(0)->GetSizeMultiplier();
 	if (index < 0 || index >= size)
@@ -14,9 +14,9 @@ void* TStaticArr::operator_GetArrayElement(TMethodRunContext* run_context, TStat
 	return &(((int*)object)[el->GetSize()*index]);
 }
 
-int TStaticArr::size(TMethodRunContext* run_context)
+int TStaticArr::size(TMethodRunContext& run_context)
 {
-	SemanticApi::ISClass* obj_class = run_context->object->GetClass();
+	SemanticApi::ISClass* obj_class = run_context.GetObject().GetClass();
 	int size = obj_class->GetField(0)->GetSizeMultiplier();
 	return size;
 }

@@ -24,14 +24,14 @@ public:
 		v = new std::vector<int>();
 	}
 
-	void def_constr(TMethodRunContext* run_context);
-	void copy_constr(TMethodRunContext* run_context, TDynArr* copy_from);
-	void destructor(TMethodRunContext* run_context);
-	static void operator_Assign(TMethodRunContext* run_context, TDynArr* left, TDynArr* right);
-	static void* operator_GetArrayElement(TMethodRunContext* run_context, TDynArr* obj, int index);
+	void def_constr(TMethodRunContext& run_context);
+	void copy_constr(TMethodRunContext& run_context, TDynArr* copy_from);
+	void destructor(TMethodRunContext& run_context);
+	static void operator_Assign(TMethodRunContext& run_context, TDynArr* left, TDynArr* right);
+	static void* operator_GetArrayElement(TMethodRunContext& run_context, TDynArr* obj, int index);
 
-	void resize(TMethodRunContext* run_context, int new_size);
-	int size(TMethodRunContext* run_context);
+	void resize(TMethodRunContext& run_context, int new_size);
+	int size(TMethodRunContext& run_context);
 
 	static SemanticApi::TExternalClassDecl DeclareExternalClass();
 };

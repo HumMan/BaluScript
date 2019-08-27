@@ -566,7 +566,7 @@ TSExpression::TGetClassField::TGetClassField(TSOperation* left, TExpressionResul
 	:left(left), left_result(left_result), field(field)
 {
 	//всегда возвращаем поле по ссылке, даже для временного объекта
-	//временный объект будет уничтожен только после завершения всего statement
+	//если объект временный то он будет добавлен в массив temp_objects
 	expression_result = TExpressionResult(dynamic_cast<TSClass*>(field->GetClass()), true);
 }
 void TSExpression::TGetClassField::Accept(ISExpressionVisitor * visitor)

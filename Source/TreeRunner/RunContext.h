@@ -1,6 +1,9 @@
 #pragma once
 
 #include <vector>
+#include <assert.h>
+
+#include "../../Include/common.h"
 
 class TStaticValue;
 class TStackValue;
@@ -50,93 +53,67 @@ public:
 	}
 };
 
-
-class TGlobalRunContext
-{
+class BALUSCRIPT_DLL_INTERFACE NonAssignable {
+private:
+	NonAssignable(NonAssignable const&)=delete;
+	NonAssignable& operator=(NonAssignable const&)=delete;
 public:
-	std::vector<TStaticValue>* static_fields;
-	TRefsList* refs_list;
-	TGlobalRunContext()
-	{
-		static_fields = nullptr;
-		refs_list = nullptr;
-	}
-	TGlobalRunContext(std::vector<TStaticValue>* static_fields, TRefsList* refs_list)
-	{
-		this->static_fields = static_fields;
-		this->refs_list = refs_list;
-	}
+	NonAssignable() {}
 };
 
-class TMethodRunContext : public TGlobalRunContext
+class TGlobalRunContextPrivate;
+class BALUSCRIPT_DLL_INTERFACE TGlobalRunContext: public NonAssignable
 {
+	TGlobalRunContextPrivate* p;
 public:	
-	std::vector<TStackValue>* formal_params;
-	TStackValue* result;
-	TStackValue* object;
-	TMethodRunContext()
-	{
-		static_fields = nullptr;
-		formal_params = nullptr;
-		result = nullptr;
-		object = nullptr;
-	}
-	TMethodRunContext(TGlobalRunContext global_context, std::vector<TStackValue>* formal_params,
-		TStackValue* result, TStackValue* object)
-	{
-		this->static_fields = global_context.static_fields;
-		this->refs_list = global_context.refs_list;
-		this->formal_params = formal_params;
-		this->result = result;
-		this->object = object;
-	}
+	TGlobalRunContext();
+	~TGlobalRunContext();
+	std::vector<TStaticValue>& GetStaticFields();
+	TRefsList& GetRefsList();
+};
+
+class TMethodRunContextPrivate;
+class BALUSCRIPT_DLL_INTERFACE TMethodRunContext : public NonAssignable
+{
+	TMethodRunContextPrivate* p;
+public:	
+	TMethodRunContext(TGlobalRunContext* global_context);
+	~TMethodRunContext();
 	//запоминаем есть ли ссылки - чтобы в TDynArray, TPtr не произошло use after free после манипуляций
 	void AddRefsFromParams();
 	//очищаем список ссылок после выполнения метода
 	void RemoveRefsFromParams();
+	TGlobalRunContext* GetGlobalContext();
+	TStackValue& GetObject();
+	std::vector<TStackValue>& GetFormalParams();
+	bool IsResultReturned();
+	void SetResultReturned();
+	TStackValue& GetResult();
 };
 
-class TStatementRunContext : public TMethodRunContext
+class TStatementRunContextPrivate;
+class TStatementRunContext : public NonAssignable
 {
+	TStatementRunContextPrivate* p;
 public:
-	bool* result_returned;
-	std::vector<TStackValue>* local_variables;
-	std::vector<TStackValue*>* temp_objects;
-
-	TStatementRunContext()
-	{
-		result_returned = nullptr;
-		local_variables = nullptr;
-	}
-	TStatementRunContext(TMethodRunContext method_context, bool* result_returned, std::vector<TStackValue>* local_variables)
-		:TMethodRunContext(method_context)
-	{
-		this->result_returned = result_returned;
-		this->local_variables = local_variables;
-	}
-	TStatementRunContext(TMethodRunContext method_context, std::vector<TStackValue>* local_variables)
-		:TMethodRunContext(method_context)
-	{
-		this->result_returned = nullptr;
-		this->local_variables = local_variables;
-	}
+	TMethodRunContext* GetMethodContext();
+	TGlobalRunContext* GetGlobalContext();
+	std::vector<TStackValue>& GetLocalVariables();
+	std::vector<TStackValue>& GetTempObjects();
+	TStatementRunContext(TMethodRunContext* method_context);
+	~TStatementRunContext();
 };
 
-class TExpressionRunContext : public TStatementRunContext
+class TExpressionRunContextPrivate;
+class TExpressionRunContext : public NonAssignable
 {
-	TStackValue* expression_result;
+	TExpressionRunContextPrivate* p;
 public:
-	void SetExpressionResult(const TStackValue& value);
-	void SetExpressionResult(TStackValue* &value);
-
-	TStackValue* GetExpressionResult();
-	TExpressionRunContext()
-	{
-		expression_result = nullptr;
-	}
-	TExpressionRunContext(TStatementRunContext statement_context, TStackValue* expression_result)
-		:TStatementRunContext(statement_context)
-	{
-		this->expression_result = expression_result;
-	}
+	void SetExpressionResult(TStackValue& value);
+	TStackValue& GetExpressionResult();
+	TStatementRunContext* GetStatementContext();
+	TMethodRunContext* GetMethodContext();
+	TGlobalRunContext* GetGlobalContext();
+	TExpressionRunContext(TStatementRunContext* statement_context);
+	~TExpressionRunContext();
 };

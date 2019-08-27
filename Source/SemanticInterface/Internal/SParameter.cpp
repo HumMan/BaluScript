@@ -80,6 +80,7 @@ TActualParamWithConversion::TActualParamWithConversion()
 	this->copy_constr = nullptr;
 	this->conversion = nullptr;
 	this->ref_to_rvalue = false;
+	this->rvalue_to_ref = false;
 }
 void TActualParamWithConversion::BuildConvert(TExpressionResult from_result, SemanticApi::TFormalParameter to_formal_param)
 {

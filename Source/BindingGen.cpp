@@ -222,7 +222,7 @@ std::string callScriptFromC_DeclParameters(SemanticApi::ISMethod* method)
 	std::string result;
 	auto count = method->GetParamsCount();
 
-	result += "TGlobalRunContext global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax";
+	result += "TGlobalRunContext& global_context, SemanticApi::ISMethod* compiled_method, ISyntaxAnalyzer* syntax";
 	if (count>0)
 		result += ", ";
 
@@ -323,7 +323,7 @@ void DeclBody(SemanticApi::ISMethod* method, std::vector<std::string>& result, i
 
 	if ((!is_static) && is_shared_ptr_type)
 	{
-		Line("TScriptSharedPointer<"+obj_type+">* obj = ((TScriptSharedPointer<"+ obj_type+">*)(run_context->object->get()));\n", curr_level, result);
+		Line("TScriptSharedPointer<"+obj_type+">* obj = ((TScriptSharedPointer<"+ obj_type+">*)(run_context.GetObject().get()));\n", curr_level, result);
 	}
 	else
 	{
@@ -333,7 +333,7 @@ void DeclBody(SemanticApi::ISMethod* method, std::vector<std::string>& result, i
 		}
 		if (!is_static)
 		{
-			Line(obj_type + "* obj = ((" + obj_type + "*)(run_context->object->get()));\n", curr_level, result);
+			Line(obj_type + "* obj = ((" + obj_type + "*)(run_context.GetObject().get()));\n", curr_level, result);
 		}
 	}
 
@@ -360,7 +360,7 @@ void DeclBody(SemanticApi::ISMethod* method, std::vector<std::string>& result, i
 				(" param") + std::to_string(i) +
 				" = " +
 				("*") +
-				"((" + type + "*)(*run_context->formal_params)[" + std::to_string(i) + "].get());\n", curr_level, result);
+				"((" + type + "*)run_context.GetFormalParams()[" + std::to_string(i) + "].get());\n", curr_level, result);
 		}
 		else if (is_shared_ptr_type)
 		{
@@ -368,14 +368,14 @@ void DeclBody(SemanticApi::ISMethod* method, std::vector<std::string>& result, i
 				(" param") + std::to_string(i) +
 				" = " +
 				("*") +
-				"((TScriptSharedPointer<" + type + ">*)(*run_context->formal_params)[" + std::to_string(i) + "].get())->v;\n", curr_level, result);
+				"((TScriptSharedPointer<" + type + ">*)run_context.GetFormalParams()[" + std::to_string(i) + "].get())->v;\n", curr_level, result);
 		}
 		else if (param->GetClass()->GetType() == SemanticApi::TNodeWithTemplatesType::Template)
 		{
 			Line(type + "* " +
 				(need_convert ? "temp_param" : " param") + std::to_string(i) +
 				" = " +
-				"((" + type + "*)(*run_context->formal_params)[" + std::to_string(i) + "].get());\n", curr_level, result);
+				"((" + type + "*)run_context.GetFormalParams()[" + std::to_string(i) + "].get());\n", curr_level, result);
 		}
 		else if (param->GetClass()->GetType() == SemanticApi::TNodeWithTemplatesType::SurrogateTemplateParam)
 		{
@@ -388,7 +388,7 @@ void DeclBody(SemanticApi::ISMethod* method, std::vector<std::string>& result, i
 				(need_convert ? "temp_param" : " param") + std::to_string(i) +
 				" = " +
 				("*") +
-				"((" + type + "*)(*run_context->formal_params)[" + std::to_string(i) + "].get());\n", curr_level, result);
+				"((" + type + "*)run_context.GetFormalParams()[" + std::to_string(i) + "].get());\n", curr_level, result);
 		}
 
 		if (need_convert)
@@ -449,7 +449,7 @@ void DeclBody(SemanticApi::ISMethod* method, std::vector<std::string>& result, i
 		if (ret_class->GetType() == SemanticApi::TNodeWithTemplatesType::SurrogateTemplateParam)
 		{
 			if (method->IsReturnRef())
-				Line("run_context->result->SetAsReference(result);\n", curr_level, result);
+				Line("run_context.GetResult().SetAsReference(result);\n", curr_level, result);
 			else
 				throw std::runtime_error("Не поддерживается возврат шаблонного параметра по значению из extern");
 		}
@@ -460,12 +460,12 @@ void DeclBody(SemanticApi::ISMethod* method, std::vector<std::string>& result, i
 			if (is_shared_ptr_type)
 			{
 				assert(!method->IsReturnRef());
-				Line("*(TScriptSharedPointer<" + type + ">*)run_context->result->get() = TScriptSharedPointer<" + type + ">(result);\n", curr_level, result);
+				Line("*(TScriptSharedPointer<" + type + ">*)run_context.GetResult().get() = TScriptSharedPointer<" + type + ">(result);\n", curr_level, result);
 			}
 			else
 			{
 				if (method->IsReturnRef())
-					Line("run_context->result->SetAsReference(&result);\n", curr_level, result);
+					Line("run_context.GetResult().SetAsReference(&result);\n", curr_level, result);
 				else
 				{
 					TTypeConverterInfo convert_info;
@@ -477,7 +477,7 @@ void DeclBody(SemanticApi::ISMethod* method, std::vector<std::string>& result, i
 							convert_info.out_converter + "(temp_result);\n", curr_level, result);
 					}
 
-					Line("*(" + type + "*)run_context->result->get() = result;\n", curr_level, result);
+					Line("*(" + type + "*)run_context.GetResult().get() = result;\n", curr_level, result);
 				}
 			}
 		}		
@@ -492,8 +492,8 @@ void callScriptFromC_DeclBody(SemanticApi::ISMethod* method, std::vector<std::st
 	auto is_static = method->IsStatic();
 	if (!is_static)
 		throw std::runtime_error("Генерация вызова из Си поддерживается только для static методов");
-
-	Line("std::vector<TStackValue> params;\n", curr_level, result);
+	Line("TMethodRunContext method_context(&global_context);\n", curr_level, result);
+	Line("auto& params=method_context.GetFormalParams();\n", curr_level, result);
 
 	auto count = method->GetParamsCount();
 	for (size_t i = 0; i < count; i++)
@@ -521,8 +521,7 @@ void callScriptFromC_DeclBody(SemanticApi::ISMethod* method, std::vector<std::st
 		}
 	}
 
-	Line("TStackValue result, object;\n", curr_level, result);
-	Line("TreeRunner::Run(compiled_method, TMethodRunContext(global_context, &params, &result, &object));\n", curr_level, result);
+	Line("TreeRunner::Run(compiled_method, method_context);\n", curr_level, result);
 
 	for (size_t i = 0; i < count; i++)
 	{
@@ -568,31 +567,31 @@ void DeclMethod(SemanticApi::ISMethod* method, std::vector<std::string>& result,
 
 			auto c_type = StoC(obj_type_script);
 
-			Line("void " + method_name + "(TMethodRunContext* run_context) \n", curr_level, result);
+			Line("void " + method_name + "(TMethodRunContext& run_context) \n", curr_level, result);
 			Line("{\n", curr_level, result);
 			Line(std::string("//") + (method->IsStatic() ? "static - " : "") + DeclParameters(method) + "\n", curr_level + 1, result);
 
 			//для интерфейсных классов генерируем спец методы
 			if (is_obj_type_shared_ptr && method_name == "bind_def_constr")
 			{
-				Line("TScriptSharedPointer<" + c_type + ">* obj = ((TScriptSharedPointer<" + c_type + ">*)(run_context->object->get()));\n", curr_level + 1, result);
+				Line("TScriptSharedPointer<" + c_type + ">* obj = ((TScriptSharedPointer<" + c_type + ">*)(run_context.GetObject().get()));\n", curr_level + 1, result);
 				Line("obj->def_constr();\n", curr_level + 1, result);
 			}
 			else if (is_obj_type_shared_ptr && method_name == "bind_copy_constr")
 			{
-				Line("TScriptSharedPointer<" + c_type + ">* obj = ((TScriptSharedPointer<" + c_type + ">*)(run_context->object->get()));\n", curr_level+1, result);
-				Line("TScriptSharedPointer<" + c_type + ">* param0 = ((TScriptSharedPointer<" + c_type + ">*)(*run_context->formal_params)[0].get());\n", curr_level + 1, result);
+				Line("TScriptSharedPointer<" + c_type + ">* obj = ((TScriptSharedPointer<" + c_type + ">*)(run_context.GetObject().get()));\n", curr_level+1, result);
+				Line("TScriptSharedPointer<" + c_type + ">* param0 = ((TScriptSharedPointer<" + c_type + ">*)run_context.GetFormalParams()[0].get());\n", curr_level + 1, result);
 				Line("obj->copy_constr(param0);\n", curr_level + 1, result);
 			}
 			else if (is_obj_type_shared_ptr && method_name == "bind_destructor")
 			{
-				Line("TScriptSharedPointer<" + c_type + ">* obj = ((TScriptSharedPointer<" + c_type + ">*)(run_context->object->get()));\n", curr_level + 1, result);
+				Line("TScriptSharedPointer<" + c_type + ">* obj = ((TScriptSharedPointer<" + c_type + ">*)(run_context.GetObject().get()));\n", curr_level + 1, result);
 				Line("obj->destructor();\n", curr_level + 1, result);
 			}
 			else if (is_obj_type_shared_ptr && method_name == "bind_operator_Assign")
 			{
-				Line("TScriptSharedPointer<" + c_type + ">* param0 = ((TScriptSharedPointer<" + c_type + ">*)(*run_context->formal_params)[0].get());\n", curr_level + 1, result);
-				Line("TScriptSharedPointer<" + c_type + ">* param1 = ((TScriptSharedPointer<" + c_type + ">*)(*run_context->formal_params)[1].get());\n", curr_level + 1, result);
+				Line("TScriptSharedPointer<" + c_type + ">* param0 = ((TScriptSharedPointer<" + c_type + ">*)run_context.GetFormalParams()[0].get());\n", curr_level + 1, result);
+				Line("TScriptSharedPointer<" + c_type + ">* param1 = ((TScriptSharedPointer<" + c_type + ">*)run_context.GetFormalParams()[1].get());\n", curr_level + 1, result);
 				Line("param0->operator_Assign(param1);\n", curr_level + 1, result);
 			}
 			else

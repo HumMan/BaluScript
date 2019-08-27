@@ -9,27 +9,27 @@
 
 #include "../TreeRunner/TreeRunner.h"
 
-void TDynArr::def_constr(TMethodRunContext* run_context)
+void TDynArr::def_constr(TMethodRunContext& run_context)
 {
 	Init();
-	el_class = run_context->object->GetClass()->GetTemplateParam(0).GetType();
+	el_class = run_context.GetObject().GetClass()->GetTemplateParam(0).GetType();
 }
 
-void CallMethod(TGlobalRunContext global_context, int* v, int first_element, int el_count, int el_size, SemanticApi::ISClass* el_class, SemanticApi::ISMethod* method)
+void CallMethod(TGlobalRunContext& global_context, int* v, int first_element, int el_count, int el_size, SemanticApi::ISClass* el_class, SemanticApi::ISMethod* method)
 {
 	for (size_t i = first_element*el_size; i<el_count*el_size; i += el_size)
 	{
-		TStackValue el_obj(true, el_class);
-		std::vector<TStackValue> without_params;
-		TStackValue without_result;
-		
+		TStackValue el_obj(true, el_class);		
 		el_obj.SetAsReference(&v[i]);
 
-		TreeRunner::Run(method, TMethodRunContext(global_context, &without_params, &without_result, &el_obj));
+		TMethodRunContext method_context(&global_context);
+		method_context.GetObject() = el_obj;
+
+		TreeRunner::Run(method, method_context);
 	}
 }
 
-void CallCopyConstr(TGlobalRunContext global_context, int* v, int* copy_from, int first_element, int el_count, int el_size, SemanticApi::ISClass* el_class, SemanticApi::ISMethod* method)
+void CallCopyConstr(TGlobalRunContext& global_context, int* v, int* copy_from, int first_element, int el_count, int el_size, SemanticApi::ISClass* el_class, SemanticApi::ISMethod* method)
 {
 	for (size_t i = first_element*el_size; i<el_count*el_size; i += el_size)
 	{
@@ -37,38 +37,45 @@ void CallCopyConstr(TGlobalRunContext global_context, int* v, int* copy_from, in
 		el_obj.SetAsReference(&v[i]);
 
 		std::vector<TStackValue> params;
-		TStackValue without_result;
 		params.emplace_back(true, el_class);
 		params[0].SetAsReference(&copy_from[i]);
+
+		TMethodRunContext method_context(&global_context);
+		method_context.GetObject() = el_obj;
+		method_context.GetFormalParams() = std::move(params);
 		
-		TreeRunner::Run(method, TMethodRunContext(global_context, &params, &without_result, &el_obj));
+		TreeRunner::Run(method, method_context);
 	}
 }
 
-void CallAssignOp(TGlobalRunContext global_context, int* left, int* right, int first_element, int el_count, int el_size, SemanticApi::ISClass* el_class, SemanticApi::ISMethod* method)
+void CallAssignOp(TGlobalRunContext& global_context, int* left, int* right, int first_element, int el_count, int el_size, SemanticApi::ISClass* el_class, SemanticApi::ISMethod* method)
 {
 	for (size_t i = first_element*el_size; i<el_count*el_size; i += el_size)
 	{
 		TStackValue el_obj;
 		std::vector<TStackValue> params;
-		TStackValue without_result;
 		params.emplace_back(true, el_class);
 		params[0].SetAsReference(&left[i]);
 		params.emplace_back(true, el_class);
 		params[1].SetAsReference(&right[i]);
-		TreeRunner::Run(method, TMethodRunContext(global_context, &params, &without_result, &el_obj));
+
+		TMethodRunContext method_context(&global_context);
+		method_context.GetObject() = el_obj;
+		method_context.GetFormalParams() = std::move(params);
+
+		TreeRunner::Run(method, method_context);
 	}
 }
 
-void CheckRefs(TMethodRunContext* run_context, void* left, size_t count)
+void CheckRefs(TMethodRunContext& run_context, void* left, size_t count)
 {
-	if (run_context->refs_list->RefsInRange(left, (char*)left + count * sizeof(int)))
+	if (run_context.GetGlobalContext()->GetRefsList().RefsInRange(left, (char*)left + count * sizeof(int)))
 	{
-		throw RuntimeException(RuntimeExceptionId::DynArray_UserAfterFree);
+		throw RuntimeException(RuntimeExceptionId::DynArray_UseAfterFree);
 	}
 }
 
-void dyn_arr_resize(TGlobalRunContext global_context, TDynArr* obj, int new_size)
+void dyn_arr_resize(TGlobalRunContext& global_context, TDynArr* obj, int new_size)
 {
 	SemanticApi::ISClass* el = obj->el_class;
 	size_t curr_size = obj->v->size() / el->GetSize();
@@ -95,7 +102,7 @@ void dyn_arr_resize(TGlobalRunContext global_context, TDynArr* obj, int new_size
 	}
 }
 
-void TDynArr::destructor(TMethodRunContext* run_context)
+void TDynArr::destructor(TMethodRunContext& run_context)
 {
 	if(v->size()>0)
 		CheckRefs(run_context, &(*v)[0], v->size());
@@ -105,7 +112,8 @@ void TDynArr::destructor(TMethodRunContext* run_context)
 	{
 		if (v->size() > 0)
 		{
-			CallMethod(*run_context, &((*v)[0]), 0, v->size() / el_class->GetSize(), el_class->GetSize(), el_class, el_destr);
+			CallMethod(*run_context.GetGlobalContext(), &((*v)[0]), 0, 
+				v->size() / el_class->GetSize(), el_class->GetSize(), el_class, el_destr);
 		}
 	}
 
@@ -113,10 +121,10 @@ void TDynArr::destructor(TMethodRunContext* run_context)
 	delete v;
 	v = nullptr;
 
-	memset((TDynArr*)run_context->object->get(), 0xfeefee, sizeof(TDynArr));
+	memset((TDynArr*)run_context.GetObject().get(), 0xfeefee, sizeof(TDynArr));
 }
 
-void TDynArr::copy_constr(TMethodRunContext* run_context, TDynArr* copy_from)
+void TDynArr::copy_constr(TMethodRunContext& run_context, TDynArr* copy_from)
 {
 	SemanticApi::ISClass* el = copy_from->el_class;
 	SemanticApi::ISMethod* el_copy_constr = el->GetCopyConstr();
@@ -128,18 +136,18 @@ void TDynArr::copy_constr(TMethodRunContext* run_context, TDynArr* copy_from)
 		if (copy_from->v->size() > 0)
 		{
 			v->resize(copy_from->v->size());
-			CallCopyConstr(*run_context, &((*v)[0]), &((*copy_from->v)[0]), 
+			CallCopyConstr(*run_context.GetGlobalContext(), &((*v)[0]), &((*copy_from->v)[0]),
 				0, copy_from->v->size() / el->GetSize(), el->GetSize(), el, el_copy_constr);
 		}
 	}
 	else
 	{
-		memset((TDynArr*)run_context->object->get(), 0xfeefee, sizeof(TDynArr));
+		memset((TDynArr*)run_context.GetObject().get(), 0xfeefee, sizeof(TDynArr));
 		Init(*copy_from);
 	}
 }
 
-void TDynArr::operator_Assign(TMethodRunContext* run_context, TDynArr* left, TDynArr* right)
+void TDynArr::operator_Assign(TMethodRunContext& run_context, TDynArr* left, TDynArr* right)
 {
 	if (left->v->size() > 0)
 		CheckRefs(run_context, &(*left->v)[0], right->v->size());
@@ -148,11 +156,11 @@ void TDynArr::operator_Assign(TMethodRunContext* run_context, TDynArr* left, TDy
 
 	left->el_class->GetOperators(ops, Lexer::TOperator::Assign);
 	//TODO поиск нужного оператора присваивания
-	dyn_arr_resize(*run_context, left, right->v->size() / left->el_class->GetSize());
+	dyn_arr_resize(*run_context.GetGlobalContext(), left, right->v->size() / left->el_class->GetSize());
 	if (left->v->size() > 0)
 	{
 		if(ops.size()>0)
-			CallAssignOp(*run_context, &((*left->v)[0]), &((*right->v)[0]), 0, left->v->size() / left->el_class->GetSize(), left->el_class->GetSize(), left->el_class, ops[0]);
+			CallAssignOp(*run_context.GetGlobalContext(), &((*left->v)[0]), &((*right->v)[0]), 0, left->v->size() / left->el_class->GetSize(), left->el_class->GetSize(), left->el_class, ops[0]);
 		else
 		{
 			memcpy(&((*left->v)[0]), &((*right->v)[0]), left->v->size()*sizeof(int));
@@ -160,21 +168,21 @@ void TDynArr::operator_Assign(TMethodRunContext* run_context, TDynArr* left, TDy
 	}
 }
 
-void* TDynArr::operator_GetArrayElement(TMethodRunContext* run_context, TDynArr* obj, int index)
+void* TDynArr::operator_GetArrayElement(TMethodRunContext& run_context, TDynArr* obj, int index)
 {
 	SemanticApi::ISClass* el = obj->el_class;
 	return &(*obj->v)[el->GetSize()*index];
 }
 
-void TDynArr::resize(TMethodRunContext* run_context, int new_size)
+void TDynArr::resize(TMethodRunContext& run_context, int new_size)
 {
 	if (v->size() > 0)
 		CheckRefs(run_context, &(*v)[0], v->size());
 
-	dyn_arr_resize(*run_context, this, new_size);
+	dyn_arr_resize(*run_context.GetGlobalContext(), this, new_size);
 }
 
-int TDynArr::size(TMethodRunContext* run_context)
+int TDynArr::size(TMethodRunContext& run_context)
 {
 	return v->size() / el_class->GetSize();
 }

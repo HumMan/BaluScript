@@ -1,4 +1,4 @@
-#include "stdafx.h"
+п»ї#include "stdafx.h"
 #include "CppUnitTest.h"
 
 #include "../Source/memleaks.h"
@@ -13,6 +13,8 @@
 #include "../Source/SemanticInterface/SemanticTreeApi.h"
 #include "../Source/TreeRunner/TreeRunner.h"
 
+#define WIN32_LEAN_AND_MEAN
+
 #include <windows.h>
 #include <delayimp.h>
 
@@ -24,13 +26,7 @@ namespace Test
 {
 	ISyntaxAnalyzer* syntax;
 
-	std::vector<TStaticValue> *static_objects;
-
-	TRefsList* refs_list;
-
 	TGlobalRunContext global_context;
-
-	//std::vector < SemanticApi::ISMethod* > *smethods;
 
 	SemanticApi::ISMethod* CreateMethod(const char* code)
 	{		
@@ -52,18 +48,10 @@ namespace Test
 	{
 		try
 		{
-			if (static_objects != nullptr)
-				delete static_objects;
 			if (syntax != nullptr)
 				ISyntaxAnalyzer::Destroy(syntax);
-			if (refs_list != nullptr)
-				delete refs_list;
 
-			static_objects = new std::vector<TStaticValue>();
 			syntax = ISyntaxAnalyzer::Create();
-			refs_list = new TRefsList();
-			
-			global_context = TGlobalRunContext(static_objects, refs_list);
 
 			syntax->Compile(code);
 			auto sem_class = syntax->GetCompiledBaseClass();
@@ -80,51 +68,39 @@ namespace Test
 	}
 	TStackValue RunCode(const char* code)
 	{
-		static_objects = new std::vector<TStaticValue>();
-		refs_list = new TRefsList();
-		global_context = TGlobalRunContext(static_objects, refs_list);
 		syntax = ISyntaxAnalyzer::Create();
 
 		SemanticApi::ISMethod* ms = CreateMethod(code);
-		std::vector<TStackValue> params;
-		TStackValue result, object;
-		TMethodRunContext method_run_context(global_context, &params, &result, &object);
+
+		TMethodRunContext method_run_context(&global_context);
 
 		TreeRunner::InitializeStaticClassFields(syntax->GetStaticFields(), global_context);
 		TreeRunner::InitializeStaticVariables(syntax->GetStaticVariables(), global_context);
+		method_run_context.GetResult() = TStackValue(false, ms->GetRetClass());
 		TreeRunner::Run(ms, method_run_context);
 		TreeRunner::DeinitializeStatic(global_context);
 
 		ISyntaxAnalyzer::Destroy(syntax);
-		delete static_objects;
-		delete refs_list;
-
-		refs_list = nullptr;
 		syntax = nullptr;
-		static_objects = nullptr;
-
+		auto result = std::move(method_run_context.GetResult());
 		return result;
 	}
 	TStackValue RunMethod(SemanticApi::ISMethod* ms)
 	{
-		std::vector<TStackValue> params;
-		TStackValue result, object;
-		TMethodRunContext method_run_context(global_context, &params, &result, &object);
+		TMethodRunContext method_run_context(&global_context);
+		method_run_context.GetResult() = TStackValue(false, ms->GetRetClass());
 		TreeRunner::Run(ms,method_run_context);
-		return result;
+		return std::move(method_run_context.GetResult());
 	}
 	
 	TStackValue RunClassMethod(const char* method_name)
 	{
 		SemanticApi::ISMethod* ms = syntax->GetMethod(method_name);
 
-		std::vector<TStackValue> params;
-		TStackValue result, object;
-		TMethodRunContext method_run_context(global_context, &params, &result, &object);
-
+		TMethodRunContext method_run_context(&global_context);
+		method_run_context.GetResult() = TStackValue(false, ms->GetRetClass());
 		TreeRunner::Run(ms, method_run_context);
-
-		return result;
+		return std::move(method_run_context.GetResult());
 	}
 
 	TStackValue RunClassMethod(SemanticApi::ISClass* scl, const char* method_name)
@@ -148,21 +124,11 @@ namespace Test
 	}
 	void Cleanup()
 	{
-		if (static_objects != nullptr)
-		{
-			TreeRunner::DeinitializeStatic(global_context);
-			delete static_objects;
-			static_objects = nullptr;
-		}
+		TreeRunner::DeinitializeStatic(global_context);
 		if (syntax != nullptr)
 		{
 			ISyntaxAnalyzer::Destroy(syntax);
 			syntax = nullptr;
-		}
-		if (refs_list != nullptr)
-		{
-			delete refs_list;
-			refs_list = nullptr;
 		}
 	}
 	TEST_MODULE_INITIALIZE(ModuleInitialize)
@@ -171,7 +137,7 @@ namespace Test
 
 	TEST_MODULE_CLEANUP(ModuleCleanup)
 	{
-		//если была утечка внутри dll, то _CrtDumpMemoryLeaks упадёт с ошибкой
+		//РµСЃР»Рё Р±С‹Р»Р° СѓС‚РµС‡РєР° РІРЅСѓС‚СЂРё dll, С‚Рѕ _CrtDumpMemoryLeaks СѓРїР°РґС‘С‚ СЃ РѕС€РёР±РєРѕР№
 		//auto unload_result = __FUnloadDelayLoadedDLL2("BaluScript.dll");
 		_CrtDumpMemoryLeaks();
 	}
@@ -1175,7 +1141,7 @@ namespace Test
 				"int a,b;\n"
 				"copy(int use_a, int use_b){a=use_a;b=use_b;}\n"
 				"conversion static (B& value):int {return value.a+value.b;}\n"
-				"conversion static (B value):int {return value.a+value.b;}\n" //TODO доделать ссылку на временный объект
+				"conversion static (B value):int {return value.a+value.b;}\n" //TODO РґРѕРґРµР»Р°С‚СЊ СЃСЃС‹Р»РєСѓ РЅР° РІСЂРµРјРµРЅРЅС‹Р№ РѕР±СЉРµРєС‚
 				"}\n"
 				"func static Do(int v):int\n"
 				"{\n"
@@ -1199,15 +1165,15 @@ namespace Test
 				"func static Test:int\n"
 				"{\n"
 				"	return 30 + (new B)(3,-6);\n"
-				//"}\n"
-				//"func static Test2:int\n"
-				//"{\n"
-				//"	return new B(3,-6) + 30;\n"
+				"}\n"
+				"func static Test2:int\n"
+				"{\n"
+				"	return new B(3,-6) + 30;\n"
 				"}}");
 
 			Assert::AreEqual((int)30 + 3 - 6, *(int*)RunClassMethod(nullptr, "Test").get());
 			
-			//TODO проверки не проходящие проверку
+			//TODO РїСЂРѕРІРµСЂРєРё РЅРµ РїСЂРѕС…РѕРґСЏС‰РёРµ РїСЂРѕРІРµСЂРєСѓ
 			//Assert::AreEqual((int)30 + 3 - 6, *(int*)RunClassMethod(nullptr, "Test2").get());
 		}
 	};
@@ -1232,7 +1198,7 @@ namespace Test
 				"copy(Vec2 l){value[0]=l[0];value[1]=l[1];}\n"
 				"operator +(Vec2 l, Vec2 r):Vec2 {return (new Vec2)(l[0]+r[0],l[1]+r[1]);}\n"
 				"operator -(Vec2 l, Vec2 r):Vec2 {return (new Vec2)(l[0]-r[0],l[1]-r[1]);}\n"
-				"operator [](Vec2& l, int i):T {return l.value[i];}\n" //TODO return value компилируется (возвр 0) хотя должны быть ошибка
+				"operator [](Vec2& l, int i):T {return l.value[i];}\n"
 				"func Dot(Vec2 r):T {return value[0]*r[0]+value[1]*r[1];}\n"
 				"\n"
 				"}\n"
@@ -1413,15 +1379,15 @@ namespace Test
 				"copy(T v0, T v1){value[0]=v0;value[1]=v1;}\n"
 				"copy(Vec2 l){value[0]=l[0];value[1]=l[1];}\n"
 				"operator +(Vec2 l, Vec2 r):Vec2 {return (new Vec2)(l[0]+r[0],l[1]+r[1]);}\n"
-				"operator +=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)(l[0]+r[0],l[1]+r[1]);}\n"
-				//TODO для операторов присваивания - первый параметр должен быть ссылкой
+				"operator +=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)(l[0]+r[0],l[1]+r[1]); return l;}\n"
+				//TODO РґР»СЏ РѕРїРµСЂР°С‚РѕСЂРѕРІ РїСЂРёСЃРІР°РёРІР°РЅРёСЏ - РїРµСЂРІС‹Р№ РїР°СЂР°РјРµС‚СЂ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЃСЃС‹Р»РєРѕР№
 				//"operator +=(Vec2 l, Vec2 r):Vec2 {l = (new Vec2)(l[0]+r[0],l[1]+r[1]);}\n"
-				"operator -=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)(l[0]-r[0],l[1]-r[1]);}\n"
-				"operator *=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)(l[0]*r[0],l[1]*r[1]);}\n"
-				"operator /=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)(l[0]/r[0],l[1]/r[1]);}\n"
-				"operator %=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)(l[0]%r[0],l[1]%r[1]);}\n"
-				"operator &&=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)((new bool)(l[0])&&(new bool)(r[0]),(new bool)(l[1])&&(new bool)(r[1]));}\n"
-				"operator ||=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)((new bool)(l[0])||(new bool)(r[0]),(new bool)(l[1])||(new bool)(r[1]));}\n"
+				"operator -=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)(l[0]-r[0],l[1]-r[1]); return l;}\n"
+				"operator *=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)(l[0]*r[0],l[1]*r[1]); return l;}\n"
+				"operator /=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)(l[0]/r[0],l[1]/r[1]); return l;}\n"
+				"operator %=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)(l[0]%r[0],l[1]%r[1]); return l;}\n"
+				"operator &&=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)((new bool)(l[0])&&(new bool)(r[0]),(new bool)(l[1])&&(new bool)(r[1])); return l;}\n"
+				"operator ||=(Vec2& l, Vec2 r):Vec2 {l = (new Vec2)((new bool)(l[0])||(new bool)(r[0]),(new bool)(l[1])||(new bool)(r[1])); return l;}\n"
 				"operator [](Vec2& l, int i):T {return l.value[i];}\n"
 				"\n"
 				"}\n"
@@ -1877,7 +1843,7 @@ namespace Test
 			}
 			catch (const RuntimeException& ex)
 			{
-				if(ex.id==RuntimeExceptionId::DynArray_UserAfterFree)
+				if(ex.id==RuntimeExceptionId::DynArray_UseAfterFree)
 					raised = true;
 			}
 			Assert::IsTrue(raised);
@@ -1969,7 +1935,7 @@ namespace Test
 		}
 		TEST_METHOD(CallStaticMethodFromMember)
 		{
-			//TODO утечка
+			//TODO СѓС‚РµС‡РєР°
 			CreateClass(
 				"class TestClass {\n"
 				"class ITestBase { TDynArray<int> s;func GetValue:int {s.resize(1);return 547;}}"
@@ -1998,7 +1964,7 @@ namespace Test
 			Assert::AreEqual((int)547, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 	};
-	//TODO Вызов авто конструктора из пользовательского
+	//TODO Р’С‹Р·РѕРІ Р°РІС‚Рѕ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР° РёР· РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕРіРѕ
 
 	TEST_CLASS(StringTesting)
 	{
@@ -2073,7 +2039,7 @@ namespace Test
 				"}"
 				).get());
 		}
-		//TODO тип char
+		//TODO С‚РёРї char
 		//TEST_METHOD(StringGetCharValue)
 		//{
 		//	Assert::AreEqual('e', *(char*)RunCode(
@@ -2085,7 +2051,6 @@ namespace Test
 		//}
 		TEST_METHOD(StringGetLengthFromTemp0)
 		{
-			//TODO тут имеется утечка String.h(24) - нужно убрать
 			Assert::AreEqual(4, *(int*)RunCode(
 				"func static Test:int"
 				"{"
@@ -2093,7 +2058,6 @@ namespace Test
 				"}"
 				).get());
 		}
-		//TODO добавить деструктор для временных объектов
 		TEST_METHOD(StringGetLengthFromTemp)
 		{
 			Assert::AreEqual(16, *(int*)RunCode(
@@ -2124,6 +2088,17 @@ namespace Test
 				"	return temp.length();\n"
 				"}"
 				).get());
+		}
+
+		TEST_METHOD(StringGetLengthFromTemp4)
+		{
+			Assert::AreEqual(4, *(int*)RunCode(
+				"func static Test:int"
+				"{"
+				"	string temp = \"test\";"
+				"	return temp.length();"
+				"}"
+			).get());
 		}
 
 		TEST_METHOD(StringGetMembersFromRef)
@@ -2166,15 +2141,32 @@ namespace Test
 			
 			CreateClass(
 				"class TestClass {\n"
-				"class ITest1 { vec2 v; string abc; default { v.x = 1; v.y = 2; abc = \"zopa\";}}"
+				"class ITest1 { string abc;}"
 				"class ITest2  { ITest1 v; }"
 				"func static ReturnResult:ITest2\n"
 				"{ ITest2 v; return v;}\n"
 				"func static Test:int\n"
 				"{\n"
-				"	return (ReturnResult().v.abc+ReturnResult().v.abc).length();\n"
+				"	return ReturnResult().v.abc.length();\n"
 				"}}");
-			Assert::AreEqual((int)8, *(int*)RunClassMethod(nullptr, "Test").get());
+			Assert::AreEqual((int)0, *(int*)RunClassMethod(nullptr, "Test").get());
+		}
+
+		TEST_METHOD(StringGetMembersFromRef2)
+		{
+			//CreateClass(
+			//	"class TestClass {\n"
+			//	"func static ReturnResult:TDynArray<string> {\n"
+			//	"	TDynArray<string> test;\n"
+			//	"	test.resize(1);\n"
+			//	"	return test;\n"
+			//	"	}\n"
+			//	"func static Test:int\n"
+			//	"{\n"				
+			//	"	var r = ReturnResult()[0];\n"
+			//	"	return 4;\n"
+			//	"}}");
+			//Assert::AreEqual((int)4, *(int*)RunClassMethod(nullptr, "Test").get());
 		}
 
 		TEST_METHOD(StringGetMemberStringFromRef)
@@ -2182,7 +2174,7 @@ namespace Test
 			
 			CreateClass(
 				"class TestClass {\n"
-				"class ITest1 { string abc; }"
+				"class ITest1 { string abc; int v0; string temp; }"
 				"func static ReturnResult:ITest1\n"
 				"{ return (new ITest1)();}\n"
 				"func static Test:int\n"

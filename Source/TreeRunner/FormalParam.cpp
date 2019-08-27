@@ -12,32 +12,15 @@ bool TStackValue::IsRef()const
 }
 TStackValue::TStackValue()
 {
-	is_ref = false;
-	internal_buf = nullptr;
-	type = nullptr;
+	Init();
 }
-TStackValue::TStackValue(const TStackValue& copy_from)
-{
-	actual_size = copy_from.actual_size;
-	is_ref = copy_from.is_ref;
-	type = copy_from.type;
 
-	if (copy_from.internal_buf != nullptr)
-	{
-		if (is_ref)
-		{
-			internal_buf = copy_from.internal_buf;
-		}
-		else
-		{
-			internal_buf = new int[actual_size];
-			memcpy(internal_buf, copy_from.internal_buf, actual_size*sizeof(int));
-		}
-	}
-	else
-	{
-		internal_buf = nullptr;
-	}
+void TStackValue::Init()
+{
+	actual_size = 0;
+	is_ref = false;
+	type = nullptr;
+	internal_buf = nullptr;
 }
 
 TStackValue::TStackValue(TStackValue&& copy_from)
@@ -47,10 +30,7 @@ TStackValue::TStackValue(TStackValue&& copy_from)
 	type = copy_from.type;
 	internal_buf = copy_from.internal_buf;
 
-	copy_from.actual_size = 0;
-	copy_from.is_ref = false;
-	copy_from.type = nullptr;
-	copy_from.internal_buf = nullptr;
+	copy_from.Init();
 }
 
 void TStackValue::SetAsReference(void* use_ref)
@@ -85,33 +65,15 @@ TStackValue::TStackValue(bool is_ref, SemanticApi::ISClass* type)
 		internal_buf = new int[actual_size];
 	}
 }
-void TStackValue::operator=(const TStackValue& right)
+void TStackValue::operator=(TStackValue& right)
 {
-	if (!is_ref)
-	{
-		delete internal_buf;
-		internal_buf = nullptr;
-	}
-	actual_size = right.actual_size;
-	is_ref = right.is_ref;
-	type = right.type;
+	assert(internal_buf == nullptr);
+	this->internal_buf = right.internal_buf;
+	this->actual_size = right.actual_size;
+	this->is_ref = right.is_ref;
+	this->type = right.type;
 
-	if (right.internal_buf != nullptr)
-	{
-		if (is_ref)
-		{
-			internal_buf = right.internal_buf;
-		}
-		else
-		{
-			internal_buf = new int[actual_size];
-			memcpy(internal_buf, right.internal_buf, actual_size*sizeof(int));
-		}
-	}
-	else
-	{
-		internal_buf = nullptr;
-	}
+	right.Init();
 }
 TStackValue::~TStackValue()
 {

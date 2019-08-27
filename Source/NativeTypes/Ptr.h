@@ -21,12 +21,12 @@ public:
 		refs_count = nullptr;
 	}
 
-	void def_constr(TMethodRunContext* run_context);
-	void copy_constr(TMethodRunContext* run_context, TPtr* copy_from);
-	void destructor(TMethodRunContext* run_context);
-	static void operator_Assign(TMethodRunContext* run_context, TPtr* left, TPtr* right);
+	void def_constr(TMethodRunContext& run_context);
+	void copy_constr(TMethodRunContext& run_context, TPtr* copy_from);
+	void destructor(TMethodRunContext& run_context);
+	static void operator_Assign(TMethodRunContext& run_context, TPtr* left, TPtr* right);
 
-	void* data(TMethodRunContext* run_context);
+	void* data(TMethodRunContext& run_context);
 
 	static SemanticApi::TExternalClassDecl DeclareExternalClass();
 };

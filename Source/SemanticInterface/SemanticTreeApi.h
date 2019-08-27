@@ -44,7 +44,7 @@ namespace SemanticApi
 	}
 	
 	
-	typedef void(*TExternalSMethod)(TMethodRunContext* run_context);
+	typedef void(*TExternalSMethod)(TMethodRunContext& run_context);
 
 	class TExternalClassDecl
 	{
