@@ -2154,6 +2154,7 @@ namespace Test
 
 		TEST_METHOD(StringGetMembersFromRef2)
 		{
+			//TODO добавить проверку использования ссылки после удаления объекта в var r = ReturnResult()[0];\n"
 			//CreateClass(
 			//	"class TestClass {\n"
 			//	"func static ReturnResult:TDynArray<string> {\n"

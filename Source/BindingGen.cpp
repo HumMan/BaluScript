@@ -538,7 +538,9 @@ void callScriptFromC_DeclBody(SemanticApi::ISMethod* method, std::vector<std::st
 			Line("{\n", curr_level, result);
 			Line("TStackValue destructor_result;\n", curr_level+1, result);
 			Line("std::vector<TStackValue> without_params;\n", curr_level + 1, result);
-			Line("TreeRunner::Run(params["+ std::to_string(i) +"].GetClass()->GetDestructor(), TMethodRunContext(global_context, &without_params, &destructor_result, &params[" + std::to_string(i) + "]));\n", curr_level + 1, result);
+			Line("TMethodRunContext method_run_context(&global_context);\n", curr_level + 1, result);
+			Line("method_run_context.GetObject() = params[" + std::to_string(i) + "];\n", curr_level + 1, result);
+			Line("TreeRunner::Run(method_run_context.GetObject().GetClass()->GetDestructor(), method_run_context);\n", curr_level + 1, result);
 			Line("}\n", curr_level, result);
 		}
 	}
