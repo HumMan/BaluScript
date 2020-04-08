@@ -15,9 +15,9 @@ void TDynArr::def_constr(TMethodRunContext& run_context)
 	el_class = run_context.GetObject().GetClass()->GetTemplateParam(0).GetType();
 }
 
-void CallMethod(TGlobalRunContext& global_context, int* v, int first_element, int el_count, int el_size, SemanticApi::ISClass* el_class, SemanticApi::ISMethod* method)
+void CallMethod(TGlobalRunContext& global_context, int* v, size_t first_element, size_t el_count, size_t el_size, SemanticApi::ISClass* el_class, SemanticApi::ISMethod* method)
 {
-	for (size_t i = first_element*el_size; i<el_count*el_size; i += el_size)
+	for (size_t i = (size_t)first_element*el_size; i< (size_t)el_count*el_size; i += (size_t)el_size)
 	{
 		TStackValue el_obj(true, el_class);		
 		el_obj.SetAsReference(&v[i]);
@@ -29,7 +29,7 @@ void CallMethod(TGlobalRunContext& global_context, int* v, int first_element, in
 	}
 }
 
-void CallCopyConstr(TGlobalRunContext& global_context, int* v, int* copy_from, int first_element, int el_count, int el_size, SemanticApi::ISClass* el_class, SemanticApi::ISMethod* method)
+void CallCopyConstr(TGlobalRunContext& global_context, int* v, int* copy_from, size_t first_element, size_t el_count, size_t el_size, SemanticApi::ISClass* el_class, SemanticApi::ISMethod* method)
 {
 	for (size_t i = first_element*el_size; i<el_count*el_size; i += el_size)
 	{
@@ -48,7 +48,7 @@ void CallCopyConstr(TGlobalRunContext& global_context, int* v, int* copy_from, i
 	}
 }
 
-void CallAssignOp(TGlobalRunContext& global_context, int* left, int* right, int first_element, int el_count, int el_size, SemanticApi::ISClass* el_class, SemanticApi::ISMethod* method)
+void CallAssignOp(TGlobalRunContext& global_context, int* left, int* right, size_t first_element, size_t el_count, size_t el_size, SemanticApi::ISClass* el_class, SemanticApi::ISMethod* method)
 {
 	for (size_t i = first_element*el_size; i<el_count*el_size; i += el_size)
 	{
@@ -75,7 +75,7 @@ void CheckRefs(TMethodRunContext& run_context, void* left, size_t count)
 	}
 }
 
-void dyn_arr_resize(TGlobalRunContext& global_context, TDynArr* obj, int new_size)
+void dyn_arr_resize(TGlobalRunContext& global_context, TDynArr* obj, size_t new_size)
 {
 	SemanticApi::ISClass* el = obj->el_class;
 	size_t curr_size = obj->v->size() / el->GetSize();

@@ -132,7 +132,7 @@ void TreeRunner::Destruct(SemanticApi::ISLocalVar* local_var, TGlobalRunContext&
 
 int PackToStack(std::vector<TStackValue> &formal_params, std::array<int, 8> &stack)
 {
-	int i = 0;
+	size_t i = 0;
 	for (TStackValue& v : formal_params)
 	{
 		if (v.IsRef())
@@ -271,7 +271,7 @@ void TreeRunner::Run(SemanticApi::ISMethod* method, TMethodRunContext& method_ru
 		}
 
 		auto& temp_objects = statement_run_context.GetTempObjects();
-		for (int i = 0; i < temp_objects.size(); i++)
+		for (size_t i = 0; i < temp_objects.size(); i++)
 		{
 			auto& obj = temp_objects[i];
 			auto destructor = obj.GetClass()->GetDestructor();

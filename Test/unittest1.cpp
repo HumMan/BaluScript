@@ -1165,10 +1165,6 @@ namespace Test
 				"func static Test:int\n"
 				"{\n"
 				"	return 30 + (new B)(3,-6);\n"
-				"}\n"
-				"func static Test2:int\n"
-				"{\n"
-				"	return new B(3,-6) + 30;\n"
 				"}}");
 
 			Assert::AreEqual((int)30 + 3 - 6, *(int*)RunClassMethod(nullptr, "Test").get());

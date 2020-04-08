@@ -506,7 +506,7 @@ namespace Lexer
 		res_words.Add("conversion", TToken(TTokenType::ResWord, (short)TResWord::Conversion));
 
 		for (size_t i = 1; i < TOpcode::OP_END; i++)
-			res_words.Add(GetBytecodeString((TOpcode::Enum)i), TToken(TTokenType::Bytecode, i));
+			res_words.Add(GetBytecodeString((TOpcode::Enum)i), TToken(TTokenType::Bytecode, (TOpcode::Enum)i));
 	}
 
 	//используется при проверке унарных операторов,

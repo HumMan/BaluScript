@@ -75,6 +75,16 @@ void TStackValue::operator=(TStackValue& right)
 
 	right.Init();
 }
+void TStackValue::operator=(TStackValue&& right)
+{
+	assert(internal_buf == nullptr);
+	this->internal_buf = right.internal_buf;
+	this->actual_size = right.actual_size;
+	this->is_ref = right.is_ref;
+	this->type = right.type;
+
+	right.Init();
+}
 TStackValue::~TStackValue()
 {
 	if (!is_ref)

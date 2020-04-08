@@ -25,7 +25,7 @@ namespace BindingGen
 		std::vector<SemanticApi::TExternalClassDecl> external_classes;
 		std::vector<SemanticApi::TExternalSMethod> external_bindings;
 		std::map<std::string, TTypeConverterInfo> type_converters;
-		int bindings_offset;
+		size_t bindings_offset;
 	};
 
 	BALUSCRIPT_DLL_INTERFACE void Generate(std::string source, std::vector<std::string>& result, TBindingGenInfo info);

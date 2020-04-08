@@ -26,6 +26,7 @@ public:
 	TStackValue(const TStackValue& copy_from)=delete;
 	TStackValue(bool is_ref, SemanticApi::ISClass* type);
 	void operator=(TStackValue& right);
+	void operator=(TStackValue&& right);
 	void SetAsReference(void* use_ref);
 	void* get();
 	int GetSize();

@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include <vector>
 #include <assert.h>
@@ -79,9 +79,9 @@ class BALUSCRIPT_DLL_INTERFACE TMethodRunContext : public NonAssignable
 public:	
 	TMethodRunContext(TGlobalRunContext* global_context);
 	~TMethodRunContext();
-	//запоминаем есть ли ссылки - чтобы в TDynArray, TPtr не произошло use after free после манипуляций
+	//Р·Р°РїРѕРјРёРЅР°РµРј РµСЃС‚СЊ Р»Рё СЃСЃС‹Р»РєРё - С‡С‚РѕР±С‹ РІ TDynArray, TPtr РЅРµ РїСЂРѕРёР·РѕС€Р»Рѕ use after free РїРѕСЃР»Рµ РјР°РЅРёРїСѓР»СЏС†РёР№
 	void AddRefsFromParams();
-	//очищаем список ссылок после выполнения метода
+	//РѕС‡РёС‰Р°РµРј СЃРїРёСЃРѕРє СЃСЃС‹Р»РѕРє РїРѕСЃР»Рµ РІС‹РїРѕР»РЅРµРЅРёСЏ РјРµС‚РѕРґР°
 	void RemoveRefsFromParams();
 	TGlobalRunContext* GetGlobalContext();
 	TStackValue& GetObject();

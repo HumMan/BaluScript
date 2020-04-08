@@ -664,7 +664,7 @@ void TreeWalker(SemanticApi::ISClass* curr_class, std::vector<SemanticApi::ISCla
 	Line("}\n", curr_level, result);
 }
 
-void GenBindingRegistration(std::vector<std::string>& result, int curr_level, int bindings_offset)
+void GenBindingRegistration(std::vector<std::string>& result, int curr_level, size_t bindings_offset)
 {
 	Line("namespace ns_Script\n", curr_level, result);
 	Line("{\n", curr_level, result);
