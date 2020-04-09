@@ -17,7 +17,7 @@ void TreeRunner::RunConversion(const SemanticApi::IActualParamWithConversion* cu
 		method_context.GetObject()=TStackValue(false, value.GetClass());
 		method_context.GetFormalParams().push_back(std::move(value));
 		TreeRunner::Run(copy_constr, method_context);
-		value = method_context.GetObject();
+		value = std::move(method_context.GetObject());
 	}
 	auto conversion = curr_op->GetConverstion();
 	if (conversion != nullptr)
@@ -44,7 +44,7 @@ void TreeRunner::Construct(SemanticApi::ISConstructObject* object, TStackValue& 
 		TExpressionRunContext expr_run_context(&constr_run_context);
 		TExpressionRunner::Run(constructor_call, expr_run_context);
 		assert(expr_run_context.GetExpressionResult().get() == nullptr);
-		constructed_object = method_context.GetObject();
+		constructed_object = std::move(method_context.GetObject());
 		run_context.GetMethodContext()->GetFormalParams() = std::move(method_context.GetFormalParams());
 		run_context.GetLocalVariables() = std::move(constr_run_context.GetLocalVariables());
 	}
@@ -57,7 +57,7 @@ void TreeRunner::Destruct(SemanticApi::ISConstructObject* object, TStackValue& c
 	if (destr != nullptr)
 	{
 		TMethodRunContext method_context(&run_context);
-		method_context.GetObject() = constructed_object;
+		method_context.GetObject() = std::move(constructed_object);
 		TreeRunner::Run(destr, method_context);
 	}
 }
@@ -85,9 +85,9 @@ void TreeRunner::DestroyParams(std::vector<TStackValue> &method_call_formal_para
 		{
 			//здесь должна быть проверка что мы не удаляем временный объект на который есть ссылки, напр GetObj()[0]
 			TMethodRunContext method_context(run_context.GetGlobalContext());
-			method_context.GetObject() = method_call_formal_params[i];
+			method_context.GetObject() = std::move(method_call_formal_params[i]);
 			TreeRunner::Run(input_class->GetDestructor(), method_context);
-			method_call_formal_params[i] = method_context.GetObject();
+			method_call_formal_params[i] = std::move(method_context.GetObject());
 		}
 	}
 }
@@ -278,7 +278,7 @@ void TreeRunner::Run(SemanticApi::ISMethod* method, TMethodRunContext& method_ru
 			if (destructor != nullptr && !obj.IsRef())
 			{
 				TMethodRunContext method_context(&global_context);
-				method_context.GetObject() = obj;
+				method_context.GetObject() = std::move(obj);
 				TreeRunner::Run(destructor, method_context);
 			}
 		}
@@ -524,7 +524,7 @@ void TreeRunner::RunFieldCopyConstr(SemanticApi::ISClassField* field, TGlobalRun
 					TStackValue dest_field_with_mult(true, field_class);
 					//перенастраиваем указатель this - инициализируемый объект
 					dest_field_with_mult.SetAsReference(&(((int*)dest_field.get())[i * field_class->GetSize()]));
-					method_context.GetObject() = dest_field_with_mult;
+					method_context.GetObject() = std::move(dest_field_with_mult);
 
 					//передаем в качестве параметра ссылку на копируемый объект
 					method_context.GetFormalParams().push_back(TStackValue(true, field_class));
@@ -538,7 +538,7 @@ void TreeRunner::RunFieldCopyConstr(SemanticApi::ISClassField* field, TGlobalRun
 				TStackValue dest_field_with_mult(true, field_class);
 				//перенастраиваем указатель this - инициализируемый объект
 				dest_field_with_mult.SetAsReference(dest_field.get());
-				method_context.GetObject() = dest_field_with_mult;
+				method_context.GetObject() = std::move(dest_field_with_mult);
 				//передаем в качестве параметра ссылку на копируемый объект
 				method_context.GetFormalParams().push_back(TStackValue(true, field_class));
 				method_context.GetFormalParams().back().SetAsReference(&((int*)source_object.get())[field->GetOffset()]);
@@ -682,7 +682,7 @@ void TreeRunner::InitializeStaticClassFields(std::vector<SemanticApi::ISClassFie
 			TStackValue var_object(true, v->GetClass());
 			var_object.SetAsReference(static_objects[v->GetOffset()].get());
 			TMethodRunContext method_context(&run_context);
-			method_context.GetObject() = var_object;
+			method_context.GetObject() = std::move(var_object);
 			TreeRunner::Run(def_constr, method_context);
 		}
 		i++;
@@ -699,7 +699,7 @@ void TreeRunner::DeinitializeStatic(TGlobalRunContext& run_context)
 			TStackValue var_object(true, v.GetClass());
 			var_object.SetAsReference(v.get());
 			TMethodRunContext method_context(&run_context);
-			method_context.GetObject() = var_object;
+			method_context.GetObject() = std::move(var_object);
 			TreeRunner::Run(destructor, method_context);
 		}
 

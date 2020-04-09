@@ -109,7 +109,7 @@ class TExpressionRunContext : public NonAssignable
 {
 	TExpressionRunContextPrivate* p;
 public:
-	void SetExpressionResult(TStackValue& value);
+        void SetExpressionResult(TStackValue value);
 	TStackValue& GetExpressionResult();
 	TStatementRunContext* GetStatementContext();
 	TMethodRunContext* GetMethodContext();

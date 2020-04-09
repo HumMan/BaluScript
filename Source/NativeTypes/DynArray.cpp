@@ -23,7 +23,7 @@ void CallMethod(TGlobalRunContext& global_context, int* v, size_t first_element,
 		el_obj.SetAsReference(&v[i]);
 
 		TMethodRunContext method_context(&global_context);
-		method_context.GetObject() = el_obj;
+		method_context.GetObject() = std::move(el_obj);
 
 		TreeRunner::Run(method, method_context);
 	}
@@ -41,7 +41,7 @@ void CallCopyConstr(TGlobalRunContext& global_context, int* v, int* copy_from, s
 		params[0].SetAsReference(&copy_from[i]);
 
 		TMethodRunContext method_context(&global_context);
-		method_context.GetObject() = el_obj;
+		method_context.GetObject() = std::move(el_obj);
 		method_context.GetFormalParams() = std::move(params);
 		
 		TreeRunner::Run(method, method_context);
@@ -60,7 +60,7 @@ void CallAssignOp(TGlobalRunContext& global_context, int* left, int* right, size
 		params[1].SetAsReference(&right[i]);
 
 		TMethodRunContext method_context(&global_context);
-		method_context.GetObject() = el_obj;
+		method_context.GetObject() = std::move(el_obj);
 		method_context.GetFormalParams() = std::move(params);
 
 		TreeRunner::Run(method, method_context);

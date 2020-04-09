@@ -23,16 +23,6 @@ void TStackValue::Init()
 	internal_buf = nullptr;
 }
 
-TStackValue::TStackValue(TStackValue&& copy_from)
-{
-	actual_size = copy_from.actual_size;
-	is_ref = copy_from.is_ref;
-	type = copy_from.type;
-	internal_buf = copy_from.internal_buf;
-
-	copy_from.Init();
-}
-
 void TStackValue::SetAsReference(void* use_ref)
 {
 	assert(is_ref);
@@ -47,6 +37,28 @@ void* TStackValue::get()
 int TStackValue::GetSize()
 {
 	return type->GetSize();
+}
+
+TStackValue::TStackValue(TStackValue&& copy_from)
+{
+	this->internal_buf = copy_from.internal_buf;
+	this->actual_size = copy_from.actual_size;
+	this->is_ref = copy_from.is_ref;
+	this->type = copy_from.type;
+
+	copy_from.Init();
+}
+
+TStackValue& TStackValue::operator=(TStackValue&& right)
+{
+	assert(internal_buf == nullptr);
+	this->internal_buf = right.internal_buf;
+	this->actual_size = right.actual_size;
+	this->is_ref = right.is_ref;
+	this->type = right.type;
+
+	right.Init();
+	return *this;
 }
 
 TStackValue::TStackValue(bool is_ref, SemanticApi::ISClass* type)
@@ -65,31 +77,11 @@ TStackValue::TStackValue(bool is_ref, SemanticApi::ISClass* type)
 		internal_buf = new int[actual_size];
 	}
 }
-void TStackValue::operator=(TStackValue& right)
-{
-	assert(internal_buf == nullptr);
-	this->internal_buf = right.internal_buf;
-	this->actual_size = right.actual_size;
-	this->is_ref = right.is_ref;
-	this->type = right.type;
-
-	right.Init();
-}
-void TStackValue::operator=(TStackValue&& right)
-{
-	assert(internal_buf == nullptr);
-	this->internal_buf = right.internal_buf;
-	this->actual_size = right.actual_size;
-	this->is_ref = right.is_ref;
-	this->type = right.type;
-
-	right.Init();
-}
 TStackValue::~TStackValue()
 {
 	if (!is_ref)
 	{
-		if (internal_buf!=nullptr)
+		if (internal_buf != nullptr)
 			memset(internal_buf, 0xfeefee, actual_size);
 		delete internal_buf;
 		internal_buf = nullptr;
@@ -102,7 +94,7 @@ TStaticValue::TStaticValue()
 }
 
 TStaticValue::TStaticValue(bool is_ref, SemanticApi::ISClass* type)
-	:TStackValue(is_ref,type)
+	:TStackValue(is_ref, type)
 {
 	is_initialized = false;
 }

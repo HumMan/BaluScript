@@ -42,8 +42,8 @@ public:
 
 			TMethodRunContext invoke_context(run_context->GetGlobalContext());
 			invoke_context.GetFormalParams() = std::move(method_call_formal_params);
-			invoke_context.GetResult() = invoke_result;
-			invoke_context.GetObject() = left_context.GetExpressionResult();
+			invoke_context.GetResult() = std::move(invoke_result);
+			invoke_context.GetObject() = std::move(left_context.GetExpressionResult());
 
 			TreeRunner::Run(invoke, invoke_context);
 
@@ -55,7 +55,7 @@ public:
 
 			if (invoke->GetRetClass() != nullptr)
 			{
-				run_context->SetExpressionResult(invoke_context.GetResult());
+				run_context->SetExpressionResult(std::move(invoke_context.GetResult()));
 			}
 			method_call_formal_params = std::move(invoke_context.GetFormalParams());
 		}break;
@@ -70,13 +70,13 @@ public:
 
 			TMethodRunContext invoke_context(run_context->GetGlobalContext());
 			invoke_context.GetFormalParams() = std::move(method_call_formal_params);
-			invoke_context.GetResult() = invoke_result;
+			invoke_context.GetResult() = std::move(invoke_result);
 
 			TreeRunner::Run(invoke, invoke_context);
 
 			if (invoke->GetRetClass() != nullptr)
 			{
-				run_context->SetExpressionResult(invoke_context.GetResult());
+				run_context->SetExpressionResult(std::move(invoke_context.GetResult()));
 			}
 
 			method_call_formal_params = std::move(invoke_context.GetFormalParams());
@@ -86,9 +86,9 @@ public:
 		{
 			TMethodRunContext invoke_context(run_context->GetGlobalContext());
 			invoke_context.GetFormalParams() = std::move(method_call_formal_params);
-			invoke_context.GetObject() = run_context->GetMethodContext()->GetObject();
+			invoke_context.GetObject() = std::move(run_context->GetMethodContext()->GetObject());
 			TreeRunner::Run(invoke, invoke_context);
-			run_context->GetMethodContext()->GetObject() = invoke_context.GetObject();
+			run_context->GetMethodContext()->GetObject() = std::move(invoke_context.GetObject());
 			method_call_formal_params = std::move(invoke_context.GetFormalParams());
 		}break;
 

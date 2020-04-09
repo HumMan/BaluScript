@@ -22,7 +22,7 @@ void TPtr::def_constr(TMethodRunContext& run_context)
 		el_obj.SetAsReference(v);
 
 		TMethodRunContext method_context(run_context.GetGlobalContext());
-		method_context.GetObject() = el_obj;
+		method_context.GetObject() = std::move(el_obj);
 
 		TreeRunner::Run(el_def_constr, method_context);
 	}
@@ -40,7 +40,7 @@ void TPtr::destructor(TMethodRunContext& run_context)
 			el_obj.SetAsReference(v);
 
 			TMethodRunContext method_context(run_context.GetGlobalContext());
-			method_context.GetObject() = el_obj;
+			method_context.GetObject() = std::move(el_obj);
 
 			TreeRunner::Run(el_destr, method_context);
 		}

@@ -71,10 +71,10 @@ void TMethodRunContext::RemoveRefsFromParams()
 	}
 }
 
-void TExpressionRunContext::SetExpressionResult(TStackValue& value)
+void TExpressionRunContext::SetExpressionResult(TStackValue value)
 {
 	//assert(p->expression_result.get() == nullptr);
-	p->expression_result = value;
+	p->expression_result = std::move(value);
 }
 
 TStackValue& TExpressionRunContext::GetExpressionResult()

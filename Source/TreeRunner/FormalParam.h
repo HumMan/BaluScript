@@ -23,10 +23,8 @@ public:
 	bool IsRef()const;
 	TStackValue();
 	TStackValue(TStackValue&& copy_from);
-	TStackValue(const TStackValue& copy_from)=delete;
 	TStackValue(bool is_ref, SemanticApi::ISClass* type);
-	void operator=(TStackValue& right);
-	void operator=(TStackValue&& right);
+	TStackValue& operator=(TStackValue&& right);
 	void SetAsReference(void* use_ref);
 	void* get();
 	int GetSize();
@@ -34,10 +32,13 @@ public:
 	T& get_as()
 	{
 		int result_size = LexerIntSizeOf(sizeof(T));
-		assert(GetSize() == ( result_size / sizeof(int)));
+		assert(GetSize() == (result_size / sizeof(int)));
 		return *reinterpret_cast<T*>(internal_buf);
 	}
 	~TStackValue();
+
+	TStackValue(const TStackValue&) = delete; //запретить копирование
+	void operator=(const TStackValue&) = delete; //запретить присваивание
 };
 
 class TStaticValue : public TStackValue
