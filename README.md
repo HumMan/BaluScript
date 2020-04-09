@@ -2,9 +2,12 @@
 
 Platform | Windows | Linux
 ---------|---------|------
-Build status | [![Build status](https://ci.appveyor.com/api/projects/status/584yr2mob5jwnuk9?svg=true)](https://ci.appveyor.com/project/HumMan/baluscript) | [![Build Status](https://travis-ci.org/HumMan/BaluScript.svg?branch=master)](https://travis-ci.org/HumMan/BaluScript)
+Build status | [![Build status](https://ci.appveyor.com/api/projects/status/584yr2mob5jwnuk9?svg=true)](https://ci.appveyor.com/project/HumMan/baluscript)<br>![Test status](http://teststatusbadge.azurewebsites.net/api/status/HumMan/baluscript) | [![Build Status](https://travis-ci.org/HumMan/BaluScript.svg?branch=master)](https://travis-ci.org/HumMan/BaluScript)
 
-Simple C++ like interpreted language with static types and operators overloading
+Простой, интерпретируемый язык, похожий на C++ и C#. Все примеры кода можно посмотреть в тестах здесь [GitHub](Test/unittest1.cpp). Модель памяти как в C++, нет неявных выделений/удалений, используются конструкторы и деструкторы.
+
+Указатели отсутствуют. Есть ссылки, но имеется runtime механизм проверки ссылок на объекты в деструкторе (отслеживать use after free).
+Методы/поля можно использовать до объявления.
 
 ```
 class TestClass
@@ -46,18 +49,26 @@ class TestClass
 }
 ```
 
-#Supported features
-- [X] classes
-- [X] nested classes
-- [X] static class fields
-- [X] static local variables
-- [X] constructors, destructors, copy constructor
-- [X] operators overloading
-- [X] implicit conversion overloading
-- [X] template classes
-- [X] if, while, for
-- [X] enumerations
-- [X] base types: int float vec2 bool string char
-- [X] native static and dynamic arrays
-- [X] methods and fields visibility (private, public)
-- [X] *var* word like in c# 
+## Что поддерживает
+- [X] Классы
+- [X] Вложенные классы
+- [X] Шаблонные классы (параметр класс и int)
+- [X] Поля классов (могут быть статичные, с доступом private/public)
+- [X] Статичные локальные переменные
+- [X] Перегрузка конструктора по умолчанию(default)/копии(copy), деструктора(dest), операторов, преобразований(conversion)
+- [X] Стандартные операторы цикла while, for
+- [X] Условный оператор if else
+- [X] Перечисления enum
+- [X] Набор встроенных классов: int float bool vec2 vec2i char. Сами классы тут [GitHub](Source/NativeTypes/base_types.h)
+- [X] Динамические массивы TDynArray<T>
+- [X] Статические массивы TStaticArray<T,Size>
+- [X] Класс string - обёртка над std::string
+- [X] Автоматический вывод типа локальной переменной через *var*
+- [X] Имеется TPtr<T> - аналог std::shared_ptr<T> (т.к. указателей нет, а иметь общие объекты нужно)
+- [X] Операторные скобки, выражения - тут как обычно
+- [X] Перегрузка методов
+- [X] Имеются extern методы для вызова метода C++ из скрипта
+
+Т.к. BaluScript разрабатывался для конструктора BaluEngine, то имеются функции для взаимодействия с внешним миром
+- [X] Вызов метода скрипта из C++ (тут вручную преобразуем параметры)
+- [X] Генерации биндингов для скрипта для вызова его методов из C++
